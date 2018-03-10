@@ -1,7 +1,7 @@
 import chai from 'chai'
-import Typesense from '../lib/typesense'
+import Typesense from '../lib/Typesense'
 
-var expect = chai.expect
+let expect = chai.expect
 
 describe('Typesense', function () {
   let typesense
@@ -9,13 +9,13 @@ describe('Typesense', function () {
     typesense = new Typesense()
   })
   it('should set the right default configuration values', function (done) {
-    expect(typesense.__configuration).to.eql({
-      'master_node': {
+    expect(typesense._configuration).to.eql({
+      'masterNode': {
         'host': 'localhost',
         'port': '8108',
         'protocol': 'http'
       },
-      'read_replica_nodes': [],
+      'readReplicaNodes': [],
       'timeout': 10
     })
     done()
