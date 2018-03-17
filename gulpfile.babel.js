@@ -10,7 +10,7 @@ import del from 'del'
 
 gulp.task('build', function () {
   return browserify({
-    entries: './lib/Typesense.js',
+    entries: './lib/Client.js',
     debug: true
   }).transform('babelify', {presets: ['env']})
     .bundle()

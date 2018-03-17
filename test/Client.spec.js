@@ -1,12 +1,12 @@
 import chai from 'chai'
-import Typesense from '../lib/Typesense'
+import TypesenseClient from '../lib/Typesense/Client'
 
 let expect = chai.expect
 
 describe('Typesense', function () {
   let typesense
   before(function () {
-    typesense = new Typesense()
+    typesense = new TypesenseClient()
   })
   it('should set the right default configuration values', function (done) {
     expect(typesense._configuration).to.eql({
