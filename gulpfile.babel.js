@@ -11,7 +11,8 @@ import del from 'del'
 gulp.task('build', function () {
   let stream = browserify({
     entries: './src/Typesense/Client.js',
-    debug: true
+    debug: true,
+    standalone: 'Typesense'
   }).transform('babelify', {presets: ['env']})
     .bundle()
     .pipe(source('Typesense.js'))
