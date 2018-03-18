@@ -1,5 +1,5 @@
 import chai from 'chai'
-import TypesenseClient from '../lib/Typesense/Client'
+import TypesenseClient from '../src/Typesense/Client'
 
 let expect = chai.expect
 

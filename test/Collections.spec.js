@@ -1,7 +1,7 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import TypesenseClient from '../lib/Typesense/Client'
-import ApiCall from '../lib/Typesense/ApiCall'
+import TypesenseClient from '../src/Typesense/Client'
+import ApiCall from '../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
 
