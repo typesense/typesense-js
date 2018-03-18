@@ -10,8 +10,7 @@
   },
   "main": "lib/Typesense.js",
   "files": [
-    "dist",
-    "LICENSE"
+    "lib/"
   ],
   "keywords": [
     "typesense",

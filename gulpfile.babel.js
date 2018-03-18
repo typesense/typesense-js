@@ -23,13 +23,13 @@ gulp.task('build', function () {
   }
 
   stream = stream.pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist/'))
+    .pipe(gulp.dest('./lib/'))
 
   return stream
 })
 
 gulp.task('clean', function () {
   return del([
-    'dist/**'
+    'lib/**'
   ])
 })
