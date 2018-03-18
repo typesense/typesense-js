@@ -27,7 +27,7 @@ describe('Debug', function () {
         'protocol': 'http',
         'apiKey': 'abcd'
       }],
-      'timeout': 10
+      'timeoutSeconds': 10
     })
     apiCall = new ApiCall(typesense.configuration)
   })

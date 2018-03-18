@@ -34,7 +34,7 @@ describe('ApiCall', function () {
           'protocol': 'http',
           'apiKey': 'abcd'
         }],
-      'timeout': 10
+      'timeoutSeconds': 10
     })
     mockAxios = new MockAxiosAdapter(axios)
     apiCall = new ApiCall(typesense.configuration)

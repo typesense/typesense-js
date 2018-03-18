@@ -49,7 +49,7 @@ describe('Collections', function () {
         'protocol': 'http',
         'apiKey': 'abcd'
       }],
-      'timeout': 10
+      'timeoutSeconds': 10
     })
     collections = typesense.collections()
     apiCall = new ApiCall(typesense.configuration)

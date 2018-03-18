@@ -28,7 +28,7 @@ describe('Documents', function () {
         'protocol': 'http',
         'apiKey': 'abcd'
       }],
-      'timeout': 10
+      'timeoutSeconds': 10
     })
     documents = typesense.collections('companies').documents()
     apiCall = new ApiCall(typesense.configuration)
