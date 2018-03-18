@@ -24,6 +24,8 @@
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.1",
     "babel-plugin-istanbul": "^4.1.5",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
