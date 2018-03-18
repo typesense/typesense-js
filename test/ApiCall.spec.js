@@ -50,6 +50,16 @@ describe('ApiCall', function () {
     })
   })
 
+  describe('.delete', function () {
+    it('performs DELETE requests only against the master node and does not failover to read replicas', function (done) {
+      mockAxios.onDelete(apiCall._uriFor('/collections/companies', 'master'), {dummy: 0}).reply(500)
+
+      let returnData = apiCall.post('/collections/companies', {dummy: 0})
+
+      expect(returnData).to.be.rejected.notify(done)
+    })
+  })
+
   describe('.get', function () {
     it('fails-over to read replicas for get requests', function (done) {
       mockAxios
