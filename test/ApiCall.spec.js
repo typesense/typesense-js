@@ -1,6 +1,7 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import TypesenseClient from '../lib/Typesense/Client'
+import ApiCall from '../lib/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
 
@@ -36,7 +37,7 @@ describe('ApiCall', function () {
       'timeout': 10
     })
     mockAxios = new MockAxiosAdapter(axios)
-    apiCall = typesense.ApiCall
+    apiCall = new ApiCall(typesense.configuration)
   })
 
   describe('.post', function () {

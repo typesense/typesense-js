@@ -1,6 +1,7 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import TypesenseClient from '../lib/Typesense/Client'
+import ApiCall from '../lib/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
 
@@ -57,9 +58,9 @@ describe('Documents', function () {
       }],
       'timeout': 10
     })
+    documents = typesense.collections('companies').documents()
+    apiCall = new ApiCall(typesense.configuration)
     mockAxios = new MockAxiosAdapter(axios)
-    documents = typesense.Documents
-    apiCall = typesense.ApiCall
   })
 
   describe('.search', function () {
@@ -89,7 +90,7 @@ describe('Documents', function () {
       }
       mockAxios.onGet(apiCall._uriFor('/collections/companies/documents/search'), {params: searchParameters}).reply(200, stubbedSearchResult)
 
-      let returnData = documents.search('companies', searchParameters)
+      let returnData = documents.search(searchParameters)
 
       expect(returnData).to.eventually.deep.equal(stubbedSearchResult).notify(done)
     })
