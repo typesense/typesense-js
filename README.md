@@ -1,4 +1,4 @@
-# typesense [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/wreally/typesense-js.svg?style=svg&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/wreally/typesense-js) [![Dependency Status][daviddm-image]][daviddm-url]
+# typesense [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/wreally/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/wreally/typesense-js) [![Dependency Status][daviddm-image]][daviddm-url]
 > Node Library for Typesense
 
 ## Installation
