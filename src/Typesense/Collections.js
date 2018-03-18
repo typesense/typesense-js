@@ -13,7 +13,7 @@ class Collections {
     return new ApiCall(this._configuration).post(RESOURCEPATH, schema)
   }
 
-  retrieveAll (schema) {
+  retrieve (schema) {
     return new ApiCall(this._configuration).get(RESOURCEPATH)
   }
 

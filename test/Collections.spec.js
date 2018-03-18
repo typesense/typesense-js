@@ -77,7 +77,7 @@ describe('Collections', function () {
     })
   })
 
-  describe('.retrieveAll', function () {
+  describe('.retrieve', function () {
     it('retrieves all collections', function (done) {
       mockAxios
         .onGet(
@@ -91,7 +91,7 @@ describe('Collections', function () {
         )
         .reply(200, [companySchema])
 
-      let returnData = collections.retrieveAll()
+      let returnData = collections.retrieve()
 
       expect(returnData).to.eventually.deep.equal([companySchema]).notify(done)
     })
