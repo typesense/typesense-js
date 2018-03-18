@@ -33,7 +33,7 @@ describe('Collections', function () {
         'facet': true
       }
     ],
-    'token_ranking_field': 'num_employees'
+    'default_sorting_field': 'num_employees'
   }
   before(function () {
     typesense = new TypesenseClient({
