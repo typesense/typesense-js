@@ -9,17 +9,23 @@ import uglify from 'gulp-uglify'
 import del from 'del'
 
 gulp.task('build', function () {
-  return browserify({
-    entries: './src/Client.js',
+  let stream = browserify({
+    entries: './src/Typesense/Client.js',
     debug: true
   }).transform('babelify', {presets: ['env']})
     .bundle()
     .pipe(source('Typesense.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(uglify())
-    .pipe(sourcemaps.write('./maps'))
-    .pipe(gulp.dest('./dist/js/'))
+
+  if (process.env.NODE_ENV === 'production') {
+    stream = stream.pipe(uglify())
+  }
+
+  stream = stream.pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./dist/'))
+
+  return stream
 })
 
 gulp.task('clean', function () {

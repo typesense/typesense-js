@@ -2,13 +2,17 @@
   "name": "typesense",
   "version": "0.0.1",
   "description": "Javascript Library for Typesense",
-  "homepage": "http://todo",
+  "homepage": "https://github.com/wreally/typesense-js",
   "author": {
     "name": "Wreally Studios",
     "email": "contact@wreally.com",
     "url": "http://wreally.com"
   },
   "main": "lib/Typesense.js",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
   "keywords": [
     "typesense",
     "api",
@@ -49,7 +53,8 @@
   },
   "scripts": {
     "pretest": "eslint .",
-    "test": "nyc --reporter=html --reporter=text mocha --require babel-register"
+    "test": "nyc --reporter=html --reporter=text mocha --require babel-register",
+    "build": "gulp clean build"
   },
   "repository": "wreally/typesense-js",
   "license": "MIT",
