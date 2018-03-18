@@ -35,7 +35,17 @@ describe('Debug', function () {
   describe('.retrieve', function () {
     it('retrieves debugging information', function (done) {
       let debugInfo = {version: '0.8.0'}
-      mockAxios.onGet(apiCall._uriFor('/debug')).reply(200, debugInfo)
+      mockAxios
+        .onGet(
+          apiCall._uriFor('/debug'),
+          undefined,
+          {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+          }
+        )
+        .reply(200, debugInfo)
 
       let returnData = typesense.debug.retrieve()
 

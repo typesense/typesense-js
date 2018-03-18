@@ -88,7 +88,19 @@ describe('Documents', function () {
           }
         ]
       }
-      mockAxios.onGet(apiCall._uriFor('/collections/companies/documents/search'), {params: searchParameters}).reply(200, stubbedSearchResult)
+      mockAxios
+        .onGet(
+          apiCall._uriFor('/collections/companies/documents/search'),
+          {
+            params: searchParameters
+          },
+          {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+          }
+        )
+        .reply(200, stubbedSearchResult)
 
       let returnData = documents.search(searchParameters)
 
