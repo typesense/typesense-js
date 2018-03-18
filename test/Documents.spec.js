@@ -13,34 +13,6 @@ describe('Documents', function () {
   let documents
   let apiCall
   let mockAxios
-  let companySchema = {
-    'name': 'companies',
-    'num_documents': 0,
-    'fields': [
-      {
-        'name': 'company_name',
-        'type': 'string',
-        'facet': false
-      },
-      {
-        'name': 'num_employees',
-        'type': 'int32',
-        'facet': false
-      },
-      {
-        'name': 'country',
-        'type': 'string',
-        'facet': true
-      }
-    ],
-    'token_ranking_field': 'num_employees'
-  }
-  let document = {
-    'id': '124',
-    'company_name': 'Stark Industries',
-    'num_employees': 5215,
-    'country': 'USA'
-  }
 
   before(function () {
     typesense = new TypesenseClient({
