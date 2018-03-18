@@ -11,6 +11,8 @@ chai.use(chaiAsPromised)
 describe('Documents', function () {
   let typesense
   let documents
+  let document
+  let anotherDocument
   let apiCall
   let mockAxios
 
@@ -30,6 +32,21 @@ describe('Documents', function () {
       }],
       'timeoutSeconds': 10
     })
+
+    document = {
+      'id': '124',
+      'company_name': 'Stark Industries',
+      'num_employees': 5215,
+      'country': 'USA'
+    }
+
+    anotherDocument = {
+      'id': '125',
+      'company_name': 'Stark Industries',
+      'num_employees': 5215,
+      'country': 'USA'
+    }
+
     documents = typesense.collections('companies').documents()
     apiCall = new ApiCall(typesense.configuration)
     mockAxios = new MockAxiosAdapter(axios)
@@ -77,6 +94,46 @@ describe('Documents', function () {
       let returnData = documents.search(searchParameters)
 
       expect(returnData).to.eventually.deep.equal(stubbedSearchResult).notify(done)
+    })
+  })
+
+  describe('.create', function () {
+    it('creates the document', function (done) {
+      mockAxios
+        .onPost(
+          apiCall._uriFor('/collections/companies/documents'),
+          document,
+          {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+          }
+        )
+        .reply(201, document)
+
+      let returnData = documents.create(document)
+
+      expect(returnData).to.eventually.deep.equal(document).notify(done)
+    })
+  })
+
+  describe('.export', function () {
+    it('exports the documents', function (done) {
+      mockAxios
+        .onGet(
+          apiCall._uriFor('/collections/companies/documents/export'),
+          undefined,
+          {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+          }
+        )
+        .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
+
+      let returnData = documents.export()
+
+      expect(returnData).to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)]).notify(done)
     })
   })
 })

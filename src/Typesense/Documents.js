@@ -11,6 +11,16 @@ class Documents {
     this._collectionName = collectionName
   }
 
+  create (document) {
+    return (new ApiCall(this._configuration)).post(this._endpointPath(), document)
+  }
+
+  export () {
+    return (new ApiCall(this._configuration)).get(this._endpointPath('export')).then((result) => {
+      return Promise.resolve(result.split('\n'))
+    })
+  }
+
   search (searchParameters) {
     return (new ApiCall(this._configuration)).get(this._endpointPath('search'), searchParameters)
   }
