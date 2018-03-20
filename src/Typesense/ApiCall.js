@@ -67,12 +67,18 @@ class ApiCall {
             return this.performRequest(requestType, endpoint, queryParameters, bodyParameters, additionalHeaders, 'readReplica', 0)
           } else if (node === 'readReplica') {
             if (nodeIndex >= (this._configuration.readReplicaNodes.length - 1)) {
-              return Promise.reject(error)
+              // error, but we'll let the code outside the if...else return the error
+            } else {
+              return this.performRequest(requestType, endpoint, queryParameters, bodyParameters, additionalHeaders, node, nodeIndex + 1)
             }
-            return this.performRequest(requestType, endpoint, queryParameters, bodyParameters, additionalHeaders, node, nodeIndex + 1)
           }
         }
-        return Promise.reject(error)
+
+        let responseMessage = ''
+        if (error.response !== undefined) {
+          responseMessage = ` - ${error.response.request.path} - ${error.response.data.message}`
+        }
+        return Promise.reject(new Error(`${error.message}${responseMessage}`))
       })
   }
 }
