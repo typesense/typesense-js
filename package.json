@@ -55,7 +55,7 @@
   },
   "scripts": {
     "pretest": "eslint .",
-    "test": "nyc --reporter=html --reporter=text mocha --require babel-register",
+    "test": "nyc --reporter=html --reporter=text mocha --require babel-register --recursive",
     "build": "gulp clean build",
     "ci-lint": "eslint .",
     "ci-test": "nyc --reporter=text --reporter=html mocha --require babel-register --reporter mocha-junit-reporter"

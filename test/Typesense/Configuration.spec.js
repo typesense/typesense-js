@@ -1,12 +1,12 @@
 import chai from 'chai'
-import TypesenseClient from '../src/Typesense/Client'
+import Typesense from '../../src/Typesense'
 
 let expect = chai.expect
 
 describe('Typesense', function () {
   let typesense
   beforeEach(function () {
-    typesense = new TypesenseClient({
+    typesense = new Typesense.Client({
       'masterNode': {
         'host': 'master',
         'port': '8108',
