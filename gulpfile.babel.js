@@ -2,6 +2,7 @@
 
 import gulp from 'gulp'
 import babel from 'gulp-babel'
+import rename from 'gulp-rename'
 // import concat from 'gulp-concat'
 import browserify from 'browserify'
 import source from 'vinyl-source-stream'
@@ -17,15 +18,13 @@ gulp.task('build:browser', function () {
     standalone: 'Typesense'
   }).transform('babelify', {presets: ['env']})
     .bundle()
-    .pipe(source('Typesense.js'))
+    .pipe(source('typesense.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
-
-  if (process.env.NODE_ENV === 'production') {
-    stream = stream.pipe(uglify())
-  }
-
-  stream = stream.pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./dist'))
+    .pipe(uglify())
+    .pipe(rename({extname: '.min.js'}))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./dist'))
 
   return stream
