@@ -2,7 +2,8 @@
 
 import gulp from 'gulp'
 import babel from 'gulp-babel'
-import concat from 'gulp-concat'
+import rename from 'gulp-rename'
+// import concat from 'gulp-concat'
 import browserify from 'browserify'
 import source from 'vinyl-source-stream'
 import buffer from 'vinyl-buffer'
@@ -12,20 +13,18 @@ import del from 'del'
 
 gulp.task('build:browser', function () {
   let stream = browserify({
-    entries: './src/Typesense/Client.js',
+    entries: './src/Typesense.js',
     debug: true,
     standalone: 'Typesense'
   }).transform('babelify', {presets: ['env']})
     .bundle()
-    .pipe(source('Typesense.js'))
+    .pipe(source('typesense.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
-
-  if (process.env.NODE_ENV === 'production') {
-    stream = stream.pipe(uglify())
-  }
-
-  stream = stream.pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./dist'))
+    .pipe(uglify())
+    .pipe(rename({extname: '.min.js'}))
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('./dist'))
 
   return stream
@@ -35,7 +34,6 @@ gulp.task('build:node', function () {
   let stream = gulp.src('src/**/*.js')
     .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(concat('Typesense.js'))
     .pipe(sourcemaps.write('./'))
 
   if (process.env.NODE_ENV === 'production') {

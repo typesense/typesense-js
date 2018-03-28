@@ -10,6 +10,10 @@ Follows the API spec [here](https://github.com/wreally/typesense-api-spec).
 $ npm install typesense
 ```
 
+```html
+<script src="dist/typesense.min.js"></script>
+```
+
 ## Usage
 
 Read the documentation here: [https://typesense.org/api/](https://typesense.org/api/)

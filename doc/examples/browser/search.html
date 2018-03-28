@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Typesense Browser Demo</title>
+</head>
+<body>
+<div>
+    <h1>Typesense Browser Demo</h1>
+    <div>
+        <input id="search-input" type="text" placeholder="search terms"/>
+        <button id="search-button" type="submit" onclick=search()>Search</button>
+    </div>
+    <pre id="search-results">
+    </pre>
+</div>
+<script src="../../../dist/Typesense.js"></script>
+<script>
+  /*
+   Setup
+
+   Start the master
+     $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108 --enable-cors
+
+   Start the read replica
+     $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108 --enable-cors
+  */
+
+  // Create a client
+  var typesense = new Typesense.Client({
+    'masterNode': {
+      'host': 'localhost',
+      'port': '8108',
+      'protocol': 'http',
+      'apiKey': 'abcd'
+    },
+    'readReplicaNodes': [{
+      'host': 'localhost',
+      'port': '8109',
+      'protocol': 'http',
+      'apiKey': 'wxyz'
+    }],
+    'timeoutSeconds': 10
+  })
+
+  let schema = {
+    'name': 'companies',
+    'num_documents': 0,
+    'fields': [
+      {
+        'name': 'company_name',
+        'type': 'string',
+        'facet': false
+      },
+      {
+        'name': 'num_employees',
+        'type': 'int32',
+        'facet': false
+      },
+      {
+        'name': 'country',
+        'type': 'string',
+        'facet': true
+      }
+    ],
+    'default_sorting_field': 'num_employees'
+  }
+
+  let documents = [
+    {
+      'id': '124',
+      'company_name': 'Stark Industries',
+      'num_employees': 5215,
+      'country': 'USA'
+    },
+    {
+      'id': '125',
+      'company_name': 'Acme Corp',
+      'num_employees': 1002,
+      'country': 'France'
+    },
+    {
+      'id': '127',
+      'company_name': 'Stark Corp',
+      'num_employees': 1031,
+      'country': 'USA'
+
+    },
+    {
+      'id': '126',
+      'company_name': 'Doofenshmirtz Inc',
+      'num_employees': 2,
+      'country': 'Tri-State Area'
+
+    }
+  ]
+
+  // create a collection, in case it doesn't exist
+  //    We're creating a collection from the browser just for the purposes of this example.
+  //    You'd typically creaet a collection elsewhere and only use the search endpoint from the browser.
+  //    In which case, you'd want to pass the search-only-api-key value in the api-key field
+  typesense.collections('companies').delete()
+    .finally(function () {
+      // create a collection
+      typesense.collections().create(schema)
+        .then(function () {
+          // create a couple of documents
+          Promise.all(documents.map(function (document) {
+              return typesense.collections('companies').documents().create(document)
+            })
+          )
+        }).catch(function (error) {
+        console.log(error)
+      })
+    }).catch(function (error) {
+    // do nothing
+  })
+
+  function search () {
+    var searchTerm = document.getElementById('search-input').value
+    typesense.collections('companies').documents().search({
+      'q': searchTerm,
+      'query_by': 'company_name'
+    }).then(function (searchResults) {
+      document.getElementById('search-results').innerHTML = JSON.stringify(searchResults, null, 2)
+    }).catch(function (error) {
+      document.getElementById('search-results').innerHTML = error
+    })
+  }
+
+</script>
+</body>
+</html>
