@@ -2171,4 +2171,3 @@ module.exports = Documents;
 },{"./ApiCall":29,"./Collections":32}]},{},[28])(28)
 });
 
-//# sourceMappingURL=Typesense.js.map
