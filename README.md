@@ -22,7 +22,7 @@ $ npm install typesense
 
 Read the documentation here: [https://typesense.org/api/](https://typesense.org/api/)
 
-Note: When using 
+**Note: When using this library client-side, please be sure to use the `search-only-api-key` instead of the `master` API key.**
 
 ## Development
 
