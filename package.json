@@ -1,12 +1,12 @@
 {
   "name": "typesense",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Javascript Library for Typesense",
-  "homepage": "https://github.com/wreally/typesense-js",
+  "homepage": "https://github.com/typesense/typesense-js",
   "author": {
     "name": "Wreally Studios",
-    "email": "contact@wreally.com",
-    "url": "http://wreally.com"
+    "email": "contact@typesense.org",
+    "url": "https://typesense.org"
   },
   "main": "lib/Typesense.js",
   "browser": "dist/typesense.js",
@@ -62,7 +62,7 @@
     "ci-lint": "eslint .",
     "ci-test": "nyc --reporter=text --reporter=html mocha --require babel-register --reporter mocha-junit-reporter"
   },
-  "repository": "wreally/typesense-js",
+  "repository": "typesense/typesense-js",
   "license": "Apache-2.0",
   "dependencies": {
     "axios": "^0.18.0"
