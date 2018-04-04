@@ -1,6 +1,6 @@
 {
   "name": "typesense",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Javascript Library for Typesense",
   "homepage": "https://github.com/wreally/typesense-js",
   "author": {
@@ -63,7 +63,7 @@
     "ci-test": "nyc --reporter=text --reporter=html mocha --require babel-register --reporter mocha-junit-reporter"
   },
   "repository": "wreally/typesense-js",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "axios": "^0.18.0"
   },
