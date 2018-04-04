@@ -1,6 +1,4 @@
-# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/typesense/typesense-js) [![Dependency Status][daviddm-image]][daviddm-url]
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/typesense/typesense-js.svg)](https://greenkeeper.io/)
+# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/typesense/typesense-js) [![Greenkeeper badge](https://badges.greenkeeper.io/typesense/typesense-js.svg)](https://greenkeeper.io/)
 
 Javascript client library for accessing the [Typesense HTTP API](https://github.com/wreally/typesense). Follows the API spec [here](https://github.com/wreally/typesense-api-spec).
 
@@ -38,5 +36,3 @@ Bug reports and pull requests are welcome on GitHub at [https://github.com/wreal
 
 [npm-image]: https://badge.fury.io/js/typesense.svg
 [npm-url]: https://npmjs.org/package/typesense
-[daviddm-image]: https://david-dm.org/wreally/typesense.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/wreally/typesense
