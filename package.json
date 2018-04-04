@@ -40,7 +40,7 @@
     "del": "^3.0.0",
     "eslint": "^4.17.0",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "gulp": "^4.0.0",
@@ -65,7 +65,7 @@
   "repository": "wreally/typesense-js",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.17.1"
+    "axios": "^0.18.0"
   },
   "optionalDependencies": {}
 }
