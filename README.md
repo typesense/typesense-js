@@ -1,4 +1,4 @@
-# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/wreally/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/wreally/typesense-js) [![Dependency Status][daviddm-image]][daviddm-url]
+# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/typesense/typesense-js) [![Dependency Status][daviddm-image]][daviddm-url]
 
 Javascript client library for accessing the [Typesense HTTP API](https://github.com/wreally/typesense). Follows the API spec [here](https://github.com/wreally/typesense-api-spec).
 
