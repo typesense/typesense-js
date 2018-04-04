@@ -9,6 +9,7 @@
     "url": "http://wreally.com"
   },
   "main": "lib/Typesense.js",
+  "browser": "dist/typesense.js",
   "files": [
     "lib/"
   ],
