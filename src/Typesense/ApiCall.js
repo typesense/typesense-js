@@ -25,6 +25,7 @@ class ApiCall {
     if (node === 'readReplica') {
       return `${this._configuration.readReplicaNodes[nodeIndex].protocol}://${buildLocationUrl(this._configuration.readReplicaNodes[nodeIndex].host, this._configuration.readReplicaNodes[nodeIndex].port)}${endpoint}`
     } else {
+      console.log(`${buildLocationUrl(this._configuration.masterNode.host, this._configuration.masterNode.port)}`)
       return `${this._configuration.masterNode.protocol}://${buildLocationUrl(this._configuration.masterNode.host, this._configuration.masterNode.port)}${endpoint}`
     }
   }
