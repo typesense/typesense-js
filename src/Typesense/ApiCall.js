@@ -3,17 +3,6 @@ import axios from 'axios'
 
 const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 
-const buildLocationUrl = function(host, port) {
-  // if the host is a non-root URL, such as example.com/typesense
-  // then the port number cannot be appended, as example.com/typesense:8108
-  // instead it must be example.com:8108/typesense
-  let hostFragments = host.split("/");
-  if (hostFragments.length > 1) {
-    hostFragments[0] = hostFragments[0] + `:${port}`
-    return hostFragments.join("/")
-  }
-  return `${host}:${port}`
-}
 class ApiCall {
   constructor (configuration) {
     this._configuration = configuration
@@ -23,10 +12,9 @@ class ApiCall {
 
   _uriFor (endpoint, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     if (node === 'readReplica') {
-      return `${this._configuration.readReplicaNodes[nodeIndex].protocol}://${buildLocationUrl(this._configuration.readReplicaNodes[nodeIndex].host, this._configuration.readReplicaNodes[nodeIndex].port)}${endpoint}`
+      return `${this._configuration.readReplicaNodes[nodeIndex].protocol}://${this._configuration.readReplicaNodes[nodeIndex].host}:${this._configuration.readReplicaNodes[nodeIndex].port}${this._configuration.readReplicaNodes[nodeIndex].path}${endpoint}`
     } else {
-      console.log(`${buildLocationUrl(this._configuration.masterNode.host, this._configuration.masterNode.port)}`)
-      return `${this._configuration.masterNode.protocol}://${buildLocationUrl(this._configuration.masterNode.host, this._configuration.masterNode.port)}${endpoint}`
+      return `${this._configuration.masterNode.protocol}://${this._configuration.masterNode.host}:${this._configuration.masterNode.port}${this._configuration.masterNode.path}${endpoint}`
     }
   }
 

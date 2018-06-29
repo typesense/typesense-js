@@ -5,6 +5,7 @@ class Configuration {
     this.masterNode = options.masterNode || {
       host: 'localhost',
       port: '8108',
+      path: '',
       protocol: 'http'
     }
 
@@ -29,7 +30,7 @@ class Configuration {
   }
 
   _isNodeMissingAnyParameters (node) {
-    return !['protocol', 'host', 'port', 'apiKey'].every((key) => {
+    return !['protocol', 'host', 'port', 'path', 'apiKey'].every((key) => {
       return node.hasOwnProperty(key)
     })
   }
