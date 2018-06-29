@@ -8,8 +8,19 @@ class Configuration {
       path: '',
       protocol: 'http'
     }
+    if (!this.masterNode.hasOwnProperty('path')) {
+      this.masterNode.path = ''
+    }
 
     this.readReplicaNodes = options.readReplicaNodes || []
+    if (this.readReplicaNodes.length) {
+      this.readReplicaNodes = this.readReplicaNodes.map((node) => {
+        if (!node.hasOwnProperty('path')) {
+          node.path = ''
+        }
+        return node
+      })
+    }
     this.timeoutSeconds = options.timeoutSeconds || 10
   }
 
