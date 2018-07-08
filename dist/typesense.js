@@ -1678,18 +1678,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY';
 
-var buildLocationUrl = function buildLocationUrl(host, port) {
-  // if the host is a non-root URL, such as example.com/typesense
-  // then the port number cannot be appended, as example.com/typesense:8108
-  // instead it must be example.com:8108/typesense
-  var hostFragments = host.split("/");
-  if (hostFragments.length > 1) {
-    hostFragments[0] = hostFragments[0] + (':' + port);
-    return hostFragments.join("/");
-  }
-  return host + ':' + port;
-};
-
 var ApiCall = function () {
   function ApiCall(configuration) {
     _classCallCheck(this, ApiCall);
@@ -1706,10 +1694,9 @@ var ApiCall = function () {
       var nodeIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this._defaultNodeIndex;
 
       if (node === 'readReplica') {
-        return this._configuration.readReplicaNodes[nodeIndex].protocol + '://' + buildLocationUrl(this._configuration.readReplicaNodes[nodeIndex].host, this._configuration.readReplicaNodes[nodeIndex].port) + endpoint;
+        return this._configuration.readReplicaNodes[nodeIndex].protocol + '://' + this._configuration.readReplicaNodes[nodeIndex].host + ':' + this._configuration.readReplicaNodes[nodeIndex].port + this._configuration.readReplicaNodes[nodeIndex].path + endpoint;
       } else {
-        console.log('' + buildLocationUrl(this._configuration.masterNode.host, this._configuration.masterNode.port));
-        return this._configuration.masterNode.protocol + '://' + buildLocationUrl(this._configuration.masterNode.host, this._configuration.masterNode.port) + endpoint;
+        return this._configuration.masterNode.protocol + '://' + this._configuration.masterNode.host + ':' + this._configuration.masterNode.port + this._configuration.masterNode.path + endpoint;
       }
     }
   }, {
@@ -1995,10 +1982,22 @@ var Configuration = function () {
     this.masterNode = options.masterNode || {
       host: 'localhost',
       port: '8108',
+      path: '',
       protocol: 'http'
     };
+    if (!this.masterNode.hasOwnProperty('path')) {
+      this.masterNode.path = '';
+    }
 
     this.readReplicaNodes = options.readReplicaNodes || [];
+    if (this.readReplicaNodes.length) {
+      this.readReplicaNodes = this.readReplicaNodes.map(function (node) {
+        if (!node.hasOwnProperty('path')) {
+          node.path = '';
+        }
+        return node;
+      });
+    }
     this.timeoutSeconds = options.timeoutSeconds || 10;
   }
 
@@ -2025,7 +2024,7 @@ var Configuration = function () {
   }, {
     key: '_isNodeMissingAnyParameters',
     value: function _isNodeMissingAnyParameters(node) {
-      return !['protocol', 'host', 'port', 'apiKey'].every(function (key) {
+      return !['protocol', 'host', 'port', 'path', 'apiKey'].every(function (key) {
         return node.hasOwnProperty(key);
       });
     }
