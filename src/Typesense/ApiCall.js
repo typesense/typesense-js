@@ -4,13 +4,13 @@ import axios from 'axios'
 const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 
 class ApiCall {
-  constructor(configuration) {
+  constructor (configuration) {
     this._configuration = configuration
     this._defaultNode = 'master'
     this._defaultNodeIndex = 0
   }
 
-  _uriFor(endpoint, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
+  _uriFor (endpoint, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     if (node === 'readReplica') {
       return `${this._configuration.readReplicaNodes[nodeIndex].protocol}://${this._configuration.readReplicaNodes[nodeIndex].host}:${this._configuration.readReplicaNodes[nodeIndex].port}${this._configuration.readReplicaNodes[nodeIndex].path}${endpoint}`
     } else {
@@ -18,7 +18,7 @@ class ApiCall {
     }
   }
 
-  _apiKey(node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
+  _apiKey (node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     if (node === 'readReplica') {
       return this._configuration.readReplicaNodes[nodeIndex].apiKey
     } else {
@@ -26,7 +26,7 @@ class ApiCall {
     }
   }
 
-  _defaultHeaders(node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
+  _defaultHeaders (node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     let defaultHeaders = {}
     defaultHeaders[APIKEYHEADERNAME] = this._apiKey(node, nodeIndex)
     defaultHeaders['Content-Type'] = 'application/json'
@@ -34,19 +34,19 @@ class ApiCall {
     return defaultHeaders
   }
 
-  get(endpoint, parameters = {}, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
+  get (endpoint, parameters = {}, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     return this.performRequest('get', endpoint, parameters, undefined, undefined, node, nodeIndex)
   }
 
-  delete(endpoint, parameters = {}, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
+  delete (endpoint, parameters = {}, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     return this.performRequest('delete', endpoint, parameters, undefined, undefined, node, nodeIndex)
   }
 
-  post(endpoint, parameters = {}) {
+  post (endpoint, parameters = {}) {
     return this.performRequest('post', endpoint, undefined, parameters, undefined, 'master')
   }
 
-  performRequest(requestType, endpoint, queryParameters = {}, bodyParameters = {}, additionalHeaders = {}, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
+  performRequest (requestType, endpoint, queryParameters = {}, bodyParameters = {}, additionalHeaders = {}, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     this
       ._configuration
       .validate()
