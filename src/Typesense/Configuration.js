@@ -5,10 +5,22 @@ class Configuration {
     this.masterNode = options.masterNode || {
       host: 'localhost',
       port: '8108',
+      path: '',
       protocol: 'http'
+    }
+    if (!this.masterNode.hasOwnProperty('path')) {
+      this.masterNode.path = ''
     }
 
     this.readReplicaNodes = options.readReplicaNodes || []
+    if (this.readReplicaNodes.length) {
+      this.readReplicaNodes = this.readReplicaNodes.map((node) => {
+        if (!node.hasOwnProperty('path')) {
+          node.path = ''
+        }
+        return node
+      })
+    }
     this.timeoutSeconds = options.timeoutSeconds || 10
   }
 
@@ -29,7 +41,7 @@ class Configuration {
   }
 
   _isNodeMissingAnyParameters (node) {
-    return !['protocol', 'host', 'port', 'apiKey'].every((key) => {
+    return !['protocol', 'host', 'port', 'path', 'apiKey'].every((key) => {
       return node.hasOwnProperty(key)
     })
   }

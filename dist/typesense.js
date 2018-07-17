@@ -361,7 +361,7 @@ Axios.prototype.request = function request(config) {
     }, arguments[1]);
   }
 
-  config = utils.merge(defaults, this.defaults, { method: 'get' }, config);
+  config = utils.merge(defaults, {method: 'get'}, this.defaults, config);
   config.method = config.method.toLowerCase();
 
   // Hook up interceptors middleware
@@ -709,6 +709,10 @@ var defaults = {
     return data;
   }],
 
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
   timeout: 0,
 
   xsrfCookieName: 'XSRF-TOKEN',
@@ -834,9 +838,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
       if (utils.isArray(val)) {
         key = key + '[]';
-      }
-
-      if (!utils.isArray(val)) {
+      } else {
         val = [val];
       }
 
@@ -1692,9 +1694,9 @@ var ApiCall = function () {
       var nodeIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this._defaultNodeIndex;
 
       if (node === 'readReplica') {
-        return this._configuration.readReplicaNodes[nodeIndex].protocol + '://' + this._configuration.readReplicaNodes[nodeIndex].host + ':' + this._configuration.readReplicaNodes[nodeIndex].port + endpoint;
+        return this._configuration.readReplicaNodes[nodeIndex].protocol + '://' + this._configuration.readReplicaNodes[nodeIndex].host + ':' + this._configuration.readReplicaNodes[nodeIndex].port + this._configuration.readReplicaNodes[nodeIndex].path + endpoint;
       } else {
-        return this._configuration.masterNode.protocol + '://' + this._configuration.masterNode.host + ':' + this._configuration.masterNode.port + endpoint;
+        return this._configuration.masterNode.protocol + '://' + this._configuration.masterNode.host + ':' + this._configuration.masterNode.port + this._configuration.masterNode.path + endpoint;
       }
     }
   }, {
@@ -1980,10 +1982,22 @@ var Configuration = function () {
     this.masterNode = options.masterNode || {
       host: 'localhost',
       port: '8108',
+      path: '',
       protocol: 'http'
     };
+    if (!this.masterNode.hasOwnProperty('path')) {
+      this.masterNode.path = '';
+    }
 
     this.readReplicaNodes = options.readReplicaNodes || [];
+    if (this.readReplicaNodes.length) {
+      this.readReplicaNodes = this.readReplicaNodes.map(function (node) {
+        if (!node.hasOwnProperty('path')) {
+          node.path = '';
+        }
+        return node;
+      });
+    }
     this.timeoutSeconds = options.timeoutSeconds || 10;
   }
 
@@ -2010,7 +2024,7 @@ var Configuration = function () {
   }, {
     key: '_isNodeMissingAnyParameters',
     value: function _isNodeMissingAnyParameters(node) {
-      return !['protocol', 'host', 'port', 'apiKey'].every(function (key) {
+      return !['protocol', 'host', 'port', 'path', 'apiKey'].every(function (key) {
         return node.hasOwnProperty(key);
       });
     }
