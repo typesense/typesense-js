@@ -1,10 +1,10 @@
 {
   "name": "typesense",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Javascript Library for Typesense",
   "homepage": "https://github.com/typesense/typesense-js",
   "author": {
-    "name": "Wreally Studios",
+    "name": "Typesnse, Inc.",
     "email": "contact@typesense.org",
     "url": "https://typesense.org"
   },
@@ -65,7 +65,7 @@
   "repository": "typesense/typesense-js",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.1"
   },
   "optionalDependencies": {}
 }

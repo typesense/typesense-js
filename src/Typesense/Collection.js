@@ -3,6 +3,8 @@
 import Collections from './Collections'
 import Documents from './Documents'
 import Document from './Document'
+import Overrides from './Overrides'
+import Override from './Override'
 import ApiCall from './ApiCall'
 
 class Collection {
@@ -11,6 +13,8 @@ class Collection {
     this._name = name
     this._documents = new Documents(this._configuration, this._name)
     this._individualDocuments = {}
+    this._overrides = new Overrides(this._configuration, this._name)
+    this._individualOverrides = {}
   }
 
   retrieve () {
@@ -29,6 +33,17 @@ class Collection {
         this._individualDocuments[documentId] = new Document(this._configuration, this._name, documentId)
       }
       return this._individualDocuments[documentId]
+    }
+  }
+
+  overrides (overrideId) {
+    if (overrideId === undefined) {
+      return this._overrides
+    } else {
+      if (this._individualOverrides[overrideId] === undefined) {
+        this._individualOverrides[overrideId] = new Override(this._configuration, this._name, overrideId)
+      }
+      return this._individualOverrides[overrideId]
     }
   }
 
