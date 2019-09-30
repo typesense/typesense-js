@@ -11,16 +11,8 @@ class Overrides {
     this._collectionName = collectionName
   }
 
-  create (overrideId, query, matchType, includes = [], excludes = []) {
-    return (new ApiCall(this._configuration)).put(this._endpointPath(), {
-      id: overrideId,
-      rule: {
-        query: query,
-        match: matchType
-      },
-      includes,
-      excludes
-    })
+  create (params) {
+    return (new ApiCall(this._configuration)).put(this._endpointPath(), params)
   }
 
   retrieve () {

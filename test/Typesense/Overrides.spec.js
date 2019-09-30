@@ -58,10 +58,7 @@ describe('Overrides', function () {
         )
         .reply(201, override)
 
-      let returnData = overrides.create('lex-exact', 'lex luthor', 'exact', [{
-        'id': '125',
-        'position': 1
-      }], [{'id': '124'}])
+      let returnData = overrides.create(override)
       expect(returnData).to.eventually.deep.equal(override).notify(done)
     })
   })

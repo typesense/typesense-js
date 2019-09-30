@@ -83,20 +83,26 @@ typesense.collections().create(schema) // create a collection
   })
   .then(function (data) {
     typesense.collections('companies').overrides().create(
-      'promote-doofenshmirtz',
-      'blahblah',
-      'exact', [
-        {'id': '126', 'position': 1}
-      ]
+      {
+        'id': 'promote-doofenshmirtz',
+        'rule': {
+          'query': 'doofen',
+          'match': 'exact'
+        },
+        'includes': [{'id': '126', 'position': 1}]
+      }
     )
   })
   .then(function (data) {
     typesense.collections('companies').overrides().create(
-      'promote-acme',
-      'stark',
-      'exact', [
-        {'id': '125', 'position': 1}
-      ]
+      {
+        'id': 'promote-acme',
+        'rule': {
+          'query': 'stark',
+          'match': 'exact'
+        },
+        'includes': [{'id': '125', 'position': 1}]
+      }
     )
   })
   .then(function (data) {
@@ -104,7 +110,7 @@ typesense.collections().create(schema) // create a collection
 
     // Search for documents
     promises += typesense.collections('companies').documents().search({
-      'q': 'blahblah',
+      'q': 'doofen',
       'query_by': 'company_name'
     }).then(function (searchResults) {
       console.dir(searchResults, {depth: null})
