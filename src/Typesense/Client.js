@@ -3,6 +3,8 @@
 import Configuration from './Configuration'
 import Collections from './Collections'
 import Collection from './Collection'
+import Aliases from './Aliases'
+import Alias from './Alias'
 import Debug from './Debug'
 
 class Client {
@@ -11,6 +13,8 @@ class Client {
     this.debug = new Debug(this.configuration)
     this._collections = new Collections(this.configuration)
     this._individualCollections = {}
+    this._aliases = new Aliases(this.configuration)
+    this._individualAliases = {}
   }
 
   collections (collectionName) {
@@ -21,6 +25,17 @@ class Client {
         this._individualCollections[collectionName] = new Collection(this.configuration, collectionName)
       }
       return this._individualCollections[collectionName]
+    }
+  }
+
+  aliases (aliasName) {
+    if (aliasName === undefined) {
+      return this._aliases
+    } else {
+      if (this._individualAliases[aliasName] === undefined) {
+        this._individualAliases[aliasName] = new Alias(this.configuration, aliasName)
+      }
+      return this._individualAliases[aliasName]
     }
   }
 }

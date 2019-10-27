@@ -1594,7 +1594,103 @@ var Typesense = function () {
 
 module.exports = Typesense;
 
-},{"./Typesense/Client":29}],28:[function(require,module,exports){
+},{"./Typesense/Client":31}],28:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Aliases = require('./Aliases');
+
+var _Aliases2 = _interopRequireDefault(_Aliases);
+
+var _ApiCall = require('./ApiCall');
+
+var _ApiCall2 = _interopRequireDefault(_ApiCall);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Alias = function () {
+  function Alias(configuration, name) {
+    _classCallCheck(this, Alias);
+
+    this._configuration = configuration;
+    this._name = name;
+  }
+
+  _createClass(Alias, [{
+    key: 'retrieve',
+    value: function retrieve() {
+      return new _ApiCall2.default(this._configuration).get(this._endpointPath());
+    }
+  }, {
+    key: 'delete',
+    value: function _delete() {
+      return new _ApiCall2.default(this._configuration).delete(this._endpointPath());
+    }
+  }, {
+    key: '_endpointPath',
+    value: function _endpointPath() {
+      return _Aliases2.default.RESOURCEPATH + '/' + this._name;
+    }
+  }]);
+
+  return Alias;
+}();
+
+module.exports = Alias;
+
+},{"./Aliases":29,"./ApiCall":30}],29:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ApiCall = require('./ApiCall');
+
+var _ApiCall2 = _interopRequireDefault(_ApiCall);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RESOURCEPATH = '/aliases';
+
+var Aliases = function () {
+  function Aliases(configuration) {
+    _classCallCheck(this, Aliases);
+
+    this._configuration = configuration;
+  }
+
+  _createClass(Aliases, [{
+    key: 'upsert',
+    value: function upsert(name, mapping) {
+      return new _ApiCall2.default(this._configuration).put(this._endpointPath(name), mapping);
+    }
+  }, {
+    key: 'retrieve',
+    value: function retrieve(schema) {
+      return new _ApiCall2.default(this._configuration).get(RESOURCEPATH);
+    }
+  }, {
+    key: '_endpointPath',
+    value: function _endpointPath(aliasName) {
+      return Aliases.RESOURCEPATH + '/' + aliasName;
+    }
+  }], [{
+    key: 'RESOURCEPATH',
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+
+  return Aliases;
+}();
+
+module.exports = Aliases;
+
+},{"./ApiCall":30}],30:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1737,7 +1833,7 @@ var ApiCall = function () {
 
 module.exports = ApiCall;
 
-},{"axios":1}],29:[function(require,module,exports){
+},{"axios":1}],31:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1753,6 +1849,14 @@ var _Collections2 = _interopRequireDefault(_Collections);
 var _Collection = require('./Collection');
 
 var _Collection2 = _interopRequireDefault(_Collection);
+
+var _Aliases = require('./Aliases');
+
+var _Aliases2 = _interopRequireDefault(_Aliases);
+
+var _Alias = require('./Alias');
+
+var _Alias2 = _interopRequireDefault(_Alias);
 
 var _Debug = require('./Debug');
 
@@ -1770,6 +1874,8 @@ var Client = function () {
     this.debug = new _Debug2.default(this.configuration);
     this._collections = new _Collections2.default(this.configuration);
     this._individualCollections = {};
+    this._aliases = new _Aliases2.default(this.configuration);
+    this._individualAliases = {};
   }
 
   _createClass(Client, [{
@@ -1784,6 +1890,18 @@ var Client = function () {
         return this._individualCollections[collectionName];
       }
     }
+  }, {
+    key: 'aliases',
+    value: function aliases(aliasName) {
+      if (aliasName === undefined) {
+        return this._aliases;
+      } else {
+        if (this._individualAliases[aliasName] === undefined) {
+          this._individualAliases[aliasName] = new _Alias2.default(this.configuration, aliasName);
+        }
+        return this._individualAliases[aliasName];
+      }
+    }
   }]);
 
   return Client;
@@ -1791,7 +1909,7 @@ var Client = function () {
 
 module.exports = Client;
 
-},{"./Collection":30,"./Collections":31,"./Configuration":32,"./Debug":33}],30:[function(require,module,exports){
+},{"./Alias":28,"./Aliases":29,"./Collection":32,"./Collections":33,"./Configuration":34,"./Debug":35}],32:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1882,7 +2000,7 @@ var Collection = function () {
 
 module.exports = Collection;
 
-},{"./ApiCall":28,"./Collections":31,"./Document":34,"./Documents":35,"./Override":36,"./Overrides":37}],31:[function(require,module,exports){
+},{"./ApiCall":30,"./Collections":33,"./Document":36,"./Documents":37,"./Override":38,"./Overrides":39}],33:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1926,7 +2044,7 @@ var Collections = function () {
 
 module.exports = Collections;
 
-},{"./ApiCall":28}],32:[function(require,module,exports){
+},{"./ApiCall":30}],34:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1983,7 +2101,7 @@ var Configuration = function () {
 
 module.exports = Configuration;
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2017,7 +2135,7 @@ var Collections = function () {
 
 module.exports = Collections;
 
-},{"./ApiCall":28}],34:[function(require,module,exports){
+},{"./ApiCall":30}],36:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2069,7 +2187,7 @@ var Document = function () {
 
 module.exports = Document;
 
-},{"./ApiCall":28,"./Collections":31,"./Documents":35}],35:[function(require,module,exports){
+},{"./ApiCall":30,"./Collections":33,"./Documents":37}],37:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2130,7 +2248,7 @@ var Documents = function () {
 
 module.exports = Documents;
 
-},{"./ApiCall":28,"./Collections":31}],36:[function(require,module,exports){
+},{"./ApiCall":30,"./Collections":33}],38:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2182,7 +2300,7 @@ var Override = function () {
 
 module.exports = Override;
 
-},{"./ApiCall":28,"./Collections":31,"./Overrides":37}],37:[function(require,module,exports){
+},{"./ApiCall":30,"./Collections":33,"./Overrides":39}],39:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2236,6 +2354,6 @@ var Overrides = function () {
 
 module.exports = Overrides;
 
-},{"./ApiCall":28,"./Collections":31}]},{},[27])(27)
+},{"./ApiCall":30,"./Collections":33}]},{},[27])(27)
 });
 
