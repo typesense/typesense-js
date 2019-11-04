@@ -1,7 +1,6 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Typesense = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 module.exports = require('./lib/axios');
 },{"./lib/axios":3}],2:[function(require,module,exports){
-(function (process){
 'use strict';
 
 var utils = require('./../utils');
@@ -10,7 +9,6 @@ var buildURL = require('./../helpers/buildURL');
 var parseHeaders = require('./../helpers/parseHeaders');
 var isURLSameOrigin = require('./../helpers/isURLSameOrigin');
 var createError = require('../core/createError');
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || require('./../helpers/btoa');
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -22,22 +20,6 @@ module.exports = function xhrAdapter(config) {
     }
 
     var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false;
-
-    // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-    if (process.env.NODE_ENV !== 'test' &&
-        typeof window !== 'undefined' &&
-        window.XDomainRequest && !('withCredentials' in request) &&
-        !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-      request.onprogress = function handleProgress() {};
-      request.ontimeout = function handleTimeout() {};
-    }
 
     // HTTP basic authentication
     if (config.auth) {
@@ -52,8 +34,8 @@ module.exports = function xhrAdapter(config) {
     request.timeout = config.timeout;
 
     // Listen for ready state
-    request[loadEvent] = function handleLoad() {
-      if (!request || (request.readyState !== 4 && !xDomain)) {
+    request.onreadystatechange = function handleLoad() {
+      if (!request || request.readyState !== 4) {
         return;
       }
 
@@ -70,9 +52,8 @@ module.exports = function xhrAdapter(config) {
       var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
       var response = {
         data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        status: request.status,
+        statusText: request.statusText,
         headers: responseHeaders,
         config: config,
         request: request
@@ -183,9 +164,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-}).call(this,require('_process'))
-
-},{"../core/createError":9,"./../core/settle":12,"./../helpers/btoa":16,"./../helpers/buildURL":17,"./../helpers/cookies":19,"./../helpers/isURLSameOrigin":21,"./../helpers/parseHeaders":23,"./../utils":25,"_process":27}],3:[function(require,module,exports){
+},{"../core/createError":9,"./../core/settle":12,"./../helpers/buildURL":16,"./../helpers/cookies":18,"./../helpers/isURLSameOrigin":20,"./../helpers/parseHeaders":22,"./../utils":24}],3:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -239,7 +218,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":4,"./cancel/CancelToken":5,"./cancel/isCancel":6,"./core/Axios":7,"./defaults":14,"./helpers/bind":15,"./helpers/spread":24,"./utils":25}],4:[function(require,module,exports){
+},{"./cancel/Cancel":4,"./cancel/CancelToken":5,"./cancel/isCancel":6,"./core/Axios":7,"./defaults":14,"./helpers/bind":15,"./helpers/spread":23,"./utils":24}],4:[function(require,module,exports){
 'use strict';
 
 /**
@@ -407,7 +386,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"./../defaults":14,"./../utils":25,"./InterceptorManager":8,"./dispatchRequest":10}],8:[function(require,module,exports){
+},{"./../defaults":14,"./../utils":24,"./InterceptorManager":8,"./dispatchRequest":10}],8:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -461,7 +440,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":25}],9:[function(require,module,exports){
+},{"./../utils":24}],9:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -569,7 +548,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":6,"../defaults":14,"./../helpers/combineURLs":18,"./../helpers/isAbsoluteURL":20,"./../utils":25,"./transformData":13}],11:[function(require,module,exports){
+},{"../cancel/isCancel":6,"../defaults":14,"./../helpers/combineURLs":17,"./../helpers/isAbsoluteURL":19,"./../utils":24,"./transformData":13}],11:[function(require,module,exports){
 'use strict';
 
 /**
@@ -642,7 +621,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":25}],14:[function(require,module,exports){
+},{"./../utils":24}],14:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -743,7 +722,7 @@ module.exports = defaults;
 
 }).call(this,require('_process'))
 
-},{"./adapters/http":2,"./adapters/xhr":2,"./helpers/normalizeHeaderName":22,"./utils":25,"_process":27}],15:[function(require,module,exports){
+},{"./adapters/http":2,"./adapters/xhr":2,"./helpers/normalizeHeaderName":21,"./utils":24,"_process":26}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -757,44 +736,6 @@ module.exports = function bind(fn, thisArg) {
 };
 
 },{}],16:[function(require,module,exports){
-'use strict';
-
-// btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
-
-var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-function E() {
-  this.message = 'String contains an invalid character';
-}
-E.prototype = new Error;
-E.prototype.code = 5;
-E.prototype.name = 'InvalidCharacterError';
-
-function btoa(input) {
-  var str = String(input);
-  var output = '';
-  for (
-    // initialize result and counter
-    var block, charCode, idx = 0, map = chars;
-    // if the next str index does not exist:
-    //   change the mapping table to "="
-    //   check if d has no fractional digits
-    str.charAt(idx | 0) || (map = '=', idx % 1);
-    // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-    output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-  ) {
-    charCode = str.charCodeAt(idx += 3 / 4);
-    if (charCode > 0xFF) {
-      throw new E();
-    }
-    block = block << 8 | charCode;
-  }
-  return output;
-}
-
-module.exports = btoa;
-
-},{}],17:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -862,7 +803,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":25}],18:[function(require,module,exports){
+},{"./../utils":24}],17:[function(require,module,exports){
 'use strict';
 
 /**
@@ -878,7 +819,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -933,7 +874,7 @@ module.exports = (
   })()
 );
 
-},{"./../utils":25}],20:[function(require,module,exports){
+},{"./../utils":24}],19:[function(require,module,exports){
 'use strict';
 
 /**
@@ -949,7 +890,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -1019,7 +960,7 @@ module.exports = (
   })()
 );
 
-},{"./../utils":25}],22:[function(require,module,exports){
+},{"./../utils":24}],21:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -1033,7 +974,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":25}],23:[function(require,module,exports){
+},{"../utils":24}],22:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -1088,7 +1029,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":25}],24:[function(require,module,exports){
+},{"./../utils":24}],23:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1117,7 +1058,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -1422,7 +1363,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":15,"is-buffer":26}],26:[function(require,module,exports){
+},{"./helpers/bind":15,"is-buffer":25}],25:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -1430,22 +1371,12 @@ module.exports = {
  * @license  MIT
  */
 
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-module.exports = function (obj) {
-  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+module.exports = function isBuffer (obj) {
+  return obj != null && obj.constructor != null &&
+    typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
 }
 
-function isBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-}
-
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -1631,7 +1562,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1663,7 +1594,103 @@ var Typesense = function () {
 
 module.exports = Typesense;
 
-},{"./Typesense/Client":30}],29:[function(require,module,exports){
+},{"./Typesense/Client":31}],28:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Aliases = require('./Aliases');
+
+var _Aliases2 = _interopRequireDefault(_Aliases);
+
+var _ApiCall = require('./ApiCall');
+
+var _ApiCall2 = _interopRequireDefault(_ApiCall);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Alias = function () {
+  function Alias(configuration, name) {
+    _classCallCheck(this, Alias);
+
+    this._configuration = configuration;
+    this._name = name;
+  }
+
+  _createClass(Alias, [{
+    key: 'retrieve',
+    value: function retrieve() {
+      return new _ApiCall2.default(this._configuration).get(this._endpointPath());
+    }
+  }, {
+    key: 'delete',
+    value: function _delete() {
+      return new _ApiCall2.default(this._configuration).delete(this._endpointPath());
+    }
+  }, {
+    key: '_endpointPath',
+    value: function _endpointPath() {
+      return _Aliases2.default.RESOURCEPATH + '/' + this._name;
+    }
+  }]);
+
+  return Alias;
+}();
+
+module.exports = Alias;
+
+},{"./Aliases":29,"./ApiCall":30}],29:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ApiCall = require('./ApiCall');
+
+var _ApiCall2 = _interopRequireDefault(_ApiCall);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RESOURCEPATH = '/aliases';
+
+var Aliases = function () {
+  function Aliases(configuration) {
+    _classCallCheck(this, Aliases);
+
+    this._configuration = configuration;
+  }
+
+  _createClass(Aliases, [{
+    key: 'upsert',
+    value: function upsert(name, mapping) {
+      return new _ApiCall2.default(this._configuration).put(this._endpointPath(name), mapping);
+    }
+  }, {
+    key: 'retrieve',
+    value: function retrieve(schema) {
+      return new _ApiCall2.default(this._configuration).get(RESOURCEPATH);
+    }
+  }, {
+    key: '_endpointPath',
+    value: function _endpointPath(aliasName) {
+      return Aliases.RESOURCEPATH + '/' + aliasName;
+    }
+  }], [{
+    key: 'RESOURCEPATH',
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+
+  return Aliases;
+}();
+
+module.exports = Aliases;
+
+},{"./ApiCall":30}],30:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1749,6 +1776,13 @@ var ApiCall = function () {
       return this.performRequest('post', endpoint, undefined, parameters, undefined, 'master');
     }
   }, {
+    key: 'put',
+    value: function put(endpoint) {
+      var parameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      return this.performRequest('put', endpoint, undefined, parameters, undefined, 'master');
+    }
+  }, {
     key: 'performRequest',
     value: function performRequest(requestType, endpoint) {
       var queryParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -1799,7 +1833,7 @@ var ApiCall = function () {
 
 module.exports = ApiCall;
 
-},{"axios":1}],30:[function(require,module,exports){
+},{"axios":1}],31:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1815,6 +1849,14 @@ var _Collections2 = _interopRequireDefault(_Collections);
 var _Collection = require('./Collection');
 
 var _Collection2 = _interopRequireDefault(_Collection);
+
+var _Aliases = require('./Aliases');
+
+var _Aliases2 = _interopRequireDefault(_Aliases);
+
+var _Alias = require('./Alias');
+
+var _Alias2 = _interopRequireDefault(_Alias);
 
 var _Debug = require('./Debug');
 
@@ -1832,6 +1874,8 @@ var Client = function () {
     this.debug = new _Debug2.default(this.configuration);
     this._collections = new _Collections2.default(this.configuration);
     this._individualCollections = {};
+    this._aliases = new _Aliases2.default(this.configuration);
+    this._individualAliases = {};
   }
 
   _createClass(Client, [{
@@ -1846,6 +1890,18 @@ var Client = function () {
         return this._individualCollections[collectionName];
       }
     }
+  }, {
+    key: 'aliases',
+    value: function aliases(aliasName) {
+      if (aliasName === undefined) {
+        return this._aliases;
+      } else {
+        if (this._individualAliases[aliasName] === undefined) {
+          this._individualAliases[aliasName] = new _Alias2.default(this.configuration, aliasName);
+        }
+        return this._individualAliases[aliasName];
+      }
+    }
   }]);
 
   return Client;
@@ -1853,7 +1909,7 @@ var Client = function () {
 
 module.exports = Client;
 
-},{"./Collection":31,"./Collections":32,"./Configuration":33,"./Debug":34}],31:[function(require,module,exports){
+},{"./Alias":28,"./Aliases":29,"./Collection":32,"./Collections":33,"./Configuration":34,"./Debug":35}],32:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1869,6 +1925,14 @@ var _Documents2 = _interopRequireDefault(_Documents);
 var _Document = require('./Document');
 
 var _Document2 = _interopRequireDefault(_Document);
+
+var _Overrides = require('./Overrides');
+
+var _Overrides2 = _interopRequireDefault(_Overrides);
+
+var _Override = require('./Override');
+
+var _Override2 = _interopRequireDefault(_Override);
 
 var _ApiCall = require('./ApiCall');
 
@@ -1886,6 +1950,8 @@ var Collection = function () {
     this._name = name;
     this._documents = new _Documents2.default(this._configuration, this._name);
     this._individualDocuments = {};
+    this._overrides = new _Overrides2.default(this._configuration, this._name);
+    this._individualOverrides = {};
   }
 
   _createClass(Collection, [{
@@ -1911,6 +1977,18 @@ var Collection = function () {
       }
     }
   }, {
+    key: 'overrides',
+    value: function overrides(overrideId) {
+      if (overrideId === undefined) {
+        return this._overrides;
+      } else {
+        if (this._individualOverrides[overrideId] === undefined) {
+          this._individualOverrides[overrideId] = new _Override2.default(this._configuration, this._name, overrideId);
+        }
+        return this._individualOverrides[overrideId];
+      }
+    }
+  }, {
     key: '_endpointPath',
     value: function _endpointPath() {
       return _Collections2.default.RESOURCEPATH + '/' + this._name;
@@ -1922,7 +2000,7 @@ var Collection = function () {
 
 module.exports = Collection;
 
-},{"./ApiCall":29,"./Collections":32,"./Document":35,"./Documents":36}],32:[function(require,module,exports){
+},{"./ApiCall":30,"./Collections":33,"./Document":36,"./Documents":37,"./Override":38,"./Overrides":39}],33:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1966,7 +2044,7 @@ var Collections = function () {
 
 module.exports = Collections;
 
-},{"./ApiCall":29}],33:[function(require,module,exports){
+},{"./ApiCall":30}],34:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2035,7 +2113,7 @@ var Configuration = function () {
 
 module.exports = Configuration;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2069,7 +2147,7 @@ var Collections = function () {
 
 module.exports = Collections;
 
-},{"./ApiCall":29}],35:[function(require,module,exports){
+},{"./ApiCall":30}],36:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2121,7 +2199,7 @@ var Document = function () {
 
 module.exports = Document;
 
-},{"./ApiCall":29,"./Collections":32,"./Documents":36}],36:[function(require,module,exports){
+},{"./ApiCall":30,"./Collections":33,"./Documents":37}],37:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2182,6 +2260,112 @@ var Documents = function () {
 
 module.exports = Documents;
 
-},{"./ApiCall":29,"./Collections":32}]},{},[28])(28)
+},{"./ApiCall":30,"./Collections":33}],38:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ApiCall = require('./ApiCall');
+
+var _ApiCall2 = _interopRequireDefault(_ApiCall);
+
+var _Collections = require('./Collections');
+
+var _Collections2 = _interopRequireDefault(_Collections);
+
+var _Overrides = require('./Overrides');
+
+var _Overrides2 = _interopRequireDefault(_Overrides);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Override = function () {
+  function Override(configuration, collectionName, overrideId) {
+    _classCallCheck(this, Override);
+
+    this._configuration = configuration;
+    this._collectionName = collectionName;
+    this._overrideId = overrideId;
+  }
+
+  _createClass(Override, [{
+    key: 'retrieve',
+    value: function retrieve() {
+      return new _ApiCall2.default(this._configuration).get(this._endpointPath());
+    }
+  }, {
+    key: 'delete',
+    value: function _delete() {
+      return new _ApiCall2.default(this._configuration).delete(this._endpointPath());
+    }
+  }, {
+    key: '_endpointPath',
+    value: function _endpointPath() {
+      return _Collections2.default.RESOURCEPATH + '/' + this._collectionName + _Overrides2.default.RESOURCEPATH + '/' + this._overrideId;
+    }
+  }]);
+
+  return Override;
+}();
+
+module.exports = Override;
+
+},{"./ApiCall":30,"./Collections":33,"./Overrides":39}],39:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ApiCall = require('./ApiCall');
+
+var _ApiCall2 = _interopRequireDefault(_ApiCall);
+
+var _Collections = require('./Collections');
+
+var _Collections2 = _interopRequireDefault(_Collections);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RESOURCEPATH = '/overrides';
+
+var Overrides = function () {
+  function Overrides(configuration, collectionName) {
+    _classCallCheck(this, Overrides);
+
+    this._configuration = configuration;
+    this._collectionName = collectionName;
+  }
+
+  _createClass(Overrides, [{
+    key: 'create',
+    value: function create(params) {
+      return new _ApiCall2.default(this._configuration).put(this._endpointPath(), params);
+    }
+  }, {
+    key: 'retrieve',
+    value: function retrieve() {
+      return new _ApiCall2.default(this._configuration).get(this._endpointPath());
+    }
+  }, {
+    key: '_endpointPath',
+    value: function _endpointPath(operation) {
+      return _Collections2.default.RESOURCEPATH + '/' + this._collectionName + Overrides.RESOURCEPATH;
+    }
+  }], [{
+    key: 'RESOURCEPATH',
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+
+  return Overrides;
+}();
+
+module.exports = Overrides;
+
+},{"./ApiCall":30,"./Collections":33}]},{},[27])(27)
 });
 

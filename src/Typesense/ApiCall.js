@@ -46,6 +46,10 @@ class ApiCall {
     return this.performRequest('post', endpoint, undefined, parameters, undefined, 'master')
   }
 
+  put (endpoint, parameters = {}) {
+    return this.performRequest('put', endpoint, undefined, parameters, undefined, 'master')
+  }
+
   performRequest (requestType, endpoint, queryParameters = {}, bodyParameters = {}, additionalHeaders = {}, node = this._defaultNode, nodeIndex = this._defaultNodeIndex) {
     this
       ._configuration

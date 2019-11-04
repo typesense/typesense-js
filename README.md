@@ -32,7 +32,7 @@ Tests are also a good place to know how the the library works internally: [test]
 
 After checking out the repo, run `npm install` to install dependencies. Then run `npm test` to run the linter and tests.
 
-To release a new version, run `npm build` and then `npm publish`
+To release a new version, run `npm run build` and then `npm publish`
 
 ## Contributing
 
