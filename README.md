@@ -1,4 +1,4 @@
-# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/typesense/typesense-js) [![Greenkeeper badge](https://badges.greenkeeper.io/typesense/typesense-js.svg)](https://greenkeeper.io/)
+# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/typesense/typesense-js)
 
 Javascript client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense). Follows the API spec [here](https://github.com/typesense/typesense-api-spec).
 
