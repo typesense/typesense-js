@@ -1,34 +1,36 @@
 /*
- These examples walk you through the search operation
+ These examples walk you through the search operation.
+
+ See clientInitalization.js for quick instructions on starting the Typesense server.
 */
+require('@babel/register')
 
-var Typesense = require('../../../lib/Typesense')
-
-/*
- Setup
-
- Start the master
-   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108
-
- Start the read replica
-   $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108
-*/
+const Typesense = require('../../../src/Typesense')
 
 // Create a client
-var typesense = new Typesense.Client({
-  'masterNode': {
-    'host': 'localhost',
-    'port': '8108',
-    'protocol': 'http',
-    'apiKey': 'abcd'
-  },
-  'readReplicaNodes': [{
-    'host': 'localhost',
-    'port': '8109',
-    'protocol': 'http',
-    'apiKey': 'wxyz'
-  }],
-  'timeoutSeconds': 10
+const typesense = new Typesense.Client({
+  'nodes': [
+    {
+      'host': 'localhost',
+      'port': '8108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '7108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '9108',
+      'protocol': 'http'
+    }],
+  'apiKey': 'xyz',
+  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
+  'connectionTimeoutSeconds': 10,
+  'retryIntervalSeconds': 0.1,
+  'healthcheckIntervalSeconds': 2,
+  'logLevel': 'debug'
 })
 
 let schema = {
@@ -83,54 +85,52 @@ let documents = [
   }
 ]
 
-typesense.collections().create(schema) // create a collection
-  .then(function () {
-    // create a couple of documents
-    return Promise.all(documents.map(function (document) {
+async function runExample () {
+  try {
+    // Delete if the collection already exists from a previous example run
+    await typesense.collections('companies').delete()
+  } catch (error) {
+    // do nothing
+  }
+
+  try {
+    // create a collection
+    await typesense.collections().create(schema)
+
+    // Index documents
+    await Promise.all(documents.map(document => {
       return typesense.collections('companies').documents().create(document)
     }))
-  })
-  .then(function (data) {
-    let promises = []
 
     // Search for documents
-    promises += typesense.collections('companies').documents().search({
+    let searchResults = []
+    searchResults = await typesense.collections('companies').documents().search({
       'q': 'Stark',
       'query_by': 'company_name'
-    }).then(function (searchResults) {
-      console.log(searchResults)
-    }).catch(function (error) {
-      console.log(error)
     })
+    console.log(searchResults)
 
     // Search for non-existent
-    promises += typesense.collections('companies').documents().search({
+    searchResults = await typesense.collections('companies').documents().search({
       'q': 'Non Existent',
       'query_by': 'company_name'
-    }).then(function (searchResults) {
-      console.log(searchResults)
-    }).catch(function (error) {
-      console.log(error)
     })
+    console.log(searchResults)
 
     // Search for more documents
-    promises += typesense.collections('companies').documents().search({
+    searchResults = await typesense.collections('companies').documents().search({
       'q': 'Inc',
       'query_by': 'company_name',
       'filter_by': 'num_employees:<100',
       'sort_by': 'num_employees:desc'
-    }).then(function (searchResults) {
-      console.log(searchResults)
-    }).catch(function (error) {
-      console.log(error)
     })
-
-    return Promise.all(promises)
-  })
-  .then(function () {
-    // Cleanup - delete the collection
-    return typesense.collections('companies').delete()
-  })
-  .catch(function (error) {
+    console.log(searchResults)
+  } catch (error) {
     console.log(error)
-  })
+  } finally {
+    // Cleanup
+    typesense.collections('companies').delete()
+  }
+}
+
+runExample()

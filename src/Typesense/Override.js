@@ -1,22 +1,21 @@
 'use strict'
 
-import ApiCall from './ApiCall'
 import Collections from './Collections'
 import Overrides from './Overrides'
 
 class Override {
-  constructor (configuration, collectionName, overrideId) {
-    this._configuration = configuration
+  constructor (collectionName, overrideId, apiCall) {
     this._collectionName = collectionName
     this._overrideId = overrideId
+    this._apiCall = apiCall
   }
 
   retrieve () {
-    return new ApiCall(this._configuration).get(this._endpointPath())
+    return this._apiCall.get(this._endpointPath())
   }
 
   delete () {
-    return new ApiCall(this._configuration).delete(this._endpointPath())
+    return this._apiCall.delete(this._endpointPath())
   }
 
   _endpointPath () {

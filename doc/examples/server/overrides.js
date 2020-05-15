@@ -1,25 +1,33 @@
 /*
  These examples walk you through overrides, available in the premium version
+ See clientInitalization.js for quick instructions on starting the Typesense server.
 */
+require('@babel/register')
 
-var Typesense = require('../../../lib/Typesense')
-
-/*
- Setup
-
- Start the server
-   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense-premium:sep28-2019-01 --data-dir /data --api-key=abcd --listen-port 8108 --license-key=XYZ
-
-*/
+const Typesense = require('../../../src/Typesense')
 
 // Create a client
-var typesense = new Typesense.Client({
-  'masterNode': {
-    'host': 'localhost',
-    'port': '8108',
-    'protocol': 'http',
-    'apiKey': 'abcd'
-  }
+const typesense = new Typesense.Client({
+  'nodes': [
+    {
+      'host': 'localhost',
+      'port': '8108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '7108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '9108',
+      'protocol': 'http'
+    }],
+  'apiKey': 'xyz',
+  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
+  'connectionTimeoutSeconds': 10,
+  'logLevel': 'debug'
 })
 
 let schema = {

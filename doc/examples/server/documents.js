@@ -1,34 +1,33 @@
 /*
  These examples walk you through all the operations you can do on a document
+ See clientInitalization.js for quick instructions on starting the Typesense server.
 */
+require('@babel/register')
 
-var Typesense = require('../../../lib/Typesense')
-
-/*
- Setup
-
- Start the master
-   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108
-
- Start the read replica
-   $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108
-*/
+const Typesense = require('../../../src/Typesense')
 
 // Create a client
-var typesense = new Typesense.Client({
-  'masterNode': {
-    'host': 'localhost',
-    'port': '8108',
-    'protocol': 'http',
-    'apiKey': 'abcd'
-  },
-  'readReplicaNodes': [{
-    'host': 'localhost',
-    'port': '8109',
-    'protocol': 'http',
-    'apiKey': 'wxyz'
-  }],
-  'timeoutSeconds': 10
+const typesense = new Typesense.Client({
+  'nodes': [
+    {
+      'host': 'localhost',
+      'port': '8108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '7108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '9108',
+      'protocol': 'http'
+    }],
+  'apiKey': 'xyz',
+  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
+  'connectionTimeoutSeconds': 10,
+  'logLevel': 'debug'
 })
 
 let schema = {
@@ -69,43 +68,53 @@ let documents = [
   }
 ]
 
-typesense.collections().create(schema) // create a collection
-  .then(function () {
+async function runExample () {
+  try {
+    // Delete if the collection already exists from a previous example run
+    await typesense.collections('companies').delete()
+  } catch (error) {
+    // do nothing
+  }
+
+  try {
+    let result
+    // create a collection
+    result = await typesense.collections().create(schema)
+    console.log(result)
+
     // create a document
-    return typesense.collections('companies').documents().create(documents[0])
-  })
-  .then(function (data) {
-    console.log(data)
+    result = await typesense.collections('companies').documents().create(documents[0])
+    console.log(result)
 
-    // Retrieve a document
-    return typesense.collections('companies').documents('124').retrieve()
-  })
-  .then(function (data) {
-    console.log(data)
+    // Retrieve the document
+    await timer(0.5) // Give Typesense cluster a few hundred ms to index document on all nodes, before reading it right after (eventually consistent)
+    result = await typesense.collections('companies').documents('124').retrieve()
+    console.log(result)
 
-    // delete a document (deletion returns the document after deletion)
-    return typesense.collections('companies').documents('124').delete()
-  })
-  .then(function (data) {
-    console.log(data)
+    // Delete a document (deletion returns the document after deletion)
+    result = await typesense.collections('companies').documents('124').delete()
+    console.log(result)
 
     // create a couple of documents
-    return Promise.all(documents.map(function (document) {
+    await Promise.all(documents.map(function (document) {
       return typesense.collections('companies').documents().create(document)
     }))
-  })
-  .then(function (data) {
+
     // Export all documents in a collection in JSON Lines format
     //  We use JSON Lines format for performance reasons. You can choose to parse selected lines (elements in the array) as needed.
-    return typesense.collections('companies').documents().export()
-  })
-  .then(function (data) {
-    // Cleanup - delete the collection
-    return typesense.collections('companies').delete()
-  })
-  .then(function (data) {
-    console.log(data)
-  })
-  .catch(function (error) {
+    await timer(0.5) // Give Typesense cluster a few hundred ms to index document on all nodes, before reading it right after (eventually consistent)
+    result = await typesense.collections('companies').documents().export()
+    console.log(result)
+  } catch (error) {
     console.log(error)
-  })
+  } finally {
+    // Cleanup
+    typesense.collections('companies').delete()
+  }
+}
+
+async function timer (seconds) {
+  return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+}
+
+runExample()

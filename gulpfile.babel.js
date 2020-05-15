@@ -16,7 +16,7 @@ gulp.task('build:browser', function () {
     entries: './src/Typesense.js',
     debug: true,
     standalone: 'Typesense'
-  }).transform('babelify', {presets: ['env']})
+  }).transform('babelify', {presets: ['@babel/preset-env']})
     .bundle()
     .pipe(source('typesense.js'))
     .pipe(buffer())
@@ -32,7 +32,7 @@ gulp.task('build:browser', function () {
 
 gulp.task('build:node', function () {
   let stream = gulp.src('src/**/*.js')
-    .pipe(sourcemaps.init())
+    .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(babel())
     .pipe(sourcemaps.write('./'))
 

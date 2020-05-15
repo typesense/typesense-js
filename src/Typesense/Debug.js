@@ -1,16 +1,14 @@
 'use strict'
 
-import ApiCall from './ApiCall'
-
 const RESOURCEPATH = '/debug'
 
 class Collections {
-  constructor (configuration) {
-    this._configuration = configuration
+  constructor (apiCall) {
+    this._apiCall = apiCall
   }
 
   retrieve () {
-    return new ApiCall(this._configuration).get(RESOURCEPATH)
+    return this._apiCall.get(RESOURCEPATH)
   }
 }
 
