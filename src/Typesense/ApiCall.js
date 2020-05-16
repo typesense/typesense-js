@@ -10,7 +10,7 @@ class ApiCall {
     this._configuration = configuration
 
     this._apiKey = this._configuration.apiKey
-    this._nodes = [...this._configuration.nodes] // Make a copy, since we'll be adding additional metadata to the nodes
+    this._nodes = JSON.parse(JSON.stringify(this._configuration.nodes)) // Make a copy, since we'll be adding additional metadata to the nodes
     this._connectionTimeoutSeconds = this._configuration.connectionTimeoutSeconds
     this._healthcheckIntervalSeconds = this._configuration.healthcheckIntervalSeconds
     this._numRetriesPerRequest = this._configuration.numRetries
@@ -66,7 +66,7 @@ class ApiCall {
           },
           transformResponse: [(data, headers) => {
             let transformedData = data
-            if (headers['content-type'].startsWith('application/json') && typeof data === 'string') {
+            if (headers !== undefined && typeof data === 'string' && headers['content-type'].startsWith('application/json')) {
               transformedData = JSON.parse(data)
             }
             return transformedData
@@ -89,6 +89,7 @@ class ApiCall {
         this._setNodeHealthcheck(node, UNHEALTHY)
         lastException = error
         this._logger.warn(`Request to Node ${node.index} failed due to "${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
+        // this._logger.debug(error.stack)
         this._logger.warn(`Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
         await this._timer(this._retryIntervalSeconds)
       }

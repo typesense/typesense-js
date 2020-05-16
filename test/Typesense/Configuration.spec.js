@@ -7,40 +7,33 @@ describe('Typesense', function () {
   let typesense
   beforeEach(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      },
-      'readReplicaNodes': [{
-        'host': 'read-replica',
-        'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
+        'protocol': 'http'
       }],
-      'timeoutSeconds': 10
+      'apiKey': 'abcd'
     })
   })
 
-  it('throws an error if there is a missing config value in the masterNode', function (done) {
-    delete typesense.configuration.masterNode.host
+  it('throws an error if there is a missing config value in nodes', function (done) {
+    delete typesense.configuration.nodes[0].host
 
     expect(() => {
       typesense.configuration.validate()
     })
-      .to.throw('Missing required parameters in masterNode')
+      .to.throw('Missing required configuration. Ensure that nodes[].protocol, nodes[].host and nodes[].port are set.')
 
     done()
   })
 
-  it('throws an error if there is a missing config value in the readReplicaNodes', function (done) {
-    delete typesense.configuration.readReplicaNodes[0].protocol
+  it('throws an error if apiKey is missing', function (done) {
+    typesense.configuration.apiKey = undefined
 
     expect(() => {
       typesense.configuration.validate()
     })
-      .to.throw('Missing required parameters in one of readReplicaNodes')
+      .to.throw('Missing required configuration. Ensure that apiKey is set.')
 
     done()
   })

@@ -17,12 +17,12 @@ describe('Override', function () {
 
   before(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      }
+        'protocol': 'http'
+      }],
+      'apiKey': 'abcd'
     })
 
     overrideData = {
@@ -48,12 +48,12 @@ describe('Override', function () {
     it('retreives the override with the given ID', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/overrides/lex-exact'),
+          apiCall._uriFor('/collections/companies/overrides/lex-exact', 0),
           undefined,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, overrideData)
@@ -68,12 +68,12 @@ describe('Override', function () {
       let stubbedResult = {'id': 'lex-exact'}
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies/overrides/lex-exact'),
+          apiCall._uriFor('/collections/companies/overrides/lex-exact', 0),
           undefined,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, stubbedResult)

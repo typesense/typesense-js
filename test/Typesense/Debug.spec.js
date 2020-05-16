@@ -15,19 +15,12 @@ describe('Debug', function () {
   before(function () {
     mockAxios = new MockAxiosAdapter(axios)
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      },
-      'readReplicaNodes': [{
-        'host': 'read-replica',
-        'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
+        'protocol': 'http'
       }],
-      'timeoutSeconds': 10
+      'apiKey': 'abcd'
     })
     apiCall = new ApiCall(typesense.configuration)
   })
@@ -37,12 +30,12 @@ describe('Debug', function () {
       let debugInfo = {version: '0.8.0'}
       mockAxios
         .onGet(
-          apiCall._uriFor('/debug'),
+          apiCall._uriFor('/debug', 0),
           undefined,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, debugInfo)

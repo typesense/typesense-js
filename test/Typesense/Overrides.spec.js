@@ -17,12 +17,12 @@ describe('Overrides', function () {
 
   before(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      }
+        'protocol': 'http'
+      }],
+      'apiKey': 'abcd'
     })
 
     override = {
@@ -48,12 +48,12 @@ describe('Overrides', function () {
     it('creates the override in the collection', function (done) {
       mockAxios
         .onPut(
-          apiCall._uriFor('/collections/companies/overrides'),
+          apiCall._uriFor('/collections/companies/overrides', 0),
           override,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(201, override)
@@ -67,12 +67,12 @@ describe('Overrides', function () {
     it('retrieves all overrides', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/overrides'),
+          apiCall._uriFor('/collections/companies/overrides', 0),
           undefined,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, [override])

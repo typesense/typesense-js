@@ -4,83 +4,126 @@ import Typesense from '../../src/Typesense'
 import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
+import timekeeper from 'timekeeper'
 
 let expect = chai.expect
 chai.use(chaiAsPromised)
 
-describe('ApiCall', function () {
-  let typesense
-  let apiCall
-  let mockAxios
+let sharedNodeSelectionBehavior = (method) => {
+  it('raises an error when no nodes are healthy', async function () {
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 0)).reply(500, {'message': 'Error message'})
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 1)).reply(500, {'message': 'Error message'})
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 2)).reply(500, {'message': 'Error message'})
 
-  before(function () {
-    typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
-        'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      },
-      'readReplicaNodes': [
+    await expect(this.apiCall[method]('/')).to.eventually.be.rejectedWith('Request failed with status code 500')
+    let requestHistory = this.mockAxios.history[method]
+    expect(requestHistory.length).to.equal(4)
+    expect(requestHistory[0].url).to.equal('http://node0:8108/')
+    expect(requestHistory[1].url).to.equal('http://node1:7108/')
+    expect(requestHistory[2].url).to.equal('http://node2:9108/')
+    expect(requestHistory[3].url).to.equal('http://node0:8108/')
+  })
+
+  it('selects the next available node when there is a connection timeout', async function () {
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 0)).timeout()
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 1)).timeout()
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 2)).reply(200, {'message': 'Success'})
+
+    await expect(this.apiCall[method]('/')).to.eventually.deep.equal({'message': 'Success'})
+    let requestHistory = this.mockAxios.history[method]
+    expect(requestHistory.length).to.equal(3)
+    expect(requestHistory[0].url).to.equal('http://node0:8108/')
+    expect(requestHistory[1].url).to.equal('http://node1:7108/')
+    expect(requestHistory[2].url).to.equal('http://node2:9108/')
+  })
+
+  it('remove unhealthy nodes out of rotation, until threshold', async function () {
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 0)).timeout()
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 1)).timeout()
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 2)).reply(200, {'message': 'Success'})
+
+    let currentTime = Date.now()
+    timekeeper.freeze(currentTime)
+    await this.apiCall[method]('/') // Node 0 and Node 1 are marked as unhealthy after this, request should have been made to Node 2
+    await this.apiCall[method]('/') // Request should have been made to Node 2
+    await this.apiCall[method]('/') // Request should have been made to Node 2
+
+    timekeeper.freeze(currentTime + 5 * 1000)
+    await this.apiCall[method]('/') // Request should have been made to Node 2
+
+    timekeeper.freeze(currentTime + 65 * 1000)
+    await this.apiCall[method]('/') // Request should have been made to Node 2, since Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold
+
+    // Remove first mock, to let request to node 0 succeed
+    this.mockAxios.handlers[method].shift()
+    this.mockAxios.onAny(this.apiCall._uriFor('/', 0)).reply(200, {'message': 'Success'})
+
+    timekeeper.freeze(currentTime + 125 * 1000)
+    await this.apiCall[method]('/') // Request should have been made to Node 0, since it is now healthy and the unhealthy threshold was exceeded
+
+    let requestHistory = this.mockAxios.history[method]
+    expect(requestHistory.length).to.equal(10)
+
+    expect(requestHistory[0].url).to.equal('http://node0:8108/')
+    expect(requestHistory[1].url).to.equal('http://node1:7108/')
+    expect(requestHistory[2].url).to.equal('http://node2:9108/')
+
+    expect(requestHistory[3].url).to.equal('http://node2:9108/')
+
+    expect(requestHistory[4].url).to.equal('http://node2:9108/')
+
+    expect(requestHistory[5].url).to.equal('http://node2:9108/')
+
+    expect(requestHistory[6].url).to.equal('http://node0:8108/')
+    expect(requestHistory[7].url).to.equal('http://node1:7108/')
+    expect(requestHistory[8].url).to.equal('http://node2:9108/')
+
+    expect(requestHistory[9].url).to.equal('http://node0:8108/')
+
+    timekeeper.reset()
+  })
+}
+
+describe('ApiCall', function () {
+  beforeEach(function () {
+    this.typesense = new Typesense.Client({
+      'nodes': [
         {
-          'host': 'read-replica-1',
+          'host': 'node0',
           'port': '8108',
-          'protocol': 'http',
-          'apiKey': 'abcd'
+          'protocol': 'http'
         },
         {
-          'host': 'read-replica-2',
-          'port': '8108',
-          'protocol': 'http',
-          'apiKey': 'abcd'
-        }],
-      'timeoutSeconds': 10
+          'host': 'node1',
+          'port': '7108',
+          'protocol': 'http'
+        },
+        {
+          'host': 'node2',
+          'port': '9108',
+          'protocol': 'http'
+        }
+      ],
+      'apiKey': 'abcd',
+      'logLevel': 'error'
     })
-    mockAxios = new MockAxiosAdapter(axios)
-    apiCall = new ApiCall(typesense.configuration)
+    this.mockAxios = new MockAxiosAdapter(axios)
+    this.apiCall = new ApiCall(this.typesense.configuration)
   })
 
   describe('.post', function () {
-    it('performs POST requests only against the master node and does not failover to read replicas', function (done) {
-      mockAxios.onPost(apiCall._uriFor('/collections/companies', 'master'), {dummy: 0}).reply(500)
-
-      let returnData = apiCall.post('/collections/companies', {dummy: 0})
-
-      expect(returnData).to.be.rejected.notify(done)
-    })
+    sharedNodeSelectionBehavior('post')
   })
 
-  describe('.delete', function () {
-    it('performs DELETE requests only against the master node and does not failover to read replicas', function (done) {
-      mockAxios.onDelete(apiCall._uriFor('/collections/companies', 'master'), {dummy: 0}).reply(500)
-
-      let returnData = apiCall.post('/collections/companies', {dummy: 0})
-
-      expect(returnData).to.be.rejected.notify(done)
-    })
+  describe('.put', function () {
+    sharedNodeSelectionBehavior('post')
   })
 
   describe('.get', function () {
-    it('fails-over to read replicas for get requests', function (done) {
-      mockAxios
-        .onGet(apiCall._uriFor('/collections/companies', 'master'), {params: {dummy: 0}}).reply(500)
-        .onGet(apiCall._uriFor('/collections/companies', 'readReplica', 0), {params: {dummy: 0}}).reply(500)
-        .onGet(apiCall._uriFor('/collections/companies', 'readReplica', 1), {params: {dummy: 0}}).reply(200, {result: 'OK'})
+    sharedNodeSelectionBehavior('post')
+  })
 
-      let returnData = apiCall.get('/collections/companies', {dummy: 0})
-
-      expect(returnData).to.eventually.deep.equal({result: 'OK'}).notify(done)
-    })
-
-    it('returns an error when both master and all read replicas are unavailable', function (done) {
-      mockAxios
-        .onGet(apiCall._uriFor('/collections/companies', 'master'), {params: {dummy: 0}}).reply(500)
-        .onGet(apiCall._uriFor('/collections/companies', 'readReplica', 0), {params: {dummy: 0}}).reply(500)
-        .onGet(apiCall._uriFor('/collections/companies', 'readReplica', 1), {params: {dummy: 0}}).reply(500)
-
-      let returnData = apiCall.get('/collections/companies', {dummy: 0})
-
-      expect(returnData).to.be.rejected.notify(done)
-    })
+  describe('.delete', function () {
+    sharedNodeSelectionBehavior('post')
   })
 })

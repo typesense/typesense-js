@@ -53,15 +53,16 @@
     "mocha": "^7.1.2",
     "mocha-junit-reporter": "^1.23.3",
     "nyc": "^15.0.1",
+    "timekeeper": "^2.2.0",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
   "scripts": {
     "pretest": "eslint .",
-    "test": "nyc --reporter=html --reporter=text mocha --require babel-register --recursive",
+    "test": "nyc --reporter=html --reporter=text mocha --require @babel/register --recursive",
     "build": "gulp clean build",
     "ci-lint": "eslint .",
-    "ci-test": "nyc --reporter=text --reporter=html mocha --require babel-register --reporter mocha-junit-reporter"
+    "ci-test": "nyc --reporter=text --reporter=html mocha --require @babel/register --reporter mocha-junit-reporter"
   },
   "repository": "typesense/typesense-js",
   "license": "Apache-2.0",

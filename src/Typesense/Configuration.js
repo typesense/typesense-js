@@ -49,13 +49,13 @@ class Configuration {
 
   _showDeprecationWarnings (options) {
     if (options.timeoutSeconds) {
-      this._logger.warn('Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds')
+      this.logger.warn('Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds')
     }
     if (options.masterNode) {
-      this._logger.warn('Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12')
+      this.logger.warn('Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12')
     }
     if (options.readReplicaNodes) {
-      this._logger.warn('Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12')
+      this.logger.warn('Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12')
     }
   }
 }

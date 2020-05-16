@@ -18,19 +18,12 @@ describe('Documents', function () {
 
   before(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      },
-      'readReplicaNodes': [{
-        'host': 'read-replica',
-        'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
+        'protocol': 'http'
       }],
-      'timeoutSeconds': 10
+      'apiKey': 'abcd'
     })
 
     document = {
@@ -79,14 +72,14 @@ describe('Documents', function () {
       }
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/search'),
+          apiCall._uriFor('/collections/companies/documents/search', 0),
           {
             params: searchParameters
           },
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, stubbedSearchResult)
@@ -101,12 +94,12 @@ describe('Documents', function () {
     it('creates the document', function (done) {
       mockAxios
         .onPost(
-          apiCall._uriFor('/collections/companies/documents'),
+          apiCall._uriFor('/collections/companies/documents', 0),
           document,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(201, document)
@@ -121,12 +114,12 @@ describe('Documents', function () {
     it('exports the documents', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/export'),
+          apiCall._uriFor('/collections/companies/documents/export', 0),
           undefined,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
