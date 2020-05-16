@@ -110,6 +110,26 @@ describe('Documents', function () {
     })
   })
 
+  describe('.createMany', function () {
+    it('imports the documents', function (done) {
+      mockAxios
+        .onPost(
+          apiCall._uriFor('/collections/companies/documents/import', 0),
+          `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+          {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/jsonl',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(200, {success: true})
+
+      let returnData = documents.createMany([document, anotherDocument])
+
+      expect(returnData).to.eventually.deep.equal({success: true}).notify(done)
+    })
+  })
+
   describe('.export', function () {
     it('exports the documents', function (done) {
       mockAxios

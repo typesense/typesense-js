@@ -96,9 +96,8 @@ async function runExample () {
     console.log(result)
 
     // create a couple of documents
-    await Promise.all(documents.map(function (document) {
-      return typesense.collections('companies').documents().create(document)
-    }))
+    result = await typesense.collections('companies').documents().createMany(documents)
+    console.log(result)
 
     // Export all documents in a collection in JSON Lines format
     //  We use JSON Lines format for performance reasons. You can choose to parse selected lines (elements in the array) as needed.

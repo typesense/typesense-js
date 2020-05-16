@@ -147,7 +147,6 @@ class ApiCall {
   _defaultHeaders () {
     let defaultHeaders = {}
     defaultHeaders[APIKEYHEADERNAME] = this._apiKey
-    // TODO: Might need to update this for import endpoint, since it requires non-json
     defaultHeaders['Content-Type'] = 'application/json'
     return defaultHeaders
   }
