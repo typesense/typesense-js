@@ -88,7 +88,7 @@ class ApiCall {
         // This block handles HTTPStatus < 0, HTTPStatus > 500 and network layer issues like connection timeouts
         this._setNodeHealthcheck(node, UNHEALTHY)
         lastException = error
-        this._logger.warn(`Request to Node ${node.index} failed due to "${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
+        this._logger.warn(`Request to Node ${node.index} failed due to "${error.code} ${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
         // this._logger.debug(error.stack)
         this._logger.warn(`Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
         await this._timer(this._retryIntervalSeconds)
