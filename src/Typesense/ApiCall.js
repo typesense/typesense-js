@@ -11,6 +11,7 @@ class ApiCall {
 
     this._apiKey = this._configuration.apiKey
     this._nodes = JSON.parse(JSON.stringify(this._configuration.nodes)) // Make a copy, since we'll be adding additional metadata to the nodes
+    this._distributedSearchNode = JSON.parse(JSON.stringify(this._configuration.distributedSearchNode))
     this._connectionTimeoutSeconds = this._configuration.connectionTimeoutSeconds
     this._healthcheckIntervalSeconds = this._configuration.healthcheckIntervalSeconds
     this._numRetriesPerRequest = this._configuration.numRetries
@@ -47,12 +48,12 @@ class ApiCall {
 
     this._logger.debug(`Performing ${requestType.toUpperCase()} request: ${endpoint}`)
     for (let numTries = 1; numTries <= this._numRetriesPerRequest + 1; numTries++) {
-      let node = this._updateCurrentNode()
+      let node = this._getNextNode()
       this._logger.debug(`Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
       try {
         const requestOptions = {
           method: requestType,
-          url: this._uriFor(endpoint, node.index),
+          url: this._uriFor(endpoint, node),
           headers: Object.assign({}, this._defaultHeaders(), additionalHeaders),
           params: queryParameters,
           data: bodyParameters,
@@ -98,22 +99,43 @@ class ApiCall {
     return Promise.reject(lastException)
   }
 
-  _updateCurrentNode () {
+  _getNextNode () {
+    let candidateNode
+
+    // Check if distributedSearchNode is set and is healthy, if so return it
+    if (this._distributedSearchNode != null) {
+      candidateNode = this._distributedSearchNode
+      this._resetNodeHealthcheckIfExpired(candidateNode)
+      this._logger.debug(`Nodes Health: Node ${candidateNode.index} is ${candidateNode.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
+      if (candidateNode.isHealthy === true) {
+        this._logger.debug(`Using current node as Node ${candidateNode.index}`)
+        return candidateNode
+      } else {
+        this._logger.debug(`Falling back to individual nodes`)
+      }
+    }
+
+    // Fallback to nodes as usual
     this._logger.debug(`Nodes Health: ${this._nodes.map(node => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`).join(' || ')}`)
     let candidateNodeIndex = this._currentNodeIndex
+    candidateNode = this._nodes[candidateNodeIndex]
     for (let i = 0; i <= this._nodes.length; i++) {
       candidateNodeIndex = (candidateNodeIndex + 1) % this._nodes.length
-      this._resetNodeHealthcheckIfExpired(this._nodes[candidateNodeIndex])
-      if (this._nodes[candidateNodeIndex].isHealthy === true) {
+      candidateNode = this._nodes[candidateNodeIndex]
+      this._resetNodeHealthcheckIfExpired(candidateNode)
+      if (candidateNode.isHealthy === true) {
         break
       }
       if (i === this._nodes.length) {
-        this._logger.debug(`No healthy nodes were found. Returning the next node, Node ${candidateNodeIndex}`)
+        if (this._distributedSearchNode != null) {
+          candidateNode = this._distributedSearchNode
+        }
+        this._logger.debug(`No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`)
       }
     }
-    this._logger.debug(`Updated current node to Node ${candidateNodeIndex}`)
     this._currentNodeIndex = candidateNodeIndex
-    return this._nodes[candidateNodeIndex]
+    this._logger.debug(`Updated current node to Node ${candidateNode.index}`)
+    return candidateNode
   }
 
   _resetNodeHealthcheckIfExpired (node) {
@@ -129,6 +151,12 @@ class ApiCall {
   }
 
   _initializeMetadataForNodes () {
+    if (this._distributedSearchNode != null) {
+      let node = this._distributedSearchNode
+      node.index = 'DistributedSearch'
+      this._setNodeHealthcheck(node, HEALTHY)
+    }
+
     this._nodes.forEach((node, i) => {
       node.index = i
       this._setNodeHealthcheck(node, HEALTHY)
@@ -140,8 +168,8 @@ class ApiCall {
     node.lastHealthcheckTimestamp = Date.now()
   }
 
-  _uriFor (endpoint, nodeIndex = this._currentNodeIndex) {
-    return `${this._nodes[nodeIndex].protocol}://${this._nodes[nodeIndex].host}:${this._nodes[nodeIndex].port}${this._nodes[nodeIndex].path}${endpoint}`
+  _uriFor (endpoint, node) {
+    return `${node.protocol}://${node.host}:${node.port}${node.path}${endpoint}`
   }
 
   _defaultHeaders () {

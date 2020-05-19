@@ -48,7 +48,7 @@ describe('Override', function () {
     it('retreives the override with the given ID', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/overrides/lex-exact', 0),
+          apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -68,7 +68,7 @@ describe('Override', function () {
       let stubbedResult = {'id': 'lex-exact'}
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies/overrides/lex-exact', 0),
+          apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',

@@ -72,7 +72,7 @@ describe('Documents', function () {
       }
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/search', 0),
+          apiCall._uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
           {
             params: searchParameters
           },
@@ -94,7 +94,7 @@ describe('Documents', function () {
     it('creates the document', function (done) {
       mockAxios
         .onPost(
-          apiCall._uriFor('/collections/companies/documents', 0),
+          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
           document,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -114,7 +114,7 @@ describe('Documents', function () {
     it('imports the documents', function (done) {
       mockAxios
         .onPost(
-          apiCall._uriFor('/collections/companies/documents/import', 0),
+          apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
           `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -134,7 +134,7 @@ describe('Documents', function () {
     it('exports the documents', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/export', 0),
+          apiCall._uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',

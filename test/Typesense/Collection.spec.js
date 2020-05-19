@@ -53,7 +53,7 @@ describe('Collection', function () {
     it('retrieves a collection', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies', 0),
+          apiCall._uriFor('/collections/companies', typesense.configuration.nodes[0]),
           null,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -73,7 +73,7 @@ describe('Collection', function () {
     it('deletes a collection', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies', 0),
+          apiCall._uriFor('/collections/companies', typesense.configuration.nodes[0]),
           null,
           {
             'Accept': 'application/json, text/plain, */*',

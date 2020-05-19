@@ -54,7 +54,7 @@ describe('Collections', function () {
       let {'num_documents': numDocuments, ...schemaForCreation} = companySchema
       mockAxios
         .onPost(
-          apiCall._uriFor('/collections', 0),
+          apiCall._uriFor('/collections', typesense.configuration.nodes[0]),
           schemaForCreation,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -74,7 +74,7 @@ describe('Collections', function () {
     it('retrieves all collections', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections', 0),
+          apiCall._uriFor('/collections', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',

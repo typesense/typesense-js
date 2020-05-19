@@ -37,7 +37,7 @@ describe('Document', function () {
     it('retrieves a document', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/124', 0),
+          apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
           null,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -57,7 +57,7 @@ describe('Document', function () {
     it('deletes a document', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies/documents/124', 0),
+          apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
           null,
           {
             'Accept': 'application/json, text/plain, */*',

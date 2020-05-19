@@ -25,8 +25,14 @@ const typesense = new Typesense.Client({
       'port': '9108',
       'protocol': 'http'
     }],
+  // If this optional key is specified, requests are always sent to this node first if it is healthy
+  // before falling back on the nodes mentioned in the `nodes` key. This is useful when running a distributed set of search clusters.
+  'distributedSearchNode': {
+    'host': 'localhost',
+    'port': '8108',
+    'protocol': 'http'
+  },
   'apiKey': 'xyz',
-  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
   'connectionTimeoutSeconds': 10,
   'retryIntervalSeconds': 0.1,
   'healthcheckIntervalSeconds': 2,

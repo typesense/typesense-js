@@ -5,15 +5,12 @@ import logger from 'loglevel'
 class Configuration {
   constructor (options = {}) {
     this.nodes = options.nodes || []
-    this.nodes = this.nodes.map((node) => {
-      if (!node.hasOwnProperty('path')) {
-        node.path = ''
-      }
-      return node
-    })
+    this.nodes = this.nodes.map(node => this._setDefaultPathInNode(node))
+    this.distributedSearchNode = options.distributedSearchNode || null
+    this.distributedSearchNode = this._setDefaultPathInNode(this.distributedSearchNode)
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15
-    this.numRetries = options.numRetries || this.nodes.length || 3
+    this.numRetries = options.numRetries || this.nodes.length + (this.distributedSearchNode == null ? 0 : 1) || 3
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1
     this.apiKey = options.apiKey
 
@@ -45,6 +42,13 @@ class Configuration {
     return !['protocol', 'host', 'port', 'path'].every((key) => {
       return node.hasOwnProperty(key)
     })
+  }
+
+  _setDefaultPathInNode (node) {
+    if (node != null && !node.hasOwnProperty('path')) {
+      node.path = ''
+    }
+    return node
   }
 
   _showDeprecationWarnings (options) {

@@ -31,7 +31,7 @@ describe('Aliases', function () {
     it('upserts an alias', function (done) {
       mockAxios
         .onPut(
-          apiCall._uriFor('/aliases/books', 0),
+          apiCall._uriFor('/aliases/books', typesense.configuration.nodes[0]),
           {
             'collection_name': 'books_january'
           },
@@ -55,7 +55,7 @@ describe('Aliases', function () {
     it('retrieves all aliases', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/aliases', 0),
+          apiCall._uriFor('/aliases', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',

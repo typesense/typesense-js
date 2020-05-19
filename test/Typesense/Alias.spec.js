@@ -31,7 +31,7 @@ describe('Alias', function () {
     it('retrieves the alias', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/aliases/companies', 0),
+          apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]),
           null,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -53,7 +53,7 @@ describe('Alias', function () {
     it('deletes an alias', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/aliases/companies', 0),
+          apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]),
           null,
           {
             'Accept': 'application/json, text/plain, */*',

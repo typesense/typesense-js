@@ -30,7 +30,7 @@ describe('Debug', function () {
       let debugInfo = {version: '0.8.0'}
       mockAxios
         .onGet(
-          apiCall._uriFor('/debug', 0),
+          apiCall._uriFor('/debug', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',
