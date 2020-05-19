@@ -24,7 +24,7 @@ Read the documentation here: [https://typesense.org/api/](https://typesense.org/
 
 Here are some examples that show you how the client works: [doc/examples](doc/examples)
 
-Tests are also a good place to know how the the library works internally: [test](test)
+Tests are also a good place to know how the library works internally: [test](test)
 
 **Note: When using this library client-side (in a browser), please be sure to use the `search-only-api-key` instead of the `master` API key.**
 

@@ -2953,6 +2953,7 @@ var ApiCall = /*#__PURE__*/function () {
     this._apiKey = this._configuration.apiKey;
     this._nodes = JSON.parse(JSON.stringify(this._configuration.nodes)); // Make a copy, since we'll be adding additional metadata to the nodes
 
+    this._distributedSearchNode = JSON.parse(JSON.stringify(this._configuration.distributedSearchNode));
     this._connectionTimeoutSeconds = this._configuration.connectionTimeoutSeconds;
     this._healthcheckIntervalSeconds = this._configuration.healthcheckIntervalSeconds;
     this._numRetriesPerRequest = this._configuration.numRetries;
@@ -3021,14 +3022,14 @@ var ApiCall = /*#__PURE__*/function () {
                   break;
                 }
 
-                node = this._updateCurrentNode();
+                node = this._getNextNode();
 
                 this._logger.debug("Attempting ".concat(requestType.toUpperCase(), " request Try #").concat(numTries, " to Node ").concat(node.index));
 
                 _context.prev = 9;
                 requestOptions = {
                   method: requestType,
-                  url: this._uriFor(endpoint, node.index),
+                  url: this._uriFor(endpoint, node),
                   headers: Object.assign({}, this._defaultHeaders(), additionalHeaders),
                   params: queryParameters,
                   data: bodyParameters,
@@ -3084,7 +3085,7 @@ var ApiCall = /*#__PURE__*/function () {
 
                 lastException = _context.t0;
 
-                this._logger.warn("Request to Node ".concat(node.index, " failed due to \"").concat(_context.t0.message).concat(_context.t0.response == null ? '' : ' - ' + JSON.stringify(_context.t0.response.data), "\"")); // this._logger.debug(error.stack)
+                this._logger.warn("Request to Node ".concat(node.index, " failed due to \"").concat(_context.t0.code, " ").concat(_context.t0.message).concat(_context.t0.response == null ? '' : ' - ' + JSON.stringify(_context.t0.response.data), "\"")); // this._logger.debug(error.stack)
 
 
                 this._logger.warn("Sleeping for ".concat(this._retryIntervalSeconds, "s and then retrying request..."));
@@ -3117,32 +3118,58 @@ var ApiCall = /*#__PURE__*/function () {
       return performRequest;
     }()
   }, {
-    key: "_updateCurrentNode",
-    value: function _updateCurrentNode() {
+    key: "_getNextNode",
+    value: function _getNextNode() {
+      var candidateNode; // Check if distributedSearchNode is set and is healthy, if so return it
+
+      if (this._distributedSearchNode != null) {
+        candidateNode = this._distributedSearchNode;
+
+        this._resetNodeHealthcheckIfExpired(candidateNode);
+
+        this._logger.debug("Nodes Health: Node ".concat(candidateNode.index, " is ").concat(candidateNode.isHealthy === true ? 'Healthy' : 'Unhealthy'));
+
+        if (candidateNode.isHealthy === true) {
+          this._logger.debug("Using current node as Node ".concat(candidateNode.index));
+
+          return candidateNode;
+        } else {
+          this._logger.debug("Falling back to individual nodes");
+        }
+      } // Fallback to nodes as usual
+
+
       this._logger.debug("Nodes Health: ".concat(this._nodes.map(function (node) {
         return "Node ".concat(node.index, " is ").concat(node.isHealthy === true ? 'Healthy' : 'Unhealthy');
       }).join(' || ')));
 
       var candidateNodeIndex = this._currentNodeIndex;
+      candidateNode = this._nodes[candidateNodeIndex];
 
       for (var i = 0; i <= this._nodes.length; i++) {
         candidateNodeIndex = (candidateNodeIndex + 1) % this._nodes.length;
+        candidateNode = this._nodes[candidateNodeIndex];
 
-        this._resetNodeHealthcheckIfExpired(this._nodes[candidateNodeIndex]);
+        this._resetNodeHealthcheckIfExpired(candidateNode);
 
-        if (this._nodes[candidateNodeIndex].isHealthy === true) {
+        if (candidateNode.isHealthy === true) {
           break;
         }
 
         if (i === this._nodes.length) {
-          this._logger.debug("No healthy nodes were found. Returning the next node, Node ".concat(candidateNodeIndex));
+          if (this._distributedSearchNode != null) {
+            candidateNode = this._distributedSearchNode;
+          }
+
+          this._logger.debug("No healthy nodes were found. Returning the next node, Node ".concat(candidateNode.index));
         }
       }
 
-      this._logger.debug("Updated current node to Node ".concat(candidateNodeIndex));
-
       this._currentNodeIndex = candidateNodeIndex;
-      return this._nodes[candidateNodeIndex];
+
+      this._logger.debug("Updated current node to Node ".concat(candidateNode.index));
+
+      return candidateNode;
     }
   }, {
     key: "_resetNodeHealthcheckIfExpired",
@@ -3166,6 +3193,13 @@ var ApiCall = /*#__PURE__*/function () {
     value: function _initializeMetadataForNodes() {
       var _this = this;
 
+      if (this._distributedSearchNode != null) {
+        var node = this._distributedSearchNode;
+        node.index = 'DistributedSearch';
+
+        this._setNodeHealthcheck(node, HEALTHY);
+      }
+
       this._nodes.forEach(function (node, i) {
         node.index = i;
 
@@ -3180,9 +3214,8 @@ var ApiCall = /*#__PURE__*/function () {
     }
   }, {
     key: "_uriFor",
-    value: function _uriFor(endpoint) {
-      var nodeIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this._currentNodeIndex;
-      return "".concat(this._nodes[nodeIndex].protocol, "://").concat(this._nodes[nodeIndex].host, ":").concat(this._nodes[nodeIndex].port).concat(this._nodes[nodeIndex].path).concat(endpoint);
+    value: function _uriFor(endpoint, node) {
+      return "".concat(node.protocol, "://").concat(node.host, ":").concat(node.port).concat(node.path).concat(endpoint);
     }
   }, {
     key: "_defaultHeaders",
@@ -3419,19 +3452,19 @@ var _loglevel = _interopRequireDefault(require("loglevel"));
 
 var Configuration = /*#__PURE__*/function () {
   function Configuration() {
+    var _this = this;
+
     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     (0, _classCallCheck2["default"])(this, Configuration);
     this.nodes = options.nodes || [];
     this.nodes = this.nodes.map(function (node) {
-      if (!node.hasOwnProperty('path')) {
-        node.path = '';
-      }
-
-      return node;
+      return _this._setDefaultPathInNode(node);
     });
+    this.distributedSearchNode = options.distributedSearchNode || null;
+    this.distributedSearchNode = this._setDefaultPathInNode(this.distributedSearchNode);
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15;
-    this.numRetries = options.numRetries || this.nodes.length || 3;
+    this.numRetries = options.numRetries || this.nodes.length + (this.distributedSearchNode == null ? 0 : 1) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
     this.apiKey = options.apiKey;
     this.logger = options.logger || _loglevel["default"];
@@ -3457,10 +3490,10 @@ var Configuration = /*#__PURE__*/function () {
   }, {
     key: "_validateNodes",
     value: function _validateNodes() {
-      var _this = this;
+      var _this2 = this;
 
       return this.nodes.some(function (node) {
-        return _this._isNodeMissingAnyParameters(node);
+        return _this2._isNodeMissingAnyParameters(node);
       });
     }
   }, {
@@ -3469,6 +3502,15 @@ var Configuration = /*#__PURE__*/function () {
       return !['protocol', 'host', 'port', 'path'].every(function (key) {
         return node.hasOwnProperty(key);
       });
+    }
+  }, {
+    key: "_setDefaultPathInNode",
+    value: function _setDefaultPathInNode(node) {
+      if (node != null && !node.hasOwnProperty('path')) {
+        node.path = '';
+      }
+
+      return node;
     }
   }, {
     key: "_showDeprecationWarnings",
