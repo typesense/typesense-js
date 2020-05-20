@@ -3157,10 +3157,6 @@ var ApiCall = /*#__PURE__*/function () {
         }
 
         if (i === this._nodes.length) {
-          if (this._distributedSearchNode != null) {
-            candidateNode = this._distributedSearchNode;
-          }
-
           this._logger.debug("No healthy nodes were found. Returning the next node, Node ".concat(candidateNode.index));
         }
       }

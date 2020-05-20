@@ -127,9 +127,6 @@ class ApiCall {
         break
       }
       if (i === this._nodes.length) {
-        if (this._distributedSearchNode != null) {
-          candidateNode = this._distributedSearchNode
-        }
         this._logger.debug(`No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`)
       }
     }

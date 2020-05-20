@@ -109,7 +109,8 @@ let sharedNodeSelectionBehavior = (method) => {
           }
         ],
         'apiKey': 'abcd',
-        'logLevel': 'error'
+        'logLevel': 'error',
+        'retryIntervalSeconds': 0.001 // To keep tests fast
       })
       this.mockAxios = new MockAxiosAdapter(axios)
       this.apiCall = new ApiCall(this.typesense.configuration)
@@ -183,7 +184,7 @@ let sharedNodeSelectionBehavior = (method) => {
       expect(requestHistory[1].url).to.equal('http://node0:8108/')
       expect(requestHistory[2].url).to.equal('http://node1:7108/')
       expect(requestHistory[3].url).to.equal('http://node2:9108/')
-      expect(requestHistory[4].url).to.equal('http://distributedSearchNode:6108/')
+      expect(requestHistory[4].url).to.equal('http://node0:8108/')
     })
   })
 }
@@ -209,7 +210,8 @@ describe('ApiCall', function () {
         }
       ],
       'apiKey': 'abcd',
-      'logLevel': 'error'
+      'logLevel': 'error',
+      'retryIntervalSeconds': 0.001 // To keep tests fast
     })
     this.mockAxios = new MockAxiosAdapter(axios)
     this.apiCall = new ApiCall(this.typesense.configuration)

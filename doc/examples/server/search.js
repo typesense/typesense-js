@@ -32,6 +32,7 @@ const typesense = new Typesense.Client({
     'port': '8108',
     'protocol': 'http'
   },
+  'numRetries': 10,
   'apiKey': 'xyz',
   'connectionTimeoutSeconds': 10,
   'retryIntervalSeconds': 0.1,
