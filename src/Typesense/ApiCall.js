@@ -108,7 +108,7 @@ class ApiCall {
       this._resetNodeHealthcheckIfExpired(candidateNode)
       this._logger.debug(`Nodes Health: Node ${candidateNode.index} is ${candidateNode.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
       if (candidateNode.isHealthy === true) {
-        this._logger.debug(`Using current node as Node ${candidateNode.index}`)
+        this._logger.debug(`Updated current node to Node ${candidateNode.index}`)
         return candidateNode
       } else {
         this._logger.debug(`Falling back to individual nodes`)

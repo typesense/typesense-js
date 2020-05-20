@@ -3130,7 +3130,7 @@ var ApiCall = /*#__PURE__*/function () {
         this._logger.debug("Nodes Health: Node ".concat(candidateNode.index, " is ").concat(candidateNode.isHealthy === true ? 'Healthy' : 'Unhealthy'));
 
         if (candidateNode.isHealthy === true) {
-          this._logger.debug("Using current node as Node ".concat(candidateNode.index));
+          this._logger.debug("Updated current node to Node ".concat(candidateNode.index));
 
           return candidateNode;
         } else {
