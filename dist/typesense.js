@@ -2953,7 +2953,7 @@ var ApiCall = /*#__PURE__*/function () {
     this._apiKey = this._configuration.apiKey;
     this._nodes = JSON.parse(JSON.stringify(this._configuration.nodes)); // Make a copy, since we'll be adding additional metadata to the nodes
 
-    this._distributedSearchNode = JSON.parse(JSON.stringify(this._configuration.distributedSearchNode));
+    this._nearestNode = JSON.parse(JSON.stringify(this._configuration.nearestNode));
     this._connectionTimeoutSeconds = this._configuration.connectionTimeoutSeconds;
     this._healthcheckIntervalSeconds = this._configuration.healthcheckIntervalSeconds;
     this._numRetriesPerRequest = this._configuration.numRetries;
@@ -2996,6 +2996,7 @@ var ApiCall = /*#__PURE__*/function () {
         var queryParameters,
             bodyParameters,
             additionalHeaders,
+            requestNumber,
             lastException,
             numTries,
             node,
@@ -3012,21 +3013,23 @@ var ApiCall = /*#__PURE__*/function () {
 
                 this._configuration.validate();
 
-                this._logger.debug("Performing ".concat(requestType.toUpperCase(), " request: ").concat(endpoint));
+                requestNumber = Date.now();
+
+                this._logger.debug("Request #".concat(requestNumber, ": Performing ").concat(requestType.toUpperCase(), " request: ").concat(endpoint));
 
                 numTries = 1;
 
-              case 6:
+              case 7:
                 if (!(numTries <= this._numRetriesPerRequest + 1)) {
-                  _context.next = 34;
+                  _context.next = 35;
                   break;
                 }
 
-                node = this._getNextNode();
+                node = this._getNextNode(requestNumber);
 
-                this._logger.debug("Attempting ".concat(requestType.toUpperCase(), " request Try #").concat(numTries, " to Node ").concat(node.index));
+                this._logger.debug("Request #".concat(requestNumber, ": Attempting ").concat(requestType.toUpperCase(), " request Try #").concat(numTries, " to Node ").concat(node.index));
 
-                _context.prev = 9;
+                _context.prev = 10;
                 requestOptions = {
                   method: requestType,
                   url: this._uriFor(endpoint, node),
@@ -3051,64 +3054,64 @@ var ApiCall = /*#__PURE__*/function () {
                     return transformedData;
                   }]
                 };
-                _context.next = 13;
+                _context.next = 14;
                 return (0, _axios["default"])(requestOptions);
 
-              case 13:
+              case 14:
                 response = _context.sent;
 
                 this._setNodeHealthcheck(node, HEALTHY);
 
-                this._logger.debug("Request to Node ".concat(node.index, " was successfully made. Response Code was ").concat(response.status, ".")); // If response is 2xx return a resolved promise, else reject
+                this._logger.debug("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " was successfully made. Response Code was ").concat(response.status, ".")); // If response is 2xx return a resolved promise, else reject
 
 
                 if (!(response.status >= 200 && response.status < 300)) {
-                  _context.next = 20;
+                  _context.next = 21;
                   break;
                 }
 
                 return _context.abrupt("return", Promise.resolve(response.data));
 
-              case 20:
+              case 21:
                 return _context.abrupt("return", Promise.reject(new Error("".concat(response.request.path, " - ").concat(response.data.message))));
 
-              case 21:
-                _context.next = 31;
+              case 22:
+                _context.next = 32;
                 break;
 
-              case 23:
-                _context.prev = 23;
-                _context.t0 = _context["catch"](9);
+              case 24:
+                _context.prev = 24;
+                _context.t0 = _context["catch"](10);
 
                 // This block handles HTTPStatus < 0, HTTPStatus > 500 and network layer issues like connection timeouts
                 this._setNodeHealthcheck(node, UNHEALTHY);
 
                 lastException = _context.t0;
 
-                this._logger.warn("Request to Node ".concat(node.index, " failed due to \"").concat(_context.t0.code, " ").concat(_context.t0.message).concat(_context.t0.response == null ? '' : ' - ' + JSON.stringify(_context.t0.response.data), "\"")); // this._logger.debug(error.stack)
+                this._logger.warn("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " failed due to \"").concat(_context.t0.code, " ").concat(_context.t0.message).concat(_context.t0.response == null ? '' : ' - ' + JSON.stringify(_context.t0.response.data), "\"")); // this._logger.debug(error.stack)
 
 
-                this._logger.warn("Sleeping for ".concat(this._retryIntervalSeconds, "s and then retrying request..."));
+                this._logger.warn("Request #".concat(requestNumber, ": Sleeping for ").concat(this._retryIntervalSeconds, "s and then retrying request..."));
 
-                _context.next = 31;
+                _context.next = 32;
                 return this._timer(this._retryIntervalSeconds);
 
-              case 31:
+              case 32:
                 numTries++;
-                _context.next = 6;
+                _context.next = 7;
                 break;
 
-              case 34:
-                this._logger.debug("No retries left. Raising last error");
+              case 35:
+                this._logger.debug("Request #".concat(requestNumber, ": No retries left. Raising last error"));
 
                 return _context.abrupt("return", Promise.reject(lastException));
 
-              case 36:
+              case 37:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[9, 23]]);
+        }, _callee, this, [[10, 24]]);
       }));
 
       function performRequest(_x, _x2) {
@@ -3116,84 +3119,73 @@ var ApiCall = /*#__PURE__*/function () {
       }
 
       return performRequest;
-    }()
+    }() // Attempts to find the next healthy node, looping through the list of nodes once.
+    //   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
+    //     so we can try the request for good measure, in case that node has become healthy since
+
   }, {
     key: "_getNextNode",
     value: function _getNextNode() {
-      var candidateNode; // Check if distributedSearchNode is set and is healthy, if so return it
+      var requestNumber = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-      if (this._distributedSearchNode != null) {
-        candidateNode = this._distributedSearchNode;
+      // Check if nearestNode is set and is healthy, if so return it
+      if (this._nearestNode != null) {
+        this._logger.debug("Request #".concat(requestNumber, ": Nodes Health: Node ").concat(this._nearestNode.index, " is ").concat(this._nearestNode.isHealthy === true ? 'Healthy' : 'Unhealthy'));
 
-        this._resetNodeHealthcheckIfExpired(candidateNode);
+        if (this._nearestNode.isHealthy === true || this._nodeDueForHealthcheck(this._nearestNode, requestNumber)) {
+          this._logger.debug("Request #".concat(requestNumber, ": Updated current node to Node ").concat(this._nearestNode.index));
 
-        this._logger.debug("Nodes Health: Node ".concat(candidateNode.index, " is ").concat(candidateNode.isHealthy === true ? 'Healthy' : 'Unhealthy'));
-
-        if (candidateNode.isHealthy === true) {
-          this._logger.debug("Updated current node to Node ".concat(candidateNode.index));
-
-          return candidateNode;
-        } else {
-          this._logger.debug("Falling back to individual nodes");
+          return this._nearestNode;
         }
+
+        this._logger.debug("Request #".concat(requestNumber, ": Falling back to individual nodes"));
       } // Fallback to nodes as usual
 
 
-      this._logger.debug("Nodes Health: ".concat(this._nodes.map(function (node) {
+      this._logger.debug("Request #".concat(requestNumber, ": Nodes Health: ").concat(this._nodes.map(function (node) {
         return "Node ".concat(node.index, " is ").concat(node.isHealthy === true ? 'Healthy' : 'Unhealthy');
       }).join(' || ')));
 
-      var candidateNodeIndex = this._currentNodeIndex;
-      candidateNode = this._nodes[candidateNodeIndex];
+      var candidateNode;
 
       for (var i = 0; i <= this._nodes.length; i++) {
-        candidateNodeIndex = (candidateNodeIndex + 1) % this._nodes.length;
-        candidateNode = this._nodes[candidateNodeIndex];
+        this._currentNodeIndex = (this._currentNodeIndex + 1) % this._nodes.length;
+        candidateNode = this._nodes[this._currentNodeIndex];
 
-        this._resetNodeHealthcheckIfExpired(candidateNode);
+        if (candidateNode.isHealthy === true || this._nodeDueForHealthcheck(candidateNode, requestNumber)) {
+          this._logger.debug("Request #".concat(requestNumber, ": Updated current node to Node ").concat(candidateNode.index));
 
-        if (candidateNode.isHealthy === true) {
-          break;
+          return candidateNode;
         }
+      } // None of the nodes are marked healthy, but some of them could have become healthy since last health check.
+      //  So we will just return the next node.
 
-        if (i === this._nodes.length) {
-          this._logger.debug("No healthy nodes were found. Returning the next node, Node ".concat(candidateNode.index));
-        }
-      }
 
-      this._currentNodeIndex = candidateNodeIndex;
-
-      this._logger.debug("Updated current node to Node ".concat(candidateNode.index));
+      this._logger.debug("Request #".concat(requestNumber, ": No healthy nodes were found. Returning the next node, Node ").concat(candidateNode.index));
 
       return candidateNode;
     }
   }, {
-    key: "_resetNodeHealthcheckIfExpired",
-    value: function _resetNodeHealthcheckIfExpired(node) {
-      // this._logger.debug(`Checking if Node ${node.index} healthcheck needs to be reset`)
-      if (node.isHealthy === true || Date.now() - node.lastHealthcheckTimestamp < this._healthcheckIntervalSeconds * 1000) {
-        // this._logger.debug(`Healthcheck reset not required for Node ${node.index}. It is currently marked as ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}. Difference between current time and last healthcheck timestamp is ${Date.now() - node.lastHealthcheckTimestamp}`)
-        return null;
+    key: "_nodeDueForHealthcheck",
+    value: function _nodeDueForHealthcheck(node) {
+      var requestNumber = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var isDueForHealthcheck = Date.now() - node.lastAccessTimestamp > this._healthcheckIntervalSeconds * 1000;
+
+      if (isDueForHealthcheck) {
+        this._logger.debug("Request #".concat(requestNumber, ": Node ").concat(node.index, " has exceeded healtcheckIntervalSeconds of ").concat(this._healthcheckIntervalSeconds, ". Adding it back into rotation."));
       }
 
-      this._logger.debug("Node ".concat(node.index, " has exceeded healthcheckIntervalSeconds of ").concat(this._healthcheckIntervalSeconds, "s. Adding it back into rotation."));
-
-      this._setNodeHealthcheck(node, HEALTHY);
-
-      this._logger.debug("Nodes Health: ".concat(this._nodes.map(function (node) {
-        return "Node ".concat(node.index, " is ").concat(node.isHealthy === true ? 'Healthy' : 'Unhealthy');
-      }).join(' || ')));
+      return isDueForHealthcheck;
     }
   }, {
     key: "_initializeMetadataForNodes",
     value: function _initializeMetadataForNodes() {
       var _this = this;
 
-      if (this._distributedSearchNode != null) {
-        var node = this._distributedSearchNode;
-        node.index = 'DistributedSearch';
+      if (this._nearestNode != null) {
+        this._nearestNode.index = 'nearestNode';
 
-        this._setNodeHealthcheck(node, HEALTHY);
+        this._setNodeHealthcheck(this._nearestNode, HEALTHY);
       }
 
       this._nodes.forEach(function (node, i) {
@@ -3206,7 +3198,7 @@ var ApiCall = /*#__PURE__*/function () {
     key: "_setNodeHealthcheck",
     value: function _setNodeHealthcheck(node, isHealthy) {
       node.isHealthy = isHealthy;
-      node.lastHealthcheckTimestamp = Date.now();
+      node.lastAccessTimestamp = Date.now();
     }
   }, {
     key: "_uriFor",
@@ -3456,11 +3448,11 @@ var Configuration = /*#__PURE__*/function () {
     this.nodes = this.nodes.map(function (node) {
       return _this._setDefaultPathInNode(node);
     });
-    this.distributedSearchNode = options.distributedSearchNode || null;
-    this.distributedSearchNode = this._setDefaultPathInNode(this.distributedSearchNode);
+    this.nearestNode = options.nearestNode || null;
+    this.nearestNode = this._setDefaultPathInNode(this.nearestNode);
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15;
-    this.numRetries = options.numRetries || this.nodes.length + (this.distributedSearchNode == null ? 0 : 1) || 3;
+    this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
     this.apiKey = options.apiKey;
     this.logger = options.logger || _loglevel["default"];
