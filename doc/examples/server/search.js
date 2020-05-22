@@ -27,7 +27,7 @@ const typesense = new Typesense.Client({
     }],
   // If this optional key is specified, requests are always sent to this node first if it is healthy
   // before falling back on the nodes mentioned in the `nodes` key. This is useful when running a distributed set of search clusters.
-  'distributedSearchNode': {
+  'nearestNode': {
     'host': 'localhost',
     'port': '8108',
     'protocol': 'http'

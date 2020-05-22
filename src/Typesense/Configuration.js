@@ -6,11 +6,11 @@ class Configuration {
   constructor (options = {}) {
     this.nodes = options.nodes || []
     this.nodes = this.nodes.map(node => this._setDefaultPathInNode(node))
-    this.distributedSearchNode = options.distributedSearchNode || null
-    this.distributedSearchNode = this._setDefaultPathInNode(this.distributedSearchNode)
+    this.nearestNode = options.nearestNode || null
+    this.nearestNode = this._setDefaultPathInNode(this.nearestNode)
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15
-    this.numRetries = options.numRetries || this.nodes.length + (this.distributedSearchNode == null ? 0 : 1) || 3
+    this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1
     this.apiKey = options.apiKey
 

@@ -11,7 +11,7 @@ class ApiCall {
 
     this._apiKey = this._configuration.apiKey
     this._nodes = JSON.parse(JSON.stringify(this._configuration.nodes)) // Make a copy, since we'll be adding additional metadata to the nodes
-    this._distributedSearchNode = JSON.parse(JSON.stringify(this._configuration.distributedSearchNode))
+    this._nearestNode = JSON.parse(JSON.stringify(this._configuration.nearestNode))
     this._connectionTimeoutSeconds = this._configuration.connectionTimeoutSeconds
     this._healthcheckIntervalSeconds = this._configuration.healthcheckIntervalSeconds
     this._numRetriesPerRequest = this._configuration.numRetries
@@ -44,12 +44,12 @@ class ApiCall {
       ._configuration
       .validate()
 
+    const requestNumber = Date.now()
     let lastException
-
-    this._logger.debug(`Performing ${requestType.toUpperCase()} request: ${endpoint}`)
+    this._logger.debug(`Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`)
     for (let numTries = 1; numTries <= this._numRetriesPerRequest + 1; numTries++) {
-      let node = this._getNextNode()
-      this._logger.debug(`Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
+      let node = this._getNextNode(requestNumber)
+      this._logger.debug(`Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
       try {
         const requestOptions = {
           method: requestType,
@@ -77,7 +77,7 @@ class ApiCall {
         let response = await axios(requestOptions)
         this._setNodeHealthcheck(node, HEALTHY)
 
-        this._logger.debug(`Request to Node ${node.index} was successfully made. Response Code was ${response.status}.`)
+        this._logger.debug(`Request #${requestNumber}: Request to Node ${node.index} was successfully made. Response Code was ${response.status}.`)
 
         // If response is 2xx return a resolved promise, else reject
         if (response.status >= 200 && response.status < 300) {
@@ -89,69 +89,60 @@ class ApiCall {
         // This block handles HTTPStatus < 0, HTTPStatus > 500 and network layer issues like connection timeouts
         this._setNodeHealthcheck(node, UNHEALTHY)
         lastException = error
-        this._logger.warn(`Request to Node ${node.index} failed due to "${error.code} ${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
+        this._logger.warn(`Request #${requestNumber}: Request to Node ${node.index} failed due to "${error.code} ${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
         // this._logger.debug(error.stack)
-        this._logger.warn(`Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
+        this._logger.warn(`Request #${requestNumber}: Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
         await this._timer(this._retryIntervalSeconds)
       }
     }
-    this._logger.debug(`No retries left. Raising last error`)
+    this._logger.debug(`Request #${requestNumber}: No retries left. Raising last error`)
     return Promise.reject(lastException)
   }
 
-  _getNextNode () {
-    let candidateNode
-
-    // Check if distributedSearchNode is set and is healthy, if so return it
-    if (this._distributedSearchNode != null) {
-      candidateNode = this._distributedSearchNode
-      this._resetNodeHealthcheckIfExpired(candidateNode)
-      this._logger.debug(`Nodes Health: Node ${candidateNode.index} is ${candidateNode.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
-      if (candidateNode.isHealthy === true) {
-        this._logger.debug(`Updated current node to Node ${candidateNode.index}`)
-        return candidateNode
-      } else {
-        this._logger.debug(`Falling back to individual nodes`)
+  // Attempts to find the next healthy node, looping through the list of nodes once.
+  //   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
+  //     so we can try the request for good measure, in case that node has become healthy since
+  _getNextNode (requestNumber = 0) {
+    // Check if nearestNode is set and is healthy, if so return it
+    if (this._nearestNode != null) {
+      this._logger.debug(`Request #${requestNumber}: Nodes Health: Node ${this._nearestNode.index} is ${this._nearestNode.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
+      if (this._nearestNode.isHealthy === true || this._nodeDueForHealthcheck(this._nearestNode, requestNumber)) {
+        this._logger.debug(`Request #${requestNumber}: Updated current node to Node ${this._nearestNode.index}`)
+        return this._nearestNode
       }
+      this._logger.debug(`Request #${requestNumber}: Falling back to individual nodes`)
     }
 
     // Fallback to nodes as usual
-    this._logger.debug(`Nodes Health: ${this._nodes.map(node => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`).join(' || ')}`)
-    let candidateNodeIndex = this._currentNodeIndex
-    candidateNode = this._nodes[candidateNodeIndex]
+    this._logger.debug(`Request #${requestNumber}: Nodes Health: ${this._nodes.map(node => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`).join(' || ')}`)
+    let candidateNode
     for (let i = 0; i <= this._nodes.length; i++) {
-      candidateNodeIndex = (candidateNodeIndex + 1) % this._nodes.length
-      candidateNode = this._nodes[candidateNodeIndex]
-      this._resetNodeHealthcheckIfExpired(candidateNode)
-      if (candidateNode.isHealthy === true) {
-        break
-      }
-      if (i === this._nodes.length) {
-        this._logger.debug(`No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`)
+      this._currentNodeIndex = (this._currentNodeIndex + 1) % this._nodes.length
+      candidateNode = this._nodes[this._currentNodeIndex]
+      if (candidateNode.isHealthy === true || this._nodeDueForHealthcheck(candidateNode, requestNumber)) {
+        this._logger.debug(`Request #${requestNumber}: Updated current node to Node ${candidateNode.index}`)
+        return candidateNode
       }
     }
-    this._currentNodeIndex = candidateNodeIndex
-    this._logger.debug(`Updated current node to Node ${candidateNode.index}`)
+
+    // None of the nodes are marked healthy, but some of them could have become healthy since last health check.
+    //  So we will just return the next node.
+    this._logger.debug(`Request #${requestNumber}: No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`)
     return candidateNode
   }
 
-  _resetNodeHealthcheckIfExpired (node) {
-    // this._logger.debug(`Checking if Node ${node.index} healthcheck needs to be reset`)
-    if (node.isHealthy === true || Date.now() - node.lastHealthcheckTimestamp < (this._healthcheckIntervalSeconds * 1000)) {
-      // this._logger.debug(`Healthcheck reset not required for Node ${node.index}. It is currently marked as ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}. Difference between current time and last healthcheck timestamp is ${Date.now() - node.lastHealthcheckTimestamp}`)
-      return null
+  _nodeDueForHealthcheck (node, requestNumber = 0) {
+    const isDueForHealthcheck = Date.now() - node.lastAccessTimestamp > (this._healthcheckIntervalSeconds * 1000)
+    if (isDueForHealthcheck) {
+      this._logger.debug(`Request #${requestNumber}: Node ${node.index} has exceeded healtcheckIntervalSeconds of ${this._healthcheckIntervalSeconds}. Adding it back into rotation.`)
     }
-
-    this._logger.debug(`Node ${node.index} has exceeded healthcheckIntervalSeconds of ${this._healthcheckIntervalSeconds}s. Adding it back into rotation.`)
-    this._setNodeHealthcheck(node, HEALTHY)
-    this._logger.debug(`Nodes Health: ${this._nodes.map(node => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`).join(' || ')}`)
+    return isDueForHealthcheck
   }
 
   _initializeMetadataForNodes () {
-    if (this._distributedSearchNode != null) {
-      let node = this._distributedSearchNode
-      node.index = 'DistributedSearch'
-      this._setNodeHealthcheck(node, HEALTHY)
+    if (this._nearestNode != null) {
+      this._nearestNode.index = 'nearestNode'
+      this._setNodeHealthcheck(this._nearestNode, HEALTHY)
     }
 
     this._nodes.forEach((node, i) => {
@@ -162,7 +153,7 @@ class ApiCall {
 
   _setNodeHealthcheck (node, isHealthy) {
     node.isHealthy = isHealthy
-    node.lastHealthcheckTimestamp = Date.now()
+    node.lastAccessTimestamp = Date.now()
   }
 
   _uriFor (endpoint, node) {
