@@ -1,4 +1,4 @@
-# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield&circle-token=5e6fd38721fb410cc667824d8e26517909d57731)](https://circleci.com/gh/typesense/typesense-js)
+# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield)](https://circleci.com/gh/typesense/typesense-js)
 
 Javascript client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense). Follows the API spec [here](https://github.com/typesense/typesense-api-spec).
 
@@ -39,7 +39,15 @@ Tests are also a good place to know how the library works internally: [test](tes
 
 After checking out the repo, run `npm install` to install dependencies. Then run `npm test` to run the linter and tests.
 
-To release a new version, run `npm run build` and then `npm publish`
+To release a new version, we use the [np](https://github.com/sindresorhus/np) package:
+
+```shell
+$ npm install --global np
+$ np 
+
+# Follow instructions that np shows you
+
+```
 
 ## Contributing
 
