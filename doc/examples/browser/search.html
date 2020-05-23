@@ -17,30 +17,33 @@
 <script src="../../../dist/Typesense.js"></script>
 <script>
   /*
-   Setup
-
-   Start the master
-     $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108 --enable-cors
-
-   Start the read replica
-     $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108 --enable-cors
+   Setup: See clientInitalization.js for quick instructions on starting the Typesense server.
   */
 
   // Create a client
   var typesense = new Typesense.Client({
-    'masterNode': {
-      'host': 'localhost',
-      'port': '8108',
-      'protocol': 'http',
-      'apiKey': 'abcd'
-    },
-    'readReplicaNodes': [{
-      'host': 'localhost',
-      'port': '8109',
-      'protocol': 'http',
-      'apiKey': 'wxyz'
-    }],
-    'timeoutSeconds': 10
+    'nodes': [
+      {
+        'host': 'localhost',
+        'port': '8108',
+        'protocol': 'http'
+      },
+      {
+        'host': 'localhost',
+        'port': '7108',
+        'protocol': 'http'
+      },
+      {
+        'host': 'localhost',
+        'port': '9108',
+        'protocol': 'http'
+      }],
+    'apiKey': 'xyz',
+    'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
+    'connectionTimeoutSeconds': 10,
+    'retryIntervalSeconds': 0.1,
+    'healthcheckIntervalSeconds': 2,
+    'logLevel': 'debug'
   })
 
   let schema = {
@@ -97,7 +100,7 @@
 
   // create a collection, in case it doesn't exist
   //    We're creating a collection from the browser just for the purposes of this example.
-  //    You'd typically creaet a collection elsewhere and only use the search endpoint from the browser.
+  //    You'd typically create a collection server-side and only use the search endpoint from the browser.
   //    In which case, you'd want to pass the search-only-api-key value in the api-key field
   typesense.collections('companies').delete()
     .finally(function () {

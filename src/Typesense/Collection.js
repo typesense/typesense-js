@@ -5,24 +5,23 @@ import Documents from './Documents'
 import Document from './Document'
 import Overrides from './Overrides'
 import Override from './Override'
-import ApiCall from './ApiCall'
 
 class Collection {
-  constructor (configuration, name) {
-    this._configuration = configuration
+  constructor (name, apiCall) {
     this._name = name
-    this._documents = new Documents(this._configuration, this._name)
+    this._apiCall = apiCall
+    this._documents = new Documents(this._name, this._apiCall)
     this._individualDocuments = {}
-    this._overrides = new Overrides(this._configuration, this._name)
+    this._overrides = new Overrides(this._name, this._apiCall)
     this._individualOverrides = {}
   }
 
   retrieve () {
-    return new ApiCall(this._configuration).get(this._endpointPath())
+    return this._apiCall.get(this._endpointPath())
   }
 
   delete () {
-    return new ApiCall(this._configuration).delete(this._endpointPath())
+    return this._apiCall.delete(this._endpointPath())
   }
 
   documents (documentId) {
@@ -30,7 +29,7 @@ class Collection {
       return this._documents
     } else {
       if (this._individualDocuments[documentId] === undefined) {
-        this._individualDocuments[documentId] = new Document(this._configuration, this._name, documentId)
+        this._individualDocuments[documentId] = new Document(this._name, documentId, this._apiCall)
       }
       return this._individualDocuments[documentId]
     }
@@ -41,7 +40,7 @@ class Collection {
       return this._overrides
     } else {
       if (this._individualOverrides[overrideId] === undefined) {
-        this._individualOverrides[overrideId] = new Override(this._configuration, this._name, overrideId)
+        this._individualOverrides[overrideId] = new Override(this._name, overrideId, this._apiCall)
       }
       return this._individualOverrides[overrideId]
     }

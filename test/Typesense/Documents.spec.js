@@ -18,19 +18,12 @@ describe('Documents', function () {
 
   before(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      },
-      'readReplicaNodes': [{
-        'host': 'read-replica',
-        'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
+        'protocol': 'http'
       }],
-      'timeoutSeconds': 10
+      'apiKey': 'abcd'
     })
 
     document = {
@@ -79,14 +72,14 @@ describe('Documents', function () {
       }
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/search'),
+          apiCall._uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
           {
             params: searchParameters
           },
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, stubbedSearchResult)
@@ -101,12 +94,12 @@ describe('Documents', function () {
     it('creates the document', function (done) {
       mockAxios
         .onPost(
-          apiCall._uriFor('/collections/companies/documents'),
+          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
           document,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(201, document)
@@ -117,16 +110,36 @@ describe('Documents', function () {
     })
   })
 
+  describe('.createMany', function () {
+    it('imports the documents', function (done) {
+      mockAxios
+        .onPost(
+          apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+          `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+          {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/jsonl',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(200, {success: true})
+
+      let returnData = documents.createMany([document, anotherDocument])
+
+      expect(returnData).to.eventually.deep.equal({success: true}).notify(done)
+    })
+  })
+
   describe('.export', function () {
     it('exports the documents', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/export'),
+          apiCall._uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]),
           undefined,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))

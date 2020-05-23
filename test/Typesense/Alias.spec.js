@@ -15,12 +15,12 @@ describe('Alias', function () {
   let mockAxios
   before(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      }
+        'protocol': 'http'
+      }],
+      'apiKey': 'abcd'
     })
     alias = typesense.aliases('companies')
     apiCall = new ApiCall(typesense.configuration)
@@ -31,15 +31,17 @@ describe('Alias', function () {
     it('retrieves the alias', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/aliases/companies'),
+          apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]),
           null,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, {})
+
+      // console.log(mockAxios.handlers)
 
       let returnData = alias.retrieve()
 
@@ -51,12 +53,12 @@ describe('Alias', function () {
     it('deletes an alias', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/aliases/companies'),
+          apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]),
           null,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, {})

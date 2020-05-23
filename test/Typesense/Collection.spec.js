@@ -37,19 +37,12 @@ describe('Collection', function () {
   }
   before(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      },
-      'readReplicaNodes': [{
-        'host': 'read-replica',
-        'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
+        'protocol': 'http'
       }],
-      'timeoutSeconds': 10
+      'apiKey': 'abcd'
     })
     collection = typesense.collections('companies')
     apiCall = new ApiCall(typesense.configuration)
@@ -60,12 +53,12 @@ describe('Collection', function () {
     it('retrieves a collection', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies'),
+          apiCall._uriFor('/collections/companies', typesense.configuration.nodes[0]),
           null,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, companySchema)
@@ -80,12 +73,12 @@ describe('Collection', function () {
     it('deletes a collection', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies'),
+          apiCall._uriFor('/collections/companies', typesense.configuration.nodes[0]),
           null,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, companySchema)

@@ -1,5 +1,5 @@
 /*
- These examples walk you through the search operation.
+ These examples walk you through the bulk importing documents.
 
  See clientInitalization.js for quick instructions on starting the Typesense server.
 */
@@ -25,18 +25,9 @@ const typesense = new Typesense.Client({
       'port': '9108',
       'protocol': 'http'
     }],
-  // If this optional key is specified, requests are always sent to this node first if it is healthy
-  // before falling back on the nodes mentioned in the `nodes` key. This is useful when running a distributed set of search clusters.
-  'nearestNode': {
-    'host': 'localhost',
-    'port': '8108',
-    'protocol': 'http'
-  },
-  'numRetries': 10,
   'apiKey': 'xyz',
-  'connectionTimeoutSeconds': 10,
-  'retryIntervalSeconds': 0.1,
-  'healthcheckIntervalSeconds': 2,
+  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
+  'connectionTimeoutSeconds': 120, // Set a longer timeout for large imports
   'logLevel': 'debug'
 })
 
@@ -104,34 +95,14 @@ async function runExample () {
     // create a collection
     await typesense.collections().create(schema)
 
-    // Index documents
-    await Promise.all(documents.map(document => {
-      return typesense.collections('companies').documents().create(document)
-    }))
+    // Load documents from a JSON file, or API call, etc. into a variable
+    // Here we already have documents in the `documents` variable.
 
-    // Search for documents
-    let searchResults = []
-    searchResults = await typesense.collections('companies').documents().search({
-      'q': 'Stark',
-      'query_by': 'company_name'
-    })
-    console.log(searchResults)
+    // Bulk import documents
+    let results = await typesense.collections('companies').documents().createMany(documents)
 
-    // Search for non-existent
-    searchResults = await typesense.collections('companies').documents().search({
-      'q': 'Non Existent',
-      'query_by': 'company_name'
-    })
-    console.log(searchResults)
-
-    // Search for more documents
-    searchResults = await typesense.collections('companies').documents().search({
-      'q': 'Inc',
-      'query_by': 'company_name',
-      'filter_by': 'num_employees:<100',
-      'sort_by': 'num_employees:desc'
-    })
-    console.log(searchResults)
+    // Process results as needed for errors / success
+    console.log(results)
   } catch (error) {
     console.log(error)
   } finally {

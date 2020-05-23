@@ -21,19 +21,12 @@ describe('Document', function () {
   let mockAxios
   before(function () {
     typesense = new Typesense.Client({
-      'masterNode': {
-        'host': 'master',
+      'nodes': [{
+        'host': 'node0',
         'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
-      },
-      'readReplicaNodes': [{
-        'host': 'read-replica',
-        'port': '8108',
-        'protocol': 'http',
-        'apiKey': 'abcd'
+        'protocol': 'http'
       }],
-      'timeoutSeconds': 10
+      'apiKey': 'abcd'
     })
     document = typesense.collections('companies').documents('124')
     apiCall = new ApiCall(typesense.configuration)
@@ -44,12 +37,12 @@ describe('Document', function () {
     it('retrieves a document', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/124'),
+          apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
           null,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, documentResult)
@@ -64,12 +57,12 @@ describe('Document', function () {
     it('deletes a document', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies/documents/124'),
+          apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
           null,
           {
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.masterNode.apiKey
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, documentResult)

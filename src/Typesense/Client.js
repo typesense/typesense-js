@@ -1,6 +1,7 @@
 'use strict'
 
 import Configuration from './Configuration'
+import ApiCall from './ApiCall'
 import Collections from './Collections'
 import Collection from './Collection'
 import Aliases from './Aliases'
@@ -10,10 +11,11 @@ import Debug from './Debug'
 class Client {
   constructor (options) {
     this.configuration = new Configuration(options)
-    this.debug = new Debug(this.configuration)
-    this._collections = new Collections(this.configuration)
+    this._apiCall = new ApiCall(this.configuration)
+    this.debug = new Debug(this._apiCall)
+    this._collections = new Collections(this._apiCall)
     this._individualCollections = {}
-    this._aliases = new Aliases(this.configuration)
+    this._aliases = new Aliases(this._apiCall)
     this._individualAliases = {}
   }
 
@@ -22,7 +24,7 @@ class Client {
       return this._collections
     } else {
       if (this._individualCollections[collectionName] === undefined) {
-        this._individualCollections[collectionName] = new Collection(this.configuration, collectionName)
+        this._individualCollections[collectionName] = new Collection(collectionName, this._apiCall)
       }
       return this._individualCollections[collectionName]
     }
@@ -33,7 +35,7 @@ class Client {
       return this._aliases
     } else {
       if (this._individualAliases[aliasName] === undefined) {
-        this._individualAliases[aliasName] = new Alias(this.configuration, aliasName)
+        this._individualAliases[aliasName] = new Alias(aliasName, this._apiCall)
       }
       return this._individualAliases[aliasName]
     }

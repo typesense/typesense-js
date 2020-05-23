@@ -1,20 +1,18 @@
 'use strict'
 
-import ApiCall from './ApiCall'
-
 const RESOURCEPATH = '/aliases'
 
 class Aliases {
-  constructor (configuration) {
-    this._configuration = configuration
+  constructor (apiCall) {
+    this._apiCall = apiCall
   }
 
   upsert (name, mapping) {
-    return new ApiCall(this._configuration).put(this._endpointPath(name), mapping)
+    return this._apiCall.put(this._endpointPath(name), mapping)
   }
 
   retrieve (schema) {
-    return new ApiCall(this._configuration).get(RESOURCEPATH)
+    return this._apiCall.get(RESOURCEPATH)
   }
 
   _endpointPath (aliasName) {

@@ -1,20 +1,19 @@
 'use strict'
 
 import Aliases from './Aliases'
-import ApiCall from './ApiCall'
 
 class Alias {
-  constructor (configuration, name) {
-    this._configuration = configuration
+  constructor (name, apiCall) {
+    this._apiCall = apiCall
     this._name = name
   }
 
   retrieve () {
-    return new ApiCall(this._configuration).get(this._endpointPath())
+    return this._apiCall.get(this._endpointPath())
   }
 
   delete () {
-    return new ApiCall(this._configuration).delete(this._endpointPath())
+    return this._apiCall.delete(this._endpointPath())
   }
 
   _endpointPath () {

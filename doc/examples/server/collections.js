@@ -1,34 +1,33 @@
 /*
  These examples walk you through all the operations you can do on a collection
+ See clientInitalization.js for quick instructions on starting the Typesense server.
 */
+require('@babel/register')
 
-var Typesense = require('../../../lib/Typesense')
-
-/*
- Setup
-
- Start the master
-   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108
-
- Start the read replica
-   $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108
-*/
+const Typesense = require('../../../src/Typesense')
 
 // Create a client
-var typesense = new Typesense.Client({
-  'masterNode': {
-    'host': 'localhost',
-    'port': '8108',
-    'protocol': 'http',
-    'apiKey': 'abcd'
-  },
-  'readReplicaNodes': [{
-    'host': 'localhost',
-    'port': '8109',
-    'protocol': 'http',
-    'apiKey': 'wxyz'
-  }],
-  'timeoutSeconds': 10
+const typesense = new Typesense.Client({
+  'nodes': [
+    {
+      'host': 'localhost',
+      'port': '8108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '7108',
+      'protocol': 'http'
+    },
+    {
+      'host': 'localhost',
+      'port': '9108',
+      'protocol': 'http'
+    }],
+  'apiKey': 'xyz',
+  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
+  'connectionTimeoutSeconds': 10,
+  'logLevel': 'debug'
 })
 
 let schema = {
@@ -54,28 +53,42 @@ let schema = {
   'default_sorting_field': 'num_employees'
 }
 
-typesense.collections().create(schema) // create a collection
-  .then(function (data) {
-    console.log(data)
+async function runExample () {
+  try {
+    // Delete if the collection already exists from a previous example run
+    await typesense.collections('companies').delete()
+  } catch (error) {
+    // do nothing
+  }
+
+  try {
+    let result
+    // create a collection
+    result = await typesense.collections().create(schema)
+    console.log(result)
 
     // retrieve the created collection
-    return typesense.collections('companies').retrieve()
-  })
-  .then(function (data) {
-    console.log(data)
+    await timer(0.5) // Give Typesense cluster a few hundred ms to create collection on all nodes, before reading it right after (eventually consistent)
+    result = await typesense.collections('companies').retrieve()
+    console.log(result)
 
     // retrieve all collections
-    return typesense.collections().retrieve()
-  })
-  .then(function (data) {
-    console.log(data)
+    result = await typesense.collections().retrieve()
+    console.log(result)
 
     // delete a collection (deletion returns the schema of the collection after deletion)
-    return typesense.collections('companies').delete()
-  })
-  .then(function (data) {
-    console.log(data)
-  })
-  .catch(function (error) {
+    result = await typesense.collections('companies').delete()
+    console.log(result)
+  } catch (error) {
     console.log(error)
-  })
+  } finally {
+    // Cleanup
+    typesense.collections('companies').delete().catch(() => {})
+  }
+}
+
+async function timer (seconds) {
+  return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+}
+
+runExample()

@@ -1,22 +1,21 @@
 'use strict'
 
-import ApiCall from './ApiCall'
 import Collections from './Collections'
 
 const RESOURCEPATH = '/overrides'
 
 class Overrides {
-  constructor (configuration, collectionName) {
-    this._configuration = configuration
+  constructor (collectionName, apiCall) {
     this._collectionName = collectionName
+    this._apiCall = apiCall
   }
 
   create (params) {
-    return (new ApiCall(this._configuration)).put(this._endpointPath(), params)
+    return this._apiCall.put(this._endpointPath(), params)
   }
 
   retrieve () {
-    return new ApiCall(this._configuration).get(this._endpointPath())
+    return this._apiCall.get(this._endpointPath())
   }
 
   _endpointPath (operation) {
