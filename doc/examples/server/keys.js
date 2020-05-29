@@ -92,6 +92,7 @@ async function runExample () {
     }))
 
     // Generate an API key and restrict it to only allow searches
+    // You want to use this API Key in the browser instead of the master API Key
     let unscopedSearchOnlyApiKeyResponse = await typesense.keys().create({
       'description': 'Search-only key.',
       'actions': ['documents:search'],
@@ -105,8 +106,8 @@ async function runExample () {
     unscopedSearchOnlyApiKeyResponse = await typesense.keys(unscopedSearchOnlyApiKeyResponse['id']).retrieve()
     console.log(unscopedSearchOnlyApiKeyResponse)
 
-    // We'll use this search-only API key to generate a scoped search API key that can only access documents that have company_id:124
-    //  This would be useful when you store multi-tenant data in a single Typesense server, but you only want
+    // We'll now use this search-only API key to generate a scoped search API key that can only access documents that have company_id:124
+    //  This is useful when you store multi-tenant data in a single Typesense server, but you only want
     //  a particular tenant to access their own data. You'd generate one scoped search key per tenant.
     //  IMPORTANT: scoped search keys should only be generated *server-side*, so as to not leak the unscoped main search key to clients
     const scopedSearchOnlyApiKey = typesense.keys()
