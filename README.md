@@ -34,8 +34,9 @@ See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example on
 
 | Typesense Server | typesense-js |
 |------------------|----------------|
+| \>= v0.12.1 | \>= v0.5.0 |
+| \>= v0.12.0 | \>= v0.4.7 |
 | <= v0.11 | <= v0.3.0 |
-| \>= v0.12 | \>= v0.4.0 |
 
 ## Development
 
