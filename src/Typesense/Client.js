@@ -6,6 +6,8 @@ import Collections from './Collections'
 import Collection from './Collection'
 import Aliases from './Aliases'
 import Alias from './Alias'
+import Keys from './Keys'
+import Key from './Key'
 import Debug from './Debug'
 
 class Client {
@@ -17,6 +19,8 @@ class Client {
     this._individualCollections = {}
     this._aliases = new Aliases(this._apiCall)
     this._individualAliases = {}
+    this._keys = new Keys(this._apiCall)
+    this._individualKeys = {}
   }
 
   collections (collectionName) {
@@ -38,6 +42,17 @@ class Client {
         this._individualAliases[aliasName] = new Alias(aliasName, this._apiCall)
       }
       return this._individualAliases[aliasName]
+    }
+  }
+
+  keys (id) {
+    if (id === undefined) {
+      return this._keys
+    } else {
+      if (this._individualKeys[id] === undefined) {
+        this._individualKeys[id] = new Key(id, this._apiCall)
+      }
+      return this._individualKeys[id]
     }
   }
 }

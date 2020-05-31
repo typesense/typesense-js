@@ -26,14 +26,17 @@ Here are some examples that show you how the client works: [doc/examples](doc/ex
 
 Tests are also a good place to know how the library works internally: [test](test)
 
-**Note: When using this library client-side (in a browser), please be sure to use the `search-only-api-key` instead of the `master` API key.**
+**Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.**
+
+See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example on how to generate a search only API key.
 
 ## Compatibility
 
 | Typesense Server | typesense-js |
 |------------------|----------------|
+| \>= v0.12.1 | \>= v0.5.0 |
+| \>= v0.12.0 | \>= v0.4.7 |
 | <= v0.11 | <= v0.3.0 |
-| \>= v0.12 | \>= v0.4.0 |
 
 ## Development
 

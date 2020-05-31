@@ -101,7 +101,8 @@
   // create a collection, in case it doesn't exist
   //    We're creating a collection from the browser just for the purposes of this example.
   //    You'd typically create a collection server-side and only use the search endpoint from the browser.
-  //    In which case, you'd want to pass the search-only-api-key value in the api-key field
+  //    So you want to pass an API key that only allows searches in the api-key field, instead of the master key when using this library in a browser.
+  //    See keys.js in docs/examples/server/keys.js for an example of how to generate a search only API key.
   typesense.collections('companies').delete()
     .finally(function () {
       // create a collection
