@@ -45,7 +45,7 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "gulp": "^4.0.2",
-    "gulp-babel": "^8.0.0",
+    "gulp-babel": "^8.0.0-beta.2",
     "gulp-concat": "^2.6.1",
     "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^2.6.5",
@@ -72,6 +72,7 @@
   "repository": "typesense/typesense-js",
   "license": "Apache-2.0",
   "dependencies": {
+    "@babel/runtime": "^7.10.2",
     "axios": "^0.19.0",
     "loglevel": "^1.6.8"
   },
