@@ -9,7 +9,7 @@ This library can be used both on the server-side and on the client-side. The lib
 #### Install via npm
 
 ```sh
-$ npm install typesense
+$ npm install --save typesense
 ```
 
 #### Include the minified JS file for use in the browser directly
