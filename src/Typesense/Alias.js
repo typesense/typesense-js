@@ -2,7 +2,7 @@
 
 import Aliases from './Aliases'
 
-class Alias {
+export default class Alias {
   constructor (name, apiCall) {
     this._apiCall = apiCall
     this._name = name
@@ -20,5 +20,3 @@ class Alias {
     return `${Aliases.RESOURCEPATH}/${this._name}`
   }
 }
-
-module.exports = Alias

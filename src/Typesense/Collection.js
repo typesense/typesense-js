@@ -6,7 +6,7 @@ import Document from './Document'
 import Overrides from './Overrides'
 import Override from './Override'
 
-class Collection {
+export default class Collection {
   constructor (name, apiCall) {
     this._name = name
     this._apiCall = apiCall
@@ -50,5 +50,3 @@ class Collection {
     return `${Collections.RESOURCEPATH}/${this._name}`
   }
 }
-
-module.exports = Collection

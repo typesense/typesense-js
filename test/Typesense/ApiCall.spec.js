@@ -1,6 +1,6 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Typesense from '../../src/Typesense'
+import { Client as TypesenseClient } from '../../src/Typesense'
 import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
@@ -85,7 +85,7 @@ let sharedNodeSelectionBehavior = (method) => {
 
   describe('when a nearestNode is specified', function () {
     beforeEach(function () {
-      this.typesense = new Typesense.Client({
+      this.typesense = new TypesenseClient({
         'nearestNode': {
           'host': 'nearestNode',
           'port': '6108',
@@ -191,7 +191,7 @@ let sharedNodeSelectionBehavior = (method) => {
 
 describe('ApiCall', function () {
   beforeEach(function () {
-    this.typesense = new Typesense.Client({
+    this.typesense = new TypesenseClient({
       'nodes': [
         {
           'host': 'node0',

@@ -2,7 +2,7 @@
 
 const RESOURCEPATH = '/aliases'
 
-class Aliases {
+export default class Aliases {
   constructor (apiCall) {
     this._apiCall = apiCall
   }
@@ -23,5 +23,3 @@ class Aliases {
     return RESOURCEPATH
   }
 }
-
-module.exports = Aliases

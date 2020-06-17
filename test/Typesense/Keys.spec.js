@@ -1,6 +1,6 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import Typesense from '../../src/Typesense'
+import { Client as TypesenseClient } from '../../src/Typesense'
 import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
@@ -14,7 +14,7 @@ describe('Keys', function () {
   let apiCall
   let mockAxios
   before(function () {
-    typesense = new Typesense.Client({
+    typesense = new TypesenseClient({
       'nodes': [{
         'host': 'node0',
         'port': '8108',

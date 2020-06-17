@@ -4,7 +4,7 @@ import Collections from './Collections'
 
 const RESOURCEPATH = '/overrides'
 
-class Overrides {
+export default class Overrides {
   constructor (collectionName, apiCall) {
     this._collectionName = collectionName
     this._apiCall = apiCall
@@ -26,5 +26,3 @@ class Overrides {
     return RESOURCEPATH
   }
 }
-
-module.exports = Overrides

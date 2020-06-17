@@ -5,7 +5,7 @@ const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 const HEALTHY = true
 const UNHEALTHY = false
 
-class ApiCall {
+export default class ApiCall {
   constructor (configuration) {
     this._configuration = configuration
 
@@ -171,5 +171,3 @@ class ApiCall {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000))
   }
 }
-
-module.exports = ApiCall

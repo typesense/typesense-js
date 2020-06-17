@@ -1,8 +1,8 @@
 'use strict'
 
-const RESOURCEPATH = '/debug'
+const RESOURCEPATH = '/metrics.json'
 
-export default class Debug {
+export default class Metrics {
   constructor (apiCall) {
     this._apiCall = apiCall
   }

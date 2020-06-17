@@ -3,7 +3,7 @@
 import Collections from './Collections'
 import Overrides from './Overrides'
 
-class Override {
+export default class Override {
   constructor (collectionName, overrideId, apiCall) {
     this._collectionName = collectionName
     this._overrideId = overrideId
@@ -22,5 +22,3 @@ class Override {
     return `${Collections.RESOURCEPATH}/${this._collectionName}${Overrides.RESOURCEPATH}/${this._overrideId}`
   }
 }
-
-module.exports = Override

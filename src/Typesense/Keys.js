@@ -1,10 +1,10 @@
 'use strict'
 
-import crypto from 'crypto'
+import { createHmac } from 'crypto'
 
 const RESOURCEPATH = '/keys'
 
-class Keys {
+export default class Keys {
   constructor (apiCall) {
     this._apiCall = apiCall
   }
@@ -22,7 +22,7 @@ class Keys {
     // accepted by the server, when usined with the search endpoint.
     const paramsJSON = JSON.stringify(parameters)
     const digest = Buffer.from(
-      crypto.createHmac('sha256', searchKey)
+      createHmac('sha256', searchKey)
         .update(paramsJSON)
         .digest('base64'))
     const keyPrefix = searchKey.substr(0, 4)
@@ -35,5 +35,3 @@ class Keys {
     return RESOURCEPATH
   }
 }
-
-module.exports = Keys

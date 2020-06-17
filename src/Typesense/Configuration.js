@@ -2,7 +2,7 @@
 
 import logger from 'loglevel'
 
-class Configuration {
+export default class Configuration {
   constructor (options = {}) {
     this.nodes = options.nodes || []
     this.nodes = this.nodes.map(node => this._setDefaultPathInNode(node))
@@ -63,5 +63,3 @@ class Configuration {
     }
   }
 }
-
-module.exports = Configuration

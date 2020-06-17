@@ -4,7 +4,7 @@ import Collections from './Collections'
 
 const RESOURCEPATH = '/documents'
 
-class Documents {
+export default class Documents {
   constructor (collectionName, apiCall) {
     this._collectionName = collectionName
     this._apiCall = apiCall
@@ -43,5 +43,3 @@ class Documents {
     return RESOURCEPATH
   }
 }
-
-module.exports = Documents

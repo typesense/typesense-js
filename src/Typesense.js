@@ -1,11 +1,4 @@
-import TypesenseClient from './Typesense/Client'
+import Client from './Typesense/Client'
+import SearchClient from './Typesense/SearchClient'
 
-const Client = TypesenseClient
-
-class Typesense {
-  static get Client () {
-    return Client
-  }
-}
-
-module.exports = Typesense
+export { Client, SearchClient }

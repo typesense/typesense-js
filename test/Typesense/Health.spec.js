@@ -8,7 +8,7 @@ import MockAxiosAdapter from 'axios-mock-adapter'
 let expect = chai.expect
 chai.use(chaiAsPromised)
 
-describe('Debug', function () {
+describe('Health', function () {
   let mockAxios
   let typesense
   let apiCall
@@ -26,11 +26,10 @@ describe('Debug', function () {
   })
 
   describe('.retrieve', function () {
-    it('retrieves debugging information', function (done) {
-      let debugInfo = {version: '0.8.0'}
+    it('retrieves health information', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/debug', typesense.configuration.nodes[0]),
+          apiCall._uriFor('/health', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -38,11 +37,11 @@ describe('Debug', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, debugInfo)
+        .reply(200, {ok: true})
 
-      let returnData = typesense.debug.retrieve()
+      let returnData = typesense.health.retrieve()
 
-      expect(returnData).to.eventually.deep.equal(debugInfo).notify(done)
+      expect(returnData).to.eventually.deep.equal({ok: true}).notify(done)
     })
   })
 })

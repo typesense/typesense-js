@@ -10,6 +10,7 @@ import buffer from 'vinyl-buffer'
 import sourcemaps from 'gulp-sourcemaps'
 import uglify from 'gulp-uglify'
 import del from 'del'
+import commonShake from 'common-shakeify'
 
 gulp.task('build:browser', function () {
   let stream = browserify({
@@ -17,6 +18,7 @@ gulp.task('build:browser', function () {
     debug: true,
     standalone: 'Typesense'
   }).transform('babelify', {presets: ['@babel/preset-env']})
+    .plugin(commonShake)
     .bundle()
     .pipe(source('typesense.js'))
     .pipe(buffer())

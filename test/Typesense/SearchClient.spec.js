@@ -1,12 +1,12 @@
 import chai from 'chai'
-import { Client as TypesenseClient } from '../../src/Typesense'
+import { SearchClient as TypesenseSearchClient } from '../../src/Typesense'
 
 let expect = chai.expect
 
-describe('Client', function () {
+describe('SearchClient', function () {
   let typesense
   before(function () {
-    typesense = new TypesenseClient({
+    typesense = new TypesenseSearchClient({
       'nodes': [{
         'host': 'node0',
         'port': '8108',
@@ -25,6 +25,12 @@ describe('Client', function () {
       }])
     expect(typesense.configuration.connectionTimeoutSeconds).to.eql(10)
     expect(typesense.configuration.apiKey).to.eql('abcd')
+    done()
+  })
+  it('should only expose the search endpoint', function (done) {
+    expect(typesense.collections).to.throw('Typesense.SearchClient only supports search operations')
+    expect(typesense.collections('xyz').documents().search).to.be.a('function')
+    expect(typesense.keys).to.be.an('undefined')
     done()
   })
 })

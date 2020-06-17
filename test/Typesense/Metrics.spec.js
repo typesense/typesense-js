@@ -8,12 +8,12 @@ import MockAxiosAdapter from 'axios-mock-adapter'
 let expect = chai.expect
 chai.use(chaiAsPromised)
 
-describe('Alias', function () {
-  let typesense
-  let alias
-  let apiCall
+describe('Metrics', function () {
   let mockAxios
+  let typesense
+  let apiCall
   before(function () {
+    mockAxios = new MockAxiosAdapter(axios)
     typesense = new TypesenseClient({
       'nodes': [{
         'host': 'node0',
@@ -22,17 +22,15 @@ describe('Alias', function () {
       }],
       'apiKey': 'abcd'
     })
-    alias = typesense.aliases('companies')
     apiCall = new ApiCall(typesense.configuration)
-    mockAxios = new MockAxiosAdapter(axios)
   })
 
   describe('.retrieve', function () {
-    it('retrieves the alias', function (done) {
+    it('retrieves metrics', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]),
-          null,
+          apiCall._uriFor('/metrics.json', typesense.configuration.nodes[0]),
+          undefined,
           {
             'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
@@ -41,29 +39,7 @@ describe('Alias', function () {
         )
         .reply(200, {})
 
-      // console.log(mockAxios.handlers)
-
-      let returnData = alias.retrieve()
-
-      expect(returnData).to.eventually.deep.equal({}).notify(done)
-    })
-  })
-
-  describe('.delete', function () {
-    it('deletes an alias', function (done) {
-      mockAxios
-        .onDelete(
-          apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]),
-          null,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(200, {})
-
-      let returnData = alias.delete()
+      let returnData = typesense.metrics.retrieve()
 
       expect(returnData).to.eventually.deep.equal({}).notify(done)
     })

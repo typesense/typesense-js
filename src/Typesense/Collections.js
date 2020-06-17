@@ -2,7 +2,7 @@
 
 const RESOURCEPATH = '/collections'
 
-class Collections {
+export default class Collections {
   constructor (apiCall) {
     this._apiCall = apiCall
   }
@@ -19,5 +19,3 @@ class Collections {
     return RESOURCEPATH
   }
 }
-
-module.exports = Collections

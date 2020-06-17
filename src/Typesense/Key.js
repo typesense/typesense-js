@@ -2,7 +2,7 @@
 
 import Keys from './Keys'
 
-class Key {
+export default class Key {
   constructor (id, apiCall) {
     this._apiCall = apiCall
     this._id = id
@@ -20,5 +20,3 @@ class Key {
     return `${Keys.RESOURCEPATH}/${this._id}`
   }
 }
-
-module.exports = Key

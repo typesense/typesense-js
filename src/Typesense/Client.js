@@ -9,12 +9,16 @@ import Alias from './Alias'
 import Keys from './Keys'
 import Key from './Key'
 import Debug from './Debug'
+import Metrics from './Metrics'
+import Health from './Health'
 
-class Client {
+export default class Client {
   constructor (options) {
     this.configuration = new Configuration(options)
     this._apiCall = new ApiCall(this.configuration)
     this.debug = new Debug(this._apiCall)
+    this.metrics = new Metrics(this._apiCall)
+    this.health = new Health(this._apiCall)
     this._collections = new Collections(this._apiCall)
     this._individualCollections = {}
     this._aliases = new Aliases(this._apiCall)
@@ -56,5 +60,3 @@ class Client {
     }
   }
 }
-
-module.exports = Client
