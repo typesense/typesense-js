@@ -58,6 +58,8 @@ export default class ApiCall {
           params: queryParameters,
           data: bodyParameters,
           timeout: this._connectionTimeoutSeconds * 1000,
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
           validateStatus: (status) => {
             /* Override default validateStatus, which only considers 2xx a success.
                 In our case, anything below 500 should be considered a "success" and not retried.
