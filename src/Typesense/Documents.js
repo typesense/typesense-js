@@ -16,12 +16,16 @@ export default class Documents {
 
   createMany (documents) {
     let documentsInJSONLFormat = documents.map(document => JSON.stringify(document)).join('\n')
+    return this.import(documentsInJSONLFormat)
+  }
+
+  import (documentsInJSONLFormat) {
     return this._apiCall.performRequest(
       'post',
       this._endpointPath('import'),
       undefined,
       documentsInJSONLFormat,
-      {'Content-Type': 'application/jsonl'}
+      {'Content-Type': 'text/plain'}
     )
   }
 

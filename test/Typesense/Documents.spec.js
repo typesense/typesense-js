@@ -118,13 +118,34 @@ describe('Documents', function () {
           `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
           {
             'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/jsonl',
+            'Content-Type': 'text/plain',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
         .reply(200, {success: true})
 
       let returnData = documents.createMany([document, anotherDocument])
+
+      expect(returnData).to.eventually.deep.equal({success: true}).notify(done)
+    })
+  })
+
+  describe('.import', function () {
+    it('imports the documents in JSONL format', function (done) {
+      mockAxios
+        .onPost(
+          apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+          `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+          {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'text/plain',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(200, {success: true})
+
+      let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
+      let returnData = documents.import(jsonlData)
 
       expect(returnData).to.eventually.deep.equal({success: true}).notify(done)
     })
