@@ -122,11 +122,11 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, {success: true})
+        .reply(200, JSON.stringify({success: true}))
 
       let returnData = documents.createMany([document, anotherDocument])
 
-      expect(returnData).to.eventually.deep.equal({success: true}).notify(done)
+      expect(returnData).to.eventually.deep.equal([{success: true}]).notify(done)
     })
   })
 
@@ -142,12 +142,12 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, {success: true})
+        .reply(200, JSON.stringify({success: true}))
 
       let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
       let returnData = documents.import(jsonlData)
 
-      expect(returnData).to.eventually.deep.equal({success: true}).notify(done)
+      expect(returnData).to.eventually.deep.equal(JSON.stringify({success: true})).notify(done)
     })
   })
 
@@ -167,7 +167,7 @@ describe('Documents', function () {
 
       let returnData = documents.export()
 
-      expect(returnData).to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)]).notify(done)
+      expect(returnData).to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n')).notify(done)
     })
   })
 })

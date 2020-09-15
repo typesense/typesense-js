@@ -14,9 +14,10 @@ export default class Documents {
     return this._apiCall.post(this._endpointPath(), document)
   }
 
-  createMany (documents) {
+  async createMany (documents) {
     let documentsInJSONLFormat = documents.map(document => JSON.stringify(document)).join('\n')
-    return this.import(documentsInJSONLFormat)
+    let resultsInJSONLFormat = await this.import(documentsInJSONLFormat)
+    return resultsInJSONLFormat.split('\n').map(r => JSON.parse((r)))
   }
 
   import (documentsInJSONLFormat) {
@@ -30,9 +31,7 @@ export default class Documents {
   }
 
   export () {
-    return this._apiCall.get(this._endpointPath('export')).then((result) => {
-      return Promise.resolve(result.split('\n'))
-    })
+    return this._apiCall.get(this._endpointPath('export'))
   }
 
   search (searchParameters) {
