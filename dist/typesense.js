@@ -1718,61 +1718,6 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":42}],40:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
 },{"./../utils":42}],36:[function(require,module,exports){
 'use strict';
 
@@ -1898,6 +1843,61 @@ module.exports = (
     })()
 );
 
+},{"./../utils":42}],40:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
 },{"./../utils":42}],30:[function(require,module,exports){
 'use strict';
 
@@ -1925,7 +1925,27 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":26}],25:[function(require,module,exports){
+},{"./createError":26}],26:[function(require,module,exports){
+'use strict';
+
+var enhanceError = require('./enhanceError');
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+},{"./enhanceError":28}],25:[function(require,module,exports){
 'use strict';
 
 var isAbsoluteURL = require('../helpers/isAbsoluteURL');
@@ -1947,27 +1967,7 @@ module.exports = function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 };
 
-},{"../helpers/combineURLs":35,"../helpers/isAbsoluteURL":37}],26:[function(require,module,exports){
-'use strict';
-
-var enhanceError = require('./enhanceError');
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-},{"./enhanceError":28}],33:[function(require,module,exports){
+},{"../helpers/combineURLs":35,"../helpers/isAbsoluteURL":37}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -5608,9 +5608,13 @@ var ApiCall = /*#__PURE__*/function () {
               case 14:
                 response = _context.sent;
 
-                this._setNodeHealthcheck(node, HEALTHY);
+                if (response.status >= 1 && response.status <= 499) {
+                  // Treat any status code > 0 and < 500 to be an indication that node is healthy
+                  // We exclude 0 since some clients return 0 when request fails
+                  this._setNodeHealthcheck(node, HEALTHY);
+                }
 
-                this._logger.debug("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " was successfully made. Response Code was ").concat(response.status, "."));
+                this._logger.debug("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " was made. Response Code was ").concat(response.status, "."));
 
                 if (!(response.status >= 200 && response.status < 300)) {
                   _context.next = 21;
@@ -5620,7 +5624,7 @@ var ApiCall = /*#__PURE__*/function () {
                 return _context.abrupt("return", Promise.resolve(response.data));
 
               case 21:
-                if (!(response.status >= 300 && response.status < 500)) {
+                if (!(response.status < 500)) {
                   _context.next = 25;
                   break;
                 }
@@ -5638,7 +5642,7 @@ var ApiCall = /*#__PURE__*/function () {
                 _context.prev = 28;
                 _context.t0 = _context["catch"](10);
 
-                // This block handles retries for HTTPStatus < 200, HTTPStatus > 500 and network layer issues like connection timeouts
+                // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
                 this._setNodeHealthcheck(node, UNHEALTHY);
 
                 lastException = _context.t0;
@@ -5918,7 +5922,7 @@ var Key = /*#__PURE__*/function () {
 
 exports["default"] = Key;
 
-},{"./Keys":73,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],74:[function(require,module,exports){
+},{"./Keys":73,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],58:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5932,24 +5936,24 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var RESOURCEPATH = '/metrics.json';
+var RESOURCEPATH = '/debug';
 
-var Metrics = /*#__PURE__*/function () {
-  function Metrics(apiCall) {
-    (0, _classCallCheck2["default"])(this, Metrics);
+var Debug = /*#__PURE__*/function () {
+  function Debug(apiCall) {
+    (0, _classCallCheck2["default"])(this, Debug);
     this._apiCall = apiCall;
   }
 
-  (0, _createClass2["default"])(Metrics, [{
+  (0, _createClass2["default"])(Debug, [{
     key: "retrieve",
     value: function retrieve() {
       return this._apiCall.get(RESOURCEPATH);
     }
   }]);
-  return Metrics;
+  return Debug;
 }();
 
-exports["default"] = Metrics;
+exports["default"] = Debug;
 
 },{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],71:[function(require,module,exports){
 'use strict';
@@ -5984,7 +5988,7 @@ var Health = /*#__PURE__*/function () {
 
 exports["default"] = Health;
 
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],58:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],74:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5998,24 +6002,24 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var RESOURCEPATH = '/debug';
+var RESOURCEPATH = '/metrics.json';
 
-var Debug = /*#__PURE__*/function () {
-  function Debug(apiCall) {
-    (0, _classCallCheck2["default"])(this, Debug);
+var Metrics = /*#__PURE__*/function () {
+  function Metrics(apiCall) {
+    (0, _classCallCheck2["default"])(this, Metrics);
     this._apiCall = apiCall;
   }
 
-  (0, _createClass2["default"])(Debug, [{
+  (0, _createClass2["default"])(Metrics, [{
     key: "retrieve",
     value: function retrieve() {
       return this._apiCall.get(RESOURCEPATH);
     }
   }]);
-  return Debug;
+  return Metrics;
 }();
 
-exports["default"] = Debug;
+exports["default"] = Metrics;
 
 },{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],57:[function(require,module,exports){
 'use strict';

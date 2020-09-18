@@ -86,23 +86,26 @@ export default class ApiCall {
         }
 
         let response = await axios(requestOptions)
-        this._setNodeHealthcheck(node, HEALTHY)
-
-        this._logger.debug(`Request #${requestNumber}: Request to Node ${node.index} was successfully made. Response Code was ${response.status}.`)
+        if (response.status >= 1 && response.status <= 499) {
+          // Treat any status code > 0 and < 500 to be an indication that node is healthy
+          // We exclude 0 since some clients return 0 when request fails
+          this._setNodeHealthcheck(node, HEALTHY)
+        }
+        this._logger.debug(`Request #${requestNumber}: Request to Node ${node.index} was made. Response Code was ${response.status}.`)
 
         if (response.status >= 200 && response.status < 300) {
           // If response is 2xx return a resolved promise
           return Promise.resolve(response.data)
-        } else if (response.status >= 300 && response.status < 500) {
-          // If response is 3xx or 4xx, don't retry, return a custom error
+        } else if (response.status < 500) {
+          // Next, if response is anything but 5xx, don't retry, return a custom error
           return Promise.reject(this._customErrorForResponse(response, response.data.message))
         } else {
-          // Retry all other HTTP errors (HTTPStatus < 200 and HTTPStatus > 500)
+          // Retry all other HTTP errors (HTTPStatus > 500)
           // This will get caught by the catch block below
           throw this._customErrorForResponse(response, response.data.message)
         }
       } catch (error) {
-        // This block handles retries for HTTPStatus < 200, HTTPStatus > 500 and network layer issues like connection timeouts
+        // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
         this._setNodeHealthcheck(node, UNHEALTHY)
         lastException = error
         this._logger.warn(`Request #${requestNumber}: Request to Node ${node.index} failed due to "${error.code} ${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
