@@ -1,0 +1,1 @@
+{"version":3,"sources":["Typesense/Errors/HTTPError.js"],"names":["HTTPError","TypesenseError"],"mappings":"AAAA;;;;;;;;;;;;;;;;;AAEA;;;;;;IAEqBA,S;;;;;;;;;;;EAAkBC,wB","sourcesContent":["'use strict'\n\nimport TypesenseError from './TypesenseError'\n\nexport default class HTTPError extends TypesenseError {}\n"],"file":"HTTPError.js"}

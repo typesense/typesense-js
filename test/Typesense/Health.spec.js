@@ -37,7 +37,7 @@ describe('Health', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, {ok: true})
+        .reply(200, JSON.stringify({ok: true}), {'content-type': 'application/json'})
 
       let returnData = typesense.health.retrieve()
 

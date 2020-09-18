@@ -43,7 +43,7 @@ describe('Keys', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(201, {})
+        .reply(201, '{}', {'content-type': 'application/json'})
 
       let returnData = keys.create({
         'description': 'Search-only key.',
@@ -67,7 +67,7 @@ describe('Keys', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, [])
+        .reply(200, '[]', {'content-type': 'application/json'})
 
       let returnData = keys.retrieve()
 

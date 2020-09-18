@@ -41,7 +41,7 @@ describe('Aliases', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(201, {})
+        .reply(201, '{}', {'content-type': 'application/json; charset=utf-8'})
 
       let returnData = aliases.upsert('books', {
         'collection_name': 'books_january'
@@ -63,7 +63,7 @@ describe('Aliases', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, [])
+        .reply(200, '[]', {'content-type': 'application/json; charset=utf-8'})
 
       let returnData = aliases.retrieve()
 

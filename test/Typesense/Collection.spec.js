@@ -61,7 +61,7 @@ describe('Collection', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, companySchema)
+        .reply(200, JSON.stringify(companySchema), {'content-type': 'application/json'})
 
       let returnData = collection.retrieve()
 
@@ -81,7 +81,7 @@ describe('Collection', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, companySchema)
+        .reply(200, JSON.stringify(companySchema), {'content-type': 'application/json'})
 
       let returnData = collection.delete()
 

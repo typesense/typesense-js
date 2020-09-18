@@ -1,5 +1,14 @@
 'use strict'
 import axios from 'axios'
+import {
+  HTTPError,
+  ObjectAlreadyExists,
+  ObjectNotFound,
+  ObjectUnprocessable,
+  RequestMalformed,
+  RequestUnauthorized,
+  ServerError
+} from './Errors'
 
 const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 const HEALTHY = true
@@ -62,10 +71,10 @@ export default class ApiCall {
           maxBodyLength: Infinity,
           validateStatus: (status) => {
             /* Override default validateStatus, which only considers 2xx a success.
-                In our case, anything below 500 should be considered a "success" and not retried.
-                We will handle anything not 2xx, but below 500 as a custom exception below.
+                In our case, if the server returns any HTTP code, we will handle it below.
+                We do this to be able to raise custom errors based on response code.
              */
-            return status > 0 && status < 500
+            return status > 0
           },
           transformResponse: [(data, headers) => {
             let transformedData = data
@@ -81,14 +90,19 @@ export default class ApiCall {
 
         this._logger.debug(`Request #${requestNumber}: Request to Node ${node.index} was successfully made. Response Code was ${response.status}.`)
 
-        // If response is 2xx return a resolved promise, else reject
         if (response.status >= 200 && response.status < 300) {
+          // If response is 2xx return a resolved promise
           return Promise.resolve(response.data)
+        } else if (response.status >= 300 && response.status < 500) {
+          // If response is 3xx or 4xx, don't retry, return a custom error
+          return Promise.reject(this._customErrorForResponse(response, response.data.message))
         } else {
-          return Promise.reject(new Error(`${response.request.path} - ${response.data.message}`))
+          // Retry all other HTTP errors (HTTPStatus < 200 and HTTPStatus > 500)
+          // This will get caught by the catch block below
+          throw this._customErrorForResponse(response, response.data.message)
         }
       } catch (error) {
-        // This block handles HTTPStatus < 0, HTTPStatus > 500 and network layer issues like connection timeouts
+        // This block handles retries for HTTPStatus < 200, HTTPStatus > 500 and network layer issues like connection timeouts
         this._setNodeHealthcheck(node, UNHEALTHY)
         lastException = error
         this._logger.warn(`Request #${requestNumber}: Request to Node ${node.index} failed due to "${error.code} ${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
@@ -171,5 +185,34 @@ export default class ApiCall {
 
   async _timer (seconds) {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+  }
+
+  _customErrorForResponse (response, messageFromServer) {
+    let CustomErrorKlass
+    if (response.status === 400) {
+      CustomErrorKlass = RequestMalformed
+    } else if (response.status === 401) {
+      CustomErrorKlass = RequestUnauthorized
+    } else if (response.status === 404) {
+      CustomErrorKlass = ObjectNotFound
+    } else if (response.status === 409) {
+      CustomErrorKlass = ObjectAlreadyExists
+    } else if (response.status === 422) {
+      CustomErrorKlass = ObjectUnprocessable
+    } else if (response.status >= 500 && response.status <= 599) {
+      CustomErrorKlass = ServerError
+    } else {
+      CustomErrorKlass = HTTPError
+    }
+
+    let errorMessage = `Request failed with HTTP code ${response.status}`
+    if (typeof messageFromServer === 'string' && messageFromServer.trim() !== '') {
+      errorMessage += ` | Server said: ${messageFromServer}`
+    }
+
+    const customErrror = new CustomErrorKlass(errorMessage)
+    customErrror.httpStatus = response.status
+
+    return customErrror
   }
 }

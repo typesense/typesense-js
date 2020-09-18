@@ -21,6 +21,8 @@
   */
 
   // Create a client
+  // We're using Typesense.Client instead of Typesense.SearchClient just for the purposes of this example, so we can index using the same client
+  // You'd typically want to use Typesense.SearchClient in the browser, if you only need to perform search operations
   var typesense = new Typesense.Client({
     'nodes': [
       {

@@ -1,6 +1,7 @@
 'use strict'
 
 import logger from 'loglevel'
+import { MissingConfigurationError } from './Errors'
 
 export default class Configuration {
   constructor (options = {}) {
@@ -24,11 +25,11 @@ export default class Configuration {
 
   validate () {
     if (this.nodes == null || this.nodes.length === 0 || this._validateNodes()) {
-      throw new Error('Missing required configuration. Ensure that nodes[].protocol, nodes[].host and nodes[].port are set.')
+      throw new MissingConfigurationError('Ensure that nodes[].protocol, nodes[].host and nodes[].port are set')
     }
 
     if (this.apiKey == null) {
-      throw new Error('Missing required configuration. Ensure that apiKey is set.')
+      throw new MissingConfigurationError('Ensure that apiKey is set')
     }
   }
 

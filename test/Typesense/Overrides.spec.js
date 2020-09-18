@@ -56,7 +56,7 @@ describe('Overrides', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(201, override)
+        .reply(201, JSON.stringify(override), {'content-type': 'application/json'})
 
       let returnData = overrides.create(override)
       expect(returnData).to.eventually.deep.equal(override).notify(done)
@@ -75,7 +75,7 @@ describe('Overrides', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, [override])
+        .reply(200, JSON.stringify([override]), {'content-type': 'application/json'})
 
       let returnData = overrides.retrieve()
 

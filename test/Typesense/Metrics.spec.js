@@ -37,7 +37,7 @@ describe('Metrics', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, {})
+        .reply(200, '{}', {'content-type': 'application/json'})
 
       let returnData = typesense.metrics.retrieve()
 

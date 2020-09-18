@@ -39,7 +39,7 @@ describe('Alias', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, {})
+        .reply(200, '{}', {'content-type': 'application/json; charset=utf-8'})
 
       // console.log(mockAxios.handlers)
 
@@ -61,7 +61,7 @@ describe('Alias', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, {})
+        .reply(200, '{}', {'content-type': 'application/json; charset=utf-8'})
 
       let returnData = alias.delete()
 

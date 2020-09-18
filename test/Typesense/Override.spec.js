@@ -56,7 +56,7 @@ describe('Override', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, overrideData)
+        .reply(200, JSON.stringify(overrideData), {'content-type': 'application/json'})
 
       let returnData = override.retrieve()
       expect(returnData).to.eventually.deep.equal(overrideData).notify(done)
@@ -76,7 +76,7 @@ describe('Override', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, stubbedResult)
+        .reply(200, JSON.stringify(stubbedResult), {'content-type': 'application/json'})
 
       let returnData = override.delete()
 

@@ -1,0 +1,1 @@
+{"version":3,"sources":["Typesense/Errors/TypesenseError.js"],"names":["TypesenseError","Error"],"mappings":"AAAA;;;;;;;;;;;;;;;;;;;;;;;IAEqBA,c;;;;;;;;;;;+CAAuBC,K","sourcesContent":["'use strict'\n\nexport default class TypesenseError extends Error {}\n"],"file":"TypesenseError.js"}

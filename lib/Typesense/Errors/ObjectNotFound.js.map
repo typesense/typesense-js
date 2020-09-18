@@ -1,0 +1,1 @@
+{"version":3,"sources":["Typesense/Errors/ObjectNotFound.js"],"names":["ObjectNotFound","TypesenseError"],"mappings":"AAAA;;;;;;;;;;;;;;;;;AAEA;;;;;;IAEqBA,c;;;;;;;;;;;EAAuBC,wB","sourcesContent":["'use strict'\n\nimport TypesenseError from './TypesenseError'\n\nexport default class ObjectNotFound extends TypesenseError {}\n"],"file":"ObjectNotFound.js"}

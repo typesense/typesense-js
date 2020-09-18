@@ -62,7 +62,7 @@ describe('Collections', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(201, companySchema)
+        .reply(201, JSON.stringify(companySchema), {'content-type': 'application/json'})
 
       let returnData = collections.create(schemaForCreation)
 
@@ -82,7 +82,7 @@ describe('Collections', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, [companySchema])
+        .reply(200, JSON.stringify([companySchema]), {'content-type': 'application/json'})
 
       let returnData = collections.retrieve()
 

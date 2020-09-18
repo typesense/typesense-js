@@ -122,7 +122,7 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify({success: true}))
+        .reply(200, JSON.stringify({success: true}), {'content-type': 'text/plain'})
 
       let returnData = documents.createMany([document, anotherDocument])
 
@@ -142,7 +142,7 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify({success: true}))
+        .reply(200, JSON.stringify({success: true}), {'content-type': 'text/plain'})
 
       let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
       let returnData = documents.import(jsonlData)
@@ -163,7 +163,7 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
+        .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {'content-type': 'text/plain'})
 
       let returnData = documents.export()
 

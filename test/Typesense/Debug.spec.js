@@ -38,7 +38,7 @@ describe('Debug', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, debugInfo)
+        .reply(200, JSON.stringify(debugInfo), {'content-type': 'application/json'})
 
       let returnData = typesense.debug.retrieve()
 

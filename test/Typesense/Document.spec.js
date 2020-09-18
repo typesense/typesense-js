@@ -45,7 +45,7 @@ describe('Document', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, documentResult)
+        .reply(200, JSON.stringify(documentResult), {'content-type': 'application/json'})
 
       let returnData = document.retrieve()
 
@@ -65,7 +65,7 @@ describe('Document', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, documentResult)
+        .reply(200, JSON.stringify(documentResult), {'content-type': 'application/json'})
 
       let returnData = document.delete()
 

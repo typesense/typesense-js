@@ -1,9 +1,10 @@
 import chai from 'chai'
 import { Client as TypesenseClient } from '../../src/Typesense'
+import { MissingConfigurationError } from '../../src/Typesense/Errors'
 
 let expect = chai.expect
 
-describe('Typesense', function () {
+describe('Configuration', function () {
   let typesense
   beforeEach(function () {
     typesense = new TypesenseClient({
@@ -21,8 +22,7 @@ describe('Typesense', function () {
 
     expect(() => {
       typesense.configuration.validate()
-    })
-      .to.throw('Missing required configuration. Ensure that nodes[].protocol, nodes[].host and nodes[].port are set.')
+    }).to.throw(MissingConfigurationError)
 
     done()
   })
@@ -32,8 +32,7 @@ describe('Typesense', function () {
 
     expect(() => {
       typesense.configuration.validate()
-    })
-      .to.throw('Missing required configuration. Ensure that apiKey is set.')
+    }).to.throw(MissingConfigurationError)
 
     done()
   })

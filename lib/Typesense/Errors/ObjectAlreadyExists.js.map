@@ -1,0 +1,1 @@
+{"version":3,"sources":["Typesense/Errors/ObjectAlreadyExists.js"],"names":["ObjectAlreadyExists","TypesenseError"],"mappings":"AAAA;;;;;;;;;;;;;;;;;AAEA;;;;;;IAEqBA,mB;;;;;;;;;;;EAA4BC,wB","sourcesContent":["'use strict'\n\nimport TypesenseError from './TypesenseError'\n\nexport default class ObjectAlreadyExists extends TypesenseError {}\n"],"file":"ObjectAlreadyExists.js"}

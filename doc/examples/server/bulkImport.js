@@ -14,17 +14,18 @@ const typesense = new Typesense.Client({
       'host': 'localhost',
       'port': '8108',
       'protocol': 'http'
-    },
-    {
-      'host': 'localhost',
-      'port': '7108',
-      'protocol': 'http'
-    },
-    {
-      'host': 'localhost',
-      'port': '9108',
-      'protocol': 'http'
-    }],
+    } // ,
+    // {
+    //   'host': 'localhost',
+    //   'port': '7108',
+    //   'protocol': 'http'
+    // },
+    // {
+    //   'host': 'localhost',
+    //   'port': '9108',
+    //   'protocol': 'http'
+    // }
+  ],
   'apiKey': 'xyz',
   'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
   'connectionTimeoutSeconds': 120, // Set a longer timeout for large imports
@@ -101,8 +102,15 @@ async function runExample () {
     // Bulk import documents
     let results = await typesense.collections('companies').documents().createMany(documents)
 
-    // Process results as needed for errors / success
+    // Or if you have documents in JSONL format, and want to save the overhead of parsing JSON,
+    // you can also use the import method:
+    // await typesense.collections('companies').documents().import(documentsInJSONLFormat)
+
     console.log(results)
+
+    // Process results as needed for errors / success
+    const failedItems = results.filter(item => item.success === false)
+    console.log(failedItems)
   } catch (error) {
     console.log(error)
   } finally {
