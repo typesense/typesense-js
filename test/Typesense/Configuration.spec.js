@@ -1,37 +1,80 @@
 import chai from 'chai'
-import { Client as TypesenseClient } from '../../src/Typesense'
-import { MissingConfigurationError } from '../../src/Typesense/Errors'
+import {Client as TypesenseClient} from '../../src/Typesense'
+import {MissingConfigurationError} from '../../src/Typesense/Errors'
 
 let expect = chai.expect
 
 describe('Configuration', function () {
   let typesense
-  beforeEach(function () {
-    typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
-    })
+
+  it('throws an error if there is a missing host value in nodes', function (done) {
+    expect(() => {
+      typesense = new TypesenseClient({
+        'nodes': [{
+          'port': '8108',
+          'protocol': 'http'
+        }],
+        'apiKey': 'abcd'
+      })
+    }).to.throw(MissingConfigurationError)
+
+    done()
   })
 
-  it('throws an error if there is a missing config value in nodes', function (done) {
-    delete typesense.configuration.nodes[0].host
-
+  it('throws an error if there is a missing protocol value in nodes', function (done) {
     expect(() => {
-      typesense.configuration.validate()
+      typesense = new TypesenseClient({
+        'nodes': [{
+          'host': 'node0',
+          'port': '8108'
+        }],
+        'apiKey': 'abcd'
+      })
+    }).to.throw(MissingConfigurationError)
+
+    done()
+  })
+
+  it('auto sets port if port is missing', function (done) {
+    expect(() => {
+      typesense = new TypesenseClient({
+        'nodes': [{
+          'host': 'node0',
+          'protocol': 'http'
+        }],
+        'apiKey': 'abcd'
+      })
+      expect(typesense.configuration.nodes[0].port).to.equal(80)
+    }).to.not.throw(MissingConfigurationError)
+
+    done()
+  })
+
+  it('throws an error if nearestNode is missing values', function (done) {
+    expect(() => {
+      typesense = new TypesenseClient({
+        'nodes': [{
+          'host': 'node0',
+          'protocol': 'http'
+        }],
+        'nearestNode': {
+          'host': 'node1'
+        },
+        'apiKey': 'abcd'
+      })
     }).to.throw(MissingConfigurationError)
 
     done()
   })
 
   it('throws an error if apiKey is missing', function (done) {
-    typesense.configuration.apiKey = undefined
-
     expect(() => {
-      typesense.configuration.validate()
+      typesense = new TypesenseClient({
+        'nodes': [{
+          'host': 'node0',
+          'protocol': 'http'
+        }]
+      })
     }).to.throw(MissingConfigurationError)
 
     done()

@@ -1,14 +1,17 @@
 'use strict'
 
 import logger from 'loglevel'
-import { MissingConfigurationError } from './Errors'
+import {MissingConfigurationError} from './Errors'
 
 export default class Configuration {
   constructor (options = {}) {
     this.nodes = options.nodes || []
-    this.nodes = this.nodes.map(node => this._setDefaultPathInNode(node))
+    this.nodes = this.nodes
+      .map(node => this._setDefaultPathInNode(node))
+      .map(node => this._setDefaultPortInNode(node))
     this.nearestNode = options.nearestNode || null
     this.nearestNode = this._setDefaultPathInNode(this.nearestNode)
+    this.nearestNode = this._setDefaultPortInNode(this.nearestNode)
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15
     this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3
@@ -28,9 +31,15 @@ export default class Configuration {
       throw new MissingConfigurationError('Ensure that nodes[].protocol, nodes[].host and nodes[].port are set')
     }
 
+    if (this.nearestNode != null && this._isNodeMissingAnyParameters(this.nearestNode)) {
+      throw new MissingConfigurationError('Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set')
+    }
+
     if (this.apiKey == null) {
       throw new MissingConfigurationError('Ensure that apiKey is set')
     }
+
+    return true
   }
 
   _validateNodes () {
@@ -48,6 +57,20 @@ export default class Configuration {
   _setDefaultPathInNode (node) {
     if (node != null && !node.hasOwnProperty('path')) {
       node.path = ''
+    }
+    return node
+  }
+
+  _setDefaultPortInNode (node) {
+    if (node != null && !node.hasOwnProperty('port') && node.hasOwnProperty('protocol')) {
+      switch (node.protocol) {
+        case 'https':
+          node.port = 443
+          break
+        case 'http':
+          node.port = 80
+          break
+      }
     }
     return node
   }
