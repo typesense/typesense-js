@@ -35,6 +35,10 @@ Tests are also a good place to know how the library works internally: [test](tes
 
 See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
 
+## GatsbyJS Integration
+
+If you use [GatsbyJS](https://www.gatsbyjs.com/) for a framework, we have a plugin (that uses typesense-js behind the scenes) to automatically push your site data to Typesense when you build your site. Learn more [here](https://github.com/typesense/gatsby-plugin-typesense).
+
 ## Compatibility
 
 | Typesense Server | typesense-js |
