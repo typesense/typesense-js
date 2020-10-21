@@ -53,6 +53,30 @@ describe('Document', function () {
     })
   })
 
+  describe('.update', function () {
+    it('updates a document', function (done) {
+      const partialDocument = {
+        'id': 124,
+        'company_name': 'Stark Industries Inc'
+      }
+      mockAxios
+        .onPut(
+          apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
+          partialDocument,
+          {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(200, JSON.stringify(partialDocument), {'content-type': 'application/json'})
+
+      let returnData = document.update(partialDocument)
+
+      expect(returnData).to.eventually.deep.equal(partialDocument).notify(done)
+    })
+  })
+
   describe('.delete', function () {
     it('deletes a document', function (done) {
       mockAxios

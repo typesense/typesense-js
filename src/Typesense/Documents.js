@@ -10,21 +10,21 @@ export default class Documents {
     this._apiCall = apiCall
   }
 
-  create (document) {
-    return this._apiCall.post(this._endpointPath(), document)
+  create (document, options = {}) {
+    return this._apiCall.post(this._endpointPath(), document, options)
   }
 
-  async createMany (documents) {
+  async createMany (documents, options = {}) {
     let documentsInJSONLFormat = documents.map(document => JSON.stringify(document)).join('\n')
-    let resultsInJSONLFormat = await this.import(documentsInJSONLFormat)
+    let resultsInJSONLFormat = await this.import(documentsInJSONLFormat, options)
     return resultsInJSONLFormat.split('\n').map(r => JSON.parse((r)))
   }
 
-  import (documentsInJSONLFormat) {
+  import (documentsInJSONLFormat, options = {}) {
     return this._apiCall.performRequest(
       'post',
       this._endpointPath('import'),
-      undefined,
+      options,
       documentsInJSONLFormat,
       {'Content-Type': 'text/plain'}
     )

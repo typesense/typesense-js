@@ -34,6 +34,7 @@ See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of
 
 | Typesense Server | typesense-js |
 |------------------|----------------|
+| \>= v0.16.0 | \>= v0.8.0 |
 | \>= v0.15.0 | \>= v0.7.0 |
 | \>= v0.12.1 | \>= v0.5.0 |
 | \>= v0.12.0 | \>= v0.4.7 |
@@ -47,7 +48,7 @@ To release a new version, we use the [np](https://github.com/sindresorhus/np) pa
 
 ```shell
 $ npm install --global np
-$ np 
+$ np
 
 # Follow instructions that np shows you
 

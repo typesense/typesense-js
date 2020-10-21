@@ -1,6 +1,6 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import { Client as TypesenseClient } from '../../src/Typesense'
+import {Client as TypesenseClient} from '../../src/Typesense'
 import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
@@ -108,6 +108,29 @@ describe('Documents', function () {
 
       expect(returnData).to.eventually.deep.equal(document).notify(done)
     })
+
+    context('when a query paramater is passed', function () {
+      it('passes the query parameter to the API', function (done) {
+        mockAxios
+          .onPost(
+            apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
+            document,
+            {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'application/json',
+              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+            }
+          )
+          .reply(config => {
+            expect(config.params.upsert).to.equal(true)
+            return [201, document]
+          })
+
+        let returnData = documents.create(document, {upsert: true})
+
+        expect(returnData).to.eventually.deep.equal(document).notify(done)
+      })
+    })
   })
 
   describe('.createMany', function () {
@@ -127,6 +150,29 @@ describe('Documents', function () {
       let returnData = documents.createMany([document, anotherDocument])
 
       expect(returnData).to.eventually.deep.equal([{success: true}]).notify(done)
+    })
+
+    context('when a query paramater is passed', function () {
+      it('passes the query parameter to the API', function (done) {
+        mockAxios
+          .onPost(
+            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+            {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'text/plain',
+              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+            }
+          )
+          .reply(config => {
+            expect(config.params.upsert).to.equal(true)
+            return [200, JSON.stringify({success: true}), {'content-type': 'text/plain'}]
+          })
+
+        let returnData = documents.createMany([document, anotherDocument], {upsert: true})
+
+        expect(returnData).to.eventually.deep.equal([{success: true}]).notify(done)
+      })
     })
   })
 
@@ -148,6 +194,30 @@ describe('Documents', function () {
       let returnData = documents.import(jsonlData)
 
       expect(returnData).to.eventually.deep.equal(JSON.stringify({success: true})).notify(done)
+    })
+
+    context('when a query paramater is passed', function () {
+      it('passes the query parameter to the API', function (done) {
+        mockAxios
+          .onPost(
+            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+            {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'text/plain',
+              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+            }
+          )
+          .reply(config => {
+            expect(config.params.upsert).to.equal(true)
+            return [200, JSON.stringify({success: true}), {'content-type': 'text/plain'}]
+          })
+
+        let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
+        let returnData = documents.import(jsonlData, {upsert: true})
+
+        expect(returnData).to.eventually.deep.equal(JSON.stringify({success: true})).notify(done)
+      })
     })
   })
 
