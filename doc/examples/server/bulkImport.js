@@ -107,9 +107,25 @@ async function runExample () {
     // await typesense.collections('companies').documents().import(documentsInJSONLFormat)
 
     console.log(results)
-
     // Process results as needed for errors / success
-    const failedItems = results.filter(item => item.success === false)
+    let failedItems = results.filter(item => item.success === false)
+    console.log(failedItems)
+
+    // Bulk upsert documents
+    const modifiedDocuments = [
+      {
+        'id': '124',
+        'num_employees': 5250
+      },
+      {
+        'id': '125',
+        'num_employees': 1100
+      }
+    ]
+    results = await typesense.collections('companies').documents().createMany(modifiedDocuments, {upsert: true})
+    console.log(results)
+    // Process results as needed for errors / success
+    failedItems = results.filter(item => item.success === false)
     console.log(failedItems)
   } catch (error) {
     console.log(error)

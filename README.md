@@ -22,13 +22,20 @@ $ npm install --save typesense
 
 Read the documentation here: [https://typesense.org/api/](https://typesense.org/api/)
 
-Here are some examples with inline comments that walk you through how to use the client: [doc/examples](doc/examples)
-
 Tests are also a good place to know how the library works internally: [test](test)
 
-**Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.**
+**Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.** See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
 
-See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
+### Examples
+
+Here are some examples with inline comments that walk you through how to use the client: [doc/examples](doc/examples)
+
+To run the examples, from the repo root:
+
+```bash
+npm run typesenseServer
+node doc/examples/server/bulkImport.js
+```
 
 ## Compatibility
 

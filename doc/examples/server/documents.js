@@ -86,6 +86,9 @@ async function runExample () {
     result = await typesense.collections('companies').documents().create(documents[0])
     console.log(result)
 
+    // You can also upsert a document, by passing in the {upsert: true} option:
+    // await typesense.collections('companies').documents().create(documents[0], {upsert: true})
+
     // Retrieve the document
     await timer(0.5) // Give Typesense cluster a few hundred ms to index document on all nodes, before reading it right after (eventually consistent)
     result = await typesense.collections('companies').documents('124').retrieve()
@@ -97,6 +100,13 @@ async function runExample () {
 
     // create a couple of documents
     result = await typesense.collections('companies').documents().createMany(documents)
+    console.log(result)
+
+    // update a document
+    result = await typesense.collections('companies').documents(124).update({
+      'id': '124',
+      'num_employees': 5500
+    })
     console.log(result)
 
     // Export all documents in a collection in JSON Lines format
