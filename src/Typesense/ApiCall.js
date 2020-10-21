@@ -32,23 +32,23 @@ export default class ApiCall {
     this._currentNodeIndex = -1
   }
 
-  get (endpoint, parameters = {}) {
-    return this.performRequest('get', endpoint, parameters)
+  get (endpoint, queryParameters = {}) {
+    return this.performRequest('get', endpoint, {queryParameters})
   }
 
-  delete (endpoint, parameters = {}) {
-    return this.performRequest('delete', endpoint, parameters)
+  delete (endpoint, queryParameters = {}) {
+    return this.performRequest('delete', endpoint, {queryParameters})
   }
 
   post (endpoint, bodyParameters = {}, queryParameters = {}) {
-    return this.performRequest('post', endpoint, queryParameters, bodyParameters)
+    return this.performRequest('post', endpoint, {queryParameters, bodyParameters})
   }
 
   put (endpoint, bodyParameters = {}, queryParameters = {}) {
-    return this.performRequest('put', endpoint, queryParameters, bodyParameters)
+    return this.performRequest('put', endpoint, {queryParameters, bodyParameters})
   }
 
-  async performRequest (requestType, endpoint, queryParameters = {}, bodyParameters = {}, additionalHeaders = {}) {
+  async performRequest (requestType, endpoint, {queryParameters = null, bodyParameters = null, additionalHeaders = {}}) {
     this
       ._configuration
       .validate()
@@ -60,12 +60,10 @@ export default class ApiCall {
       let node = this._getNextNode(requestNumber)
       this._logger.debug(`Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
       try {
-        const requestOptions = {
+        let requestOptions = {
           method: requestType,
           url: this._uriFor(endpoint, node),
           headers: Object.assign({}, this._defaultHeaders(), additionalHeaders),
-          params: queryParameters,
-          data: bodyParameters,
           timeout: this._connectionTimeoutSeconds * 1000,
           maxContentLength: Infinity,
           maxBodyLength: Infinity,
@@ -83,6 +81,14 @@ export default class ApiCall {
             }
             return transformedData
           }]
+        }
+
+        if (queryParameters) {
+          requestOptions.params = queryParameters
+        }
+
+        if (bodyParameters) {
+          requestOptions.data = bodyParameters
         }
 
         let response = await axios(requestOptions)

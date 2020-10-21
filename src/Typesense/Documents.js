@@ -24,9 +24,11 @@ export default class Documents {
     return this._apiCall.performRequest(
       'post',
       this._endpointPath('import'),
-      options,
-      documentsInJSONLFormat,
-      {'Content-Type': 'text/plain'}
+      {
+        queryParameters: options,
+        bodyParameters: documentsInJSONLFormat,
+        additionalHeaders: {'Content-Type': 'text/plain'}
+      }
     )
   }
 

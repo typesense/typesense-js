@@ -158,7 +158,7 @@ function _interopRequireDefault(obj) {
 
 module.exports = _interopRequireDefault;
 },{}],9:[function(require,module,exports){
-var _typeof = require("../helpers/typeof");
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 function _getRequireWildcardCache() {
   if (typeof WeakMap !== "function") return null;
@@ -213,7 +213,7 @@ function _interopRequireWildcard(obj) {
 }
 
 module.exports = _interopRequireWildcard;
-},{"../helpers/typeof":14}],14:[function(require,module,exports){
+},{"@babel/runtime/helpers/typeof":14}],14:[function(require,module,exports){
 function _typeof(obj) {
   "@babel/helpers - typeof";
 
@@ -238,7 +238,7 @@ function _isNativeFunction(fn) {
 
 module.exports = _isNativeFunction;
 },{}],12:[function(require,module,exports){
-var _typeof = require("../helpers/typeof");
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 var assertThisInitialized = require("./assertThisInitialized");
 
@@ -251,7 +251,7 @@ function _possibleConstructorReturn(self, call) {
 }
 
 module.exports = _possibleConstructorReturn;
-},{"../helpers/typeof":14,"./assertThisInitialized":1}],15:[function(require,module,exports){
+},{"./assertThisInitialized":1,"@babel/runtime/helpers/typeof":14}],15:[function(require,module,exports){
 var getPrototypeOf = require("./getPrototypeOf");
 
 var setPrototypeOf = require("./setPrototypeOf");
@@ -1718,6 +1718,61 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
+},{"./../utils":42}],40:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
 },{"./../utils":42}],38:[function(require,module,exports){
 'use strict';
 
@@ -1843,61 +1898,6 @@ module.exports = (
     })()
 );
 
-},{"./../utils":42}],40:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
 },{"./../utils":42}],30:[function(require,module,exports){
 'use strict';
 
@@ -2001,13 +2001,6 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],22:[function(require,module,exports){
-'use strict';
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
 },{}],41:[function(require,module,exports){
 'use strict';
 
@@ -2035,6 +2028,13 @@ module.exports = function spread(callback) {
   return function wrap(arr) {
     return callback.apply(null, arr);
   };
+};
+
+},{}],22:[function(require,module,exports){
+'use strict';
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
 };
 
 },{}],29:[function(require,module,exports){
@@ -5514,50 +5514,50 @@ var ApiCall = /*#__PURE__*/function () {
   (0, _createClass2["default"])(ApiCall, [{
     key: "get",
     value: function get(endpoint) {
-      var parameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this.performRequest('get', endpoint, parameters);
+      var queryParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.performRequest('get', endpoint, {
+        queryParameters: queryParameters
+      });
     }
   }, {
     key: "delete",
     value: function _delete(endpoint) {
-      var parameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this.performRequest('delete', endpoint, parameters);
+      var queryParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.performRequest('delete', endpoint, {
+        queryParameters: queryParameters
+      });
     }
   }, {
     key: "post",
     value: function post(endpoint) {
       var bodyParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var queryParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      return this.performRequest('post', endpoint, queryParameters, bodyParameters);
+      return this.performRequest('post', endpoint, {
+        queryParameters: queryParameters,
+        bodyParameters: bodyParameters
+      });
     }
   }, {
     key: "put",
     value: function put(endpoint) {
       var bodyParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var queryParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      return this.performRequest('put', endpoint, queryParameters, bodyParameters);
+      return this.performRequest('put', endpoint, {
+        queryParameters: queryParameters,
+        bodyParameters: bodyParameters
+      });
     }
   }, {
     key: "performRequest",
     value: function () {
-      var _performRequest = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(requestType, endpoint) {
-        var queryParameters,
-            bodyParameters,
-            additionalHeaders,
-            requestNumber,
-            lastException,
-            numTries,
-            node,
-            requestOptions,
-            response,
-            _args = arguments;
+      var _performRequest = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(requestType, endpoint, _ref) {
+        var _ref$queryParameters, queryParameters, _ref$bodyParameters, bodyParameters, _ref$additionalHeader, additionalHeaders, requestNumber, lastException, numTries, node, requestOptions, response;
+
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                queryParameters = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
-                bodyParameters = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
-                additionalHeaders = _args.length > 4 && _args[4] !== undefined ? _args[4] : {};
+                _ref$queryParameters = _ref.queryParameters, queryParameters = _ref$queryParameters === void 0 ? null : _ref$queryParameters, _ref$bodyParameters = _ref.bodyParameters, bodyParameters = _ref$bodyParameters === void 0 ? null : _ref$bodyParameters, _ref$additionalHeader = _ref.additionalHeaders, additionalHeaders = _ref$additionalHeader === void 0 ? {} : _ref$additionalHeader;
 
                 this._configuration.validate();
 
@@ -5567,7 +5567,7 @@ var ApiCall = /*#__PURE__*/function () {
 
                 numTries = 1;
 
-              case 7:
+              case 5:
                 if (!(numTries <= this._numRetriesPerRequest + 1)) {
                   _context.next = 39;
                   break;
@@ -5577,13 +5577,11 @@ var ApiCall = /*#__PURE__*/function () {
 
                 this._logger.debug("Request #".concat(requestNumber, ": Attempting ").concat(requestType.toUpperCase(), " request Try #").concat(numTries, " to Node ").concat(node.index));
 
-                _context.prev = 10;
+                _context.prev = 8;
                 requestOptions = {
                   method: requestType,
                   url: this._uriFor(endpoint, node),
                   headers: Object.assign({}, this._defaultHeaders(), additionalHeaders),
-                  params: queryParameters,
-                  data: bodyParameters,
                   timeout: this._connectionTimeoutSeconds * 1000,
                   maxContentLength: Infinity,
                   maxBodyLength: Infinity,
@@ -5604,6 +5602,15 @@ var ApiCall = /*#__PURE__*/function () {
                     return transformedData;
                   }]
                 };
+
+                if (queryParameters) {
+                  requestOptions.params = queryParameters;
+                }
+
+                if (bodyParameters) {
+                  requestOptions.data = bodyParameters;
+                }
+
                 _context.next = 14;
                 return (0, _axios["default"])(requestOptions);
 
@@ -5642,7 +5649,7 @@ var ApiCall = /*#__PURE__*/function () {
 
               case 28:
                 _context.prev = 28;
-                _context.t0 = _context["catch"](10);
+                _context.t0 = _context["catch"](8);
 
                 // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
                 this._setNodeHealthcheck(node, UNHEALTHY);
@@ -5659,7 +5666,7 @@ var ApiCall = /*#__PURE__*/function () {
 
               case 36:
                 numTries++;
-                _context.next = 7;
+                _context.next = 5;
                 break;
 
               case 39:
@@ -5672,10 +5679,10 @@ var ApiCall = /*#__PURE__*/function () {
                 return _context.stop();
             }
           }
-        }, _callee, this, [[10, 28]]);
+        }, _callee, this, [[8, 28]]);
       }));
 
-      function performRequest(_x, _x2) {
+      function performRequest(_x, _x2, _x3) {
         return _performRequest.apply(this, arguments);
       }
 
@@ -5794,7 +5801,7 @@ var ApiCall = /*#__PURE__*/function () {
         }, _callee2);
       }));
 
-      function _timer(_x3) {
+      function _timer(_x4) {
         return _timer2.apply(this, arguments);
       }
 
@@ -6089,39 +6096,6 @@ var Collections = /*#__PURE__*/function () {
 
 exports["default"] = Collections;
 
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],58:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var RESOURCEPATH = '/debug';
-
-var Debug = /*#__PURE__*/function () {
-  function Debug(apiCall) {
-    (0, _classCallCheck2["default"])(this, Debug);
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Debug, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(RESOURCEPATH);
-    }
-  }]);
-  return Debug;
-}();
-
-exports["default"] = Debug;
-
 },{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],72:[function(require,module,exports){
 'use strict';
 
@@ -6166,7 +6140,7 @@ var Key = /*#__PURE__*/function () {
 
 exports["default"] = Key;
 
-},{"./Keys":73,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],74:[function(require,module,exports){
+},{"./Keys":73,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],58:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6180,24 +6154,24 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var RESOURCEPATH = '/metrics.json';
+var RESOURCEPATH = '/debug';
 
-var Metrics = /*#__PURE__*/function () {
-  function Metrics(apiCall) {
-    (0, _classCallCheck2["default"])(this, Metrics);
+var Debug = /*#__PURE__*/function () {
+  function Debug(apiCall) {
+    (0, _classCallCheck2["default"])(this, Debug);
     this._apiCall = apiCall;
   }
 
-  (0, _createClass2["default"])(Metrics, [{
+  (0, _createClass2["default"])(Debug, [{
     key: "retrieve",
     value: function retrieve() {
       return this._apiCall.get(RESOURCEPATH);
     }
   }]);
-  return Metrics;
+  return Debug;
 }();
 
-exports["default"] = Metrics;
+exports["default"] = Debug;
 
 },{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],71:[function(require,module,exports){
 'use strict';
@@ -6231,6 +6205,39 @@ var Health = /*#__PURE__*/function () {
 }();
 
 exports["default"] = Health;
+
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],74:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var RESOURCEPATH = '/metrics.json';
+
+var Metrics = /*#__PURE__*/function () {
+  function Metrics(apiCall) {
+    (0, _classCallCheck2["default"])(this, Metrics);
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Metrics, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(RESOURCEPATH);
+    }
+  }]);
+  return Metrics;
+}();
+
+exports["default"] = Metrics;
 
 },{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],73:[function(require,module,exports){
 (function (Buffer){
@@ -6343,54 +6350,7 @@ var Document = /*#__PURE__*/function () {
 
 exports["default"] = Document;
 
-},{"./Collections":56,"./Documents":60,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],75:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Collections = _interopRequireDefault(require("./Collections"));
-
-var _Overrides = _interopRequireDefault(require("./Overrides"));
-
-var Override = /*#__PURE__*/function () {
-  function Override(collectionName, overrideId, apiCall) {
-    (0, _classCallCheck2["default"])(this, Override);
-    this._collectionName = collectionName;
-    this._overrideId = overrideId;
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Override, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(this._endpointPath());
-    }
-  }, {
-    key: "delete",
-    value: function _delete() {
-      return this._apiCall["delete"](this._endpointPath());
-    }
-  }, {
-    key: "_endpointPath",
-    value: function _endpointPath() {
-      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Overrides["default"].RESOURCEPATH, "/").concat(this._overrideId);
-    }
-  }]);
-  return Override;
-}();
-
-exports["default"] = Override;
-
-},{"./Collections":56,"./Overrides":76,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],76:[function(require,module,exports){
+},{"./Collections":56,"./Documents":60,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],76:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6441,7 +6401,54 @@ var Overrides = /*#__PURE__*/function () {
 
 exports["default"] = Overrides;
 
-},{"./Collections":56,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],60:[function(require,module,exports){
+},{"./Collections":56,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],75:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Collections = _interopRequireDefault(require("./Collections"));
+
+var _Overrides = _interopRequireDefault(require("./Overrides"));
+
+var Override = /*#__PURE__*/function () {
+  function Override(collectionName, overrideId, apiCall) {
+    (0, _classCallCheck2["default"])(this, Override);
+    this._collectionName = collectionName;
+    this._overrideId = overrideId;
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Override, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(this._endpointPath());
+    }
+  }, {
+    key: "delete",
+    value: function _delete() {
+      return this._apiCall["delete"](this._endpointPath());
+    }
+  }, {
+    key: "_endpointPath",
+    value: function _endpointPath() {
+      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Overrides["default"].RESOURCEPATH, "/").concat(this._overrideId);
+    }
+  }]);
+  return Override;
+}();
+
+exports["default"] = Override;
+
+},{"./Collections":56,"./Overrides":76,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],60:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6519,8 +6526,12 @@ var Documents = /*#__PURE__*/function () {
     key: "import",
     value: function _import(documentsInJSONLFormat) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this._apiCall.performRequest('post', this._endpointPath('import'), options, documentsInJSONLFormat, {
-        'Content-Type': 'text/plain'
+      return this._apiCall.performRequest('post', this._endpointPath('import'), {
+        queryParameters: options,
+        bodyParameters: documentsInJSONLFormat,
+        additionalHeaders: {
+          'Content-Type': 'text/plain'
+        }
       });
     }
   }, {
