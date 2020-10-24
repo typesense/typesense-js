@@ -26,7 +26,7 @@ export default class ApiCall {
     this._numRetriesPerRequest = this._configuration.numRetries
     this._retryIntervalSeconds = this._configuration.retryIntervalSeconds
 
-    this._logger = this._configuration.logger
+    this.logger = this._configuration.logger
 
     this._initializeMetadataForNodes()
     this._currentNodeIndex = -1
@@ -48,6 +48,10 @@ export default class ApiCall {
     return this.performRequest('put', endpoint, {queryParameters, bodyParameters})
   }
 
+  patch (endpoint, bodyParameters = {}, queryParameters = {}) {
+    return this.performRequest('patch', endpoint, {queryParameters, bodyParameters})
+  }
+
   async performRequest (requestType, endpoint, {queryParameters = null, bodyParameters = null, additionalHeaders = {}}) {
     this
       ._configuration
@@ -55,10 +59,10 @@ export default class ApiCall {
 
     const requestNumber = Date.now()
     let lastException
-    this._logger.debug(`Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`)
+    this.logger.debug(`Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`)
     for (let numTries = 1; numTries <= this._numRetriesPerRequest + 1; numTries++) {
       let node = this._getNextNode(requestNumber)
-      this._logger.debug(`Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
+      this.logger.debug(`Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
       try {
         let requestOptions = {
           method: requestType,
@@ -97,7 +101,7 @@ export default class ApiCall {
           // We exclude 0 since some clients return 0 when request fails
           this._setNodeHealthcheck(node, HEALTHY)
         }
-        this._logger.debug(`Request #${requestNumber}: Request to Node ${node.index} was made. Response Code was ${response.status}.`)
+        this.logger.debug(`Request #${requestNumber}: Request to Node ${node.index} was made. Response Code was ${response.status}.`)
 
         if (response.status >= 200 && response.status < 300) {
           // If response is 2xx return a resolved promise
@@ -114,13 +118,13 @@ export default class ApiCall {
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
         this._setNodeHealthcheck(node, UNHEALTHY)
         lastException = error
-        this._logger.warn(`Request #${requestNumber}: Request to Node ${node.index} failed due to "${error.code} ${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
-        // this._logger.debug(error.stack)
-        this._logger.warn(`Request #${requestNumber}: Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
+        this.logger.warn(`Request #${requestNumber}: Request to Node ${node.index} failed due to "${error.code} ${error.message}${error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)}"`)
+        // this.logger.debug(error.stack)
+        this.logger.warn(`Request #${requestNumber}: Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
         await this._timer(this._retryIntervalSeconds)
       }
     }
-    this._logger.debug(`Request #${requestNumber}: No retries left. Raising last error`)
+    this.logger.debug(`Request #${requestNumber}: No retries left. Raising last error`)
     return Promise.reject(lastException)
   }
 
@@ -130,36 +134,36 @@ export default class ApiCall {
   _getNextNode (requestNumber = 0) {
     // Check if nearestNode is set and is healthy, if so return it
     if (this._nearestNode != null) {
-      this._logger.debug(`Request #${requestNumber}: Nodes Health: Node ${this._nearestNode.index} is ${this._nearestNode.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
+      this.logger.debug(`Request #${requestNumber}: Nodes Health: Node ${this._nearestNode.index} is ${this._nearestNode.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
       if (this._nearestNode.isHealthy === true || this._nodeDueForHealthcheck(this._nearestNode, requestNumber)) {
-        this._logger.debug(`Request #${requestNumber}: Updated current node to Node ${this._nearestNode.index}`)
+        this.logger.debug(`Request #${requestNumber}: Updated current node to Node ${this._nearestNode.index}`)
         return this._nearestNode
       }
-      this._logger.debug(`Request #${requestNumber}: Falling back to individual nodes`)
+      this.logger.debug(`Request #${requestNumber}: Falling back to individual nodes`)
     }
 
     // Fallback to nodes as usual
-    this._logger.debug(`Request #${requestNumber}: Nodes Health: ${this._nodes.map(node => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`).join(' || ')}`)
+    this.logger.debug(`Request #${requestNumber}: Nodes Health: ${this._nodes.map(node => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`).join(' || ')}`)
     let candidateNode
     for (let i = 0; i <= this._nodes.length; i++) {
       this._currentNodeIndex = (this._currentNodeIndex + 1) % this._nodes.length
       candidateNode = this._nodes[this._currentNodeIndex]
       if (candidateNode.isHealthy === true || this._nodeDueForHealthcheck(candidateNode, requestNumber)) {
-        this._logger.debug(`Request #${requestNumber}: Updated current node to Node ${candidateNode.index}`)
+        this.logger.debug(`Request #${requestNumber}: Updated current node to Node ${candidateNode.index}`)
         return candidateNode
       }
     }
 
     // None of the nodes are marked healthy, but some of them could have become healthy since last health check.
     //  So we will just return the next node.
-    this._logger.debug(`Request #${requestNumber}: No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`)
+    this.logger.debug(`Request #${requestNumber}: No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`)
     return candidateNode
   }
 
   _nodeDueForHealthcheck (node, requestNumber = 0) {
     const isDueForHealthcheck = Date.now() - node.lastAccessTimestamp > (this._healthcheckIntervalSeconds * 1000)
     if (isDueForHealthcheck) {
-      this._logger.debug(`Request #${requestNumber}: Node ${node.index} has exceeded healtcheckIntervalSeconds of ${this._healthcheckIntervalSeconds}. Adding it back into rotation.`)
+      this.logger.debug(`Request #${requestNumber}: Node ${node.index} has exceeded healtcheckIntervalSeconds of ${this._healthcheckIntervalSeconds}. Adding it back into rotation.`)
     }
     return isDueForHealthcheck
   }

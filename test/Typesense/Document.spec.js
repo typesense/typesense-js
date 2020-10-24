@@ -60,7 +60,7 @@ describe('Document', function () {
         'company_name': 'Stark Industries Inc'
       }
       mockAxios
-        .onPut(
+        .onPatch(
           apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
           partialDocument,
           {

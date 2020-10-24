@@ -108,28 +108,51 @@ describe('Documents', function () {
 
       expect(returnData).to.eventually.deep.equal(document).notify(done)
     })
+  })
 
-    context('when a query paramater is passed', function () {
-      it('passes the query parameter to the API', function (done) {
-        mockAxios
-          .onPost(
-            apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
-            document,
-            {
-              'Accept': 'application/json, text/plain, */*',
-              'Content-Type': 'application/json',
-              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-            }
-          )
-          .reply(config => {
-            expect(config.params.upsert).to.equal(true)
-            return [201, document]
-          })
+  describe('.upsert', function () {
+    it('upserts the document', function (done) {
+      mockAxios
+        .onPost(
+          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
+          document,
+          {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(config => {
+          expect(config.params.mode).to.equal('upsert')
+          return [201, JSON.stringify(document), {'content-type': 'application/json'}]
+        })
 
-        let returnData = documents.create(document, {upsert: true})
+      let returnData = documents.upsert(document)
 
-        expect(returnData).to.eventually.deep.equal(document).notify(done)
-      })
+      expect(returnData).to.eventually.deep.equal(document).notify(done)
+    })
+  })
+
+  describe('.update', function () {
+    it('updates the document', function (done) {
+      mockAxios
+        .onPost(
+          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
+          document,
+          {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(config => {
+          expect(config.params.mode).to.equal('update')
+          return [201, JSON.stringify(document), {'content-type': 'application/json'}]
+        })
+
+      let returnData = documents.update(document)
+
+      expect(returnData).to.eventually.deep.equal(document).notify(done)
     })
   })
 
@@ -177,25 +200,6 @@ describe('Documents', function () {
   })
 
   describe('.import', function () {
-    it('imports the documents in JSONL format', function (done) {
-      mockAxios
-        .onPost(
-          apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
-          `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'text/plain',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(200, JSON.stringify({success: true}), {'content-type': 'text/plain'})
-
-      let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
-      let returnData = documents.import(jsonlData)
-
-      expect(returnData).to.eventually.deep.equal(JSON.stringify({success: true})).notify(done)
-    })
-
     context('when a query paramater is passed', function () {
       it('passes the query parameter to the API', function (done) {
         mockAxios
@@ -209,14 +213,59 @@ describe('Documents', function () {
             }
           )
           .reply(config => {
-            expect(config.params.upsert).to.equal(true)
+            expect(config.params.mode).to.equal('upsert')
             return [200, JSON.stringify({success: true}), {'content-type': 'text/plain'}]
           })
 
         let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
-        let returnData = documents.import(jsonlData, {upsert: true})
+        let returnData = documents.import(jsonlData, {mode: 'upsert'})
 
         expect(returnData).to.eventually.deep.equal(JSON.stringify({success: true})).notify(done)
+      })
+    })
+
+    context('when an array of docs is passed', function () {
+      it('converts it to JSONL and returns an array of results', function (done) {
+        mockAxios
+          .onPost(
+            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+            {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'text/plain',
+              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+            }
+          )
+          .reply(config => {
+            return [200, '{}\n{}', {'content-type': 'text/plain'}]
+          })
+
+        let returnData = documents.import([document, anotherDocument])
+
+        expect(returnData).to.eventually.deep.equal([{}, {}]).notify(done)
+      })
+    })
+
+    context('when a JSONL string is passed', function () {
+      it('it sends the string as is and returns a string', function (done) {
+        mockAxios
+          .onPost(
+            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+            {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'text/plain',
+              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+            }
+          )
+          .reply(config => {
+            return [200, '{}\n{}', {'content-type': 'text/plain'}]
+          })
+
+        let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
+        let returnData = documents.import(jsonlData)
+
+        expect(returnData).to.eventually.deep.equal('{}\n{}').notify(done)
       })
     })
   })

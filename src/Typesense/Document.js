@@ -19,7 +19,7 @@ export default class Document {
   }
 
   update (partialDocument) {
-    return this._apiCall.put(this._endpointPath(), partialDocument)
+    return this._apiCall.patch(this._endpointPath(), partialDocument)
   }
 
   _endpointPath () {
