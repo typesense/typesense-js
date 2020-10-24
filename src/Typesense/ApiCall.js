@@ -87,11 +87,11 @@ export default class ApiCall {
           }]
         }
 
-        if (queryParameters) {
+        if (queryParameters && Object.keys(queryParameters).length !== 0) {
           requestOptions.params = queryParameters
         }
 
-        if (bodyParameters) {
+        if (bodyParameters && Object.keys(bodyParameters).length !== 0) {
           requestOptions.data = bodyParameters
         }
 

@@ -11,9 +11,8 @@ const Typesense = require('../../../src/Typesense')
 const typesense = new Typesense.Client({
   'nodes': [
     {
-      'host': 'localhost',
-      'port': '8108',
-      'protocol': 'http'
+      'host': 'p4o3n1wsax02htrmp-1.a1.typesense.net',
+      'protocol': 'https'
     } // ,
     // {
     //   'host': 'localhost',
@@ -26,7 +25,7 @@ const typesense = new Typesense.Client({
     //   'protocol': 'http'
     // }
   ],
-  'apiKey': 'xyz',
+  'apiKey': 'BeI33yD9z4O2cH7gbtl1xMsjVtcXYuEw',
   'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
   'connectionTimeoutSeconds': 120, // Set a longer timeout for large imports
   'logLevel': 'debug'
@@ -100,10 +99,10 @@ async function runExample () {
     // Here we already have documents in the `documents` variable.
 
     // Bulk import documents
-    let results = await typesense.collections('companies').documents().createMany(documents)
+    let results = await typesense.collections('companies').documents().import(documents)
 
     // Or if you have documents in JSONL format, and want to save the overhead of parsing JSON,
-    // you can also use the import method:
+    // you can also pass a JSONL string to the import method:
     // await typesense.collections('companies').documents().import(documentsInJSONLFormat)
 
     console.log(results)
@@ -112,17 +111,38 @@ async function runExample () {
     console.log(failedItems)
 
     // Bulk upsert documents
-    const modifiedDocuments = [
+    let modifiedDocuments = [
       {
         'id': '124',
-        'num_employees': 5250
+        'company_name': 'Stark Industries',
+        'num_employees': 5250,
+        'country': 'USA'
       },
       {
         'id': '125',
-        'num_employees': 1100
+        'company_name': 'Acme Corp',
+        'num_employees': 1100,
+        'country': 'France'
       }
     ]
-    results = await typesense.collections('companies').documents().createMany(modifiedDocuments, {upsert: true})
+    results = await typesense.collections('companies').documents().import(modifiedDocuments, {mode: 'upsert'})
+    console.log(results)
+    // Process results as needed for errors / success
+    failedItems = results.filter(item => item.success === false)
+    console.log(failedItems)
+
+    // Bulk update documents
+    modifiedDocuments = [
+      {
+        'id': '124',
+        'num_employees': 5251
+      },
+      {
+        'id': '125',
+        'num_employees': 1101
+      }
+    ]
+    results = await typesense.collections('companies').documents().import(modifiedDocuments, {mode: 'update'})
     console.log(results)
     // Process results as needed for errors / success
     failedItems = results.filter(item => item.success === false)
