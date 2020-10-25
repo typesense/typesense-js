@@ -15,11 +15,11 @@ export default class Documents {
   }
 
   upsert (document) {
-    return this._apiCall.post(this._endpointPath(), document, {mode: 'upsert'})
+    return this._apiCall.post(this._endpointPath(), document, {action: 'upsert'})
   }
 
   update (document) {
-    return this._apiCall.post(this._endpointPath(), document, {mode: 'update'})
+    return this._apiCall.post(this._endpointPath(), document, {action: 'update'})
   }
 
   async createMany (documents, options = {}) {

@@ -87,8 +87,8 @@ async function runExample () {
     console.log(result)
 
     // You can also upsert a document
-    // result = await typesense.collections('companies').documents().upsert(documents[0])
-    // console.log(result)
+    result = await typesense.collections('companies').documents().upsert(documents[0])
+    console.log(result)
 
     // Retrieve the document
     await timer(0.5) // Give Typesense cluster a few hundred ms to index document on all nodes, before reading it right after (eventually consistent)

@@ -11,8 +11,9 @@ const Typesense = require('../../../src/Typesense')
 const typesense = new Typesense.Client({
   'nodes': [
     {
-      'host': 'p4o3n1wsax02htrmp-1.a1.typesense.net',
-      'protocol': 'https'
+      'host': 'localhost',
+      'port': '8108',
+      'protocol': 'http'
     } // ,
     // {
     //   'host': 'localhost',
@@ -25,7 +26,7 @@ const typesense = new Typesense.Client({
     //   'protocol': 'http'
     // }
   ],
-  'apiKey': 'BeI33yD9z4O2cH7gbtl1xMsjVtcXYuEw',
+  'apiKey': 'xyz',
   'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
   'connectionTimeoutSeconds': 120, // Set a longer timeout for large imports
   'logLevel': 'debug'
@@ -125,7 +126,7 @@ async function runExample () {
         'country': 'France'
       }
     ]
-    results = await typesense.collections('companies').documents().import(modifiedDocuments, {mode: 'upsert'})
+    results = await typesense.collections('companies').documents().import(modifiedDocuments, {action: 'upsert'})
     console.log(results)
     // Process results as needed for errors / success
     failedItems = results.filter(item => item.success === false)
@@ -142,7 +143,7 @@ async function runExample () {
         'num_employees': 1101
       }
     ]
-    results = await typesense.collections('companies').documents().import(modifiedDocuments, {mode: 'update'})
+    results = await typesense.collections('companies').documents().import(modifiedDocuments, {action: 'update'})
     console.log(results)
     // Process results as needed for errors / success
     failedItems = results.filter(item => item.success === false)

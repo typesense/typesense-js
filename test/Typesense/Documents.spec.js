@@ -123,7 +123,7 @@ describe('Documents', function () {
           }
         )
         .reply(config => {
-          expect(config.params.mode).to.equal('upsert')
+          expect(config.params.action).to.equal('upsert')
           return [201, JSON.stringify(document), {'content-type': 'application/json'}]
         })
 
@@ -146,7 +146,7 @@ describe('Documents', function () {
           }
         )
         .reply(config => {
-          expect(config.params.mode).to.equal('update')
+          expect(config.params.action).to.equal('update')
           return [201, JSON.stringify(document), {'content-type': 'application/json'}]
         })
 
@@ -213,12 +213,12 @@ describe('Documents', function () {
             }
           )
           .reply(config => {
-            expect(config.params.mode).to.equal('upsert')
+            expect(config.params.action).to.equal('upsert')
             return [200, JSON.stringify({success: true}), {'content-type': 'text/plain'}]
           })
 
         let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
-        let returnData = documents.import(jsonlData, {mode: 'upsert'})
+        let returnData = documents.import(jsonlData, {action: 'upsert'})
 
         expect(returnData).to.eventually.deep.equal(JSON.stringify({success: true})).notify(done)
       })
