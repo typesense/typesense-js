@@ -10,7 +10,8 @@ const Typesense = require('../../../src/Typesense')
 const typesense = new Typesense.Client({
   'nodes': [
     {
-      'host': 'p4o3n1wsax02htrmp-1.a1.typesense.net',
+      'host': 'localhost',
+      'port': '8108',
       'protocol': 'https'
     } // ,
     // {
