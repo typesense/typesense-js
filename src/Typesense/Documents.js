@@ -14,20 +14,47 @@ export default class Documents {
     return this._apiCall.post(this._endpointPath(), document)
   }
 
-  async createMany (documents) {
-    let documentsInJSONLFormat = documents.map(document => JSON.stringify(document)).join('\n')
-    let resultsInJSONLFormat = await this.import(documentsInJSONLFormat)
-    return resultsInJSONLFormat.split('\n').map(r => JSON.parse((r)))
+  upsert (document) {
+    return this._apiCall.post(this._endpointPath(), document, {action: 'upsert'})
   }
 
-  import (documentsInJSONLFormat) {
-    return this._apiCall.performRequest(
+  update (document) {
+    return this._apiCall.post(this._endpointPath(), document, {action: 'update'})
+  }
+
+  async createMany (documents, options = {}) {
+    this._apiCall.logger.warn('createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents')
+    return this.import(documents, options)
+  }
+
+  /**
+   * Import a set of documents in a batch.
+   * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
+   * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
+   */
+  async import (documents, options = {}) {
+    let documentsInJSONLFormat
+    if (Array.isArray(documents)) {
+      documentsInJSONLFormat = documents.map(document => JSON.stringify(document)).join('\n')
+    } else {
+      documentsInJSONLFormat = documents
+    }
+
+    const resultsInJSONLFormat = await this._apiCall.performRequest(
       'post',
       this._endpointPath('import'),
-      undefined,
-      documentsInJSONLFormat,
-      {'Content-Type': 'text/plain'}
+      {
+        queryParameters: options,
+        bodyParameters: documentsInJSONLFormat,
+        additionalHeaders: {'Content-Type': 'text/plain'}
+      }
     )
+
+    if (Array.isArray(documents)) {
+      return resultsInJSONLFormat.split('\n').map(r => JSON.parse((r)))
+    } else {
+      return resultsInJSONLFormat
+    }
   }
 
   export () {

@@ -100,16 +100,53 @@ async function runExample () {
     // Here we already have documents in the `documents` variable.
 
     // Bulk import documents
-    let results = await typesense.collections('companies').documents().createMany(documents)
+    let results = await typesense.collections('companies').documents().import(documents)
 
     // Or if you have documents in JSONL format, and want to save the overhead of parsing JSON,
-    // you can also use the import method:
+    // you can also pass a JSONL string to the import method:
     // await typesense.collections('companies').documents().import(documentsInJSONLFormat)
 
     console.log(results)
-
     // Process results as needed for errors / success
-    const failedItems = results.filter(item => item.success === false)
+    let failedItems = results.filter(item => item.success === false)
+    console.log(failedItems)
+
+    // Bulk upsert documents
+    let modifiedDocuments = [
+      {
+        'id': '124',
+        'company_name': 'Stark Industries',
+        'num_employees': 5250,
+        'country': 'USA'
+      },
+      {
+        'id': '125',
+        'company_name': 'Acme Corp',
+        'num_employees': 1100,
+        'country': 'France'
+      }
+    ]
+    results = await typesense.collections('companies').documents().import(modifiedDocuments, {action: 'upsert'})
+    console.log(results)
+    // Process results as needed for errors / success
+    failedItems = results.filter(item => item.success === false)
+    console.log(failedItems)
+
+    // Bulk update documents
+    modifiedDocuments = [
+      {
+        'id': '124',
+        'num_employees': 5251
+      },
+      {
+        'id': '125',
+        'num_employees': 1101
+      }
+    ]
+    results = await typesense.collections('companies').documents().import(modifiedDocuments, {action: 'update'})
+    console.log(results)
+    // Process results as needed for errors / success
+    failedItems = results.filter(item => item.success === false)
     console.log(failedItems)
   } catch (error) {
     console.log(error)

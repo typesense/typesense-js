@@ -27,13 +27,20 @@ npm install --save @babel/runtime
 
 Read the documentation here: [https://typesense.org/api/](https://typesense.org/api/)
 
-Here are some examples with inline comments that walk you through how to use the client: [doc/examples](doc/examples)
-
 Tests are also a good place to know how the library works internally: [test](test)
 
-**Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.**
+**Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.** See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
 
-See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
+### Examples
+
+Here are some examples with inline comments that walk you through how to use the client: [doc/examples](doc/examples)
+
+To run the examples, from the repo root:
+
+```bash
+npm run typesenseServer
+node doc/examples/server/bulkImport.js
+```
 
 ## GatsbyJS Integration
 
@@ -43,6 +50,7 @@ If you use [GatsbyJS](https://www.gatsbyjs.com/) for a framework, we have a plug
 
 | Typesense Server | typesense-js |
 |------------------|----------------|
+| \>= v0.16.0 | \>= v0.8.0 |
 | \>= v0.15.0 | \>= v0.7.0 |
 | \>= v0.12.1 | \>= v0.5.0 |
 | \>= v0.12.0 | \>= v0.4.7 |
@@ -56,7 +64,7 @@ To release a new version, we use the [np](https://github.com/sindresorhus/np) pa
 
 ```shell
 $ npm install --global np
-$ np 
+$ np
 
 # Follow instructions that np shows you
 

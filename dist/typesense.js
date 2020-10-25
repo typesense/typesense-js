@@ -158,7 +158,7 @@ function _interopRequireDefault(obj) {
 
 module.exports = _interopRequireDefault;
 },{}],9:[function(require,module,exports){
-var _typeof = require("../helpers/typeof");
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 function _getRequireWildcardCache() {
   if (typeof WeakMap !== "function") return null;
@@ -213,7 +213,7 @@ function _interopRequireWildcard(obj) {
 }
 
 module.exports = _interopRequireWildcard;
-},{"../helpers/typeof":14}],14:[function(require,module,exports){
+},{"@babel/runtime/helpers/typeof":14}],14:[function(require,module,exports){
 function _typeof(obj) {
   "@babel/helpers - typeof";
 
@@ -238,7 +238,7 @@ function _isNativeFunction(fn) {
 
 module.exports = _isNativeFunction;
 },{}],12:[function(require,module,exports){
-var _typeof = require("../helpers/typeof");
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 var assertThisInitialized = require("./assertThisInitialized");
 
@@ -251,7 +251,7 @@ function _possibleConstructorReturn(self, call) {
 }
 
 module.exports = _possibleConstructorReturn;
-},{"../helpers/typeof":14,"./assertThisInitialized":1}],15:[function(require,module,exports){
+},{"./assertThisInitialized":1,"@babel/runtime/helpers/typeof":14}],15:[function(require,module,exports){
 var getPrototypeOf = require("./getPrototypeOf");
 
 var setPrototypeOf = require("./setPrototypeOf");
@@ -1773,61 +1773,6 @@ module.exports = (
     })()
 );
 
-},{"./../utils":42}],40:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
 },{"./../utils":42}],38:[function(require,module,exports){
 'use strict';
 
@@ -1898,6 +1843,61 @@ module.exports = (
     })()
 );
 
+},{"./../utils":42}],40:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
 },{"./../utils":42}],30:[function(require,module,exports){
 'use strict';
 
@@ -1925,27 +1925,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":26}],26:[function(require,module,exports){
-'use strict';
-
-var enhanceError = require('./enhanceError');
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-},{"./enhanceError":28}],25:[function(require,module,exports){
+},{"./createError":26}],25:[function(require,module,exports){
 'use strict';
 
 var isAbsoluteURL = require('../helpers/isAbsoluteURL');
@@ -1967,7 +1947,27 @@ module.exports = function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 };
 
-},{"../helpers/combineURLs":35,"../helpers/isAbsoluteURL":37}],33:[function(require,module,exports){
+},{"../helpers/combineURLs":35,"../helpers/isAbsoluteURL":37}],26:[function(require,module,exports){
+'use strict';
+
+var enhanceError = require('./enhanceError');
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+},{"./enhanceError":28}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -1979,6 +1979,27 @@ module.exports = function bind(fn, thisArg) {
     return fn.apply(thisArg, args);
   };
 };
+
+},{}],20:[function(require,module,exports){
+'use strict';
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
 
 },{}],22:[function(require,module,exports){
 'use strict';
@@ -2015,27 +2036,6 @@ module.exports = function spread(callback) {
     return callback.apply(null, arr);
   };
 };
-
-},{}],20:[function(require,module,exports){
-'use strict';
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
 
 },{}],29:[function(require,module,exports){
 'use strict';
@@ -5149,135 +5149,7 @@ var Errors = _interopRequireWildcard(require("./Typesense/Errors"));
 
 exports.Errors = Errors;
 
-},{"./Typesense/Client":54,"./Typesense/Errors":70,"./Typesense/SearchClient":77,"@babel/runtime/helpers/interopRequireDefault":8,"@babel/runtime/helpers/interopRequireWildcard":9}],77:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Configuration = _interopRequireDefault(require("./Configuration"));
-
-var _ApiCall = _interopRequireDefault(require("./ApiCall"));
-
-var _Collection = _interopRequireDefault(require("./Collection"));
-
-var SearchClient = /*#__PURE__*/function () {
-  function SearchClient(options) {
-    (0, _classCallCheck2["default"])(this, SearchClient);
-    this.configuration = new _Configuration["default"](options);
-    this._apiCall = new _ApiCall["default"](this.configuration);
-    this._individualCollections = {};
-  }
-
-  (0, _createClass2["default"])(SearchClient, [{
-    key: "collections",
-    value: function collections(collectionName) {
-      if (collectionName === undefined) {
-        throw new Error('Typesense.SearchClient only supports search operations, so the collectionName that needs to ' + 'be searched must be specified. Use Typesense.Client if you need to access the collection object.');
-      } else {
-        if (this._individualCollections[collectionName] === undefined) {
-          this._individualCollections[collectionName] = new _Collection["default"](collectionName, this._apiCall);
-        }
-
-        return this._individualCollections[collectionName];
-      }
-    }
-  }]);
-  return SearchClient;
-}();
-
-exports["default"] = SearchClient;
-
-},{"./ApiCall":53,"./Collection":55,"./Configuration":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],70:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "HTTPError", {
-  enumerable: true,
-  get: function get() {
-    return _HTTPError["default"];
-  }
-});
-Object.defineProperty(exports, "MissingConfigurationError", {
-  enumerable: true,
-  get: function get() {
-    return _MissingConfigurationError["default"];
-  }
-});
-Object.defineProperty(exports, "ObjectAlreadyExists", {
-  enumerable: true,
-  get: function get() {
-    return _ObjectAlreadyExists["default"];
-  }
-});
-Object.defineProperty(exports, "ObjectNotFound", {
-  enumerable: true,
-  get: function get() {
-    return _ObjectNotFound["default"];
-  }
-});
-Object.defineProperty(exports, "ObjectUnprocessable", {
-  enumerable: true,
-  get: function get() {
-    return _ObjectUnprocessable["default"];
-  }
-});
-Object.defineProperty(exports, "RequestMalformed", {
-  enumerable: true,
-  get: function get() {
-    return _RequestMalformed["default"];
-  }
-});
-Object.defineProperty(exports, "RequestUnauthorized", {
-  enumerable: true,
-  get: function get() {
-    return _RequestUnauthorized["default"];
-  }
-});
-Object.defineProperty(exports, "ServerError", {
-  enumerable: true,
-  get: function get() {
-    return _ServerError["default"];
-  }
-});
-Object.defineProperty(exports, "TypesenseError", {
-  enumerable: true,
-  get: function get() {
-    return _TypesenseError["default"];
-  }
-});
-
-var _HTTPError = _interopRequireDefault(require("./HTTPError"));
-
-var _MissingConfigurationError = _interopRequireDefault(require("./MissingConfigurationError"));
-
-var _ObjectAlreadyExists = _interopRequireDefault(require("./ObjectAlreadyExists"));
-
-var _ObjectNotFound = _interopRequireDefault(require("./ObjectNotFound"));
-
-var _ObjectUnprocessable = _interopRequireDefault(require("./ObjectUnprocessable"));
-
-var _RequestMalformed = _interopRequireDefault(require("./RequestMalformed"));
-
-var _RequestUnauthorized = _interopRequireDefault(require("./RequestUnauthorized"));
-
-var _ServerError = _interopRequireDefault(require("./ServerError"));
-
-var _TypesenseError = _interopRequireDefault(require("./TypesenseError"));
-
-},{"./HTTPError":61,"./MissingConfigurationError":62,"./ObjectAlreadyExists":63,"./ObjectNotFound":64,"./ObjectUnprocessable":65,"./RequestMalformed":66,"./RequestUnauthorized":67,"./ServerError":68,"./TypesenseError":69,"@babel/runtime/helpers/interopRequireDefault":8}],54:[function(require,module,exports){
+},{"./Typesense/Client":54,"./Typesense/Errors":70,"./Typesense/SearchClient":77,"@babel/runtime/helpers/interopRequireDefault":8,"@babel/runtime/helpers/interopRequireWildcard":9}],54:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5374,7 +5246,135 @@ var Client = /*#__PURE__*/function () {
 
 exports["default"] = Client;
 
-},{"./Alias":51,"./Aliases":52,"./ApiCall":53,"./Collection":55,"./Collections":56,"./Configuration":57,"./Debug":58,"./Health":71,"./Key":72,"./Keys":73,"./Metrics":74,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],51:[function(require,module,exports){
+},{"./Alias":51,"./Aliases":52,"./ApiCall":53,"./Collection":55,"./Collections":56,"./Configuration":57,"./Debug":58,"./Health":71,"./Key":72,"./Keys":73,"./Metrics":74,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],70:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "HTTPError", {
+  enumerable: true,
+  get: function get() {
+    return _HTTPError["default"];
+  }
+});
+Object.defineProperty(exports, "MissingConfigurationError", {
+  enumerable: true,
+  get: function get() {
+    return _MissingConfigurationError["default"];
+  }
+});
+Object.defineProperty(exports, "ObjectAlreadyExists", {
+  enumerable: true,
+  get: function get() {
+    return _ObjectAlreadyExists["default"];
+  }
+});
+Object.defineProperty(exports, "ObjectNotFound", {
+  enumerable: true,
+  get: function get() {
+    return _ObjectNotFound["default"];
+  }
+});
+Object.defineProperty(exports, "ObjectUnprocessable", {
+  enumerable: true,
+  get: function get() {
+    return _ObjectUnprocessable["default"];
+  }
+});
+Object.defineProperty(exports, "RequestMalformed", {
+  enumerable: true,
+  get: function get() {
+    return _RequestMalformed["default"];
+  }
+});
+Object.defineProperty(exports, "RequestUnauthorized", {
+  enumerable: true,
+  get: function get() {
+    return _RequestUnauthorized["default"];
+  }
+});
+Object.defineProperty(exports, "ServerError", {
+  enumerable: true,
+  get: function get() {
+    return _ServerError["default"];
+  }
+});
+Object.defineProperty(exports, "TypesenseError", {
+  enumerable: true,
+  get: function get() {
+    return _TypesenseError["default"];
+  }
+});
+
+var _HTTPError = _interopRequireDefault(require("./HTTPError"));
+
+var _MissingConfigurationError = _interopRequireDefault(require("./MissingConfigurationError"));
+
+var _ObjectAlreadyExists = _interopRequireDefault(require("./ObjectAlreadyExists"));
+
+var _ObjectNotFound = _interopRequireDefault(require("./ObjectNotFound"));
+
+var _ObjectUnprocessable = _interopRequireDefault(require("./ObjectUnprocessable"));
+
+var _RequestMalformed = _interopRequireDefault(require("./RequestMalformed"));
+
+var _RequestUnauthorized = _interopRequireDefault(require("./RequestUnauthorized"));
+
+var _ServerError = _interopRequireDefault(require("./ServerError"));
+
+var _TypesenseError = _interopRequireDefault(require("./TypesenseError"));
+
+},{"./HTTPError":61,"./MissingConfigurationError":62,"./ObjectAlreadyExists":63,"./ObjectNotFound":64,"./ObjectUnprocessable":65,"./RequestMalformed":66,"./RequestUnauthorized":67,"./ServerError":68,"./TypesenseError":69,"@babel/runtime/helpers/interopRequireDefault":8}],77:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Configuration = _interopRequireDefault(require("./Configuration"));
+
+var _ApiCall = _interopRequireDefault(require("./ApiCall"));
+
+var _Collection = _interopRequireDefault(require("./Collection"));
+
+var SearchClient = /*#__PURE__*/function () {
+  function SearchClient(options) {
+    (0, _classCallCheck2["default"])(this, SearchClient);
+    this.configuration = new _Configuration["default"](options);
+    this._apiCall = new _ApiCall["default"](this.configuration);
+    this._individualCollections = {};
+  }
+
+  (0, _createClass2["default"])(SearchClient, [{
+    key: "collections",
+    value: function collections(collectionName) {
+      if (collectionName === undefined) {
+        throw new Error('Typesense.SearchClient only supports search operations, so the collectionName that needs to ' + 'be searched must be specified. Use Typesense.Client if you need to access the collection object.');
+      } else {
+        if (this._individualCollections[collectionName] === undefined) {
+          this._individualCollections[collectionName] = new _Collection["default"](collectionName, this._apiCall);
+        }
+
+        return this._individualCollections[collectionName];
+      }
+    }
+  }]);
+  return SearchClient;
+}();
+
+exports["default"] = SearchClient;
+
+},{"./ApiCall":53,"./Collection":55,"./Configuration":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],51:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -5504,7 +5504,7 @@ var ApiCall = /*#__PURE__*/function () {
     this._healthcheckIntervalSeconds = this._configuration.healthcheckIntervalSeconds;
     this._numRetriesPerRequest = this._configuration.numRetries;
     this._retryIntervalSeconds = this._configuration.retryIntervalSeconds;
-    this._logger = this._configuration.logger;
+    this.logger = this._configuration.logger;
 
     this._initializeMetadataForNodes();
 
@@ -5514,74 +5514,80 @@ var ApiCall = /*#__PURE__*/function () {
   (0, _createClass2["default"])(ApiCall, [{
     key: "get",
     value: function get(endpoint) {
-      var parameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this.performRequest('get', endpoint, parameters);
+      var queryParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.performRequest('get', endpoint, {
+        queryParameters: queryParameters
+      });
     }
   }, {
     key: "delete",
     value: function _delete(endpoint) {
-      var parameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this.performRequest('delete', endpoint, parameters);
+      var queryParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.performRequest('delete', endpoint, {
+        queryParameters: queryParameters
+      });
     }
   }, {
     key: "post",
     value: function post(endpoint) {
-      var parameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this.performRequest('post', endpoint, undefined, parameters);
+      var bodyParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var queryParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return this.performRequest('post', endpoint, {
+        queryParameters: queryParameters,
+        bodyParameters: bodyParameters
+      });
     }
   }, {
     key: "put",
     value: function put(endpoint) {
-      var parameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this.performRequest('put', endpoint, undefined, parameters);
+      var bodyParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var queryParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return this.performRequest('put', endpoint, {
+        queryParameters: queryParameters,
+        bodyParameters: bodyParameters
+      });
+    }
+  }, {
+    key: "patch",
+    value: function patch(endpoint) {
+      var bodyParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var queryParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return this.performRequest('patch', endpoint, {
+        queryParameters: queryParameters,
+        bodyParameters: bodyParameters
+      });
     }
   }, {
     key: "performRequest",
     value: function () {
-      var _performRequest = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(requestType, endpoint) {
-        var queryParameters,
-            bodyParameters,
-            additionalHeaders,
-            requestNumber,
-            lastException,
-            numTries,
-            node,
-            requestOptions,
-            response,
-            _args = arguments;
+      var _performRequest = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(requestType, endpoint, _ref) {
+        var _ref$queryParameters, queryParameters, _ref$bodyParameters, bodyParameters, _ref$additionalHeader, additionalHeaders, requestNumber, lastException, numTries, node, requestOptions, response;
+
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                queryParameters = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
-                bodyParameters = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
-                additionalHeaders = _args.length > 4 && _args[4] !== undefined ? _args[4] : {};
+                _ref$queryParameters = _ref.queryParameters, queryParameters = _ref$queryParameters === void 0 ? null : _ref$queryParameters, _ref$bodyParameters = _ref.bodyParameters, bodyParameters = _ref$bodyParameters === void 0 ? null : _ref$bodyParameters, _ref$additionalHeader = _ref.additionalHeaders, additionalHeaders = _ref$additionalHeader === void 0 ? {} : _ref$additionalHeader;
 
                 this._configuration.validate();
 
                 requestNumber = Date.now();
-
-                this._logger.debug("Request #".concat(requestNumber, ": Performing ").concat(requestType.toUpperCase(), " request: ").concat(endpoint));
-
+                this.logger.debug("Request #".concat(requestNumber, ": Performing ").concat(requestType.toUpperCase(), " request: ").concat(endpoint));
                 numTries = 1;
 
-              case 7:
+              case 5:
                 if (!(numTries <= this._numRetriesPerRequest + 1)) {
                   _context.next = 39;
                   break;
                 }
 
                 node = this._getNextNode(requestNumber);
-
-                this._logger.debug("Request #".concat(requestNumber, ": Attempting ").concat(requestType.toUpperCase(), " request Try #").concat(numTries, " to Node ").concat(node.index));
-
-                _context.prev = 10;
+                this.logger.debug("Request #".concat(requestNumber, ": Attempting ").concat(requestType.toUpperCase(), " request Try #").concat(numTries, " to Node ").concat(node.index));
+                _context.prev = 8;
                 requestOptions = {
                   method: requestType,
                   url: this._uriFor(endpoint, node),
                   headers: Object.assign({}, this._defaultHeaders(), additionalHeaders),
-                  params: queryParameters,
-                  data: bodyParameters,
                   timeout: this._connectionTimeoutSeconds * 1000,
                   maxContentLength: Infinity,
                   maxBodyLength: Infinity,
@@ -5602,6 +5608,15 @@ var ApiCall = /*#__PURE__*/function () {
                     return transformedData;
                   }]
                 };
+
+                if (queryParameters && Object.keys(queryParameters).length !== 0) {
+                  requestOptions.params = queryParameters;
+                }
+
+                if (bodyParameters && Object.keys(bodyParameters).length !== 0) {
+                  requestOptions.data = bodyParameters;
+                }
+
                 _context.next = 14;
                 return (0, _axios["default"])(requestOptions);
 
@@ -5614,7 +5629,7 @@ var ApiCall = /*#__PURE__*/function () {
                   this._setNodeHealthcheck(node, HEALTHY);
                 }
 
-                this._logger.debug("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " was made. Response Code was ").concat(response.status, "."));
+                this.logger.debug("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " was made. Response Code was ").concat(response.status, "."));
 
                 if (!(response.status >= 200 && response.status < 300)) {
                   _context.next = 21;
@@ -5640,29 +5655,25 @@ var ApiCall = /*#__PURE__*/function () {
 
               case 28:
                 _context.prev = 28;
-                _context.t0 = _context["catch"](10);
+                _context.t0 = _context["catch"](8);
 
                 // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
                 this._setNodeHealthcheck(node, UNHEALTHY);
 
                 lastException = _context.t0;
+                this.logger.warn("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " failed due to \"").concat(_context.t0.code, " ").concat(_context.t0.message).concat(_context.t0.response == null ? '' : ' - ' + JSON.stringify(_context.t0.response.data), "\"")); // this.logger.debug(error.stack)
 
-                this._logger.warn("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " failed due to \"").concat(_context.t0.code, " ").concat(_context.t0.message).concat(_context.t0.response == null ? '' : ' - ' + JSON.stringify(_context.t0.response.data), "\"")); // this._logger.debug(error.stack)
-
-
-                this._logger.warn("Request #".concat(requestNumber, ": Sleeping for ").concat(this._retryIntervalSeconds, "s and then retrying request..."));
-
+                this.logger.warn("Request #".concat(requestNumber, ": Sleeping for ").concat(this._retryIntervalSeconds, "s and then retrying request..."));
                 _context.next = 36;
                 return this._timer(this._retryIntervalSeconds);
 
               case 36:
                 numTries++;
-                _context.next = 7;
+                _context.next = 5;
                 break;
 
               case 39:
-                this._logger.debug("Request #".concat(requestNumber, ": No retries left. Raising last error"));
-
+                this.logger.debug("Request #".concat(requestNumber, ": No retries left. Raising last error"));
                 return _context.abrupt("return", Promise.reject(lastException));
 
               case 41:
@@ -5670,10 +5681,10 @@ var ApiCall = /*#__PURE__*/function () {
                 return _context.stop();
             }
           }
-        }, _callee, this, [[10, 28]]);
+        }, _callee, this, [[8, 28]]);
       }));
 
-      function performRequest(_x, _x2) {
+      function performRequest(_x, _x2, _x3) {
         return _performRequest.apply(this, arguments);
       }
 
@@ -5689,22 +5700,20 @@ var ApiCall = /*#__PURE__*/function () {
 
       // Check if nearestNode is set and is healthy, if so return it
       if (this._nearestNode != null) {
-        this._logger.debug("Request #".concat(requestNumber, ": Nodes Health: Node ").concat(this._nearestNode.index, " is ").concat(this._nearestNode.isHealthy === true ? 'Healthy' : 'Unhealthy'));
+        this.logger.debug("Request #".concat(requestNumber, ": Nodes Health: Node ").concat(this._nearestNode.index, " is ").concat(this._nearestNode.isHealthy === true ? 'Healthy' : 'Unhealthy'));
 
         if (this._nearestNode.isHealthy === true || this._nodeDueForHealthcheck(this._nearestNode, requestNumber)) {
-          this._logger.debug("Request #".concat(requestNumber, ": Updated current node to Node ").concat(this._nearestNode.index));
-
+          this.logger.debug("Request #".concat(requestNumber, ": Updated current node to Node ").concat(this._nearestNode.index));
           return this._nearestNode;
         }
 
-        this._logger.debug("Request #".concat(requestNumber, ": Falling back to individual nodes"));
+        this.logger.debug("Request #".concat(requestNumber, ": Falling back to individual nodes"));
       } // Fallback to nodes as usual
 
 
-      this._logger.debug("Request #".concat(requestNumber, ": Nodes Health: ").concat(this._nodes.map(function (node) {
+      this.logger.debug("Request #".concat(requestNumber, ": Nodes Health: ").concat(this._nodes.map(function (node) {
         return "Node ".concat(node.index, " is ").concat(node.isHealthy === true ? 'Healthy' : 'Unhealthy');
       }).join(' || ')));
-
       var candidateNode;
 
       for (var i = 0; i <= this._nodes.length; i++) {
@@ -5712,16 +5721,14 @@ var ApiCall = /*#__PURE__*/function () {
         candidateNode = this._nodes[this._currentNodeIndex];
 
         if (candidateNode.isHealthy === true || this._nodeDueForHealthcheck(candidateNode, requestNumber)) {
-          this._logger.debug("Request #".concat(requestNumber, ": Updated current node to Node ").concat(candidateNode.index));
-
+          this.logger.debug("Request #".concat(requestNumber, ": Updated current node to Node ").concat(candidateNode.index));
           return candidateNode;
         }
       } // None of the nodes are marked healthy, but some of them could have become healthy since last health check.
       //  So we will just return the next node.
 
 
-      this._logger.debug("Request #".concat(requestNumber, ": No healthy nodes were found. Returning the next node, Node ").concat(candidateNode.index));
-
+      this.logger.debug("Request #".concat(requestNumber, ": No healthy nodes were found. Returning the next node, Node ").concat(candidateNode.index));
       return candidateNode;
     }
   }, {
@@ -5731,7 +5738,7 @@ var ApiCall = /*#__PURE__*/function () {
       var isDueForHealthcheck = Date.now() - node.lastAccessTimestamp > this._healthcheckIntervalSeconds * 1000;
 
       if (isDueForHealthcheck) {
-        this._logger.debug("Request #".concat(requestNumber, ": Node ").concat(node.index, " has exceeded healtcheckIntervalSeconds of ").concat(this._healthcheckIntervalSeconds, ". Adding it back into rotation."));
+        this.logger.debug("Request #".concat(requestNumber, ": Node ").concat(node.index, " has exceeded healtcheckIntervalSeconds of ").concat(this._healthcheckIntervalSeconds, ". Adding it back into rotation."));
       }
 
       return isDueForHealthcheck;
@@ -5792,7 +5799,7 @@ var ApiCall = /*#__PURE__*/function () {
         }, _callee2);
       }));
 
-      function _timer(_x3) {
+      function _timer(_x4) {
         return _timer2.apply(this, arguments);
       }
 
@@ -5835,193 +5842,7 @@ var ApiCall = /*#__PURE__*/function () {
 
 exports["default"] = ApiCall;
 
-},{"./Errors":70,"@babel/runtime/helpers/asyncToGenerator":2,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8,"@babel/runtime/regenerator":16,"axios":17}],56:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var RESOURCEPATH = '/collections';
-
-var Collections = /*#__PURE__*/function () {
-  function Collections(apiCall) {
-    (0, _classCallCheck2["default"])(this, Collections);
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Collections, [{
-    key: "create",
-    value: function create(schema) {
-      return this._apiCall.post(RESOURCEPATH, schema);
-    }
-  }, {
-    key: "retrieve",
-    value: function retrieve(schema) {
-      return this._apiCall.get(RESOURCEPATH);
-    }
-  }], [{
-    key: "RESOURCEPATH",
-    get: function get() {
-      return RESOURCEPATH;
-    }
-  }]);
-  return Collections;
-}();
-
-exports["default"] = Collections;
-
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],72:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Keys = _interopRequireDefault(require("./Keys"));
-
-var Key = /*#__PURE__*/function () {
-  function Key(id, apiCall) {
-    (0, _classCallCheck2["default"])(this, Key);
-    this._apiCall = apiCall;
-    this._id = id;
-  }
-
-  (0, _createClass2["default"])(Key, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(this._endpointPath());
-    }
-  }, {
-    key: "delete",
-    value: function _delete() {
-      return this._apiCall["delete"](this._endpointPath());
-    }
-  }, {
-    key: "_endpointPath",
-    value: function _endpointPath() {
-      return "".concat(_Keys["default"].RESOURCEPATH, "/").concat(this._id);
-    }
-  }]);
-  return Key;
-}();
-
-exports["default"] = Key;
-
-},{"./Keys":73,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],58:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var RESOURCEPATH = '/debug';
-
-var Debug = /*#__PURE__*/function () {
-  function Debug(apiCall) {
-    (0, _classCallCheck2["default"])(this, Debug);
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Debug, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(RESOURCEPATH);
-    }
-  }]);
-  return Debug;
-}();
-
-exports["default"] = Debug;
-
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],74:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var RESOURCEPATH = '/metrics.json';
-
-var Metrics = /*#__PURE__*/function () {
-  function Metrics(apiCall) {
-    (0, _classCallCheck2["default"])(this, Metrics);
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Metrics, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(RESOURCEPATH);
-    }
-  }]);
-  return Metrics;
-}();
-
-exports["default"] = Metrics;
-
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],71:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var RESOURCEPATH = '/health';
-
-var Health = /*#__PURE__*/function () {
-  function Health(apiCall) {
-    (0, _classCallCheck2["default"])(this, Health);
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Health, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(RESOURCEPATH);
-    }
-  }]);
-  return Health;
-}();
-
-exports["default"] = Health;
-
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],57:[function(require,module,exports){
+},{"./Errors":70,"@babel/runtime/helpers/asyncToGenerator":2,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8,"@babel/runtime/regenerator":16,"axios":17}],57:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6148,66 +5969,7 @@ var Configuration = /*#__PURE__*/function () {
 
 exports["default"] = Configuration;
 
-},{"./Errors":70,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8,"loglevel":47}],73:[function(require,module,exports){
-(function (Buffer){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _crypto = require("crypto");
-
-var RESOURCEPATH = '/keys';
-
-var Keys = /*#__PURE__*/function () {
-  function Keys(apiCall) {
-    (0, _classCallCheck2["default"])(this, Keys);
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Keys, [{
-    key: "create",
-    value: function create(params) {
-      return this._apiCall.post(Keys.RESOURCEPATH, params);
-    }
-  }, {
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(RESOURCEPATH);
-    }
-  }, {
-    key: "generateScopedSearchKey",
-    value: function generateScopedSearchKey(searchKey, parameters) {
-      // Note: only a key generated with the `documents:search` action will be
-      // accepted by the server, when usined with the search endpoint.
-      var paramsJSON = JSON.stringify(parameters);
-      var digest = Buffer.from((0, _crypto.createHmac)('sha256', searchKey).update(paramsJSON).digest('base64'));
-      var keyPrefix = searchKey.substr(0, 4);
-      var rawScopedKey = "".concat(digest).concat(keyPrefix).concat(paramsJSON);
-      return Buffer.from(rawScopedKey).toString('base64');
-    }
-  }], [{
-    key: "RESOURCEPATH",
-    get: function get() {
-      return RESOURCEPATH;
-    }
-  }]);
-  return Keys;
-}();
-
-exports["default"] = Keys;
-
-}).call(this,require("buffer").Buffer)
-
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8,"buffer":45,"crypto":44}],55:[function(require,module,exports){
+},{"./Errors":70,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8,"loglevel":47}],55:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6289,7 +6051,304 @@ var Collection = /*#__PURE__*/function () {
 
 exports["default"] = Collection;
 
-},{"./Collections":56,"./Document":59,"./Documents":60,"./Override":75,"./Overrides":76,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],76:[function(require,module,exports){
+},{"./Collections":56,"./Document":59,"./Documents":60,"./Override":75,"./Overrides":76,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],56:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var RESOURCEPATH = '/collections';
+
+var Collections = /*#__PURE__*/function () {
+  function Collections(apiCall) {
+    (0, _classCallCheck2["default"])(this, Collections);
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Collections, [{
+    key: "create",
+    value: function create(schema) {
+      return this._apiCall.post(RESOURCEPATH, schema);
+    }
+  }, {
+    key: "retrieve",
+    value: function retrieve(schema) {
+      return this._apiCall.get(RESOURCEPATH);
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Collections;
+}();
+
+exports["default"] = Collections;
+
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],58:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var RESOURCEPATH = '/debug';
+
+var Debug = /*#__PURE__*/function () {
+  function Debug(apiCall) {
+    (0, _classCallCheck2["default"])(this, Debug);
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Debug, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(RESOURCEPATH);
+    }
+  }]);
+  return Debug;
+}();
+
+exports["default"] = Debug;
+
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],72:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Keys = _interopRequireDefault(require("./Keys"));
+
+var Key = /*#__PURE__*/function () {
+  function Key(id, apiCall) {
+    (0, _classCallCheck2["default"])(this, Key);
+    this._apiCall = apiCall;
+    this._id = id;
+  }
+
+  (0, _createClass2["default"])(Key, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(this._endpointPath());
+    }
+  }, {
+    key: "delete",
+    value: function _delete() {
+      return this._apiCall["delete"](this._endpointPath());
+    }
+  }, {
+    key: "_endpointPath",
+    value: function _endpointPath() {
+      return "".concat(_Keys["default"].RESOURCEPATH, "/").concat(this._id);
+    }
+  }]);
+  return Key;
+}();
+
+exports["default"] = Key;
+
+},{"./Keys":73,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],74:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var RESOURCEPATH = '/metrics.json';
+
+var Metrics = /*#__PURE__*/function () {
+  function Metrics(apiCall) {
+    (0, _classCallCheck2["default"])(this, Metrics);
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Metrics, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(RESOURCEPATH);
+    }
+  }]);
+  return Metrics;
+}();
+
+exports["default"] = Metrics;
+
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],71:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var RESOURCEPATH = '/health';
+
+var Health = /*#__PURE__*/function () {
+  function Health(apiCall) {
+    (0, _classCallCheck2["default"])(this, Health);
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Health, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(RESOURCEPATH);
+    }
+  }]);
+  return Health;
+}();
+
+exports["default"] = Health;
+
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],73:[function(require,module,exports){
+(function (Buffer){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _crypto = require("crypto");
+
+var RESOURCEPATH = '/keys';
+
+var Keys = /*#__PURE__*/function () {
+  function Keys(apiCall) {
+    (0, _classCallCheck2["default"])(this, Keys);
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Keys, [{
+    key: "create",
+    value: function create(params) {
+      return this._apiCall.post(Keys.RESOURCEPATH, params);
+    }
+  }, {
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(RESOURCEPATH);
+    }
+  }, {
+    key: "generateScopedSearchKey",
+    value: function generateScopedSearchKey(searchKey, parameters) {
+      // Note: only a key generated with the `documents:search` action will be
+      // accepted by the server, when usined with the search endpoint.
+      var paramsJSON = JSON.stringify(parameters);
+      var digest = Buffer.from((0, _crypto.createHmac)('sha256', searchKey).update(paramsJSON).digest('base64'));
+      var keyPrefix = searchKey.substr(0, 4);
+      var rawScopedKey = "".concat(digest).concat(keyPrefix).concat(paramsJSON);
+      return Buffer.from(rawScopedKey).toString('base64');
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Keys;
+}();
+
+exports["default"] = Keys;
+
+}).call(this,require("buffer").Buffer)
+
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8,"buffer":45,"crypto":44}],59:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Collections = _interopRequireDefault(require("./Collections"));
+
+var _Documents = _interopRequireDefault(require("./Documents"));
+
+var Document = /*#__PURE__*/function () {
+  function Document(collectionName, documentId, apiCall) {
+    (0, _classCallCheck2["default"])(this, Document);
+    this._collectionName = collectionName;
+    this._documentId = documentId;
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Document, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(this._endpointPath());
+    }
+  }, {
+    key: "delete",
+    value: function _delete() {
+      return this._apiCall["delete"](this._endpointPath());
+    }
+  }, {
+    key: "update",
+    value: function update(partialDocument) {
+      return this._apiCall.patch(this._endpointPath(), partialDocument);
+    }
+  }, {
+    key: "_endpointPath",
+    value: function _endpointPath() {
+      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Documents["default"].RESOURCEPATH, "/").concat(this._documentId);
+    }
+  }]);
+  return Document;
+}();
+
+exports["default"] = Document;
+
+},{"./Collections":56,"./Documents":60,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],76:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6340,54 +6399,7 @@ var Overrides = /*#__PURE__*/function () {
 
 exports["default"] = Overrides;
 
-},{"./Collections":56,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],59:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Collections = _interopRequireDefault(require("./Collections"));
-
-var _Documents = _interopRequireDefault(require("./Documents"));
-
-var Document = /*#__PURE__*/function () {
-  function Document(collectionName, documentId, apiCall) {
-    (0, _classCallCheck2["default"])(this, Document);
-    this._collectionName = collectionName;
-    this._documentId = documentId;
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Document, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(this._endpointPath());
-    }
-  }, {
-    key: "delete",
-    value: function _delete() {
-      return this._apiCall["delete"](this._endpointPath());
-    }
-  }, {
-    key: "_endpointPath",
-    value: function _endpointPath() {
-      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Documents["default"].RESOURCEPATH, "/").concat(this._documentId);
-    }
-  }]);
-  return Document;
-}();
-
-exports["default"] = Document;
-
-},{"./Collections":56,"./Documents":60,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],75:[function(require,module,exports){
+},{"./Collections":56,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],75:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6469,27 +6481,36 @@ var Documents = /*#__PURE__*/function () {
       return this._apiCall.post(this._endpointPath(), document);
     }
   }, {
+    key: "upsert",
+    value: function upsert(document) {
+      return this._apiCall.post(this._endpointPath(), document, {
+        action: 'upsert'
+      });
+    }
+  }, {
+    key: "update",
+    value: function update(document) {
+      return this._apiCall.post(this._endpointPath(), document, {
+        action: 'update'
+      });
+    }
+  }, {
     key: "createMany",
     value: function () {
       var _createMany = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(documents) {
-        var documentsInJSONLFormat, resultsInJSONLFormat;
+        var options,
+            _args = arguments;
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                documentsInJSONLFormat = documents.map(function (document) {
-                  return JSON.stringify(document);
-                }).join('\n');
-                _context.next = 3;
-                return this["import"](documentsInJSONLFormat);
+                options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+
+                this._apiCall.logger.warn('createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents');
+
+                return _context.abrupt("return", this["import"](documents, options));
 
               case 3:
-                resultsInJSONLFormat = _context.sent;
-                return _context.abrupt("return", resultsInJSONLFormat.split('\n').map(function (r) {
-                  return JSON.parse(r);
-                }));
-
-              case 5:
               case "end":
                 return _context.stop();
             }
@@ -6503,13 +6524,72 @@ var Documents = /*#__PURE__*/function () {
 
       return createMany;
     }()
+    /**
+     * Import a set of documents in a batch.
+     * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
+     * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
+     */
+
   }, {
     key: "import",
-    value: function _import(documentsInJSONLFormat) {
-      return this._apiCall.performRequest('post', this._endpointPath('import'), undefined, documentsInJSONLFormat, {
-        'Content-Type': 'text/plain'
-      });
-    }
+    value: function () {
+      var _import2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(documents) {
+        var options,
+            documentsInJSONLFormat,
+            resultsInJSONLFormat,
+            _args2 = arguments;
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                options = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
+
+                if (Array.isArray(documents)) {
+                  documentsInJSONLFormat = documents.map(function (document) {
+                    return JSON.stringify(document);
+                  }).join('\n');
+                } else {
+                  documentsInJSONLFormat = documents;
+                }
+
+                _context2.next = 4;
+                return this._apiCall.performRequest('post', this._endpointPath('import'), {
+                  queryParameters: options,
+                  bodyParameters: documentsInJSONLFormat,
+                  additionalHeaders: {
+                    'Content-Type': 'text/plain'
+                  }
+                });
+
+              case 4:
+                resultsInJSONLFormat = _context2.sent;
+
+                if (!Array.isArray(documents)) {
+                  _context2.next = 9;
+                  break;
+                }
+
+                return _context2.abrupt("return", resultsInJSONLFormat.split('\n').map(function (r) {
+                  return JSON.parse(r);
+                }));
+
+              case 9:
+                return _context2.abrupt("return", resultsInJSONLFormat);
+
+              case 10:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function _import(_x2) {
+        return _import2.apply(this, arguments);
+      }
+
+      return _import;
+    }()
   }, {
     key: "export",
     value: function _export() {

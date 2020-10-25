@@ -18,6 +18,10 @@ export default class Document {
     return this._apiCall.delete(this._endpointPath())
   }
 
+  update (partialDocument) {
+    return this._apiCall.patch(this._endpointPath(), partialDocument)
+  }
+
   _endpointPath () {
     return `${Collections.RESOURCEPATH}/${this._collectionName}${Documents.RESOURCEPATH}/${this._documentId}`
   }
