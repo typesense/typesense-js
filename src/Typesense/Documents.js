@@ -24,9 +24,7 @@ export default class Documents {
 
   async createMany (documents, options = {}) {
     this._apiCall.logger.warn('createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents')
-    let documentsInJSONLFormat = documents.map(document => JSON.stringify(document)).join('\n')
-    let resultsInJSONLFormat = await this.import(documentsInJSONLFormat, options)
-    return resultsInJSONLFormat.split('\n').map(r => JSON.parse((r)))
+    return this.import(documents, options)
   }
 
   /**
