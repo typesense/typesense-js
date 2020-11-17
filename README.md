@@ -50,6 +50,7 @@ If you use [GatsbyJS](https://www.gatsbyjs.com/) for a framework, we have a plug
 
 | Typesense Server | typesense-js |
 |------------------|----------------|
+| \>= v0.17.0 | \>= v0.9.0 |
 | \>= v0.16.0 | \>= v0.8.0 |
 | \>= v0.15.0 | \>= v0.7.0 |
 | \>= v0.12.1 | \>= v0.5.0 |

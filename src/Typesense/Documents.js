@@ -22,6 +22,10 @@ export default class Documents {
     return this._apiCall.post(this._endpointPath(), document, {action: 'update'})
   }
 
+  delete (queryParameters = {}) {
+    return this._apiCall.delete(this._endpointPath(), queryParameters)
+  }
+
   async createMany (documents, options = {}) {
     this._apiCall.logger.warn('createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents')
     return this.import(documents, options)
