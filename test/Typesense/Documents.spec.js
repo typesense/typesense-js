@@ -289,4 +289,26 @@ describe('Documents', function () {
       expect(returnData).to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n')).notify(done)
     })
   })
+
+  describe('.delete', function () {
+    it('delete documents', function (done) {
+      mockAxios
+        .onDelete(
+          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
+          {
+            params: {'filter_by': 'field:=value'}
+          },
+          {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(200, '{}', {'content-type': 'application/json'})
+
+      let returnData = documents.delete({'filter_by': 'field:=value'})
+
+      expect(returnData).to.eventually.deep.equal({}).notify(done)
+    })
+  })
 })

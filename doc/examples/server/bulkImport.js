@@ -148,6 +148,10 @@ async function runExample () {
     // Process results as needed for errors / success
     failedItems = results.filter(item => item.success === false)
     console.log(failedItems)
+
+    // Bulk delete documents
+    results = await typesense.collections('companies').documents().delete({'filter_by': 'num_employees:>5000'})
+    console.log(results)
   } catch (error) {
     console.log(error)
   } finally {
