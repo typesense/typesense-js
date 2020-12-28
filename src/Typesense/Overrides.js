@@ -10,8 +10,8 @@ export default class Overrides {
     this._apiCall = apiCall
   }
 
-  create (params) {
-    return this._apiCall.put(this._endpointPath(), params)
+  upsert (overrideId, params) {
+    return this._apiCall.put(this._endpointPath(overrideId), params)
   }
 
   retrieve () {
@@ -19,7 +19,7 @@ export default class Overrides {
   }
 
   _endpointPath (operation) {
-    return `${Collections.RESOURCEPATH}/${this._collectionName}${Overrides.RESOURCEPATH}`
+    return `${Collections.RESOURCEPATH}/${this._collectionName}${Overrides.RESOURCEPATH}${operation === undefined ? '' : '/' + operation}`
   }
 
   static get RESOURCEPATH () {

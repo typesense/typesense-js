@@ -48,7 +48,7 @@ describe('Overrides', function () {
     it('creates the override in the collection', function (done) {
       mockAxios
         .onPut(
-          apiCall._uriFor('/collections/companies/overrides', typesense.configuration.nodes[0]),
+          apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
           override,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -58,7 +58,7 @@ describe('Overrides', function () {
         )
         .reply(201, JSON.stringify(override), {'content-type': 'application/json'})
 
-      let returnData = overrides.create(override)
+      let returnData = overrides.upsert('lex-exact', override)
       expect(returnData).to.eventually.deep.equal(override).notify(done)
     })
   })

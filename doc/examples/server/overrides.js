@@ -82,17 +82,29 @@ let documents = [
   }
 ]
 
-typesense.collections().create(schema) // create a collection
-  .then(function () {
+async function runExample () {
+  try {
+    // Delete if the collection already exists from a previous example run
+    await typesense.collections('companies').delete()
+  } catch (error) {
+    // do nothing
+  }
+
+  try {
+    let result
+    // create a collection
+    result = await typesense.collections().create(schema)
+    console.log(result)
+
     // create a couple of documents
-    return Promise.all(documents.map(function (document) {
-      return typesense.collections('companies').documents().create(document)
-    }))
-  })
-  .then(function (data) {
-    typesense.collections('companies').overrides().create(
+    await Promise.all(documents.map((document) =>
+      typesense.collections('companies').documents().create(document)
+    ))
+
+    // Create an override
+    await typesense.collections('companies').overrides().upsert(
+      'promote-doofenshmirtz',
       {
-        'id': 'promote-doofenshmirtz',
         'rule': {
           'query': 'doofen',
           'match': 'exact'
@@ -100,11 +112,11 @@ typesense.collections().create(schema) // create a collection
         'includes': [{'id': '126', 'position': 1}]
       }
     )
-  })
-  .then(function (data) {
-    typesense.collections('companies').overrides().create(
+
+    // Create another override
+    await typesense.collections('companies').overrides().upsert(
+      'promote-acme',
       {
-        'id': 'promote-acme',
         'rule': {
           'query': 'stark',
           'match': 'exact'
@@ -112,47 +124,32 @@ typesense.collections().create(schema) // create a collection
         'includes': [{'id': '125', 'position': 1}]
       }
     )
-  })
-  .then(function (data) {
-    let promises = []
 
-    // Search for documents
-    promises += typesense.collections('companies').documents().search({
+    result = await typesense.collections('companies').documents().search({
       'q': 'doofen',
       'query_by': 'company_name'
-    }).then(function (searchResults) {
-      console.dir(searchResults, {depth: null})
-    }).catch(function (error) {
-      console.log(error)
     })
+    console.dir(result, {depth: null})
 
-    promises += typesense.collections('companies').documents().search({
+    result = await typesense.collections('companies').documents().search({
       'q': 'stark',
       'query_by': 'company_name'
-    }).then(function (searchResults) {
-      console.dir(searchResults, {depth: null})
-    }).catch(function (error) {
-      console.log(error)
     })
+    console.dir(result, {depth: null})
 
-    // Search for more documents
-    promises += typesense.collections('companies').documents().search({
+    result = await typesense.collections('companies').documents().search({
       'q': 'Inc',
       'query_by': 'company_name',
       'filter_by': 'num_employees:<100',
       'sort_by': 'num_employees:desc'
-    }).then(function (searchResults) {
-      console.dir(searchResults, {depth: null})
-    }).catch(function (error) {
-      console.log(error)
     })
-
-    return Promise.all(promises)
-  })
-  .then(function () {
-    // Cleanup - delete the collection
-    return typesense.collections('companies').delete()
-  })
-  .catch(function (error) {
+    console.dir(result, {depth: null})
+  } catch (error) {
     console.log(error)
-  })
+  } finally {
+    // Cleanup
+    typesense.collections('companies').delete()
+  }
+}
+
+runExample()
