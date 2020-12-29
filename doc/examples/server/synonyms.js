@@ -13,17 +13,8 @@ const typesense = new Typesense.Client({
       'host': 'localhost',
       'port': '8108',
       'protocol': 'http'
-    },
-    {
-      'host': 'localhost',
-      'port': '7108',
-      'protocol': 'http'
-    },
-    {
-      'host': 'localhost',
-      'port': '9108',
-      'protocol': 'http'
-    }],
+    }
+  ],
   'apiKey': 'xyz',
   'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
   'connectionTimeoutSeconds': 10,
@@ -101,47 +92,49 @@ async function runExample () {
       typesense.collections('companies').documents().create(document)
     ))
 
-    // Create an override
-    await typesense.collections('companies').overrides().upsert(
-      'promote-doofenshmirtz',
+    // Create a multi-way synonym
+    await typesense.collections('companies').synonyms().upsert(
+      'synonyms-doofenshmirtz',
       {
-        'rule': {
-          'query': 'doofen',
-          'match': 'exact'
-        },
-        'includes': [{'id': '126', 'position': 1}]
+        'synonyms': ['Doofenshmirtz', 'Heinz', 'Evil']
       }
     )
 
-    // Create another override
-    await typesense.collections('companies').overrides().upsert(
-      'promote-acme',
-      {
-        'rule': {
-          'query': 'stark',
-          'match': 'exact'
-        },
-        'includes': [{'id': '125', 'position': 1}]
-      }
-    )
-
+    // Searching for Heinz should now return Doofenshmirtz Inc
     result = await typesense.collections('companies').documents().search({
-      'q': 'doofen',
+      'q': 'Heinz',
       'query_by': 'company_name'
     })
     console.dir(result, {depth: null})
 
+    // List all synonyms
+    result = await typesense.collections('companies').synonyms().retrieve()
+    console.dir(result, {depth: null})
+
+    // Retrieve specific synonym
+    result = await typesense.collections('companies').synonyms('synonyms-doofenshmirtz').retrieve()
+    console.dir(result, {depth: null})
+
+    // Update synonys to a one-way synonym
+    await typesense.collections('companies').synonyms().upsert(
+      'synonyms-doofenshmirtz',
+      {
+        'root': 'Evil',
+        'synonyms': ['Doofenshmirtz', 'Heinz']
+      }
+    )
+
+    // Searching for Evil should now return Doofenshmirtz Inc
     result = await typesense.collections('companies').documents().search({
-      'q': 'stark',
+      'q': 'Evil',
       'query_by': 'company_name'
     })
     console.dir(result, {depth: null})
 
+    // But searching for Heinz, should not return any results, since this is a one-way synonym
     result = await typesense.collections('companies').documents().search({
-      'q': 'Inc',
-      'query_by': 'company_name',
-      'filter_by': 'num_employees:<100',
-      'sort_by': 'num_employees:desc'
+      'q': 'Heinz',
+      'query_by': 'company_name'
     })
     console.dir(result, {depth: null})
   } catch (error) {

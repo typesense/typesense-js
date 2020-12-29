@@ -5,6 +5,8 @@ import Documents from './Documents'
 import Document from './Document'
 import Overrides from './Overrides'
 import Override from './Override'
+import Synonyms from './Synonyms'
+import Synonym from './Synonym'
 
 export default class Collection {
   constructor (name, apiCall) {
@@ -14,6 +16,8 @@ export default class Collection {
     this._individualDocuments = {}
     this._overrides = new Overrides(this._name, this._apiCall)
     this._individualOverrides = {}
+    this._synonyms = new Synonyms(this._name, this._apiCall)
+    this._individualSynonyms = {}
   }
 
   retrieve () {
@@ -43,6 +47,17 @@ export default class Collection {
         this._individualOverrides[overrideId] = new Override(this._name, overrideId, this._apiCall)
       }
       return this._individualOverrides[overrideId]
+    }
+  }
+
+  synonyms (synonymId) {
+    if (synonymId === undefined) {
+      return this._synonyms
+    } else {
+      if (this._individualOverrides[synonymId] === undefined) {
+        this._individualOverrides[synonymId] = new Synonym(this._name, synonymId, this._apiCall)
+      }
+      return this._individualOverrides[synonymId]
     }
   }
 

@@ -2,16 +2,16 @@
 
 import Collections from './Collections'
 
-const RESOURCEPATH = '/overrides'
+const RESOURCEPATH = '/synonyms'
 
-export default class Overrides {
+export default class Synonyms {
   constructor (collectionName, apiCall) {
     this._collectionName = collectionName
     this._apiCall = apiCall
   }
 
-  upsert (overrideId, params) {
-    return this._apiCall.put(this._endpointPath(overrideId), params)
+  upsert (synonymId, params) {
+    return this._apiCall.put(this._endpointPath(synonymId), params)
   }
 
   retrieve () {
@@ -19,7 +19,7 @@ export default class Overrides {
   }
 
   _endpointPath (operation) {
-    return `${Collections.RESOURCEPATH}/${this._collectionName}${Overrides.RESOURCEPATH}${operation === undefined ? '' : '/' + operation}`
+    return `${Collections.RESOURCEPATH}/${this._collectionName}${Synonyms.RESOURCEPATH}${operation === undefined ? '' : '/' + operation}`
   }
 
   static get RESOURCEPATH () {

@@ -8,10 +8,10 @@ import MockAxiosAdapter from 'axios-mock-adapter'
 let expect = chai.expect
 chai.use(chaiAsPromised)
 
-describe('Overrides', function () {
+describe('Synonyms', function () {
   let typesense
-  let overrides
-  let override
+  let synonyms
+  let synonym
   let apiCall
   let mockAxios
 
@@ -25,49 +25,35 @@ describe('Overrides', function () {
       'apiKey': 'abcd'
     })
 
-    override = {
-      'id': 'lex-exact',
-      'rule': {
-        'query': 'lex luthor',
-        'match': 'exact'
-      },
-      'includes': [
-        {'id': '125', 'position': 1}
-      ],
-      'excludes': [
-        {'id': '124'}
-      ]
-    }
-
-    overrides = typesense.collections('companies').overrides()
+    synonyms = typesense.collections('companies').synonyms()
     apiCall = new ApiCall(typesense.configuration)
     mockAxios = new MockAxiosAdapter(axios)
   })
 
   describe('.create', function () {
-    it('creates the override in the collection', function (done) {
+    it('creates the synonym in the collection', function (done) {
       mockAxios
         .onPut(
-          apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
-          override,
+          apiCall._uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
+          synonym,
           {
             'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(201, JSON.stringify(override), {'content-type': 'application/json'})
+        .reply(201, '{}', {'content-type': 'application/json'})
 
-      let returnData = overrides.upsert('lex-exact', override)
-      expect(returnData).to.eventually.deep.equal(override).notify(done)
+      let returnData = synonyms.upsert('synonym-set-1', {})
+      expect(returnData).to.eventually.deep.equal({}).notify(done)
     })
   })
 
   describe('.retrieve', function () {
-    it('retrieves all overrides', function (done) {
+    it('retrieves all synonyms', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/overrides', typesense.configuration.nodes[0]),
+          apiCall._uriFor('/collections/companies/synonyms', typesense.configuration.nodes[0]),
           undefined,
           {
             'Accept': 'application/json, text/plain, */*',
@@ -75,11 +61,11 @@ describe('Overrides', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify([override]), {'content-type': 'application/json'})
+        .reply(200, JSON.stringify([]), {'content-type': 'application/json'})
 
-      let returnData = overrides.retrieve()
+      let returnData = synonyms.retrieve()
 
-      expect(returnData).to.eventually.deep.equal([override]).notify(done)
+      expect(returnData).to.eventually.deep.equal([]).notify(done)
     })
   })
 })
