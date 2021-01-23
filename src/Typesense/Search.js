@@ -2,7 +2,7 @@
 
 const RESOURCEPATH = '/search'
 
-export default class Debug {
+export default class Search {
   constructor (apiCall) {
     this._apiCall = apiCall
   }

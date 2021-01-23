@@ -8,8 +8,8 @@ import Search from './Search'
 export default class SearchClient {
   constructor (options) {
     this.configuration = new Configuration(options)
-    this.search = new Search(this._apiCall)
     this._apiCall = new ApiCall(this.configuration)
+    this.search = new Search(this._apiCall)
     this._individualCollections = {}
   }
 
