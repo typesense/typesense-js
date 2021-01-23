@@ -40,7 +40,7 @@
     "chai": "~4.1.2",
     "chai-as-promised": "^7.1.1",
     "common-shakeify": "^0.6.2",
-    "core-js": "^3.8.1",
+    "core-js": "^3.8.3",
     "del": "^3.0.0",
     "eslint": "^4.17.0",
     "eslint-plugin-import": "^2.22.1",
