@@ -14,24 +14,25 @@ const typesense = new Typesense.Client({
       'host': 'localhost',
       'port': '8108',
       'protocol': 'http'
-    },
-    {
-      'host': 'localhost',
-      'port': '7108',
-      'protocol': 'http'
-    },
-    {
-      'host': 'localhost',
-      'port': '9108',
-      'protocol': 'http'
-    }],
+    }
+    // {
+    //   'host': 'localhost',
+    //   'port': '7108',
+    //   'protocol': 'http'
+    // },
+    // {
+    //   'host': 'localhost',
+    //   'port': '9108',
+    //   'protocol': 'http'
+    // }
+  ],
   // If this optional key is specified, requests are always sent to this node first if it is healthy
   // before falling back on the nodes mentioned in the `nodes` key. This is useful when running a distributed set of search clusters.
-  'nearestNode': {
-    'host': 'localhost',
-    'port': '8108',
-    'protocol': 'http'
-  },
+  // 'nearestNode': {
+  //   'host': 'localhost',
+  //   'port': '8108',
+  //   'protocol': 'http'
+  // },
   'numRetries': 10,
   'apiKey': 'xyz',
   'connectionTimeoutSeconds': 10,
@@ -130,6 +131,23 @@ async function runExample () {
       'query_by': 'company_name',
       'filter_by': 'num_employees:<100',
       'sort_by': 'num_employees:desc'
+    })
+    console.log(searchResults)
+
+    // Do multiple searches
+    searchResults = await typesense.search.perform({
+      'searches': [
+        {
+          'q': 'Inc'
+        },
+        {
+          'q': 'Acme'
+        }
+      ]
+    },
+    {
+      'query_by': 'company_name',
+      'collection': 'companies'
     })
     console.log(searchResults)
   } catch (error) {

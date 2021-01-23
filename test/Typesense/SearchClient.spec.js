@@ -27,9 +27,10 @@ describe('SearchClient', function () {
     expect(typesense.configuration.apiKey).to.eql('abcd')
     done()
   })
-  it('should only expose the search endpoint', function (done) {
+  it('should only expose the search endpoints', function (done) {
     expect(typesense.collections).to.throw('Typesense.SearchClient only supports search operations')
     expect(typesense.collections('xyz').documents().search).to.be.a('function')
+    expect(typesense.search.perform).to.be.a('function')
     expect(typesense.keys).to.be.an('undefined')
     done()
   })

@@ -3,10 +3,12 @@
 import Configuration from './Configuration'
 import ApiCall from './ApiCall'
 import Collection from './Collection'
+import Search from './Search'
 
 export default class SearchClient {
   constructor (options) {
     this.configuration = new Configuration(options)
+    this.search = new Search(this._apiCall)
     this._apiCall = new ApiCall(this.configuration)
     this._individualCollections = {}
   }
