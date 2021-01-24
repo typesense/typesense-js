@@ -7,6 +7,9 @@ import Search from './Search'
 
 export default class SearchClient {
   constructor (options) {
+    options = options || {}
+    options['sendApiKeyAsQueryParam'] = true
+
     this.configuration = new Configuration(options)
     this._apiCall = new ApiCall(this.configuration)
     this.search = new Search(this._apiCall)

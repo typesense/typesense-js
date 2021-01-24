@@ -25,6 +25,7 @@ export default class ApiCall {
     this._healthcheckIntervalSeconds = this._configuration.healthcheckIntervalSeconds
     this._numRetriesPerRequest = this._configuration.numRetries
     this._retryIntervalSeconds = this._configuration.retryIntervalSeconds
+    this._sendApiKeyAsQueryParam = this._configuration.sendApiKeyAsQueryParam
 
     this.logger = this._configuration.logger
 
@@ -52,7 +53,11 @@ export default class ApiCall {
     return this.performRequest('patch', endpoint, {queryParameters, bodyParameters})
   }
 
-  async performRequest (requestType, endpoint, {queryParameters = null, bodyParameters = null, additionalHeaders = {}}) {
+  async performRequest (requestType, endpoint, {
+    queryParameters = null,
+    bodyParameters = null,
+    additionalHeaders = {}
+  }) {
     this
       ._configuration
       .validate()
@@ -89,6 +94,11 @@ export default class ApiCall {
 
         if (queryParameters && Object.keys(queryParameters).length !== 0) {
           requestOptions.params = queryParameters
+        }
+
+        if (this._sendApiKeyAsQueryParam) {
+          requestOptions.params = requestOptions.params || {}
+          requestOptions.params['x-typesense-api-key'] = this._apiKey
         }
 
         if (bodyParameters && Object.keys(bodyParameters).length !== 0) {
@@ -191,7 +201,9 @@ export default class ApiCall {
 
   _defaultHeaders () {
     let defaultHeaders = {}
-    defaultHeaders[APIKEYHEADERNAME] = this._apiKey
+    if (!this._sendApiKeyAsQueryParam) {
+      defaultHeaders[APIKEYHEADERNAME] = this._apiKey
+    }
     defaultHeaders['Content-Type'] = 'application/json'
     return defaultHeaders
   }

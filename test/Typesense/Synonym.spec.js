@@ -10,7 +10,6 @@ chai.use(chaiAsPromised)
 
 describe('Synonym', function () {
   let typesense
-  let synonymData
   let synonym
   let apiCall
   let mockAxios

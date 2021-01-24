@@ -17,6 +17,7 @@ export default class Configuration {
     this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1
     this.apiKey = options.apiKey
+    this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam || false
 
     this.logger = options.logger || logger
     this.logLevel = options.logLevel || 'warn'
