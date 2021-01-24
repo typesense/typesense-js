@@ -35,7 +35,7 @@ describe('SearchClient', function () {
   it('should only expose the search endpoints', function (done) {
     expect(typesense.collections).to.throw('Typesense.SearchClient only supports search operations')
     expect(typesense.collections('xyz').documents().search).to.be.a('function')
-    expect(typesense.search.perform).to.be.a('function')
+    expect(typesense.multi_search.perform).to.be.a('function')
     expect(typesense.keys).to.be.an('undefined')
     done()
   })
@@ -56,7 +56,7 @@ describe('SearchClient', function () {
 
     mockAxios
       .onPost(
-        apiCall._uriFor('/search', typesense.configuration.nodes[0]),
+        apiCall._uriFor('/multi_search', typesense.configuration.nodes[0]),
         searches,
         {
           'Accept': 'application/json, text/plain, */*',
@@ -73,7 +73,7 @@ describe('SearchClient', function () {
         return [200, '{}', {'content-type': 'application/json'}]
       })
 
-    let returnData = typesense.search.perform(searches, commonParams)
+    let returnData = typesense.multi_search.perform(searches, commonParams)
 
     expect(returnData).to.eventually.deep.equal({}).notify(done)
   })

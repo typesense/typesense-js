@@ -1,8 +1,8 @@
 'use strict'
 
-const RESOURCEPATH = '/search'
+const RESOURCEPATH = '/multi_search'
 
-export default class Search {
+export default class MultiSearch {
   constructor (apiCall, useTextContentType = false) {
     this._apiCall = apiCall
     this._useTextContentType = useTextContentType // To avoid OPTIONS request

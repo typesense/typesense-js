@@ -3,7 +3,7 @@
 import Configuration from './Configuration'
 import ApiCall from './ApiCall'
 import Collection from './Collection'
-import Search from './Search'
+import MultiSearch from './MultiSearch'
 
 export default class SearchClient {
   constructor (options) {
@@ -12,7 +12,7 @@ export default class SearchClient {
 
     this.configuration = new Configuration(options)
     this._apiCall = new ApiCall(this.configuration)
-    this.search = new Search(this._apiCall, true)
+    this.multi_search = new MultiSearch(this._apiCall, true)
     this._individualCollections = {}
   }
 
