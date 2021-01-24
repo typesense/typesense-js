@@ -1769,61 +1769,6 @@ module.exports = (
     })()
 );
 
-},{"./../utils":43}],41:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
 },{"./../utils":43}],39:[function(require,module,exports){
 'use strict';
 
@@ -1894,7 +1839,82 @@ module.exports = (
     })()
 );
 
-},{"./../utils":43}],30:[function(require,module,exports){
+},{"./../utils":43}],41:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
+},{"./../utils":43}],26:[function(require,module,exports){
+'use strict';
+
+var enhanceError = require('./enhanceError');
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+},{"./enhanceError":28}],30:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -1943,27 +1963,7 @@ module.exports = function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 };
 
-},{"../helpers/combineURLs":35,"../helpers/isAbsoluteURL":37}],26:[function(require,module,exports){
-'use strict';
-
-var enhanceError = require('./enhanceError');
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-},{"./enhanceError":28}],33:[function(require,module,exports){
+},{"../helpers/combineURLs":35,"../helpers/isAbsoluteURL":37}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -1974,6 +1974,13 @@ module.exports = function bind(fn, thisArg) {
     }
     return fn.apply(thisArg, args);
   };
+};
+
+},{}],22:[function(require,module,exports){
+'use strict';
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
 };
 
 },{}],20:[function(require,module,exports){
@@ -1996,26 +2003,6 @@ Cancel.prototype.toString = function toString() {
 Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
-
-},{}],22:[function(require,module,exports){
-'use strict';
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-},{}],38:[function(require,module,exports){
-'use strict';
-
-/**
- * Determines whether the payload is an error thrown by Axios
- *
- * @param {*} payload The value to test
- * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
- */
-module.exports = function isAxiosError(payload) {
-  return (typeof payload === 'object') && (payload.isAxiosError === true);
-};
 
 },{}],42:[function(require,module,exports){
 'use strict';
@@ -2044,6 +2031,19 @@ module.exports = function spread(callback) {
   return function wrap(arr) {
     return callback.apply(null, arr);
   };
+};
+
+},{}],38:[function(require,module,exports){
+'use strict';
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+module.exports = function isAxiosError(payload) {
+  return (typeof payload === 'object') && (payload.isAxiosError === true);
 };
 
 },{}],29:[function(require,module,exports){
@@ -5188,7 +5188,7 @@ var SearchClient = /*#__PURE__*/function () {
     options['sendApiKeyAsQueryParam'] = true;
     this.configuration = new _Configuration["default"](options);
     this._apiCall = new _ApiCall["default"](this.configuration);
-    this.search = new _Search["default"](this._apiCall);
+    this.search = new _Search["default"](this._apiCall, true);
     this._individualCollections = {};
   }
 
@@ -5557,9 +5557,11 @@ var ApiCall = /*#__PURE__*/function () {
     value: function post(endpoint) {
       var bodyParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var queryParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      var additionalHeaders = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
       return this.performRequest('post', endpoint, {
         queryParameters: queryParameters,
-        bodyParameters: bodyParameters
+        bodyParameters: bodyParameters,
+        additionalHeaders: additionalHeaders
       });
     }
   }, {
@@ -6062,7 +6064,7 @@ var Stats = /*#__PURE__*/function () {
 
 exports["default"] = Stats;
 
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],79:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],76:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6076,25 +6078,25 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var RESOURCEPATH = '/search';
+var RESOURCEPATH = '/operations';
 
-var Search = /*#__PURE__*/function () {
-  function Search(apiCall) {
-    (0, _classCallCheck2["default"])(this, Search);
+var Operations = /*#__PURE__*/function () {
+  function Operations(apiCall) {
+    (0, _classCallCheck2["default"])(this, Operations);
     this._apiCall = apiCall;
   }
 
-  (0, _createClass2["default"])(Search, [{
+  (0, _createClass2["default"])(Operations, [{
     key: "perform",
-    value: function perform(searchRequests) {
-      var commonParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this._apiCall.post(RESOURCEPATH, searchRequests, commonParams);
+    value: function perform(operationName) {
+      var queryParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this._apiCall.post("".concat(RESOURCEPATH, "/").concat(operationName), {}, queryParameters);
     }
   }]);
-  return Search;
+  return Operations;
 }();
 
-exports["default"] = Search;
+exports["default"] = Operations;
 
 },{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],72:[function(require,module,exports){
 'use strict';
@@ -6129,7 +6131,7 @@ var Health = /*#__PURE__*/function () {
 
 exports["default"] = Health;
 
-},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],76:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],79:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6143,25 +6145,33 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var RESOURCEPATH = '/operations';
+var RESOURCEPATH = '/search';
 
-var Operations = /*#__PURE__*/function () {
-  function Operations(apiCall) {
-    (0, _classCallCheck2["default"])(this, Operations);
+var Search = /*#__PURE__*/function () {
+  function Search(apiCall) {
+    var useTextContentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    (0, _classCallCheck2["default"])(this, Search);
     this._apiCall = apiCall;
+    this._useTextContentType = useTextContentType; // To avoid OPTIONS request
   }
 
-  (0, _createClass2["default"])(Operations, [{
+  (0, _createClass2["default"])(Search, [{
     key: "perform",
-    value: function perform(operationName) {
-      var queryParameters = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return this._apiCall.post("".concat(RESOURCEPATH, "/").concat(operationName), {}, queryParameters);
+    value: function perform(searchRequests) {
+      var commonParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var additionalHeaders = {};
+
+      if (this._useTextContentType) {
+        additionalHeaders['content-type'] = 'text/plain';
+      }
+
+      return this._apiCall.post(RESOURCEPATH, searchRequests, commonParams, additionalHeaders);
     }
   }]);
-  return Operations;
+  return Search;
 }();
 
-exports["default"] = Operations;
+exports["default"] = Search;
 
 },{"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],58:[function(require,module,exports){
 'use strict';
@@ -6451,106 +6461,7 @@ var Collection = /*#__PURE__*/function () {
 
 exports["default"] = Collection;
 
-},{"./Collections":57,"./Document":60,"./Documents":61,"./Override":77,"./Overrides":78,"./Synonym":82,"./Synonyms":83,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],60:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Collections = _interopRequireDefault(require("./Collections"));
-
-var _Documents = _interopRequireDefault(require("./Documents"));
-
-var Document = /*#__PURE__*/function () {
-  function Document(collectionName, documentId, apiCall) {
-    (0, _classCallCheck2["default"])(this, Document);
-    this._collectionName = collectionName;
-    this._documentId = documentId;
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Document, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(this._endpointPath());
-    }
-  }, {
-    key: "delete",
-    value: function _delete() {
-      return this._apiCall["delete"](this._endpointPath());
-    }
-  }, {
-    key: "update",
-    value: function update(partialDocument) {
-      return this._apiCall.patch(this._endpointPath(), partialDocument);
-    }
-  }, {
-    key: "_endpointPath",
-    value: function _endpointPath() {
-      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Documents["default"].RESOURCEPATH, "/").concat(this._documentId);
-    }
-  }]);
-  return Document;
-}();
-
-exports["default"] = Document;
-
-},{"./Collections":57,"./Documents":61,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],77:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Collections = _interopRequireDefault(require("./Collections"));
-
-var _Overrides = _interopRequireDefault(require("./Overrides"));
-
-var Override = /*#__PURE__*/function () {
-  function Override(collectionName, overrideId, apiCall) {
-    (0, _classCallCheck2["default"])(this, Override);
-    this._collectionName = collectionName;
-    this._overrideId = overrideId;
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Override, [{
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(this._endpointPath());
-    }
-  }, {
-    key: "delete",
-    value: function _delete() {
-      return this._apiCall["delete"](this._endpointPath());
-    }
-  }, {
-    key: "_endpointPath",
-    value: function _endpointPath() {
-      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Overrides["default"].RESOURCEPATH, "/").concat(this._overrideId);
-    }
-  }]);
-  return Override;
-}();
-
-exports["default"] = Override;
-
-},{"./Collections":57,"./Overrides":78,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],78:[function(require,module,exports){
+},{"./Collections":57,"./Document":60,"./Documents":61,"./Override":77,"./Overrides":78,"./Synonym":82,"./Synonyms":83,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],78:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6652,7 +6563,106 @@ var Synonyms = /*#__PURE__*/function () {
 
 exports["default"] = Synonyms;
 
-},{"./Collections":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],82:[function(require,module,exports){
+},{"./Collections":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],77:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Collections = _interopRequireDefault(require("./Collections"));
+
+var _Overrides = _interopRequireDefault(require("./Overrides"));
+
+var Override = /*#__PURE__*/function () {
+  function Override(collectionName, overrideId, apiCall) {
+    (0, _classCallCheck2["default"])(this, Override);
+    this._collectionName = collectionName;
+    this._overrideId = overrideId;
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Override, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(this._endpointPath());
+    }
+  }, {
+    key: "delete",
+    value: function _delete() {
+      return this._apiCall["delete"](this._endpointPath());
+    }
+  }, {
+    key: "_endpointPath",
+    value: function _endpointPath() {
+      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Overrides["default"].RESOURCEPATH, "/").concat(this._overrideId);
+    }
+  }]);
+  return Override;
+}();
+
+exports["default"] = Override;
+
+},{"./Collections":57,"./Overrides":78,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],60:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Collections = _interopRequireDefault(require("./Collections"));
+
+var _Documents = _interopRequireDefault(require("./Documents"));
+
+var Document = /*#__PURE__*/function () {
+  function Document(collectionName, documentId, apiCall) {
+    (0, _classCallCheck2["default"])(this, Document);
+    this._collectionName = collectionName;
+    this._documentId = documentId;
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Document, [{
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(this._endpointPath());
+    }
+  }, {
+    key: "delete",
+    value: function _delete() {
+      return this._apiCall["delete"](this._endpointPath());
+    }
+  }, {
+    key: "update",
+    value: function update(partialDocument) {
+      return this._apiCall.patch(this._endpointPath(), partialDocument);
+    }
+  }, {
+    key: "_endpointPath",
+    value: function _endpointPath() {
+      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(_Documents["default"].RESOURCEPATH, "/").concat(this._documentId);
+    }
+  }]);
+  return Document;
+}();
+
+exports["default"] = Document;
+
+},{"./Collections":57,"./Documents":61,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],82:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");

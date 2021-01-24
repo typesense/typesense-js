@@ -41,8 +41,8 @@ export default class ApiCall {
     return this.performRequest('delete', endpoint, {queryParameters})
   }
 
-  post (endpoint, bodyParameters = {}, queryParameters = {}) {
-    return this.performRequest('post', endpoint, {queryParameters, bodyParameters})
+  post (endpoint, bodyParameters = {}, queryParameters = {}, additionalHeaders = {}) {
+    return this.performRequest('post', endpoint, {queryParameters, bodyParameters, additionalHeaders})
   }
 
   put (endpoint, bodyParameters = {}, queryParameters = {}) {

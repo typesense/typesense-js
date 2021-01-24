@@ -12,7 +12,7 @@ export default class SearchClient {
 
     this.configuration = new Configuration(options)
     this._apiCall = new ApiCall(this.configuration)
-    this.search = new Search(this._apiCall)
+    this.search = new Search(this._apiCall, true)
     this._individualCollections = {}
   }
 
