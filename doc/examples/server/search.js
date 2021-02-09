@@ -135,7 +135,7 @@ async function runExample () {
     console.log(searchResults)
 
     // Do multiple searches
-    searchResults = await typesense.search.perform({
+    searchResults = await typesense.multi_search.perform({
       'searches': [
         {
           'q': 'Inc'
