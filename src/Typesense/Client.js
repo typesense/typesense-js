@@ -10,7 +10,6 @@ import Keys from './Keys'
 import Key from './Key'
 import Debug from './Debug'
 import Metrics from './Metrics'
-import Stats from './Stats'
 import Health from './Health'
 import Operations from './Operations'
 import MultiSearch from './MultiSearch'
@@ -21,7 +20,6 @@ export default class Client {
     this._apiCall = new ApiCall(this.configuration)
     this.debug = new Debug(this._apiCall)
     this.metrics = new Metrics(this._apiCall)
-    this.stats = new Stats(this._apiCall)
     this.health = new Health(this._apiCall)
     this.operations = new Operations(this._apiCall)
     this.multi_search = new MultiSearch(this._apiCall)
