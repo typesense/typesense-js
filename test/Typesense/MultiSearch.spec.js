@@ -53,7 +53,7 @@ describe('Search', function () {
           return [200, '{}', {'content-type': 'application/json'}]
         })
 
-      let returnData = typesense.multi_search.perform(searches, commonParams)
+      let returnData = typesense.multiSearch.perform(searches, commonParams)
 
       expect(returnData).to.eventually.deep.equal({}).notify(done)
     })

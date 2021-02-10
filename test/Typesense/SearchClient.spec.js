@@ -35,7 +35,7 @@ describe('SearchClient', function () {
   it('should only expose the search endpoints', function (done) {
     expect(typesense.collections).to.throw('Typesense.SearchClient only supports search operations')
     expect(typesense.collections('xyz').documents().search).to.be.a('function')
-    expect(typesense.multi_search.perform).to.be.a('function')
+    expect(typesense.multiSearch.perform).to.be.a('function')
     expect(typesense.keys).to.be.an('undefined')
     done()
   })
@@ -73,7 +73,7 @@ describe('SearchClient', function () {
         return [200, '{}', {'content-type': 'application/json'}]
       })
 
-    let returnData = typesense.multi_search.perform(searches, commonParams)
+    let returnData = typesense.multiSearch.perform(searches, commonParams)
 
     expect(returnData).to.eventually.deep.equal({}).notify(done)
   })

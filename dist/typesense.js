@@ -1714,61 +1714,6 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":43}],41:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
 },{"./../utils":43}],36:[function(require,module,exports){
 'use strict';
 
@@ -1823,6 +1768,61 @@ module.exports = (
       };
     })()
 );
+
+},{"./../utils":43}],41:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
 
 },{"./../utils":43}],39:[function(require,module,exports){
 'use strict';
@@ -1976,26 +1976,12 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
 };
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
 
 },{}],42:[function(require,module,exports){
 'use strict';
@@ -2026,13 +2012,6 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],22:[function(require,module,exports){
-'use strict';
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
 },{}],38:[function(require,module,exports){
 'use strict';
 
@@ -2045,6 +2024,27 @@ module.exports = function isCancel(value) {
 module.exports = function isAxiosError(payload) {
   return (typeof payload === 'object') && (payload.isAxiosError === true);
 };
+
+},{}],20:[function(require,module,exports){
+'use strict';
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
 
 },{}],29:[function(require,module,exports){
 'use strict';
@@ -5188,7 +5188,7 @@ var SearchClient = /*#__PURE__*/function () {
     options['sendApiKeyAsQueryParam'] = true;
     this.configuration = new _Configuration["default"](options);
     this._apiCall = new _ApiCall["default"](this.configuration);
-    this.multi_search = new _MultiSearch["default"](this._apiCall, true);
+    this.multiSearch = new _MultiSearch["default"](this._apiCall, true);
     this._individualCollections = {};
   }
 
@@ -5341,7 +5341,7 @@ var Client = /*#__PURE__*/function () {
     this.metrics = new _Metrics["default"](this._apiCall);
     this.health = new _Health["default"](this._apiCall);
     this.operations = new _Operations["default"](this._apiCall);
-    this.multi_search = new _MultiSearch["default"](this._apiCall);
+    this.multiSearch = new _MultiSearch["default"](this._apiCall);
     this._collections = new _Collections["default"](this._apiCall);
     this._individualCollections = {};
     this._aliases = new _Aliases["default"](this._apiCall);
@@ -6425,109 +6425,7 @@ var Collection = /*#__PURE__*/function () {
 
 exports["default"] = Collection;
 
-},{"./Collections":57,"./Document":60,"./Documents":61,"./Override":78,"./Overrides":79,"./Synonym":81,"./Synonyms":82,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],79:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Collections = _interopRequireDefault(require("./Collections"));
-
-var RESOURCEPATH = '/overrides';
-
-var Overrides = /*#__PURE__*/function () {
-  function Overrides(collectionName, apiCall) {
-    (0, _classCallCheck2["default"])(this, Overrides);
-    this._collectionName = collectionName;
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Overrides, [{
-    key: "upsert",
-    value: function upsert(overrideId, params) {
-      return this._apiCall.put(this._endpointPath(overrideId), params);
-    }
-  }, {
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(this._endpointPath());
-    }
-  }, {
-    key: "_endpointPath",
-    value: function _endpointPath(operation) {
-      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(Overrides.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
-    }
-  }], [{
-    key: "RESOURCEPATH",
-    get: function get() {
-      return RESOURCEPATH;
-    }
-  }]);
-  return Overrides;
-}();
-
-exports["default"] = Overrides;
-
-},{"./Collections":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],82:[function(require,module,exports){
-'use strict';
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _Collections = _interopRequireDefault(require("./Collections"));
-
-var RESOURCEPATH = '/synonyms';
-
-var Synonyms = /*#__PURE__*/function () {
-  function Synonyms(collectionName, apiCall) {
-    (0, _classCallCheck2["default"])(this, Synonyms);
-    this._collectionName = collectionName;
-    this._apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Synonyms, [{
-    key: "upsert",
-    value: function upsert(synonymId, params) {
-      return this._apiCall.put(this._endpointPath(synonymId), params);
-    }
-  }, {
-    key: "retrieve",
-    value: function retrieve() {
-      return this._apiCall.get(this._endpointPath());
-    }
-  }, {
-    key: "_endpointPath",
-    value: function _endpointPath(operation) {
-      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
-    }
-  }], [{
-    key: "RESOURCEPATH",
-    get: function get() {
-      return RESOURCEPATH;
-    }
-  }]);
-  return Synonyms;
-}();
-
-exports["default"] = Synonyms;
-
-},{"./Collections":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],60:[function(require,module,exports){
+},{"./Collections":57,"./Document":60,"./Documents":61,"./Override":78,"./Overrides":79,"./Synonym":81,"./Synonyms":82,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],60:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6626,7 +6524,58 @@ var Override = /*#__PURE__*/function () {
 
 exports["default"] = Override;
 
-},{"./Collections":57,"./Overrides":79,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],81:[function(require,module,exports){
+},{"./Collections":57,"./Overrides":79,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],82:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Collections = _interopRequireDefault(require("./Collections"));
+
+var RESOURCEPATH = '/synonyms';
+
+var Synonyms = /*#__PURE__*/function () {
+  function Synonyms(collectionName, apiCall) {
+    (0, _classCallCheck2["default"])(this, Synonyms);
+    this._collectionName = collectionName;
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Synonyms, [{
+    key: "upsert",
+    value: function upsert(synonymId, params) {
+      return this._apiCall.put(this._endpointPath(synonymId), params);
+    }
+  }, {
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(this._endpointPath());
+    }
+  }, {
+    key: "_endpointPath",
+    value: function _endpointPath(operation) {
+      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Synonyms;
+}();
+
+exports["default"] = Synonyms;
+
+},{"./Collections":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],81:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -6673,7 +6622,58 @@ var Synonym = /*#__PURE__*/function () {
 
 exports["default"] = Synonym;
 
-},{"./Collections":57,"./Synonyms":82,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],61:[function(require,module,exports){
+},{"./Collections":57,"./Synonyms":82,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],79:[function(require,module,exports){
+'use strict';
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _Collections = _interopRequireDefault(require("./Collections"));
+
+var RESOURCEPATH = '/overrides';
+
+var Overrides = /*#__PURE__*/function () {
+  function Overrides(collectionName, apiCall) {
+    (0, _classCallCheck2["default"])(this, Overrides);
+    this._collectionName = collectionName;
+    this._apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Overrides, [{
+    key: "upsert",
+    value: function upsert(overrideId, params) {
+      return this._apiCall.put(this._endpointPath(overrideId), params);
+    }
+  }, {
+    key: "retrieve",
+    value: function retrieve() {
+      return this._apiCall.get(this._endpointPath());
+    }
+  }, {
+    key: "_endpointPath",
+    value: function _endpointPath(operation) {
+      return "".concat(_Collections["default"].RESOURCEPATH, "/").concat(this._collectionName).concat(Overrides.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Overrides;
+}();
+
+exports["default"] = Overrides;
+
+},{"./Collections":57,"@babel/runtime/helpers/classCallCheck":3,"@babel/runtime/helpers/createClass":5,"@babel/runtime/helpers/interopRequireDefault":8}],61:[function(require,module,exports){
 'use strict';
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
