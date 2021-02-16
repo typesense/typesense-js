@@ -3,11 +3,16 @@
 import Configuration from './Configuration'
 import ApiCall from './ApiCall'
 import Collection from './Collection'
+import MultiSearch from './MultiSearch'
 
 export default class SearchClient {
   constructor (options) {
+    options = options || {}
+    options['sendApiKeyAsQueryParam'] = true
+
     this.configuration = new Configuration(options)
     this._apiCall = new ApiCall(this.configuration)
+    this.multiSearch = new MultiSearch(this._apiCall, true)
     this._individualCollections = {}
   }
 

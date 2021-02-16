@@ -12,6 +12,7 @@ import Debug from './Debug'
 import Metrics from './Metrics'
 import Health from './Health'
 import Operations from './Operations'
+import MultiSearch from './MultiSearch'
 
 export default class Client {
   constructor (options) {
@@ -21,6 +22,7 @@ export default class Client {
     this.metrics = new Metrics(this._apiCall)
     this.health = new Health(this._apiCall)
     this.operations = new Operations(this._apiCall)
+    this.multiSearch = new MultiSearch(this._apiCall)
     this._collections = new Collections(this._apiCall)
     this._individualCollections = {}
     this._aliases = new Aliases(this._apiCall)
