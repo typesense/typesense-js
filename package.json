@@ -13,7 +13,8 @@
     "crypto": false
   },
   "files": [
-    "lib/"
+    "lib/",
+    "dist/"
   ],
   "keywords": [
     "typesense",
