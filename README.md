@@ -1,4 +1,4 @@
-# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield)](https://circleci.com/gh/typesense/typesense-js)
+# typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield)](https://circleci.com/gh/typesense/typesense-js) ![downloads](https://img.shields.io/npm/dt/typesense?label=downloads)
 
 Javascript client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense). Follows the API spec [here](https://github.com/typesense/typesense-api-spec).
 
