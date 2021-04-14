@@ -124,10 +124,11 @@ describe('Documents', function () {
         )
         .reply(config => {
           expect(config.params.action).to.equal('upsert')
+          expect(config.params.dirty_values).to.equal('reject')
           return [201, JSON.stringify(document), {'content-type': 'application/json'}]
         })
 
-      let returnData = documents.upsert(document)
+      let returnData = documents.upsert(document, {dirty_values: 'reject'})
 
       expect(returnData).to.eventually.deep.equal(document).notify(done)
     })
@@ -147,10 +148,11 @@ describe('Documents', function () {
         )
         .reply(config => {
           expect(config.params.action).to.equal('update')
+          expect(config.params.dirty_values).to.equal('reject')
           return [201, JSON.stringify(document), {'content-type': 'application/json'}]
         })
 
-      let returnData = documents.update(document)
+      let returnData = documents.update(document, {dirty_values: 'reject'})
 
       expect(returnData).to.eventually.deep.equal(document).notify(done)
     })

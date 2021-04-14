@@ -10,16 +10,16 @@ export default class Documents {
     this._apiCall = apiCall
   }
 
-  create (document) {
-    return this._apiCall.post(this._endpointPath(), document)
+  create (document, options = {}) {
+    return this._apiCall.post(this._endpointPath(), document, options)
   }
 
-  upsert (document) {
-    return this._apiCall.post(this._endpointPath(), document, {action: 'upsert'})
+  upsert (document, options = {}) {
+    return this._apiCall.post(this._endpointPath(), document, Object.assign({}, options, {action: 'upsert'}))
   }
 
-  update (document) {
-    return this._apiCall.post(this._endpointPath(), document, {action: 'update'})
+  update (document, options = {}) {
+    return this._apiCall.post(this._endpointPath(), document, Object.assign({}, options, {action: 'update'}))
   }
 
   delete (queryParameters = {}) {

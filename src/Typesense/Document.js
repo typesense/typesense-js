@@ -18,8 +18,8 @@ export default class Document {
     return this._apiCall.delete(this._endpointPath())
   }
 
-  update (partialDocument) {
-    return this._apiCall.patch(this._endpointPath(), partialDocument)
+  update (partialDocument, options = {}) {
+    return this._apiCall.patch(this._endpointPath(), partialDocument, options)
   }
 
   _endpointPath () {
