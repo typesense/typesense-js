@@ -69,9 +69,12 @@ describe('Document', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify(partialDocument), {'content-type': 'application/json'})
+        .reply(config => {
+          expect(config.params.dirty_values).to.equal('coerce_or_reject')
+          return [200, JSON.stringify(partialDocument), {'content-type': 'application/json'}]
+        })
 
-      let returnData = document.update(partialDocument)
+      let returnData = document.update(partialDocument, {dirty_values: 'coerce_or_reject'})
 
       expect(returnData).to.eventually.deep.equal(partialDocument).notify(done)
     })

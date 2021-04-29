@@ -12,7 +12,7 @@ const typesense = new Typesense.Client({
     {
       'host': 'localhost',
       'port': '8108',
-      'protocol': 'https'
+      'protocol': 'http'
     } // ,
     // {
     //   'host': 'localhost',
@@ -25,7 +25,7 @@ const typesense = new Typesense.Client({
     //   'protocol': 'http'
     // }
   ],
-  'apiKey': 'BeI33yD9z4O2cH7gbtl1xMsjVtcXYuEw',
+  'apiKey': 'xyz',
   'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
   'connectionTimeoutSeconds': 120, // Set a longer timeout for large imports
   'logLevel': 'debug'
