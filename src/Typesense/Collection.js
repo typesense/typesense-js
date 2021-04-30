@@ -54,10 +54,10 @@ export default class Collection {
     if (synonymId === undefined) {
       return this._synonyms
     } else {
-      if (this._individualOverrides[synonymId] === undefined) {
-        this._individualOverrides[synonymId] = new Synonym(this._name, synonymId, this._apiCall)
+      if (this._individualSynonyms[synonymId] === undefined) {
+        this._individualSynonyms[synonymId] = new Synonym(this._name, synonymId, this._apiCall)
       }
-      return this._individualOverrides[synonymId]
+      return this._individualSynonyms[synonymId]
     }
   }
 
