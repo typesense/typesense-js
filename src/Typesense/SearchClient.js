@@ -8,7 +8,13 @@ import MultiSearch from './MultiSearch'
 export default class SearchClient {
   constructor (options) {
     options = options || {}
-    options['sendApiKeyAsQueryParam'] = true
+
+    // In v0.20.0 we restrict query params to 2000 in length
+    // But sometimes scoped API keys can be over this limit, so we send long keys as headers instead.
+    // The tradeoff is that using a header to send the API key will trigger the browser to send an OPTIONS request though.
+    if ((options['apiKey'] || '').length < 2000) {
+      options['sendApiKeyAsQueryParam'] = true
+    }
 
     this.configuration = new Configuration(options)
     this._apiCall = new ApiCall(this.configuration)
