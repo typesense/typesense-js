@@ -35,7 +35,7 @@ describe('Collections', function () {
     ],
     'default_sorting_field': 'num_employees'
   }
-  before(function () {
+  beforeEach(function () {
     typesense = new TypesenseClient({
       'nodes': [{
         'host': 'node0',

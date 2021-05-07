@@ -12,12 +12,16 @@ export default class Configuration {
     this.nearestNode = options.nearestNode || null
     this.nearestNode = this._setDefaultPathInNode(this.nearestNode)
     this.nearestNode = this._setDefaultPortInNode(this.nearestNode)
+
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15
     this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1
+
     this.apiKey = options.apiKey
     this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam || false
+
+    this.cacheSearchResultsForSeconds = options.cacheSearchResultsForSeconds || 0 // Disable cache by default
 
     this.logger = options.logger || logger
     this.logLevel = options.logLevel || 'warn'

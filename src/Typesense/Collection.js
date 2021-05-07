@@ -9,10 +9,12 @@ import Synonyms from './Synonyms'
 import Synonym from './Synonym'
 
 export default class Collection {
-  constructor (name, apiCall) {
+  constructor (name, apiCall, configuration) {
     this._name = name
     this._apiCall = apiCall
-    this._documents = new Documents(this._name, this._apiCall)
+    this._configuration = configuration
+
+    this._documents = new Documents(this._name, this._apiCall, this._configuration)
     this._individualDocuments = {}
     this._overrides = new Overrides(this._name, this._apiCall)
     this._individualOverrides = {}

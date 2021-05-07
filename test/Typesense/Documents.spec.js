@@ -4,6 +4,7 @@ import {Client as TypesenseClient} from '../../src/Typesense'
 import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
+import timekeeper from 'timekeeper'
 
 let expect = chai.expect
 chai.use(chaiAsPromised)
@@ -16,14 +17,15 @@ describe('Documents', function () {
   let apiCall
   let mockAxios
 
-  before(function () {
+  beforeEach(function () {
     typesense = new TypesenseClient({
       'nodes': [{
         'host': 'node0',
         'port': '8108',
         'protocol': 'http'
       }],
-      'apiKey': 'abcd'
+      'apiKey': 'abcd',
+      'cacheSearchResultsForSeconds': 2 * 60
     })
 
     document = {
@@ -82,11 +84,112 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, stubbedSearchResult)
+        .reply(200, JSON.stringify(stubbedSearchResult), {'content-type': 'application/json'})
 
       let returnData = documents.search(searchParameters)
 
       expect(returnData).to.eventually.deep.equal(stubbedSearchResult).notify(done)
+    })
+    it('searches with and without cache', async function () {
+      let searchParameters = [
+        {
+          'q': 'Stark',
+          'query_by': 'company_name'
+        },
+        {
+          'q': 'Acme',
+          'query_by': 'company_name'
+        }
+      ]
+      let stubbedSearchResults = [
+        {
+          'facet_counts': [],
+          'found': 0,
+          'search_time_ms': 0,
+          'page': 0,
+          'hits': [
+            {
+              '_highlight': {
+                'company_name': '<mark>Stark</mark> Industries'
+              },
+              'document': {
+                'id': '124',
+                'company_name': 'Stark Industries',
+                'num_employees': 5215,
+                'country': 'USA'
+              }
+            }
+          ]
+        },
+        {
+          'facet_counts': [],
+          'found': 0,
+          'search_time_ms': 0,
+          'page': 0,
+          'hits': [
+            {
+              '_highlight': {
+                'company_name': '<mark>Acme</mark> Corp'
+              },
+              'document': {
+                'id': '124',
+                'company_name': 'Acme Corp',
+                'num_employees': 231,
+                'country': 'USA'
+              }
+            }
+          ]
+        }
+      ]
+
+      searchParameters.forEach((_, i) => {
+        mockAxios
+          .onGet(
+            apiCall._uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
+            {
+              params: searchParameters[i]
+            },
+            {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'application/json',
+              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+            }
+          )
+          .reply(200, JSON.stringify(stubbedSearchResults[i]), {'content-type': 'application/json'})
+      })
+
+      let currentTime = Date.now()
+      timekeeper.freeze(currentTime)
+
+      let returnData = [
+        await documents.search(searchParameters[0]),
+        await documents.search(searchParameters[0]), // Repeat the same query a 2nd time, to test caching
+        await documents.search(searchParameters[1]) // Now do a different query
+      ]
+
+      // Only two requests should be made, since one of them was cached
+      expect(mockAxios.history['get'].length).to.equal(2)
+
+      expect(returnData[0]).to.deep.equal(stubbedSearchResults[0])
+      expect(returnData[1]).to.deep.equal(stubbedSearchResults[0]) // Same response should be returned
+      expect(returnData[2]).to.deep.equal(stubbedSearchResults[1])
+
+      // Now wait 60s and then retry the request, still should be fetched from cache
+      timekeeper.freeze(currentTime + 60 * 1000)
+      returnData.push(await documents.search(searchParameters[1]))
+      expect(returnData[3]).to.deep.equal(stubbedSearchResults[1])
+
+      // No new requests should have been made
+      expect(mockAxios.history['get'].length).to.equal(2)
+
+      // Now wait 2 minutes and then retry the request, it should now make an actual request, since cache is stale
+      timekeeper.freeze(currentTime + 121 * 1000)
+      returnData.push(await documents.search(searchParameters[1]))
+      expect(returnData[4]).to.deep.equal(stubbedSearchResults[1])
+
+      // One new request should have been made
+      expect(mockAxios.history['get'].length).to.equal(3)
+      timekeeper.reset()
     })
   })
 

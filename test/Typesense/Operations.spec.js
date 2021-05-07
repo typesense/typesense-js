@@ -12,7 +12,7 @@ describe('Operations', function () {
   let mockAxios
   let typesense
   let apiCall
-  before(function () {
+  beforeEach(function () {
     mockAxios = new MockAxiosAdapter(axios)
     typesense = new TypesenseClient({
       'nodes': [{

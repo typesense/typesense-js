@@ -13,7 +13,7 @@ describe('Aliases', function () {
   let aliases
   let apiCall
   let mockAxios
-  before(function () {
+  beforeEach(function () {
     typesense = new TypesenseClient({
       'nodes': [{
         'host': 'node0',

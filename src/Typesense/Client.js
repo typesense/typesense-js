@@ -22,7 +22,7 @@ export default class Client {
     this.metrics = new Metrics(this._apiCall)
     this.health = new Health(this._apiCall)
     this.operations = new Operations(this._apiCall)
-    this.multiSearch = new MultiSearch(this._apiCall)
+    this.multiSearch = new MultiSearch(this._apiCall, this.configuration)
     this._collections = new Collections(this._apiCall)
     this._individualCollections = {}
     this._aliases = new Aliases(this._apiCall)
@@ -36,7 +36,7 @@ export default class Client {
       return this._collections
     } else {
       if (this._individualCollections[collectionName] === undefined) {
-        this._individualCollections[collectionName] = new Collection(collectionName, this._apiCall)
+        this._individualCollections[collectionName] = new Collection(collectionName, this._apiCall, this.configuration)
       }
       return this._individualCollections[collectionName]
     }

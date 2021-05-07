@@ -18,7 +18,7 @@ export default class SearchClient {
 
     this.configuration = new Configuration(options)
     this._apiCall = new ApiCall(this.configuration)
-    this.multiSearch = new MultiSearch(this._apiCall, true)
+    this.multiSearch = new MultiSearch(this._apiCall, this.configuration, true)
     this._individualCollections = {}
   }
 
@@ -28,7 +28,7 @@ export default class SearchClient {
         'be searched must be specified. Use Typesense.Client if you need to access the collection object.')
     } else {
       if (this._individualCollections[collectionName] === undefined) {
-        this._individualCollections[collectionName] = new Collection(collectionName, this._apiCall)
+        this._individualCollections[collectionName] = new Collection(collectionName, this._apiCall, this.configuration)
       }
       return this._individualCollections[collectionName]
     }

@@ -5,7 +5,7 @@ let expect = chai.expect
 
 describe('Client', function () {
   let typesense
-  before(function () {
+  beforeEach(function () {
     typesense = new TypesenseClient({
       'nodes': [{
         'host': 'node0',

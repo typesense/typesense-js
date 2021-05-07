@@ -1,13 +1,17 @@
 'use strict'
 
 import Collections from './Collections'
+import RequestWithCache from './RequestWithCache'
 
 const RESOURCEPATH = '/documents'
 
 export default class Documents {
-  constructor (collectionName, apiCall) {
+  constructor (collectionName, apiCall, configuration) {
     this._collectionName = collectionName
     this._apiCall = apiCall
+    this._configuration = configuration
+
+    this._requestWithCache = new RequestWithCache()
   }
 
   create (document, options = {}) {
@@ -65,8 +69,13 @@ export default class Documents {
     return this._apiCall.get(this._endpointPath('export'))
   }
 
-  search (searchParameters) {
-    return this._apiCall.get(this._endpointPath('search'), searchParameters)
+  search (searchParameters, {cacheSearchResultsForSeconds = this._configuration.cacheSearchResultsForSeconds} = {}) {
+    return this._requestWithCache.perform(
+      this._apiCall,
+      this._apiCall.get,
+      [this._endpointPath('search'), searchParameters],
+      {cacheResponseForSeconds: cacheSearchResultsForSeconds}
+    )
   }
 
   _endpointPath (operation) {

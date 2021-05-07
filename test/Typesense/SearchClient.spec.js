@@ -10,7 +10,7 @@ chai.use(chaiAsPromised)
 
 describe('SearchClient', function () {
   let typesense
-  before(function () {
+  beforeEach(function () {
     typesense = new TypesenseSearchClient({
       'nodes': [{
         'host': 'node0',

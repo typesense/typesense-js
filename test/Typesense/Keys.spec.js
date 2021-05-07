@@ -13,7 +13,7 @@ describe('Keys', function () {
   let keys
   let apiCall
   let mockAxios
-  before(function () {
+  beforeEach(function () {
     typesense = new TypesenseClient({
       'nodes': [{
         'host': 'node0',
