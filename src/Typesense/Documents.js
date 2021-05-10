@@ -70,10 +70,16 @@ export default class Documents {
   }
 
   search (searchParameters, {cacheSearchResultsForSeconds = this._configuration.cacheSearchResultsForSeconds} = {}) {
+    let additionalQueryParams = {}
+    if (this._configuration.useServerSideSearchCache === true) {
+      additionalQueryParams['use_cache'] = true
+    }
+    const queryParams = Object.assign({}, searchParameters, additionalQueryParams)
+
     return this._requestWithCache.perform(
       this._apiCall,
       this._apiCall.get,
-      [this._endpointPath('search'), searchParameters],
+      [this._endpointPath('search'), queryParams],
       {cacheResponseForSeconds: cacheSearchResultsForSeconds}
     )
   }

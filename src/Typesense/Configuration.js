@@ -21,7 +21,8 @@ export default class Configuration {
     this.apiKey = options.apiKey
     this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam || false
 
-    this.cacheSearchResultsForSeconds = options.cacheSearchResultsForSeconds || 0 // Disable cache by default
+    this.cacheSearchResultsForSeconds = options.cacheSearchResultsForSeconds || 0 // Disable client-side cache by default
+    this.useServerSideSearchCache = options.useServerSideSearchCache || false
 
     this.logger = options.logger || logger
     this.logLevel = options.logLevel || 'warn'
