@@ -85,7 +85,7 @@ export default class ApiCall {
           },
           transformResponse: [(data, headers) => {
             let transformedData = data
-            if (headers !== undefined && typeof data === 'string' && headers['content-type'].startsWith('application/json')) {
+            if (headers !== undefined && typeof data === 'string' && headers['content-type'] && headers['content-type'].startsWith('application/json')) {
               transformedData = JSON.parse(data)
             }
             return transformedData
