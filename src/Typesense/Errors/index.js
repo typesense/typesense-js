@@ -8,6 +8,7 @@ import ObjectUnprocessable from './ObjectUnprocessable'
 import RequestMalformed from './RequestMalformed'
 import RequestUnauthorized from './RequestUnauthorized'
 import ServerError from './ServerError'
+import ImportError from './ImportError'
 import TypesenseError from './TypesenseError'
 
 export {
@@ -19,5 +20,6 @@ export {
   RequestMalformed,
   RequestUnauthorized,
   ServerError,
-  TypesenseError
+  TypesenseError,
+  ImportError
 }

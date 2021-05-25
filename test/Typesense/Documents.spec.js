@@ -5,6 +5,7 @@ import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
 import timekeeper from 'timekeeper'
+import {ImportError} from '../../src/Typesense/Errors'
 
 let expect = chai.expect
 chai.use(chaiAsPromised)
@@ -348,6 +349,30 @@ describe('Documents', function () {
         let returnData = documents.import([document, anotherDocument])
 
         expect(returnData).to.eventually.deep.equal([{}, {}]).notify(done)
+      })
+      context('when there is an import error', function () {
+        it('it raises an exception', function (done) {
+          mockAxios
+            .onPost(
+              apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+              `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
+              {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'text/plain',
+                'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+              }
+            )
+            .reply(config => {
+              return [200, '{"success": false, "message": "Error message"}\n{"success": false, "message": "Error message"}', {'content-type': 'text/plain'}]
+            })
+
+          documents.import([document, anotherDocument]).catch(error => {
+            expect(error.importResults.length).to.eq(2)
+            expect(error.importResults[0].success).to.eq(false)
+            expect(error.importResults[0].message).to.eq('Error message')
+            done()
+          })
+        })
       })
     })
 

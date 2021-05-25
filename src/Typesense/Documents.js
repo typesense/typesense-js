@@ -2,6 +2,7 @@
 
 import Collections from './Collections'
 import RequestWithCache from './RequestWithCache'
+import { ImportError } from './Errors'
 
 const RESOURCEPATH = '/documents'
 
@@ -59,7 +60,13 @@ export default class Documents {
     )
 
     if (Array.isArray(documents)) {
-      return resultsInJSONLFormat.split('\n').map(r => JSON.parse((r)))
+      const resultsInJSONFormat = resultsInJSONLFormat.split('\n').map(r => JSON.parse((r)))
+      const failedItems = resultsInJSONFormat.filter(r => r.success === false)
+      if (failedItems.length > 0) {
+        throw new ImportError(`${resultsInJSONFormat.length - failedItems.length} documents imported successfully, ${failedItems.length} documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`, resultsInJSONFormat)
+      } else {
+        return resultsInJSONFormat
+      }
     } else {
       return resultsInJSONLFormat
     }
