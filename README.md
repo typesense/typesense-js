@@ -1,12 +1,12 @@
 # typesense-js [![NPM version][npm-image]][npm-url] [![CircleCI](https://circleci.com/gh/typesense/typesense-js.svg?style=shield)](https://circleci.com/gh/typesense/typesense-js) ![downloads](https://img.shields.io/npm/dt/typesense?label=downloads)
 
-Javascript client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense). Follows the API spec [here](https://github.com/typesense/typesense-api-spec).
+Javascript client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense).
 
 This library can be used both on the server-side and on the client-side. The library's [source](/src) is in ES6 and during build time, we transpile it to ES5 and generate two artifacts - [one](/lib) that can be used on the server-side and [another](/dist) that uses [Browserify](http://browserify.org/) and can be used on the client side.
 
 ## Installation
 
-#### Install via npm
+#### Option 1: Install via npm
 
 ```sh
 npm install --save typesense
@@ -17,19 +17,27 @@ Install peer dependencies:
 npm install --save @babel/runtime
 ```
 
-#### Include the minified JS file for use in the browser directly
+#### Option 2: Include the minified JS file for use in the browser directly
 
 ```html
 <script src="dist/typesense.min.js"></script>
 ```
 
+or via jsDelivr
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/typesense@latest/dist/typesense.min.js"></script>
+```
+
 ## Usage
 
-Read the documentation here: [https://typesense.org/api/](https://typesense.org/api/)
+Read the documentation here for detailed examples: [https://typesense.org/api/](https://typesense.org/api/)
 
 Tests are also a good place to know how the library works internally: [test](test)
 
 **Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.** See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
+
+See [Configuration.js](src/Typesense/Configuration.js) for a list of all client configuration options.
 
 ### Examples
 
