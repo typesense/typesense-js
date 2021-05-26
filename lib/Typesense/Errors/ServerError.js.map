@@ -1,1 +1,0 @@
-{"version":3,"sources":["Typesense/Errors/ServerError.js"],"names":["ServerError","TypesenseError"],"mappings":"AAAA;;;;;;;;;;;;;;;;;AAEA;;;;;;IAEqBA,W;;;;;;;;;;;EAAoBC,wB","sourcesContent":["'use strict'\n\nimport TypesenseError from './TypesenseError'\n\nexport default class ServerError extends TypesenseError {}\n"],"file":"ServerError.js"}
