@@ -20,12 +20,12 @@ export default class Client {
     health: Health;
     operations: Operations;
     multiSearch: MultiSearch;
-    private _collections: Collections;
-    private individualCollections: Record<string, any>;
-    private _aliases: Aliases;
-    private individualAliases: Record<string, any>;
-    private _keys: Keys;
-    private individualKeys: Record<string, any>;
+    private readonly _collections: Collections;
+    private readonly individualCollections: Record<string, Collection>;
+    private readonly _aliases: Aliases;
+    private readonly individualAliases: Record<string, Alias>;
+    private readonly _keys: Keys;
+    private readonly individualKeys: Record<string, Key>;
 
     constructor(options: ConfigurationOptions) {
         this.configuration = new Configuration(options);
@@ -43,7 +43,11 @@ export default class Client {
         this.individualKeys = {};
     }
 
-    collections(collectionName) {
+    // Todo: Nick: I would suggest deprecating collections(name) and introducing collection(name) method instead to
+    // reduce unambiguity. Same for aliases and keys.
+    collections(): Collections;
+    collections<T extends Record<string, any> = {}>(collectionName: string): Collection<T>;
+    collections(collectionName?: string): Collections | Collection {
         if (collectionName === undefined) {
             return this._collections;
         } else {
@@ -58,7 +62,9 @@ export default class Client {
         }
     }
 
-    aliases(aliasName) {
+    aliases(): Aliases;
+    aliases(aliasName: string): Alias;
+    aliases(aliasName?: string): Aliases | Alias {
         if (aliasName === undefined) {
             return this._aliases;
         } else {
@@ -69,7 +75,9 @@ export default class Client {
         }
     }
 
-    keys(id) {
+    keys(): Keys;
+    keys(id: string): Key;
+    keys(id?: string): Keys | Key {
         if (id === undefined) {
             return this._keys;
         } else {

@@ -3,17 +3,51 @@ import Collections from "./Collections";
 import Configuration from "./Configuration";
 import RequestWithCache from "./RequestWithCache";
 
+export type FieldType =
+    | "string"
+    | "int32"
+    | "int64"
+    | "float"
+    | "bool"
+    | "string[]"
+    | "int32[]"
+    | "int64[]"
+    | "float[]"
+    | "bool[]"
+    | "auto"
+    | "string*";
+
+export interface CollectionFieldSchema {
+    name: string;
+    type: FieldType;
+    optional?: boolean;
+    facet?: boolean;
+    index?: boolean;
+}
+
+export interface CollectionCreateSchema {
+    name: string;
+    default_sorting_field: string; // Todo: docs say it's not required but api throws a 400 if missing
+    fields: CollectionFieldSchema[];
+}
+
+export interface CollectionSchema extends CollectionCreateSchema {
+    created_at: number;
+    num_documents: number;
+    num_memory_shards: number;
+}
+
 const RESOURCEPATH = "/documents";
 
-export default class Documents {
+export default class Documents<T extends Record<string, any> = {}> {
     private requestWithCache: RequestWithCache;
 
     constructor(private collectionName: string, private apiCall: ApiCall, private configuration: Configuration) {
         this.requestWithCache = new RequestWithCache();
     }
 
-    create(document, options = {}) {
-        return this.apiCall.post(this.endpointPath(), document, options);
+    async create(document: T, options = {}): Promise<T> {
+        return await this.apiCall.post<T>(this.endpointPath(), document, options);
     }
 
     upsert(document, options = {}) {

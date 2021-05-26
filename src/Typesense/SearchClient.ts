@@ -1,3 +1,4 @@
+import Collections from "./Collections";
 import Configuration, { ConfigurationOptions } from "./Configuration";
 import ApiCall from "./ApiCall";
 import Collection from "./Collection";
@@ -23,8 +24,9 @@ export default class SearchClient {
         this.individualCollections = {};
     }
 
-    collections(collectionName) {
-        if (collectionName === undefined) {
+    collections(collectionName: string): Collection {
+        // Nick: changed to less strict check, as null or an empty string would fail this statement
+        if (!collectionName) {
             throw new Error(
                 "Typesense.SearchClient only supports search operations, so the collectionName that needs to " +
                     "be searched must be specified. Use Typesense.Client if you need to access the collection object."
