@@ -15,12 +15,14 @@ describe('Health', function () {
   beforeEach(function () {
     mockAxios = new MockAxiosAdapter(axios)
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
     apiCall = new ApiCall(typesense.configuration)
   })
@@ -28,20 +30,16 @@ describe('Health', function () {
   describe('.retrieve', function () {
     it('retrieves health information', function (done) {
       mockAxios
-        .onGet(
-          apiCall._uriFor('/health', typesense.configuration.nodes[0]),
-          undefined,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(200, JSON.stringify({ok: true}), {'content-type': 'application/json'})
+        .onGet(apiCall._uriFor('/health', typesense.configuration.nodes[0]), undefined, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply(200, JSON.stringify({ ok: true }), { 'content-type': 'application/json' })
 
       let returnData = typesense.health.retrieve()
 
-      expect(returnData).to.eventually.deep.equal({ok: true}).notify(done)
+      expect(returnData).to.eventually.deep.equal({ ok: true }).notify(done)
     })
   })
 })
