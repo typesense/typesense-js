@@ -2,7 +2,7 @@ import ApiCall from "./ApiCall";
 import Collections from "./Collections";
 import Documents from "./Documents";
 
-export default class Document {
+export default class Document<T extends Record<string, any> = {}> {
     constructor(private collectionName: string, private documentId: string, private apiCall: ApiCall) {}
 
     retrieve() {

@@ -1,5 +1,5 @@
 import ApiCall from "./ApiCall";
-import Collections from "./Collections";
+import Collections, { CollectionSchema } from "./Collections";
 import Documents from "./Documents";
 import Document from "./Document";
 import Overrides from "./Overrides";
@@ -7,8 +7,8 @@ import Override from "./Override";
 import Synonyms from "./Synonyms";
 import Synonym from "./Synonym";
 
-export default class Collection {
-    private readonly _documents: Documents;
+export default class Collection<T extends Record<string, any> = {}> {
+    private readonly _documents: Documents<T>;
     private individualDocuments: Record<string, any> = {};
     private readonly _overrides: Overrides;
     private individualOverrides: Record<string, any> = {};
@@ -25,16 +25,20 @@ export default class Collection {
         this._synonyms = new Synonyms(this.name, this.apiCall);
     }
 
-    retrieve() {
-        return this.apiCall.get(this.endpointPath());
+    async retrieve(): Promise<CollectionSchema> {
+        return await this.apiCall.get<CollectionSchema>(this.endpointPath());
     }
 
-    delete() {
-        return this.apiCall.delete(this.endpointPath());
+    async delete(): Promise<CollectionSchema> {
+        return await this.apiCall.delete<CollectionSchema>(this.endpointPath());
     }
 
-    documents(documentId) {
-        if (documentId === undefined) {
+    // Todo: there's no way to override caching here
+    // Todo: also, no way to indicate cache duration, potentially eating up a lot of memory
+    documents(): Documents<T>;
+    documents(documentId: string): Document<T>;
+    documents(documentId?: string): Document<T> | Documents<T> {
+        if (!documentId) {
             return this._documents;
         } else {
             if (this.individualDocuments[documentId] === undefined) {

@@ -20,8 +20,8 @@ export interface ConfigurationOptions {
     useServerSideSearchCache?: boolean;
     cacheSearchResultsForSeconds?: number;
 
-    logLevel: string; // todo: get from the logging package?
-    logger: any; //todo
+    logLevel?: string; // todo: get from the logging package?
+    logger?: any; //todo
 }
 
 export default class Configuration {
