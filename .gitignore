@@ -5,3 +5,4 @@ typesense-server-nodes
 .idea
 *.log
 dist
+.DS_Store
