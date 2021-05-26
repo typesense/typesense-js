@@ -1,8 +1,27 @@
 import logger from "loglevel";
 import { MissingConfigurationError } from "./Errors";
 
-export interface ConfigurationOptions extends Record<string, any> {
-    // Todo
+export interface Node {
+    host: string;
+    port: number;
+    protocol: string;
+}
+
+export interface ConfigurationOptions {
+    apiKey: string;
+    nodes: Node[];
+    nearestNode?: Node;
+    connectionTimeoutSeconds?: number;
+    timeoutSeconds?: number;
+    healthcheckIntervalSeconds?: number;
+    numRetries?: number;
+    retryIntervalSeconds?: number;
+    sendApiKeyAsQueryParam?: boolean;
+    useServerSideSearchCache?: boolean;
+    cacheSearchResultsForSeconds?: number;
+
+    logLevel: string; // todo: get from the logging package?
+    logger: any; //todo
 }
 
 export default class Configuration {
@@ -19,14 +38,14 @@ export default class Configuration {
     readonly logger: any;
     readonly logLevel: any;
 
-    constructor(options: Partial<ConfigurationOptions> = {}) {
+    constructor(options: ConfigurationOptions) {
         this.nodes = options.nodes || [];
         this.nodes = this.nodes
-            .map((node) => this._setDefaultPathInNode(node))
-            .map((node) => this._setDefaultPortInNode(node));
+            .map((node) => this.setDefaultPathInNode(node))
+            .map((node) => this.setDefaultPortInNode(node));
         this.nearestNode = options.nearestNode || null;
-        this.nearestNode = this._setDefaultPathInNode(this.nearestNode);
-        this.nearestNode = this._setDefaultPortInNode(this.nearestNode);
+        this.nearestNode = this.setDefaultPathInNode(this.nearestNode);
+        this.nearestNode = this.setDefaultPortInNode(this.nearestNode);
 
         this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10;
         this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15;
@@ -43,16 +62,16 @@ export default class Configuration {
         this.logLevel = options.logLevel || "warn";
         this.logger.setLevel(this.logLevel);
 
-        this._showDeprecationWarnings(options);
+        this.showDeprecationWarnings(options);
         this.validate();
     }
 
     validate() {
-        if (this.nodes == null || this.nodes.length === 0 || this._validateNodes()) {
+        if (this.nodes == null || this.nodes.length === 0 || this.validateNodes()) {
             throw new MissingConfigurationError("Ensure that nodes[].protocol, nodes[].host and nodes[].port are set");
         }
 
-        if (this.nearestNode != null && this._isNodeMissingAnyParameters(this.nearestNode)) {
+        if (this.nearestNode != null && this.isNodeMissingAnyParameters(this.nearestNode)) {
             throw new MissingConfigurationError(
                 "Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set"
             );
@@ -65,26 +84,26 @@ export default class Configuration {
         return true;
     }
 
-    _validateNodes() {
+    private validateNodes() {
         return this.nodes.some((node) => {
-            return this._isNodeMissingAnyParameters(node);
+            return this.isNodeMissingAnyParameters(node);
         });
     }
 
-    _isNodeMissingAnyParameters(node) {
+    private isNodeMissingAnyParameters(node) {
         return !["protocol", "host", "port", "path"].every((key) => {
             return node.hasOwnProperty(key);
         });
     }
 
-    _setDefaultPathInNode(node) {
+    private setDefaultPathInNode(node) {
         if (node != null && !node.hasOwnProperty("path")) {
             node.path = "";
         }
         return node;
     }
 
-    _setDefaultPortInNode(node) {
+    private setDefaultPortInNode(node) {
         if (node != null && !node.hasOwnProperty("port") && node.hasOwnProperty("protocol")) {
             switch (node.protocol) {
                 case "https":
@@ -98,7 +117,7 @@ export default class Configuration {
         return node;
     }
 
-    _showDeprecationWarnings(options) {
+    private showDeprecationWarnings(options) {
         if (options.timeoutSeconds) {
             this.logger.warn("Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds");
         }
