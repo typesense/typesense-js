@@ -9,7 +9,7 @@ export default class SearchClient {
     private readonly multiSearch: MultiSearch;
     private readonly individualCollections: Record<string, any>;
 
-    constructor(options: ConfigurationOptions = {}) {
+    constructor(options: ConfigurationOptions) {
         // In v0.20.0 we restrict query params to 2000 in length
         // But sometimes scoped API keys can be over this limit, so we send long keys as headers instead.
         // The tradeoff is that using a header to send the API key will trigger the browser to send an OPTIONS request though.

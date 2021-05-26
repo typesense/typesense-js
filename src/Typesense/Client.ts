@@ -1,4 +1,4 @@
-import Configuration from "./Configuration";
+import Configuration, { ConfigurationOptions } from "./Configuration";
 import ApiCall from "./ApiCall";
 import Collections from "./Collections";
 import Collection from "./Collection";
@@ -27,7 +27,7 @@ export default class Client {
     private _keys: Keys;
     private individualKeys: Record<string, any>;
 
-    constructor(options) {
+    constructor(options: ConfigurationOptions) {
         this.configuration = new Configuration(options);
         this.apiCall = new ApiCall(this.configuration);
         this.debug = new Debug(this.apiCall);
