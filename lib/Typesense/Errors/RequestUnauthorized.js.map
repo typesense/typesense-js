@@ -1,1 +1,0 @@
-{"version":3,"sources":["Typesense/Errors/RequestUnauthorized.js"],"names":["RequestUnauthorized","TypesenseError"],"mappings":"AAAA;;;;;;;;;;;;;;;;;AAEA;;;;;;IAEqBA,mB;;;;;;;;;;;EAA4BC,wB","sourcesContent":["'use strict'\n\nimport TypesenseError from './TypesenseError'\n\nexport default class RequestUnauthorized extends TypesenseError {}\n"],"file":"RequestUnauthorized.js"}

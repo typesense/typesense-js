@@ -1,1 +1,0 @@
-{"version":3,"sources":["Typesense/Errors/ObjectUnprocessable.js"],"names":["ObjectUnprocessable","TypesenseError"],"mappings":"AAAA;;;;;;;;;;;;;;;;;AAEA;;;;;;IAEqBA,mB;;;;;;;;;;;EAA4BC,wB","sourcesContent":["'use strict'\n\nimport TypesenseError from './TypesenseError'\n\nexport default class ObjectUnprocessable extends TypesenseError {}\n"],"file":"ObjectUnprocessable.js"}
