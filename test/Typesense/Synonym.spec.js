@@ -16,12 +16,14 @@ describe('Synonym', function () {
 
   beforeEach(function () {
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
 
     synonym = typesense.collections('companies').synonyms('synonym-set-1')
@@ -36,12 +38,12 @@ describe('Synonym', function () {
           apiCall._uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
           undefined,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, '{}', {'content-type': 'application/json'})
+        .reply(200, '{}', { 'content-type': 'application/json' })
 
       let returnData = synonym.retrieve()
       expect(returnData).to.eventually.deep.equal({}).notify(done)
@@ -55,12 +57,12 @@ describe('Synonym', function () {
           apiCall._uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
           undefined,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, '{}', {'content-type': 'application/json'})
+        .reply(200, '{}', { 'content-type': 'application/json' })
 
       let returnData = synonym.delete()
 

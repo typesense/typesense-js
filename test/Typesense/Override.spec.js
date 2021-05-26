@@ -17,26 +17,24 @@ describe('Override', function () {
 
   beforeEach(function () {
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
 
     overrideData = {
-      'id': 'lex-exact',
-      'rule': {
-        'query': 'lex luthor',
-        'match': 'exact'
+      id: 'lex-exact',
+      rule: {
+        query: 'lex luthor',
+        match: 'exact'
       },
-      'includes': [
-        {'id': '125', 'position': 1}
-      ],
-      'excludes': [
-        {'id': '124'}
-      ]
+      includes: [{ id: '125', position: 1 }],
+      excludes: [{ id: '124' }]
     }
 
     override = typesense.collections('companies').overrides('lex-exact')
@@ -51,12 +49,12 @@ describe('Override', function () {
           apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
           undefined,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify(overrideData), {'content-type': 'application/json'})
+        .reply(200, JSON.stringify(overrideData), { 'content-type': 'application/json' })
 
       let returnData = override.retrieve()
       expect(returnData).to.eventually.deep.equal(overrideData).notify(done)
@@ -65,18 +63,18 @@ describe('Override', function () {
 
   describe('.delete', function () {
     it('deletes the override with the given ID', function (done) {
-      let stubbedResult = {'id': 'lex-exact'}
+      let stubbedResult = { id: 'lex-exact' }
       mockAxios
         .onDelete(
           apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
           undefined,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify(stubbedResult), {'content-type': 'application/json'})
+        .reply(200, JSON.stringify(stubbedResult), { 'content-type': 'application/json' })
 
       let returnData = override.delete()
 

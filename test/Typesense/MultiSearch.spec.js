@@ -1,6 +1,6 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import {Client as TypesenseClient} from '../../src/Typesense'
+import { Client as TypesenseClient } from '../../src/Typesense'
 import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
@@ -16,13 +16,15 @@ describe('MultiSearch', function () {
   beforeEach(function () {
     mockAxios = new MockAxiosAdapter(axios)
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd',
-      'cacheSearchResultsForSeconds': 2 * 60
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd',
+      cacheSearchResultsForSeconds: 2 * 60
     })
     apiCall = new ApiCall(typesense.configuration)
   })
@@ -30,10 +32,7 @@ describe('MultiSearch', function () {
   describe('.perform', function () {
     it('performs a multi-search', function (done) {
       let searches = {
-        searches: [
-          {q: 'term1'},
-          {q: 'term2'}
-        ]
+        searches: [{ q: 'term1' }, { q: 'term2' }]
       }
       let commonParams = {
         collection: 'docs',
@@ -41,18 +40,14 @@ describe('MultiSearch', function () {
       }
 
       mockAxios
-        .onPost(
-          apiCall._uriFor('/multi_search', typesense.configuration.nodes[0]),
-          searches,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(config => {
+        .onPost(apiCall._uriFor('/multi_search', typesense.configuration.nodes[0]), searches, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply((config) => {
           expect(config.params).to.deep.equal(commonParams)
-          return [200, '{}', {'content-type': 'application/json'}]
+          return [200, '{}', { 'content-type': 'application/json' }]
         })
 
       let returnData = typesense.multiSearch.perform(searches, commonParams)
@@ -63,16 +58,10 @@ describe('MultiSearch', function () {
     it('searches with and without cache', async function () {
       let searchRequests = [
         {
-          searches: [
-            {q: 'term1'},
-            {q: 'term2'}
-          ]
+          searches: [{ q: 'term1' }, { q: 'term2' }]
         },
         {
-          searches: [
-            {q: 'term2'},
-            {q: 'term3'}
-          ]
+          searches: [{ q: 'term2' }, { q: 'term3' }]
         }
       ]
       let commonParams = [
@@ -85,25 +74,18 @@ describe('MultiSearch', function () {
           query_by: 'field'
         }
       ]
-      let stubbedSearchResults = [
-        {'results1': []},
-        {'results2': []}
-      ]
+      let stubbedSearchResults = [{ results1: [] }, { results2: [] }]
 
       searchRequests.forEach((_, i) => {
         mockAxios
-          .onPost(
-            apiCall._uriFor('/multi_search', typesense.configuration.nodes[0]),
-            searchRequests[i],
-            {
-              'Accept': 'application/json, text/plain, */*',
-              'Content-Type': 'application/json',
-              'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-            }
-          )
-          .reply(config => {
+          .onPost(apiCall._uriFor('/multi_search', typesense.configuration.nodes[0]), searchRequests[i], {
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          })
+          .reply((config) => {
             expect(config.params).to.deep.equal(commonParams[i])
-            return [200, JSON.stringify(stubbedSearchResults[i]), {'content-type': 'application/json'}]
+            return [200, JSON.stringify(stubbedSearchResults[i]), { 'content-type': 'application/json' }]
           })
       })
 

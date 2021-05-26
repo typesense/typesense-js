@@ -17,12 +17,14 @@ describe('Synonyms', function () {
 
   beforeEach(function () {
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
 
     synonyms = typesense.collections('companies').synonyms()
@@ -37,12 +39,12 @@ describe('Synonyms', function () {
           apiCall._uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
           synonym,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(201, '{}', {'content-type': 'application/json'})
+        .reply(201, '{}', { 'content-type': 'application/json' })
 
       let returnData = synonyms.upsert('synonym-set-1', {})
       expect(returnData).to.eventually.deep.equal({}).notify(done)
@@ -52,16 +54,12 @@ describe('Synonyms', function () {
   describe('.retrieve', function () {
     it('retrieves all synonyms', function (done) {
       mockAxios
-        .onGet(
-          apiCall._uriFor('/collections/companies/synonyms', typesense.configuration.nodes[0]),
-          undefined,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(200, JSON.stringify([]), {'content-type': 'application/json'})
+        .onGet(apiCall._uriFor('/collections/companies/synonyms', typesense.configuration.nodes[0]), undefined, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply(200, JSON.stringify([]), { 'content-type': 'application/json' })
 
       let returnData = synonyms.retrieve()
 

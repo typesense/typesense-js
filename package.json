@@ -1,105 +1,109 @@
 {
-    "name": "typesense",
-    "version": "0.14.0-0",
-    "description": "Javascript Library for Typesense",
-    "homepage": "https://github.com/typesense/typesense-js",
-    "author": {
-        "name": "Typesense, Inc.",
-        "email": "contact@typesense.org",
-        "url": "https://typesense.org"
-    },
-    "contributors": [
-        {
-            "name": "Nick Kamer",
-            "email": "nick@ziaomedia.com",
-            "url": "https://github.com/ziao"
-        }
-    ],
-    "main": "dist/Typesense.js",
-    "browser": {
-        "crypto": false
-    },
-    "files": [
-        "lib/",
-        "dist/"
-    ],
-    "keywords": [
-        "typesense",
-        "api",
-        "sdk",
-        "client",
-        "wrapper",
-        "server",
-        "search"
-    ],
-    "devDependencies": {
-        "@babel/cli": "^7.13.14",
-        "@babel/core": "^7.13.15",
-        "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
-        "@babel/plugin-transform-destructuring": "^7.13.0",
-        "@babel/plugin-transform-runtime": "^7.13.15",
-        "@babel/preset-env": "^7.13.15",
-        "@babel/register": "^7.13.14",
-        "@types/node": "^15.6.1",
-        "axios-mock-adapter": "^1.19.0",
-        "babel-eslint": "^8.2.1",
-        "babel-plugin-istanbul": "^5.2.0",
-        "babelify": "^10.0.0",
-        "browserify": "^16.5.2",
-        "chai": "~4.1.2",
-        "chai-as-promised": "^7.1.1",
-        "common-shakeify": "^0.6.2",
-        "core-js": "^3.10.1",
-        "del": "^3.0.0",
-        "eslint": "^4.17.0",
-        "eslint-plugin-import": "^2.22.1",
-        "eslint-plugin-node": "^6.0.1",
-        "eslint-plugin-promise": "^3.6.0",
-        "eslint-plugin-standard": "^3.0.1",
-        "gulp": "^4.0.2",
-        "gulp-babel": "^8.0.0",
-        "gulp-concat": "^2.6.1",
-        "gulp-rename": "^2.0.0",
-        "gulp-sourcemaps": "^2.6.5",
-        "gulp-uglify": "^3.0.2",
-        "mocha": "^7.2.0",
-        "mocha-junit-reporter": "^1.23.3",
-        "nyc": "^15.1.0",
-        "prettier": "^2.3.0",
-        "timekeeper": "^2.2.0",
-        "typescript": "^4.3.2",
-        "vinyl-buffer": "^1.0.1",
-        "vinyl-source-stream": "^2.0.0"
-    },
-    "scripts": {
-        "format": "prettier --write src/**/*",
-        "pretest": "eslint .",
-        "test": "nyc --reporter=html --reporter=text mocha --require @babel/register --recursive",
-        "build": "tsc",
-        "build:watch": "tsc --watch",
-        "build:gulp": "gulp clean build",
-        "ci-lint": "eslint .",
-        "ci-test": "nyc --reporter=text --reporter=html mocha --require @babel/register --reporter mocha-junit-reporter",
-        "typesenseServer": "docker run -i -p 8108:8108 -v/tmp/typesense-server-data-1c/:/data typesense/typesense:0.20.0.rc39 --data-dir /data --api-key=xyz --listen-port 8108 --enable-cors",
-        "createServerNodesFile": "echo '172.17.0.2:8107:8108,172.17.0.3:7107:7108,172.17.0.4:9107:9108' > `pwd`/typesense-server-nodes",
-        "typesenseServer:0": "docker run -i -p 8108:8108 -p 8107:8107 -v/tmp/typesense-server-data-1b/:/data -v`pwd`/typesense-server-nodes:/typesense-server-nodes typesense/typesense:0.19.0 --data-dir /data --api-key=xyz --listen-port 8108 --peering-port 8107 --enable-cors --nodes=/typesense-server-nodes",
-        "typesenseServer:1": "docker run -i -p 7108:7108 -p 7107:7107 -v/tmp/.typesense-server-data-2b/:/data -v`pwd`/typesense-server-nodes:/typesense-server-nodes typesense/typesense:0.19.0 --data-dir /data --api-key=xyz --listen-port 7108 --peering-port 7107 --enable-cors --nodes=/typesense-server-nodes",
-        "typesenseServer:2": "docker run -i -p 9108:9108 -p 9107:9107 -v/tmp/.typesense-server-data-3b/:/data -v`pwd`/typesense-server-nodes:/typesense-server-nodes typesense/typesense:0.19.0 --data-dir /data --api-key=xyz --listen-port 9108 --peering-port 9107 --enable-cors --nodes=/typesense-server-nodes"
-    },
-    "repository": "typesense/typesense-js",
-    "license": "Apache-2.0",
-    "dependencies": {
-        "axios": "^0.21.1",
-        "loglevel": "^1.7.1"
-    },
-    "peerDependencies": {
-        "@babel/runtime": "^7.10.2"
-    },
-    "optionalDependencies": {},
-    "prettier": {
-        "useTabs": false,
-        "tabWidth": 4,
-        "arrowParens": "always",
-        "printWidth": 120
+  "name": "typesense",
+  "version": "0.14.0-0",
+  "description": "Javascript Library for Typesense",
+  "homepage": "https://github.com/typesense/typesense-js",
+  "author": {
+    "name": "Typesense, Inc.",
+    "email": "contact@typesense.org",
+    "url": "https://typesense.org"
+  },
+  "contributors": [
+    {
+      "name": "Nick Kamer",
+      "email": "nick@ziaomedia.com",
+      "url": "https://github.com/ziao"
     }
+  ],
+  "main": "dist/Typesense.js",
+  "browser": {
+    "crypto": false
+  },
+  "files": [
+    "lib/",
+    "dist/"
+  ],
+  "keywords": [
+    "typesense",
+    "api",
+    "sdk",
+    "client",
+    "wrapper",
+    "server",
+    "search"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.13.14",
+    "@babel/core": "^7.13.15",
+    "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
+    "@babel/plugin-transform-destructuring": "^7.13.0",
+    "@babel/plugin-transform-runtime": "^7.13.15",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/register": "^7.13.14",
+    "@types/node": "^15.6.1",
+    "axios-mock-adapter": "^1.19.0",
+    "babel-eslint": "^8.2.1",
+    "babel-plugin-istanbul": "^5.2.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.2",
+    "chai": "~4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "common-shakeify": "^0.6.2",
+    "core-js": "^3.10.1",
+    "del": "^3.0.0",
+    "eslint": "^4.17.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^2.0.0",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-uglify": "^3.0.2",
+    "mocha": "^7.2.0",
+    "mocha-junit-reporter": "^1.23.3",
+    "nyc": "^15.1.0",
+    "prettier": "^2.3.0",
+    "timekeeper": "^2.2.0",
+    "typescript": "^4.3.2",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "scripts": {
+    "format": "prettier --write \"(src|test)/**/*.(ts|json|js)\"",
+    "pretest": "eslint .",
+    "test": "nyc --reporter=html --reporter=text mocha --require @babel/register --recursive",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "build:gulp": "gulp clean build",
+    "ci-lint": "eslint .",
+    "ci-test": "nyc --reporter=text --reporter=html mocha --require @babel/register --reporter mocha-junit-reporter",
+    "typesenseServer": "docker run -i -p 8108:8108 -v/tmp/typesense-server-data-1c/:/data typesense/typesense:0.20.0.rc39 --data-dir /data --api-key=xyz --listen-port 8108 --enable-cors",
+    "createServerNodesFile": "echo '172.17.0.2:8107:8108,172.17.0.3:7107:7108,172.17.0.4:9107:9108' > `pwd`/typesense-server-nodes",
+    "typesenseServer:0": "docker run -i -p 8108:8108 -p 8107:8107 -v/tmp/typesense-server-data-1b/:/data -v`pwd`/typesense-server-nodes:/typesense-server-nodes typesense/typesense:0.19.0 --data-dir /data --api-key=xyz --listen-port 8108 --peering-port 8107 --enable-cors --nodes=/typesense-server-nodes",
+    "typesenseServer:1": "docker run -i -p 7108:7108 -p 7107:7107 -v/tmp/.typesense-server-data-2b/:/data -v`pwd`/typesense-server-nodes:/typesense-server-nodes typesense/typesense:0.19.0 --data-dir /data --api-key=xyz --listen-port 7108 --peering-port 7107 --enable-cors --nodes=/typesense-server-nodes",
+    "typesenseServer:2": "docker run -i -p 9108:9108 -p 9107:9107 -v/tmp/.typesense-server-data-3b/:/data -v`pwd`/typesense-server-nodes:/typesense-server-nodes typesense/typesense:0.19.0 --data-dir /data --api-key=xyz --listen-port 9108 --peering-port 9107 --enable-cors --nodes=/typesense-server-nodes"
+  },
+  "repository": "typesense/typesense-js",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "loglevel": "^1.7.1",
+    "ts-mocha": "^8.0.0"
+  },
+  "peerDependencies": {
+    "@babel/runtime": "^7.10.2"
+  },
+  "optionalDependencies": {},
+  "prettier": {
+    "trailingComma": "none",
+    "semi": false,
+    "singleQuote": true,
+    "useTabs": false,
+    "tabWidth": 2,
+    "arrowParens": "always",
+    "printWidth": 120
+  }
 }

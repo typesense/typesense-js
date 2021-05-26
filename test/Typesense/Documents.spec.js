@@ -1,6 +1,6 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import {Client as TypesenseClient} from '../../src/Typesense'
+import { Client as TypesenseClient } from '../../src/Typesense'
 import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
@@ -19,27 +19,29 @@ describe('Documents', function () {
 
   beforeEach(function () {
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd',
-      'cacheSearchResultsForSeconds': 2 * 60
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd',
+      cacheSearchResultsForSeconds: 2 * 60
     })
 
     document = {
-      'id': '124',
-      'company_name': 'Stark Industries',
-      'num_employees': 5215,
-      'country': 'USA'
+      id: '124',
+      company_name: 'Stark Industries',
+      num_employees: 5215,
+      country: 'USA'
     }
 
     anotherDocument = {
-      'id': '125',
-      'company_name': 'Stark Industries',
-      'num_employees': 5215,
-      'country': 'USA'
+      id: '125',
+      company_name: 'Stark Industries',
+      num_employees: 5215,
+      country: 'USA'
     }
 
     documents = typesense.collections('companies').documents()
@@ -50,24 +52,24 @@ describe('Documents', function () {
   describe('.search', function () {
     it('searches the documents in a collection', function (done) {
       let searchParameters = {
-        'q': 'Stark',
-        'query_by': 'company_name'
+        q: 'Stark',
+        query_by: 'company_name'
       }
       let stubbedSearchResult = {
-        'facet_counts': [],
-        'found': 0,
-        'search_time_ms': 0,
-        'page': 0,
-        'hits': [
+        facet_counts: [],
+        found: 0,
+        search_time_ms: 0,
+        page: 0,
+        hits: [
           {
-            '_highlight': {
-              'company_name': '<mark>Stark</mark> Industries'
+            _highlight: {
+              company_name: '<mark>Stark</mark> Industries'
             },
-            'document': {
-              'id': '124',
-              'company_name': 'Stark Industries',
-              'num_employees': 5215,
-              'country': 'USA'
+            document: {
+              id: '124',
+              company_name: 'Stark Industries',
+              num_employees: 5215,
+              country: 'USA'
             }
           }
         ]
@@ -79,12 +81,12 @@ describe('Documents', function () {
             params: searchParameters
           },
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify(stubbedSearchResult), {'content-type': 'application/json'})
+        .reply(200, JSON.stringify(stubbedSearchResult), { 'content-type': 'application/json' })
 
       let returnData = documents.search(searchParameters)
 
@@ -93,49 +95,49 @@ describe('Documents', function () {
     it('searches with and without cache', async function () {
       let searchParameters = [
         {
-          'q': 'Stark',
-          'query_by': 'company_name'
+          q: 'Stark',
+          query_by: 'company_name'
         },
         {
-          'q': 'Acme',
-          'query_by': 'company_name'
+          q: 'Acme',
+          query_by: 'company_name'
         }
       ]
       let stubbedSearchResults = [
         {
-          'facet_counts': [],
-          'found': 0,
-          'search_time_ms': 0,
-          'page': 0,
-          'hits': [
+          facet_counts: [],
+          found: 0,
+          search_time_ms: 0,
+          page: 0,
+          hits: [
             {
-              '_highlight': {
-                'company_name': '<mark>Stark</mark> Industries'
+              _highlight: {
+                company_name: '<mark>Stark</mark> Industries'
               },
-              'document': {
-                'id': '124',
-                'company_name': 'Stark Industries',
-                'num_employees': 5215,
-                'country': 'USA'
+              document: {
+                id: '124',
+                company_name: 'Stark Industries',
+                num_employees: 5215,
+                country: 'USA'
               }
             }
           ]
         },
         {
-          'facet_counts': [],
-          'found': 0,
-          'search_time_ms': 0,
-          'page': 0,
-          'hits': [
+          facet_counts: [],
+          found: 0,
+          search_time_ms: 0,
+          page: 0,
+          hits: [
             {
-              '_highlight': {
-                'company_name': '<mark>Acme</mark> Corp'
+              _highlight: {
+                company_name: '<mark>Acme</mark> Corp'
               },
-              'document': {
-                'id': '124',
-                'company_name': 'Acme Corp',
-                'num_employees': 231,
-                'country': 'USA'
+              document: {
+                id: '124',
+                company_name: 'Acme Corp',
+                num_employees: 231,
+                country: 'USA'
               }
             }
           ]
@@ -150,12 +152,12 @@ describe('Documents', function () {
               params: searchParameters[i]
             },
             {
-              'Accept': 'application/json, text/plain, */*',
+              Accept: 'application/json, text/plain, */*',
               'Content-Type': 'application/json',
               'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
             }
           )
-          .reply(200, JSON.stringify(stubbedSearchResults[i]), {'content-type': 'application/json'})
+          .reply(200, JSON.stringify(stubbedSearchResults[i]), { 'content-type': 'application/json' })
       })
 
       let currentTime = Date.now()
@@ -196,15 +198,11 @@ describe('Documents', function () {
   describe('.create', function () {
     it('creates the document', function (done) {
       mockAxios
-        .onPost(
-          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
-          document,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
+        .onPost(apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
         .reply(201, document)
 
       let returnData = documents.create(document)
@@ -216,22 +214,18 @@ describe('Documents', function () {
   describe('.upsert', function () {
     it('upserts the document', function (done) {
       mockAxios
-        .onPost(
-          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
-          document,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(config => {
+        .onPost(apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply((config) => {
           expect(config.params.action).to.equal('upsert')
           expect(config.params.dirty_values).to.equal('reject')
-          return [201, JSON.stringify(document), {'content-type': 'application/json'}]
+          return [201, JSON.stringify(document), { 'content-type': 'application/json' }]
         })
 
-      let returnData = documents.upsert(document, {dirty_values: 'reject'})
+      let returnData = documents.upsert(document, { dirty_values: 'reject' })
 
       expect(returnData).to.eventually.deep.equal(document).notify(done)
     })
@@ -240,22 +234,18 @@ describe('Documents', function () {
   describe('.update', function () {
     it('updates the document', function (done) {
       mockAxios
-        .onPost(
-          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
-          document,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(config => {
+        .onPost(apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply((config) => {
           expect(config.params.action).to.equal('update')
           expect(config.params.dirty_values).to.equal('reject')
-          return [201, JSON.stringify(document), {'content-type': 'application/json'}]
+          return [201, JSON.stringify(document), { 'content-type': 'application/json' }]
         })
 
-      let returnData = documents.update(document, {dirty_values: 'reject'})
+      let returnData = documents.update(document, { dirty_values: 'reject' })
 
       expect(returnData).to.eventually.deep.equal(document).notify(done)
     })
@@ -268,16 +258,18 @@ describe('Documents', function () {
           apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
           `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'text/plain',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, JSON.stringify({success: true}), {'content-type': 'text/plain'})
+        .reply(200, JSON.stringify({ success: true }), { 'content-type': 'text/plain' })
 
       let returnData = documents.createMany([document, anotherDocument])
 
-      expect(returnData).to.eventually.deep.equal([{success: true}]).notify(done)
+      expect(returnData)
+        .to.eventually.deep.equal([{ success: true }])
+        .notify(done)
     })
 
     context('when a query paramater is passed', function () {
@@ -287,19 +279,21 @@ describe('Documents', function () {
             apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
-              'Accept': 'application/json, text/plain, */*',
+              Accept: 'application/json, text/plain, */*',
               'Content-Type': 'text/plain',
               'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
             }
           )
-          .reply(config => {
+          .reply((config) => {
             expect(config.params.upsert).to.equal(true)
-            return [200, JSON.stringify({success: true}), {'content-type': 'text/plain'}]
+            return [200, JSON.stringify({ success: true }), { 'content-type': 'text/plain' }]
           })
 
-        let returnData = documents.createMany([document, anotherDocument], {upsert: true})
+        let returnData = documents.createMany([document, anotherDocument], { upsert: true })
 
-        expect(returnData).to.eventually.deep.equal([{success: true}]).notify(done)
+        expect(returnData)
+          .to.eventually.deep.equal([{ success: true }])
+          .notify(done)
       })
     })
   })
@@ -312,20 +306,22 @@ describe('Documents', function () {
             apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
-              'Accept': 'application/json, text/plain, */*',
+              Accept: 'application/json, text/plain, */*',
               'Content-Type': 'text/plain',
               'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
             }
           )
-          .reply(config => {
+          .reply((config) => {
             expect(config.params.action).to.equal('upsert')
-            return [200, JSON.stringify({success: true}), {'content-type': 'text/plain'}]
+            return [200, JSON.stringify({ success: true }), { 'content-type': 'text/plain' }]
           })
 
-        let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
-        let returnData = documents.import(jsonlData, {action: 'upsert'})
+        let jsonlData = [document, anotherDocument].map((document) => JSON.stringify(document)).join('\n')
+        let returnData = documents.import(jsonlData, { action: 'upsert' })
 
-        expect(returnData).to.eventually.deep.equal(JSON.stringify({success: true})).notify(done)
+        expect(returnData)
+          .to.eventually.deep.equal(JSON.stringify({ success: true }))
+          .notify(done)
       })
     })
 
@@ -336,13 +332,13 @@ describe('Documents', function () {
             apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
-              'Accept': 'application/json, text/plain, */*',
+              Accept: 'application/json, text/plain, */*',
               'Content-Type': 'text/plain',
               'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
             }
           )
-          .reply(config => {
-            return [200, '{}\n{}', {'content-type': 'text/plain'}]
+          .reply((config) => {
+            return [200, '{}\n{}', { 'content-type': 'text/plain' }]
           })
 
         let returnData = documents.import([document, anotherDocument])
@@ -358,16 +354,16 @@ describe('Documents', function () {
             apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
-              'Accept': 'application/json, text/plain, */*',
+              Accept: 'application/json, text/plain, */*',
               'Content-Type': 'text/plain',
               'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
             }
           )
-          .reply(config => {
-            return [200, '{}\n{}', {'content-type': 'text/plain'}]
+          .reply((config) => {
+            return [200, '{}\n{}', { 'content-type': 'text/plain' }]
           })
 
-        let jsonlData = [document, anotherDocument].map(document => JSON.stringify(document)).join('\n')
+        let jsonlData = [document, anotherDocument].map((document) => JSON.stringify(document)).join('\n')
         let returnData = documents.import(jsonlData)
 
         expect(returnData).to.eventually.deep.equal('{}\n{}').notify(done)
@@ -382,16 +378,20 @@ describe('Documents', function () {
           apiCall._uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]),
           undefined,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {'content-type': 'text/plain'})
+        .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {
+          'content-type': 'text/plain'
+        })
 
       let returnData = documents.export()
 
-      expect(returnData).to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n')).notify(done)
+      expect(returnData)
+        .to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
+        .notify(done)
     })
   })
 
@@ -401,17 +401,17 @@ describe('Documents', function () {
         .onDelete(
           apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
           {
-            params: {'filter_by': 'field:=value'}
+            params: { filter_by: 'field:=value' }
           },
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, '{}', {'content-type': 'application/json'})
+        .reply(200, '{}', { 'content-type': 'application/json' })
 
-      let returnData = documents.delete({'filter_by': 'field:=value'})
+      let returnData = documents.delete({ filter_by: 'field:=value' })
 
       expect(returnData).to.eventually.deep.equal({}).notify(done)
     })

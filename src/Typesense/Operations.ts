@@ -1,11 +1,11 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall'
 
-const RESOURCEPATH = "/operations";
+const RESOURCEPATH = '/operations'
 
 export default class Operations {
-    constructor(private apiCall: ApiCall) {}
+  constructor(private apiCall: ApiCall) {}
 
-    perform(operationName: string, queryParameters: Record<string, any> = {}) {
-        return this.apiCall.post(`${RESOURCEPATH}/${operationName}`, {}, queryParameters);
-    }
+  perform(operationName: string, queryParameters: Record<string, any> = {}) {
+    return this.apiCall.post(`${RESOURCEPATH}/${operationName}`, {}, queryParameters)
+  }
 }

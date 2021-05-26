@@ -1,11 +1,11 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall'
 
-const RESOURCEPATH = "/metrics.json";
+const RESOURCEPATH = '/metrics.json'
 
 export default class Metrics {
-    constructor(private apiCall: ApiCall) {}
+  constructor(private apiCall: ApiCall) {}
 
-    retrieve() {
-        return this.apiCall.get(RESOURCEPATH);
-    }
+  retrieve() {
+    return this.apiCall.get(RESOURCEPATH)
+  }
 }

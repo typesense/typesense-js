@@ -1,3 +1,3 @@
 export default class TypesenseError extends Error {
-    httpStatus?: number;
+  httpStatus?: number
 }
