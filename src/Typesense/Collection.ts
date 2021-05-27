@@ -2,6 +2,7 @@ import ApiCall from './ApiCall'
 import Collections, { CollectionSchema } from './Collections'
 import Documents, { DocumentSchema } from './Documents'
 import Document from './Document'
+import { ObjectNotFound } from './Errors'
 import Overrides from './Overrides'
 import Override from './Override'
 import Synonyms from './Synonyms'
@@ -31,6 +32,16 @@ export default class Collection<T extends DocumentSchema = {}> {
 
   async delete(): Promise<CollectionSchema> {
     return await this.apiCall.delete<CollectionSchema>(this.endpointPath())
+  }
+
+  async exists(): Promise<boolean> {
+    try {
+      await this.retrieve()
+      return true
+    } catch (e) {
+      if (e instanceof ObjectNotFound) return false
+      throw e
+    }
   }
 
   // Todo: there's no way to override caching here

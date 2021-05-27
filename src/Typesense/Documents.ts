@@ -191,8 +191,11 @@ export default class Documents<T extends DocumentSchema = {}> {
     }
   }
 
-  export() {
-    return this.apiCall.get(this.endpointPath('export'))
+  /**
+   * Returns a JSONL string for all the documents in this collection
+   */
+  async export(): Promise<string> {
+    return await this.apiCall.get<string>(this.endpointPath('export'))
   }
 
   async search(
