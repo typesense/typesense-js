@@ -1,23 +1,23 @@
 import ApiCall from './ApiCall'
 import Collections from './Collections'
-import Documents from './Documents'
+import Documents, { DocumentSchema } from './Documents'
 
-export default class Document<T extends Record<string, any> = {}> {
+export default class Document<T extends DocumentSchema = {}> {
   constructor(private collectionName: string, private documentId: string, private apiCall: ApiCall) {}
 
-  retrieve() {
-    return this.apiCall.get(this.endpointPath())
+  async retrieve(): Promise<T> {
+    return await this.apiCall.get<T>(this.endpointPath())
   }
 
-  delete() {
-    return this.apiCall.delete(this.endpointPath())
+  async delete() {
+    return await this.apiCall.delete<T>(this.endpointPath())
   }
 
-  update(partialDocument, options = {}) {
-    return this.apiCall.patch(this.endpointPath(), partialDocument, options)
+  async update(partialDocument: Partial<T>, options: Record<string, any> = {}) {
+    return await this.apiCall.patch<T>(this.endpointPath(), partialDocument, options)
   }
 
-  private endpointPath() {
+  private endpointPath(): string {
     return `${Collections.RESOURCEPATH}/${this.collectionName}${Documents.RESOURCEPATH}/${this.documentId}`
   }
 }

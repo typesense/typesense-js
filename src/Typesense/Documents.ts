@@ -62,6 +62,64 @@ export interface DocumentSchema extends Record<string, any> {
   // id?: string //may actually give trouble if someone uses non-string id's
 }
 
+export interface SearchParams<T extends DocumentSchema> {
+  // From https://typesense.org/docs/0.20.0/api/documents.html#arguments
+  q: string
+  query_by: string
+  query_by_weights?: string
+  prefix?: boolean // default: true
+  filter_by?: string
+  sort_by?: string // default: text match desc
+  facet_by?: string
+  max_facet_values?: number
+  facet_query?: string
+  num_typos?: 1 | 2 // default: 2
+  page?: number // default: 1
+  per_page?: number // default: 10, max 250
+  group_by?: keyof T
+  group_limit?: number // default:
+  include_fields?: string
+  exclude_fields?: string
+  highlight_full_fields?: string // default: all fields
+  highlight_affix_num_tokens?: number // default: 4
+  highlight_start_tag?: string // default: <mark>
+  highlight_end_tag?: string // default: </mark>
+  snippet_threshold?: number // default: 30
+  drop_tokens_threshold?: number // default: 10
+  typo_tokens_threshold?: number // default: 100
+  pinned_hits?: string
+  hidden_hits?: string
+  limit_hits?: number // default: no limit
+  [key: string]: any // allow for future parameters without having to update the library
+}
+
+export interface SearchResponseHit<T extends DocumentSchema> {
+  highlights?: [
+    {
+      field: keyof T
+      snippet: string
+      matched_tokens: string[]
+    }
+  ]
+  document: T
+  text_match: number
+}
+
+// Todo: we could infer whether this is a grouped response by adding the search params as a generic
+export interface SearchResponse<T extends DocumentSchema> {
+  facet_counts: any[]
+  found: number
+  out_of: number
+  page: number
+  request_params: SearchParams<T>
+  search_time_ms: number
+  hits?: SearchResponseHit<T>[]
+  grouped_hits?: {
+    group_key: string[]
+    hits: SearchResponseHit<T>[]
+  }[]
+}
+
 const RESOURCEPATH = '/documents'
 
 export default class Documents<T extends DocumentSchema = {}> {
@@ -137,16 +195,24 @@ export default class Documents<T extends DocumentSchema = {}> {
     return this.apiCall.get(this.endpointPath('export'))
   }
 
-  search(searchParameters, { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds } = {}) {
+  async search(
+    searchParameters: SearchParams<T>,
+    { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds } = {}
+  ): Promise<SearchResponse<T>> {
     let additionalQueryParams = {}
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams['usecache'] = true
     }
     const queryParams = Object.assign({}, searchParameters, additionalQueryParams)
 
-    return this.requestWithCache.perform(this.apiCall, this.apiCall.get, [this.endpointPath('search'), queryParams], {
-      cacheResponseForSeconds: cacheSearchResultsForSeconds
-    })
+    return await this.requestWithCache.perform(
+      this.apiCall,
+      this.apiCall.get,
+      [this.endpointPath('search'), queryParams],
+      {
+        cacheResponseForSeconds: cacheSearchResultsForSeconds
+      }
+    )
   }
 
   private endpointPath(operation?: string) {
