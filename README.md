@@ -31,7 +31,7 @@ or via jsDelivr
 
 ## Usage
 
-Read the documentation here for detailed examples: [https://typesense.org/api/](https://typesense.org/api/)
+Read the documentation here for detailed examples: [https://typesense.org/docs/api/](https://typesense.org/docs/api/)
 
 Tests are also a good place to know how the library works internally: [test](test)
 
