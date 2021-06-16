@@ -54,6 +54,10 @@ node doc/examples/server/bulkImport.js
 
 If you use [GatsbyJS](https://www.gatsbyjs.com/) for a framework, we have a plugin (that uses typesense-js behind the scenes) to automatically push your site data to Typesense when you build your site. Learn more [here](https://github.com/typesense/gatsby-plugin-typesense).
 
+## Firebase Integration
+
+If you use [Firebase](https://firebase.google.com/), we have a Firebase extension (that uses typesense-js behind the scenes) to automatically push your Firestore data to Typesense. Learn more [here](https://github.com/typesense/firestore-typesense-search).
+
 ## Building UI components
 
 Checkout the [Typesense-InstantSearch.js](https://github.com/typesense/typesense-instantsearch-adapter) (which uses typesense-js) for UI components you can use to quickly build powerful instant search experiences.
