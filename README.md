@@ -64,6 +64,8 @@ Checkout the [Typesense-InstantSearch.js](https://github.com/typesense/typesense
 
 ## Compatibility
 
+This table refers to server=>client compatibility. Newer versions of the client library maintain backwards compatibility with older versions of the server library.
+
 | Typesense Server | typesense-js |
 |------------------|----------------|
 | \>= v0.20.0 | \>= v0.12.0 |
