@@ -62,6 +62,7 @@ Checkout the [Typesense-InstantSearch.js](https://github.com/typesense/typesense
 
 | Typesense Server | typesense-js |
 |------------------|----------------|
+| \>= v0.21.0 | \>= v0.14.0 |
 | \>= v0.20.0 | \>= v0.12.0 |
 | \>= v0.19.0 | \>= v0.11.0 |
 | \>= v0.18.0 | \>= v0.10.0 |
