@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/typesense-js
     docker:
-      - image: circleci/node:8.9.4
+      - image: circleci/node:lts
     steps:
       - checkout
       - run:
