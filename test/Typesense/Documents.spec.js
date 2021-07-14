@@ -5,7 +5,6 @@ import ApiCall from '../../src/Typesense/ApiCall'
 import axios from 'axios'
 import MockAxiosAdapter from 'axios-mock-adapter'
 import timekeeper from 'timekeeper'
-import {ImportError} from '../../src/Typesense/Errors'
 
 let expect = chai.expect
 chai.use(chaiAsPromised)
@@ -367,6 +366,7 @@ describe('Documents', function () {
             })
 
           documents.import([document, anotherDocument]).catch(error => {
+            expect(error.constructor.name).to.eq('ImportError')
             expect(error.importResults.length).to.eq(2)
             expect(error.importResults[0].success).to.eq(false)
             expect(error.importResults[0].message).to.eq('Error message')
@@ -412,9 +412,12 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {'content-type': 'text/plain'})
+        .reply(config => {
+          expect(config.params.include_fields).to.equal('field1')
+          return [200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {'content-type': 'text/plain'}]
+        })
 
-      let returnData = documents.export()
+      let returnData = documents.export({ include_fields: 'field1' })
 
       expect(returnData).to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n')).notify(done)
     })

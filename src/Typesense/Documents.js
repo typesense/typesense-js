@@ -27,8 +27,8 @@ export default class Documents {
     return this._apiCall.post(this._endpointPath(), document, Object.assign({}, options, {action: 'update'}))
   }
 
-  delete (queryParameters = {}) {
-    return this._apiCall.delete(this._endpointPath(), queryParameters)
+  delete (options = {}) {
+    return this._apiCall.delete(this._endpointPath(), options)
   }
 
   async createMany (documents, options = {}) {
@@ -72,15 +72,21 @@ export default class Documents {
     }
   }
 
-  export () {
-    return this._apiCall.get(this._endpointPath('export'))
+  export (options = {}) {
+    return this._apiCall.get(this._endpointPath('export'), options)
   }
 
   search (searchParameters, {cacheSearchResultsForSeconds = this._configuration.cacheSearchResultsForSeconds} = {}) {
+    let additionalQueryParams = {}
+    if (this._configuration.useServerSideSearchCache === true) {
+      additionalQueryParams['use_cache'] = true
+    }
+    const queryParams = Object.assign({}, searchParameters, additionalQueryParams)
+
     return this._requestWithCache.perform(
       this._apiCall,
       this._apiCall.get,
-      [this._endpointPath('search'), searchParameters],
+      [this._endpointPath('search'), queryParams],
       {cacheResponseForSeconds: cacheSearchResultsForSeconds}
     )
   }

@@ -19,10 +19,16 @@ export default class MultiSearch {
       additionalHeaders['content-type'] = 'text/plain'
     }
 
+    let additionalQueryParams = {}
+    if (this._configuration.useServerSideSearchCache === true) {
+      additionalQueryParams['use_cache'] = true
+    }
+    const queryParams = Object.assign({}, commonParams, additionalQueryParams)
+
     return this._requestWithCache.perform(
       this._apiCall,
       this._apiCall.post,
-      [RESOURCEPATH, searchRequests, commonParams, additionalHeaders],
+      [RESOURCEPATH, searchRequests, queryParams, additionalHeaders],
       {cacheResponseForSeconds: cacheSearchResultsForSeconds}
     )
   }
