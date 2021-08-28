@@ -59,7 +59,6 @@ export default class ApiCall {
     additionalHeaders = {},
     signal = null
   }) {
-
     this
       ._configuration
       .validate()
@@ -70,11 +69,11 @@ export default class ApiCall {
     for (let numTries = 1; numTries <= this._numRetriesPerRequest + 1; numTries++) {
       let node = this._getNextNode(requestNumber)
       this.logger.debug(`Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
-      
+
       if (signal && signal.aborted) {
-        return Promise.reject('Request aborted by caller.')
+        return Promise.reject(new Error('Request aborted by caller.'))
       }
-      let abortListener;
+      let abortListener
 
       try {
         let requestOptions = {

@@ -76,9 +76,9 @@ export default class Documents {
     return this._apiCall.get(this._endpointPath('export'), options)
   }
 
-  search (searchParameters, 
+  search (searchParameters,
     {cacheSearchResultsForSeconds = this._configuration.cacheSearchResultsForSeconds} = {},
-    {signal = null}) {    
+    {signal = null}) {
     let additionalQueryParams = {}
     if (this._configuration.useServerSideSearchCache === true) {
       additionalQueryParams['use_cache'] = true
