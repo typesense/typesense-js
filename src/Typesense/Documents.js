@@ -78,7 +78,7 @@ export default class Documents {
 
   search (searchParameters,
     {cacheSearchResultsForSeconds = this._configuration.cacheSearchResultsForSeconds} = {},
-    {signal = null}) {
+    {signal = null} = {}) {
     let additionalQueryParams = {}
     if (this._configuration.useServerSideSearchCache === true) {
       additionalQueryParams['use_cache'] = true

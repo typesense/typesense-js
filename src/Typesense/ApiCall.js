@@ -33,7 +33,7 @@ export default class ApiCall {
     this._currentNodeIndex = -1
   }
 
-  get (endpoint, queryParameters = {}, {signal = null}) {
+  get (endpoint, queryParameters = {}, {signal = null} = {}) {
     return this.performRequest('get', endpoint, {queryParameters, signal})
   }
 
