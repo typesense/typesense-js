@@ -33,8 +33,8 @@ export default class ApiCall {
     this._currentNodeIndex = -1
   }
 
-  get (endpoint, queryParameters = {}, {signal = null} = {}) {
-    return this.performRequest('get', endpoint, {queryParameters, signal})
+  get (endpoint, queryParameters = {}, {abortSignal = null} = {}) {
+    return this.performRequest('get', endpoint, {queryParameters, abortSignal})
   }
 
   delete (endpoint, queryParameters = {}) {
@@ -57,7 +57,7 @@ export default class ApiCall {
     queryParameters = null,
     bodyParameters = null,
     additionalHeaders = {},
-    signal = null
+    abortSignal = null
   }) {
     this
       ._configuration
@@ -70,7 +70,7 @@ export default class ApiCall {
       let node = this._getNextNode(requestNumber)
       this.logger.debug(`Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
 
-      if (signal && signal.aborted) {
+      if (abortSignal && abortSignal.aborted) {
         return Promise.reject(new Error('Request aborted by caller.'))
       }
       let abortListener
@@ -113,11 +113,11 @@ export default class ApiCall {
         }
 
         // Translate from user-provided AbortController to the Axios request cancel mechanism.
-        if (signal) {
+        if (abortSignal) {
           const cancelToken = axios.CancelToken
           const source = cancelToken.source()
           abortListener = () => source.cancel()
-          signal.addEventListener('abort', abortListener)
+          abortSignal.addEventListener('abort', abortListener)
           requestOptions.cancelToken = source.token
         }
 
@@ -149,8 +149,8 @@ export default class ApiCall {
         this.logger.warn(`Request #${requestNumber}: Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
         await this._timer(this._retryIntervalSeconds)
       } finally {
-        if (signal && abortListener) {
-          signal.removeEventListener('abort', abortListener)
+        if (abortSignal && abortListener) {
+          abortSignal.removeEventListener('abort', abortListener)
         }
       }
     }
