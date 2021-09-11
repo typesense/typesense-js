@@ -204,46 +204,67 @@ let sharedNodeSelectionBehavior = (method) => {
 }
 
 describe('ApiCall', function () {
-  beforeEach(function () {
-    this.typesense = new TypesenseClient({
-      'nodes': [
-        {
-          'host': 'node0',
-          'port': '8108',
-          'protocol': 'http'
-        },
-        {
-          'host': 'node1',
-          'port': '7108',
-          'protocol': 'http'
-        },
-        {
-          'host': 'node2',
-          'port': '9108',
-          'protocol': 'http'
-        }
-      ],
-      'apiKey': 'abcd',
-      'logLevel': 'error',
-      'retryIntervalSeconds': 0.001 // To keep tests fast
+  describe('Method Calls', function () {
+    beforeEach(function () {
+      this.typesense = new TypesenseClient({
+        'nodes': [
+          {
+            'host': 'node0',
+            'port': '8108',
+            'protocol': 'http'
+          },
+          {
+            'host': 'node1',
+            'port': '7108',
+            'protocol': 'http'
+          },
+          {
+            'host': 'node2',
+            'port': '9108',
+            'protocol': 'http'
+          }
+        ],
+        'apiKey': 'abcd',
+        'logLevel': 'error',
+        'retryIntervalSeconds': 0.001 // To keep tests fast
+      })
+      this.mockAxios = new MockAxiosAdapter(axios)
+      this.apiCall = new ApiCall(this.typesense.configuration)
     })
-    this.mockAxios = new MockAxiosAdapter(axios)
-    this.apiCall = new ApiCall(this.typesense.configuration)
+
+    describe('.post', function () {
+      sharedNodeSelectionBehavior('post')
+    })
+
+    describe('.put', function () {
+      sharedNodeSelectionBehavior('post')
+    })
+
+    describe('.get', function () {
+      sharedNodeSelectionBehavior('post')
+    })
+
+    describe('.delete', function () {
+      sharedNodeSelectionBehavior('post')
+    })
   })
 
-  describe('.post', function () {
-    sharedNodeSelectionBehavior('post')
-  })
+  describe('URL Construction', function () {
+    it('constructs the URL based on the node params', function (done) {
+      const client = new TypesenseClient({
+        'nodes': [
+          {
+            'url': 'https://node0/path'
+          }
+        ],
+        'apiKey': 'abcd'
+      })
 
-  describe('.put', function () {
-    sharedNodeSelectionBehavior('post')
-  })
+      const apiCall = new ApiCall(client.configuration)
 
-  describe('.get', function () {
-    sharedNodeSelectionBehavior('post')
-  })
+      expect(apiCall._uriFor('/collections', client.configuration.nodes[0])).to.equal('https://node0/path/collections')
 
-  describe('.delete', function () {
-    sharedNodeSelectionBehavior('post')
+      done()
+    })
   })
 })
