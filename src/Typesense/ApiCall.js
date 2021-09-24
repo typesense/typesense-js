@@ -216,6 +216,9 @@ export default class ApiCall {
   }
 
   _uriFor (endpoint, node) {
+    if (node.url != null) {
+      return `${node.url}${endpoint}`
+    }
     return `${node.protocol}://${node.host}:${node.port}${node.path}${endpoint}`
   }
 
