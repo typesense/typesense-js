@@ -76,7 +76,10 @@ export default class Documents {
     return this._apiCall.get(this._endpointPath('export'), options)
   }
 
-  search (searchParameters, {cacheSearchResultsForSeconds = this._configuration.cacheSearchResultsForSeconds} = {}) {
+  search (searchParameters, {
+    cacheSearchResultsForSeconds = this._configuration.cacheSearchResultsForSeconds,
+    abortSignal = null
+  } = {}) {
     let additionalQueryParams = {}
     if (this._configuration.useServerSideSearchCache === true) {
       additionalQueryParams['use_cache'] = true
@@ -86,7 +89,7 @@ export default class Documents {
     return this._requestWithCache.perform(
       this._apiCall,
       this._apiCall.get,
-      [this._endpointPath('search'), queryParams],
+      [this._endpointPath('search'), queryParams, {abortSignal}],
       {cacheResponseForSeconds: cacheSearchResultsForSeconds}
     )
   }

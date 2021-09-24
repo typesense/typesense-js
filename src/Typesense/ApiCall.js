@@ -33,8 +33,8 @@ export default class ApiCall {
     this._currentNodeIndex = -1
   }
 
-  get (endpoint, queryParameters = {}) {
-    return this.performRequest('get', endpoint, {queryParameters})
+  get (endpoint, queryParameters = {}, {abortSignal = null} = {}) {
+    return this.performRequest('get', endpoint, {queryParameters, abortSignal})
   }
 
   delete (endpoint, queryParameters = {}) {
@@ -56,7 +56,8 @@ export default class ApiCall {
   async performRequest (requestType, endpoint, {
     queryParameters = null,
     bodyParameters = null,
-    additionalHeaders = {}
+    additionalHeaders = {},
+    abortSignal = null
   }) {
     this
       ._configuration
@@ -68,6 +69,12 @@ export default class ApiCall {
     for (let numTries = 1; numTries <= this._numRetriesPerRequest + 1; numTries++) {
       let node = this._getNextNode(requestNumber)
       this.logger.debug(`Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${node.index}`)
+
+      if (abortSignal && abortSignal.aborted) {
+        return Promise.reject(new Error('Request aborted by caller.'))
+      }
+      let abortListener
+
       try {
         let requestOptions = {
           method: requestType,
@@ -105,6 +112,15 @@ export default class ApiCall {
           requestOptions.data = bodyParameters
         }
 
+        // Translate from user-provided AbortController to the Axios request cancel mechanism.
+        if (abortSignal) {
+          const cancelToken = axios.CancelToken
+          const source = cancelToken.source()
+          abortListener = () => source.cancel()
+          abortSignal.addEventListener('abort', abortListener)
+          requestOptions.cancelToken = source.token
+        }
+
         let response = await axios(requestOptions)
         if (response.status >= 1 && response.status <= 499) {
           // Treat any status code > 0 and < 500 to be an indication that node is healthy
@@ -132,6 +148,10 @@ export default class ApiCall {
         // this.logger.debug(error.stack)
         this.logger.warn(`Request #${requestNumber}: Sleeping for ${this._retryIntervalSeconds}s and then retrying request...`)
         await this._timer(this._retryIntervalSeconds)
+      } finally {
+        if (abortSignal && abortListener) {
+          abortSignal.removeEventListener('abort', abortListener)
+        }
       }
     }
     this.logger.debug(`Request #${requestNumber}: No retries left. Raising last error`)
