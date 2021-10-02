@@ -2,7 +2,7 @@ import ApiCall from './ApiCall'
 import Collections from './Collections'
 import Configuration from './Configuration'
 import RequestWithCache from './RequestWithCache'
-import { ImportError } from './Errors';
+import { ImportError } from './Errors'
 
 export type FieldType =
   | 'string'
@@ -185,13 +185,18 @@ export default class Documents<T extends DocumentSchema = {}> {
     })
 
     if (Array.isArray(documents)) {
-        const resultsInJSONFormat = resultsInJSONLFormat.split('\n').map(r => JSON.parse((r))) as ImportResponse[];
-        const failedItems = resultsInJSONFormat.filter(r => r.success === false)
-        if (failedItems.length > 0) {
-          throw new ImportError(`${resultsInJSONFormat.length - failedItems.length} documents imported successfully, ${failedItems.length} documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`, resultsInJSONFormat)
-        } else {
-          return resultsInJSONFormat
-        }
+      const resultsInJSONFormat = resultsInJSONLFormat.split('\n').map((r) => JSON.parse(r)) as ImportResponse[]
+      const failedItems = resultsInJSONFormat.filter((r) => r.success === false)
+      if (failedItems.length > 0) {
+        throw new ImportError(
+          `${resultsInJSONFormat.length - failedItems.length} documents imported successfully, ${
+            failedItems.length
+          } documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`,
+          resultsInJSONFormat
+        )
+      } else {
+        return resultsInJSONFormat
+      }
     } else {
       return resultsInJSONLFormat as string
     }
@@ -206,7 +211,7 @@ export default class Documents<T extends DocumentSchema = {}> {
 
   async search(
     searchParameters: SearchParams<T>,
-    { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds, abortSignal = null } = {},
+    { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds, abortSignal = null } = {}
   ): Promise<SearchResponse<T>> {
     let additionalQueryParams = {}
     if (this.configuration.useServerSideSearchCache === true) {
@@ -217,7 +222,7 @@ export default class Documents<T extends DocumentSchema = {}> {
     return await this.requestWithCache.perform(
       this.apiCall,
       this.apiCall.get,
-      [this.endpointPath('search'), queryParams, {abortSignal}],
+      [this.endpointPath('search'), queryParams, { abortSignal }],
       {
         cacheResponseForSeconds: cacheSearchResultsForSeconds
       }

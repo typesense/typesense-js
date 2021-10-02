@@ -288,12 +288,12 @@ describe('ApiCall', function () {
   describe('URL Construction', function () {
     it('constructs the URL based on the node params', function (done) {
       const client = new TypesenseClient({
-        'nodes': [
+        nodes: [
           {
-            'url': 'https://node0/path'
+            url: 'https://node0/path'
           }
         ],
-        'apiKey': 'abcd'
+        apiKey: 'abcd'
       })
 
       const apiCall = new ApiCall(client.configuration)

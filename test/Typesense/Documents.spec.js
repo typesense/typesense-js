@@ -352,16 +352,20 @@ describe('Documents', function () {
               apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
               `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
               {
-                'Accept': 'application/json, text/plain, */*',
+                Accept: 'application/json, text/plain, */*',
                 'Content-Type': 'text/plain',
                 'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
               }
             )
-            .reply(config => {
-              return [200, '{"success": false, "message": "Error message"}\n{"success": false, "message": "Error message"}', {'content-type': 'text/plain'}]
+            .reply((config) => {
+              return [
+                200,
+                '{"success": false, "message": "Error message"}\n{"success": false, "message": "Error message"}',
+                { 'content-type': 'text/plain' }
+              ]
             })
 
-          documents.import([document, anotherDocument]).catch(error => {
+          documents.import([document, anotherDocument]).catch((error) => {
             expect(error.constructor.name).to.eq('ImportError')
             expect(error.importResults.length).to.eq(2)
             expect(error.importResults[0].success).to.eq(false)
@@ -408,11 +412,15 @@ describe('Documents', function () {
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(config => {
+        .reply((config) => {
           expect(config.params.include_fields).to.equal('field1')
-          return [200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {
-          'content-type': 'text/plain'
-        }]
+          return [
+            200,
+            [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'),
+            {
+              'content-type': 'text/plain'
+            }
+          ]
         })
 
       let returnData = documents.export({ include_fields: 'field1' })

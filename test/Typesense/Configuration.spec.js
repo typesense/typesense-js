@@ -93,10 +93,12 @@ describe('Configuration', function () {
   it('does not throw any errors if url is present', function (done) {
     expect(() => {
       typesense = new TypesenseClient({
-        'nodes': [{
-          'url': 'https://example.net/'
-        }],
-        'apiKey': 'abcd'
+        nodes: [
+          {
+            url: 'https://example.net/'
+          }
+        ],
+        apiKey: 'abcd'
       })
       expect(typesense.configuration.nodes[0].url).to.equal('https://example.net/')
     }).to.not.throw(MissingConfigurationError)

@@ -91,9 +91,11 @@ export default class Configuration {
   }
 
   private isNodeMissingAnyParameters(node) {
-    return !['protocol', 'host', 'port', 'path'].every((key) => {
-      return node.hasOwnProperty(key)
-    }) && node.url == null
+    return (
+      !['protocol', 'host', 'port', 'path'].every((key) => {
+        return node.hasOwnProperty(key)
+      }) && node.url == null
+    )
   }
 
   private setDefaultPathInNode(node) {

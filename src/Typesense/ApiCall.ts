@@ -47,7 +47,7 @@ export default class ApiCall {
     this.currentNodeIndex = -1
   }
 
-  get<T extends any>(endpoint: string, queryParameters: any = {}, {abortSignal = null} = {}): Promise<T> {
+  get<T extends any>(endpoint: string, queryParameters: any = {}, { abortSignal = null } = {}): Promise<T> {
     return this.performRequest<T>('get', endpoint, { queryParameters, abortSignal })
   }
 
@@ -99,13 +99,13 @@ export default class ApiCall {
           node.index
         }`
       )
-      
+
       if (abortSignal && abortSignal.aborted) {
         return Promise.reject(new Error('Request aborted by caller.'))
       }
 
       let abortListener
-      
+
       try {
         let requestOptions: AxiosRequestConfig = {
           method: requestType,
@@ -150,14 +150,14 @@ export default class ApiCall {
           requestOptions.data = bodyParameters
         }
 
-                // Translate from user-provided AbortController to the Axios request cancel mechanism.
-                if (abortSignal) {
-                    const cancelToken = axios.CancelToken
-                    const source = cancelToken.source()
-                    abortListener = () => source.cancel()
-                    abortSignal.addEventListener('abort', abortListener)
-                    requestOptions.cancelToken = source.token
-                  }
+        // Translate from user-provided AbortController to the Axios request cancel mechanism.
+        if (abortSignal) {
+          const cancelToken = axios.CancelToken
+          const source = cancelToken.source()
+          abortListener = () => source.cancel()
+          abortSignal.addEventListener('abort', abortListener)
+          requestOptions.cancelToken = source.token
+        }
 
         let response = await axios(requestOptions)
         if (response.status >= 1 && response.status <= 499) {
@@ -197,8 +197,8 @@ export default class ApiCall {
       } finally {
         if (abortSignal && abortListener) {
           abortSignal.removeEventListener('abort', abortListener)
-             }       
-            }
+        }
+      }
     }
     this.logger.debug(`Request #${requestNumber}: No retries left. Raising last error`)
     return Promise.reject(lastException)
@@ -275,8 +275,8 @@ export default class ApiCall {
 
   uriFor(endpoint: string, node): string {
     if (node.url != null) {
-        return `${node.url}${endpoint}`
-      }
+      return `${node.url}${endpoint}`
+    }
     return `${node.protocol}://${node.host}:${node.port}${node.path}${endpoint}`
   }
 
