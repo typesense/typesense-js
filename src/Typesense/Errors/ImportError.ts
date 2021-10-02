@@ -1,10 +1,9 @@
-'use strict'
-
 import TypesenseError from './TypesenseError'
 
 export default class ImportError extends TypesenseError {
+  importResults: any;
   constructor (message, importResults) {
-    super(message)
+    super()
     this.importResults = importResults
   }
 }

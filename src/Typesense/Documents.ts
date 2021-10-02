@@ -2,6 +2,7 @@ import ApiCall from './ApiCall'
 import Collections from './Collections'
 import Configuration from './Configuration'
 import RequestWithCache from './RequestWithCache'
+import { ImportError } from './Errors';
 
 export type FieldType =
   | 'string'
@@ -146,8 +147,7 @@ export default class Documents<T extends DocumentSchema = {}> {
 
   delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>
   delete(idOrQuery: string): Promise<T>
-  delete(idOrQuery: string | DeleteQuery): Promise<DeleteResponse> | Promise<T> {
-    if (!idOrQuery) throw new Error('No ID or query provided')
+  delete(idOrQuery: string | DeleteQuery = {} as DeleteQuery): Promise<DeleteResponse> | Promise<T> {
     if (typeof idOrQuery === 'string') {
       return this.apiCall.delete<T>(this.endpointPath(idOrQuery), idOrQuery)
     } else {
@@ -185,7 +185,13 @@ export default class Documents<T extends DocumentSchema = {}> {
     })
 
     if (Array.isArray(documents)) {
-      return resultsInJSONLFormat.split('\n').map((r) => JSON.parse(r)) as ImportResponse[]
+        const resultsInJSONFormat = resultsInJSONLFormat.split('\n').map(r => JSON.parse((r))) as ImportResponse[];
+        const failedItems = resultsInJSONFormat.filter(r => r.success === false)
+        if (failedItems.length > 0) {
+          throw new ImportError(`${resultsInJSONFormat.length - failedItems.length} documents imported successfully, ${failedItems.length} documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`, resultsInJSONFormat)
+        } else {
+          return resultsInJSONFormat
+        }
     } else {
       return resultsInJSONLFormat as string
     }
@@ -194,13 +200,13 @@ export default class Documents<T extends DocumentSchema = {}> {
   /**
    * Returns a JSONL string for all the documents in this collection
    */
-  async export(): Promise<string> {
-    return await this.apiCall.get<string>(this.endpointPath('export'))
+  async export(options: any = {}): Promise<string> {
+    return await this.apiCall.get<string>(this.endpointPath('export'), options)
   }
 
   async search(
     searchParameters: SearchParams<T>,
-    { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds } = {}
+    { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds, abortSignal = null } = {},
   ): Promise<SearchResponse<T>> {
     let additionalQueryParams = {}
     if (this.configuration.useServerSideSearchCache === true) {
@@ -211,7 +217,7 @@ export default class Documents<T extends DocumentSchema = {}> {
     return await this.requestWithCache.perform(
       this.apiCall,
       this.apiCall.get,
-      [this.endpointPath('search'), queryParams],
+      [this.endpointPath('search'), queryParams, {abortSignal}],
       {
         cacheResponseForSeconds: cacheSearchResultsForSeconds
       }

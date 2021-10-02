@@ -47,8 +47,8 @@ export default class ApiCall {
     this.currentNodeIndex = -1
   }
 
-  get<T extends any>(endpoint: string, queryParameters: any = {}): Promise<T> {
-    return this.performRequest<T>('get', endpoint, { queryParameters })
+  get<T extends any>(endpoint: string, queryParameters: any = {}, {abortSignal = null} = {}): Promise<T> {
+    return this.performRequest<T>('get', endpoint, { queryParameters, abortSignal })
   }
 
   delete<T extends any>(endpoint: string, queryParameters: any = {}): Promise<T> {
@@ -78,11 +78,13 @@ export default class ApiCall {
     {
       queryParameters = null,
       bodyParameters = null,
-      additionalHeaders = {}
+      additionalHeaders = {},
+      abortSignal = null
     }: {
       queryParameters?: any
       bodyParameters?: any
       additionalHeaders?: any
+      abortSignal?: any
     }
   ): Promise<T> {
     this.configuration.validate()
@@ -97,6 +99,13 @@ export default class ApiCall {
           node.index
         }`
       )
+      
+      if (abortSignal && abortSignal.aborted) {
+        return Promise.reject(new Error('Request aborted by caller.'))
+      }
+
+      let abortListener
+      
       try {
         let requestOptions: AxiosRequestConfig = {
           method: requestType,
@@ -141,6 +150,15 @@ export default class ApiCall {
           requestOptions.data = bodyParameters
         }
 
+                // Translate from user-provided AbortController to the Axios request cancel mechanism.
+                if (abortSignal) {
+                    const cancelToken = axios.CancelToken
+                    const source = cancelToken.source()
+                    abortListener = () => source.cancel()
+                    abortSignal.addEventListener('abort', abortListener)
+                    requestOptions.cancelToken = source.token
+                  }
+
         let response = await axios(requestOptions)
         if (response.status >= 1 && response.status <= 499) {
           // Treat any status code > 0 and < 500 to be an indication that node is healthy
@@ -176,7 +194,11 @@ export default class ApiCall {
           `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`
         )
         await this.timer(this.retryIntervalSeconds)
-      }
+      } finally {
+        if (abortSignal && abortListener) {
+          abortSignal.removeEventListener('abort', abortListener)
+             }       
+            }
     }
     this.logger.debug(`Request #${requestNumber}: No retries left. Raising last error`)
     return Promise.reject(lastException)
@@ -252,6 +274,9 @@ export default class ApiCall {
   }
 
   uriFor(endpoint: string, node): string {
+    if (node.url != null) {
+        return `${node.url}${endpoint}`
+      }
     return `${node.protocol}://${node.host}:${node.port}${node.path}${endpoint}`
   }
 
