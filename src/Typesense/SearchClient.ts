@@ -1,4 +1,3 @@
-import Collections from './Collections'
 import Configuration, { ConfigurationOptions } from './Configuration'
 import ApiCall from './ApiCall'
 import Collection from './Collection'
