@@ -410,7 +410,9 @@ describe('Documents', function () {
         )
         .reply(config => {
           expect(config.params.include_fields).to.equal('field1')
-          return [200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {'content-type': 'text/plain'}]
+          return [200, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'), {
+          'content-type': 'text/plain'
+        }]
         })
 
       let returnData = documents.export({ include_fields: 'field1' })

@@ -41,6 +41,7 @@
     "@babel/preset-env": "^7.14.7",
     "@babel/register": "^7.14.5",
     "@types/node": "^15.6.1",
+    "@types/node": "^15.6.1",
     "axios-mock-adapter": "^1.19.0",
     "@babel/eslint-parser": "^7.14.7",
     "babel-plugin-istanbul": "^6.0.0",
