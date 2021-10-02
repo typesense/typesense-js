@@ -32,7 +32,7 @@ describe('Alias', function () {
   describe('.retrieve', function () {
     it('retrieves the alias', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]), null, {
+        .onGet(apiCall.uriFor('/aliases/companies', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -50,7 +50,7 @@ describe('Alias', function () {
   describe('.delete', function () {
     it('deletes an alias', function (done) {
       mockAxios
-        .onDelete(apiCall._uriFor('/aliases/companies', typesense.configuration.nodes[0]), null, {
+        .onDelete(apiCall.uriFor('/aliases/companies', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

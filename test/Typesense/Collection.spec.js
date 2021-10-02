@@ -54,7 +54,7 @@ describe('Collection', function () {
   describe('.retrieve', function () {
     it('retrieves a collection', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/collections/companies', typesense.configuration.nodes[0]), null, {
+        .onGet(apiCall.uriFor('/collections/companies', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -70,7 +70,7 @@ describe('Collection', function () {
   describe('.delete', function () {
     it('deletes a collection', function (done) {
       mockAxios
-        .onDelete(apiCall._uriFor('/collections/companies', typesense.configuration.nodes[0]), null, {
+        .onDelete(apiCall.uriFor('/collections/companies', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

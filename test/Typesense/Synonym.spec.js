@@ -35,7 +35,7 @@ describe('Synonym', function () {
     it('retreives the synonym with the given ID', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
           undefined,
           {
             Accept: 'application/json, text/plain, */*',
@@ -54,7 +54,7 @@ describe('Synonym', function () {
     it('deletes the synonym with the given ID', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]),
           undefined,
           {
             Accept: 'application/json, text/plain, */*',

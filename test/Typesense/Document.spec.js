@@ -38,7 +38,7 @@ describe('Document', function () {
   describe('.retrieve', function () {
     it('retrieves a document', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]), null, {
+        .onGet(apiCall.uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -59,7 +59,7 @@ describe('Document', function () {
       }
       mockAxios
         .onPatch(
-          apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]),
           partialDocument,
           {
             Accept: 'application/json, text/plain, */*',
@@ -81,7 +81,7 @@ describe('Document', function () {
   describe('.delete', function () {
     it('deletes a document', function (done) {
       mockAxios
-        .onDelete(apiCall._uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]), null, {
+        .onDelete(apiCall.uriFor('/collections/companies/documents/124', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

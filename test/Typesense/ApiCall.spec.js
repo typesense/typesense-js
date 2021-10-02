@@ -13,13 +13,13 @@ chai.use(chaiAsPromised)
 let sharedNodeSelectionBehavior = (method) => {
   it('does not retry when HTTPStatus >= 300 and HTTPStatus < 500', async function () {
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[0]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0]))
       .reply(409, JSON.stringify({ message: 'Already exists' }), { 'content-type': 'application/json' })
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[1]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[1]))
       .reply(422, JSON.stringify({ message: 'Unprocessable' }), { 'content-type': 'application/json' })
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[2]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[2]))
       .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
 
     await expect(this.apiCall[method]('/')).to.eventually.be.rejectedWith(
@@ -34,13 +34,13 @@ let sharedNodeSelectionBehavior = (method) => {
 
   it('raises an error when no nodes are healthy', async function () {
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[0]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0]))
       .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[1]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[1]))
       .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[2]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[2]))
       .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
 
     await expect(this.apiCall[method]('/')).to.eventually.be.rejectedWith(
@@ -55,10 +55,10 @@ let sharedNodeSelectionBehavior = (method) => {
   })
 
   it('selects the next available node when there is a connection timeout', async function () {
-    this.mockAxios.onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[0])).timeout()
-    this.mockAxios.onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[1])).timeout()
+    this.mockAxios.onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0])).timeout()
+    this.mockAxios.onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[1])).timeout()
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[2]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[2]))
       .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
     await expect(this.apiCall[method]('/')).to.eventually.deep.equal({ message: 'Success' })
@@ -70,10 +70,10 @@ let sharedNodeSelectionBehavior = (method) => {
   })
 
   it('removes unhealthy nodes out of rotation, until threshold', async function () {
-    this.mockAxios.onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[0])).timeout()
-    this.mockAxios.onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[1])).timeout()
+    this.mockAxios.onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0])).timeout()
+    this.mockAxios.onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[1])).timeout()
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[2]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[2]))
       .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
     let currentTime = Date.now()
@@ -91,7 +91,7 @@ let sharedNodeSelectionBehavior = (method) => {
     // Remove first mock, to let request to node 0 succeed
     this.mockAxios.handlers[method].shift()
     this.mockAxios
-      .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[0]))
+      .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0]))
       .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
     timekeeper.freeze(currentTime + 125 * 1000)
@@ -153,11 +153,11 @@ let sharedNodeSelectionBehavior = (method) => {
     })
 
     it('uses the nearestNode if it is present and healthy, otherwise fallsback to regular nodes', async function () {
-      this.mockAxios.onAny(this.apiCall._uriFor('/', this.typesense.configuration.nearestNode)).timeout()
-      this.mockAxios.onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[0])).timeout()
-      this.mockAxios.onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[1])).timeout()
+      this.mockAxios.onAny(this.apiCall.uriFor('/', this.typesense.configuration.nearestNode)).timeout()
+      this.mockAxios.onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0])).timeout()
+      this.mockAxios.onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[1])).timeout()
       this.mockAxios
-        .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[2]))
+        .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[2]))
         .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
       let currentTime = Date.now()
@@ -175,7 +175,7 @@ let sharedNodeSelectionBehavior = (method) => {
       // Remove first mock, to let request to nearestNode succeed
       this.mockAxios.handlers[method].shift()
       this.mockAxios
-        .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nearestNode))
+        .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nearestNode))
         .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
       timekeeper.freeze(currentTime + 125 * 1000)
@@ -213,16 +213,16 @@ let sharedNodeSelectionBehavior = (method) => {
 
     it('raises an error when no nodes are healthy', async function () {
       this.mockAxios
-        .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nearestNode))
+        .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nearestNode))
         .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
       this.mockAxios
-        .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[0]))
+        .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0]))
         .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
       this.mockAxios
-        .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[1]))
+        .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[1]))
         .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
       this.mockAxios
-        .onAny(this.apiCall._uriFor('/', this.typesense.configuration.nodes[2]))
+        .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[2]))
         .reply(500, JSON.stringify({ message: 'Error message' }), { 'content-type': 'application/json' })
 
       await expect(this.apiCall[method]('/')).to.eventually.be.rejectedWith(
@@ -298,7 +298,7 @@ describe('ApiCall', function () {
 
       const apiCall = new ApiCall(client.configuration)
 
-      expect(apiCall._uriFor('/collections', client.configuration.nodes[0])).to.equal('https://node0/path/collections')
+      expect(apiCall.uriFor('/collections', client.configuration.nodes[0])).to.equal('https://node0/path/collections')
 
       done()
     })

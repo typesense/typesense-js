@@ -2,7 +2,7 @@ import ApiCall from './ApiCall'
 import Configuration from './Configuration'
 import RequestWithCache from './RequestWithCache'
 
-const RESOURCEPATH = '/multisearch'
+const RESOURCEPATH = '/multi_search'
 
 export default class MultiSearch {
   private requestWithCache: RequestWithCache

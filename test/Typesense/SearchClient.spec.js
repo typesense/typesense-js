@@ -55,7 +55,7 @@ describe('SearchClient', function () {
     }
 
     mockAxios
-      .onPost(apiCall._uriFor('/multi_search', typesense.configuration.nodes[0]), searches, {
+      .onPost(apiCall.uriFor('/multi_search', typesense.configuration.nodes[0]), searches, {
         Accept: 'application/json, text/plain, */*',
         'Content-Type': 'text/plain'
       })
@@ -94,7 +94,7 @@ describe('SearchClient', function () {
     }
 
     mockAxios
-      .onPost(apiCall._uriFor('/multi_search', typesense.configuration.nodes[0]), searches, {
+      .onPost(apiCall.uriFor('/multi_search', typesense.configuration.nodes[0]), searches, {
         Accept: 'application/json, text/plain, */*',
         'Content-Type': 'text/plain',
         'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

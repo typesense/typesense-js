@@ -32,7 +32,7 @@ describe('Key', function () {
   describe('.retrieve', function () {
     it('retrieves the key', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/keys/123', typesense.configuration.nodes[0]), null, {
+        .onGet(apiCall.uriFor('/keys/123', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -50,7 +50,7 @@ describe('Key', function () {
   describe('.delete', function () {
     it('deletes a key', function (done) {
       mockAxios
-        .onDelete(apiCall._uriFor('/keys/123', typesense.configuration.nodes[0]), null, {
+        .onDelete(apiCall.uriFor('/keys/123', typesense.configuration.nodes[0]), null, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

@@ -30,7 +30,7 @@ describe('Metrics', function () {
   describe('.retrieve', function () {
     it('retrieves metrics', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/metrics.json', typesense.configuration.nodes[0]), undefined, {
+        .onGet(apiCall.uriFor('/metrics.json', typesense.configuration.nodes[0]), undefined, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

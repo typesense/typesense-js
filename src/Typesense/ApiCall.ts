@@ -174,11 +174,11 @@ export default class ApiCall {
           return Promise.resolve(response.data)
         } else if (response.status < 500) {
           // Next, if response is anything but 5xx, don't retry, return a custom error
-          return Promise.reject(this.customErrorForResponse(response, response.data.message))
+          return Promise.reject(this.customErrorForResponse(response, response.data?.message))
         } else {
           // Retry all other HTTP errors (HTTPStatus > 500)
           // This will get caught by the catch block below
-          throw this.customErrorForResponse(response, response.data.message)
+          throw this.customErrorForResponse(response, response.data?.message)
         }
       } catch (error) {
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
@@ -186,7 +186,7 @@ export default class ApiCall {
         lastException = error
         this.logger.warn(
           `Request #${requestNumber}: Request to Node ${node.index} failed due to "${error.code} ${error.message}${
-            error.response == null ? '' : ' - ' + JSON.stringify(error.response.data)
+            error.response == null ? '' : ' - ' + JSON.stringify(error.response?.data)
           }"`
         )
         // this.logger.debug(error.stack)

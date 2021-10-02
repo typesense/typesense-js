@@ -33,7 +33,7 @@ describe('Keys', function () {
     it('creates a key', function (done) {
       mockAxios
         .onPost(
-          apiCall._uriFor('/keys', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/keys', typesense.configuration.nodes[0]),
           {
             description: 'Search-only key.',
             actions: ['documents:search'],
@@ -60,7 +60,7 @@ describe('Keys', function () {
   describe('.retrieve', function () {
     it('retrieves all keys', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/keys', typesense.configuration.nodes[0]), undefined, {
+        .onGet(apiCall.uriFor('/keys', typesense.configuration.nodes[0]), undefined, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

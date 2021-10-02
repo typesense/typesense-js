@@ -46,7 +46,7 @@ describe('Overrides', function () {
     it('creates the override in the collection', function (done) {
       mockAxios
         .onPut(
-          apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
           override,
           {
             Accept: 'application/json, text/plain, */*',
@@ -64,7 +64,7 @@ describe('Overrides', function () {
   describe('.retrieve', function () {
     it('retrieves all overrides', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/collections/companies/overrides', typesense.configuration.nodes[0]), undefined, {
+        .onGet(apiCall.uriFor('/collections/companies/overrides', typesense.configuration.nodes[0]), undefined, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

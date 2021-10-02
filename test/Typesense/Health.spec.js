@@ -30,7 +30,7 @@ describe('Health', function () {
   describe('.retrieve', function () {
     it('retrieves health information', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/health', typesense.configuration.nodes[0]), undefined, {
+        .onGet(apiCall.uriFor('/health', typesense.configuration.nodes[0]), undefined, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

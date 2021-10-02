@@ -55,7 +55,7 @@ describe('Collections', function () {
     it('creates a collection', function (done) {
       let { num_documents: numDocuments, ...schemaForCreation } = companySchema
       mockAxios
-        .onPost(apiCall._uriFor('/collections', typesense.configuration.nodes[0]), schemaForCreation, {
+        .onPost(apiCall.uriFor('/collections', typesense.configuration.nodes[0]), schemaForCreation, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -71,7 +71,7 @@ describe('Collections', function () {
   describe('.retrieve', function () {
     it('retrieves all collections', function (done) {
       mockAxios
-        .onGet(apiCall._uriFor('/collections', typesense.configuration.nodes[0]), undefined, {
+        .onGet(apiCall.uriFor('/collections', typesense.configuration.nodes[0]), undefined, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

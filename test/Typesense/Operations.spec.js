@@ -30,7 +30,7 @@ describe('Operations', function () {
   describe('.perform', function () {
     it('performs the operation', function (done) {
       mockAxios
-        .onPost(apiCall._uriFor('/operations/snapshot', typesense.configuration.nodes[0]), undefined, {
+        .onPost(apiCall.uriFor('/operations/snapshot', typesense.configuration.nodes[0]), undefined, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey

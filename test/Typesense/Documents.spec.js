@@ -76,7 +76,7 @@ describe('Documents', function () {
       }
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
           {
             params: searchParameters
           },
@@ -147,7 +147,7 @@ describe('Documents', function () {
       searchParameters.forEach((_, i) => {
         mockAxios
           .onGet(
-            apiCall._uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
+            apiCall.uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
             {
               params: searchParameters[i]
             },
@@ -198,7 +198,7 @@ describe('Documents', function () {
   describe('.create', function () {
     it('creates the document', function (done) {
       mockAxios
-        .onPost(apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
+        .onPost(apiCall.uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -214,7 +214,7 @@ describe('Documents', function () {
   describe('.upsert', function () {
     it('upserts the document', function (done) {
       mockAxios
-        .onPost(apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
+        .onPost(apiCall.uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -234,7 +234,7 @@ describe('Documents', function () {
   describe('.update', function () {
     it('updates the document', function (done) {
       mockAxios
-        .onPost(apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
+        .onPost(apiCall.uriFor('/collections/companies/documents', typesense.configuration.nodes[0]), document, {
           Accept: 'application/json, text/plain, */*',
           'Content-Type': 'application/json',
           'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
@@ -255,7 +255,7 @@ describe('Documents', function () {
     it('imports the documents', function (done) {
       mockAxios
         .onPost(
-          apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
           `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
           {
             Accept: 'application/json, text/plain, */*',
@@ -276,7 +276,7 @@ describe('Documents', function () {
       it('passes the query parameter to the API', function (done) {
         mockAxios
           .onPost(
-            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            apiCall.uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: 'application/json, text/plain, */*',
@@ -303,7 +303,7 @@ describe('Documents', function () {
       it('passes the query parameter to the API', function (done) {
         mockAxios
           .onPost(
-            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            apiCall.uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: 'application/json, text/plain, */*',
@@ -329,7 +329,7 @@ describe('Documents', function () {
       it('converts it to JSONL and returns an array of results', function (done) {
         mockAxios
           .onPost(
-            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            apiCall.uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: 'application/json, text/plain, */*',
@@ -349,7 +349,7 @@ describe('Documents', function () {
         it('it raises an exception', function (done) {
           mockAxios
             .onPost(
-              apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+              apiCall.uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
               `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
               {
                 Accept: 'application/json, text/plain, */*',
@@ -380,7 +380,7 @@ describe('Documents', function () {
       it('it sends the string as is and returns a string', function (done) {
         mockAxios
           .onPost(
-            apiCall._uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
+            apiCall.uriFor('/collections/companies/documents/import', typesense.configuration.nodes[0]),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: 'application/json, text/plain, */*',
@@ -404,7 +404,7 @@ describe('Documents', function () {
     it('exports the documents', function (done) {
       mockAxios
         .onGet(
-          apiCall._uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]),
           undefined,
           {
             Accept: 'application/json, text/plain, */*',
@@ -435,7 +435,7 @@ describe('Documents', function () {
     it('delete documents', function (done) {
       mockAxios
         .onDelete(
-          apiCall._uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/documents', typesense.configuration.nodes[0]),
           {
             params: { filter_by: 'field:=value' }
           },
