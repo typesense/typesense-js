@@ -1,6 +1,6 @@
 {
   "name": "typesense",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Javascript Library for Typesense",
   "homepage": "https://github.com/typesense/typesense-js",
   "author": {
@@ -13,6 +13,11 @@
       "name": "Nick Kamer",
       "email": "nick@ziaomedia.com",
       "url": "https://github.com/ziao"
+    },
+    {
+      "name": "Damian Cantu",
+      "email": "damian@release-next.com",
+      "url": "https://github.com/dcantu476"
     }
   ],
   "main": "dist/Typesense.js",
