@@ -403,15 +403,11 @@ describe('Documents', function () {
   describe('.export', function () {
     it('exports the documents', function (done) {
       mockAxios
-        .onGet(
-          apiCall.uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]),
-          undefined,
-          {
-            Accept: 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
+        .onGet(apiCall.uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]), undefined, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
         .reply((config) => {
           expect(config.params.include_fields).to.equal('field1')
           return [

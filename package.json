@@ -79,7 +79,7 @@
   "scripts": {
     "format": "prettier --write \"(src|test)/**/*.(ts|json|js)\"",
     "pretest": "eslint .",
-    "test": "nyc --reporter=html --reporter=text mocha --require @babel/register --recursive",
+    "test": "nyc --reporter=html --reporter=text ts-mocha --require @babel/register --recursive",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "build:gulp": "gulp clean build",
