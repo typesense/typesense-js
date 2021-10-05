@@ -3,7 +3,6 @@ import Collections from './Collections'
 import Synonyms from './Synonyms'
 
 export default class Synonym {
-  // Todo: synonymId string or number?
   constructor(private collectionName: string, private synonymId: string, private apiCall: ApiCall) {}
 
   retrieve() {

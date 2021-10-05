@@ -10,6 +10,7 @@ export type FieldType =
   | 'int64'
   | 'float'
   | 'bool'
+  | 'geopoint'
   | 'string[]'
   | 'int32[]'
   | 'int64[]'
@@ -64,7 +65,7 @@ export interface DocumentSchema extends Record<string, any> {
 }
 
 export interface SearchParams<T extends DocumentSchema> {
-  // From https://typesense.org/docs/0.20.0/api/documents.html#arguments
+  // From https://typesense.org/docs/latest/api/documents.html#arguments
   q: string
   query_by: string
   query_by_weights?: string
@@ -72,20 +73,22 @@ export interface SearchParams<T extends DocumentSchema> {
   filter_by?: string
   sort_by?: string // default: text match desc
   facet_by?: string
+  prioritize_exact_match?: boolean // default: true
   max_facet_values?: number
   facet_query?: string
-  num_typos?: 1 | 2 // default: 2
   page?: number // default: 1
   per_page?: number // default: 10, max 250
   group_by?: keyof T
   group_limit?: number // default:
   include_fields?: string
   exclude_fields?: string
+  highlight_fields?: string // default: all queried fields
   highlight_full_fields?: string // default: all fields
   highlight_affix_num_tokens?: number // default: 4
   highlight_start_tag?: string // default: <mark>
   highlight_end_tag?: string // default: </mark>
   snippet_threshold?: number // default: 30
+  num_typos?: string // default: 2
   drop_tokens_threshold?: number // default: 10
   typo_tokens_threshold?: number // default: 100
   pinned_hits?: string
