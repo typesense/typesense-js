@@ -24,7 +24,7 @@ export interface CollectionFieldSchema {
 
 export interface CollectionCreateSchema {
   name: string
-  default_sorting_field: string // Todo: docs say it's not required but api throws a 400 if missing
+  default_sorting_field?: string
   fields: CollectionFieldSchema[]
 }
 
