@@ -1,10 +1,23 @@
 import ApiCall from './ApiCall'
 import Configuration from './Configuration'
 import RequestWithCache from './RequestWithCache'
+import { DocumentSchema, SearchParams, SearchResponse } from './Documents'
 
 const RESOURCEPATH = '/multi_search'
 
-export default class MultiSearch {
+export interface MultiSearchRequestSchema<T> extends SearchParams<T> {
+  collection?: string
+}
+
+export interface MultiSearchRequestsSchema<T> {
+  searches: MultiSearchRequestSchema<T>[]
+}
+
+export interface MultiSearchResponse<T> {
+  results: SearchResponse<T>[]
+}
+
+export default class MultiSearch<T extends DocumentSchema = {}> {
   private requestWithCache: RequestWithCache
 
   constructor(
@@ -16,9 +29,11 @@ export default class MultiSearch {
   }
 
   perform(
-    searchRequests,
-    commonParams = {},
-    { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds } = {}
+    searchRequests: MultiSearchRequestSchema<T>,
+    commonParams: Partial<MultiSearchRequestSchema<T>> = {},
+    {
+      cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds
+    }: { cacheSearchResultsForSeconds?: number } = {}
   ) {
     let additionalHeaders = {}
     if (this.useTextContentType) {

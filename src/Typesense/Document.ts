@@ -1,6 +1,6 @@
 import ApiCall from './ApiCall'
 import Collections from './Collections'
-import Documents, { DocumentSchema } from './Documents'
+import Documents, { DocumentSchema, DocumentWriteParameters } from './Documents'
 
 export default class Document<T extends DocumentSchema = {}> {
   constructor(private collectionName: string, private documentId: string, private apiCall: ApiCall) {}
@@ -9,11 +9,11 @@ export default class Document<T extends DocumentSchema = {}> {
     return await this.apiCall.get<T>(this.endpointPath())
   }
 
-  async delete() {
+  async delete(): Promise<T> {
     return await this.apiCall.delete<T>(this.endpointPath())
   }
 
-  async update(partialDocument: Partial<T>, options: Record<string, any> = {}) {
+  async update(partialDocument: Partial<T>, options: DocumentWriteParameters = {}) {
     return await this.apiCall.patch<T>(this.endpointPath(), partialDocument, options)
   }
 

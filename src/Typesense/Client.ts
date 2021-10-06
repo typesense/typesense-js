@@ -43,8 +43,6 @@ export default class Client {
     this.individualKeys = {}
   }
 
-  // Todo: Nick: I would suggest deprecating collections(name) and introducing collection(name) method instead to
-  // reduce unambiguity. Same for aliases and keys.
   collections(): Collections
   collections<T extends Record<string, any> = {}>(collectionName: string): Collection<T>
   collections(collectionName?: string): Collections | Collection {

@@ -1,17 +1,27 @@
 import ApiCall from './ApiCall'
 import Collections from './Collections'
+import { SynonymSchema } from './Synonym'
 
 const RESOURCEPATH = '/synonyms'
+
+export interface SynonymCreateSchema {
+  synonyms: string[]
+  root?: string
+}
+
+export interface SynonymsRetrieveSchema {
+  synonyms: SynonymSchema[]
+}
 
 export default class Synonyms {
   constructor(private collectionName: string, private apiCall: ApiCall) {}
 
-  upsert(synonymId, params) {
-    return this.apiCall.put(this.endpointPath(synonymId), params)
+  async upsert(synonymId: string, params: SynonymCreateSchema): Promise<SynonymSchema> {
+    return await this.apiCall.put<SynonymSchema>(this.endpointPath(synonymId), params)
   }
 
-  retrieve() {
-    return this.apiCall.get(this.endpointPath())
+  async retrieve(): Promise<SynonymsRetrieveSchema> {
+    return await this.apiCall.get<SynonymsRetrieveSchema>(this.endpointPath())
   }
 
   private endpointPath(operation?: string) {

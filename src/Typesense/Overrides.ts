@@ -1,17 +1,36 @@
 import ApiCall from './ApiCall'
 import Collections from './Collections'
+import { OverrideSchema } from './Override'
 
 const RESOURCEPATH = '/overrides'
+
+export interface OverrideCreateSchema {
+  rule: {
+    query: string
+    match: 'exact' | 'contains'
+  }
+  includes?: [
+    {
+      id: string
+      position: number
+    }
+  ]
+  excludes?: [id: string]
+}
+
+export interface OverridesRetrieveSchema {
+  overrides: OverrideSchema[]
+}
 
 export default class Overrides {
   constructor(private collectionName: string, private apiCall: ApiCall) {}
 
-  upsert(overrideId: string, params: {}) {
-    return this.apiCall.put(this.endpointPath(overrideId), params)
+  async upsert(overrideId: string, params: OverrideCreateSchema): Promise<OverrideSchema> {
+    return await this.apiCall.put<OverrideSchema>(this.endpointPath(overrideId), params)
   }
 
-  retrieve() {
-    return this.apiCall.get(this.endpointPath())
+  async retrieve(): Promise<OverridesRetrieveSchema> {
+    return await this.apiCall.get<OverridesRetrieveSchema>(this.endpointPath())
   }
 
   private endpointPath(operation?: string) {

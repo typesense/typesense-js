@@ -1,22 +1,28 @@
 import { createHmac } from 'crypto'
 import ApiCall from './ApiCall'
+import { KeyCreateSchema, KeySchema } from './Key'
+import { SearchParams } from './Documents'
 
 const RESOURCEPATH = '/keys'
+
+export interface KeysRetrieveSchema {
+  keys: KeySchema[]
+}
 
 export default class Keys {
   constructor(private apiCall: ApiCall) {
     this.apiCall = apiCall
   }
 
-  create(params: any) {
-    return this.apiCall.post(Keys.RESOURCEPATH, params)
+  async create(params: KeyCreateSchema): Promise<KeySchema> {
+    return await this.apiCall.post<KeySchema>(Keys.RESOURCEPATH, params)
   }
 
-  retrieve() {
-    return this.apiCall.get(RESOURCEPATH)
+  retrieve(): Promise<KeysRetrieveSchema> {
+    return this.apiCall.get<KeysRetrieveSchema>(RESOURCEPATH)
   }
 
-  generateScopedSearchKey(searchKey: string, parameters: any) {
+  generateScopedSearchKey(searchKey: string, parameters: SearchParams<any>): string {
     // Note: only a key generated with the `documents:search` action will be
     // accepted by the server, when usined with the search endpoint.
     const paramsJSON = JSON.stringify(parameters)

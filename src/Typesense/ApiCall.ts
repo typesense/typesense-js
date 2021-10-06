@@ -9,14 +9,11 @@ import {
   ServerError
 } from './Errors'
 import TypesenseError from './Errors/TypesenseError'
+import Configuration from './Configuration'
 
 const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 const HEALTHY = true
 const UNHEALTHY = false
-
-export interface ApiConfiguration extends Record<string, any> {
-  // Todo!
-}
 
 export default class ApiCall {
   private readonly apiKey: string
@@ -31,7 +28,7 @@ export default class ApiCall {
   private readonly logger: any
   private currentNodeIndex: number
 
-  constructor(private configuration: ApiConfiguration) {
+  constructor(private configuration: Configuration) {
     this.apiKey = this.configuration.apiKey
     this.nodes = JSON.parse(JSON.stringify(this.configuration.nodes)) // Make a copy, since we'll be adding additional metadata to the nodes
     this.nearestNode = JSON.parse(JSON.stringify(this.configuration.nearestNode))

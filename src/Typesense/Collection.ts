@@ -1,5 +1,5 @@
 import ApiCall from './ApiCall'
-import Collections, { CollectionSchema } from './Collections'
+import Collections, { CollectionCreateSchema } from './Collections'
 import Documents, { DocumentSchema } from './Documents'
 import Document from './Document'
 import { ObjectNotFound } from './Errors'
@@ -7,6 +7,35 @@ import Overrides from './Overrides'
 import Override from './Override'
 import Synonyms from './Synonyms'
 import Synonym from './Synonym'
+
+export type FieldType =
+  | 'string'
+  | 'int32'
+  | 'int64'
+  | 'float'
+  | 'bool'
+  | 'geopoint'
+  | 'string[]'
+  | 'int32[]'
+  | 'int64[]'
+  | 'float[]'
+  | 'bool[]'
+  | 'auto'
+  | 'string*'
+
+export interface CollectionFieldSchema {
+  name: string
+  type: FieldType
+  optional?: boolean
+  facet?: boolean
+  index?: boolean
+}
+
+export interface CollectionSchema extends CollectionCreateSchema {
+  created_at: number
+  num_documents: number
+  num_memory_shards: number
+}
 
 export default class Collection<T extends DocumentSchema = {}> {
   private readonly _documents: Documents<T>
@@ -44,8 +73,6 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  // Todo: there's no way to override caching here
-  // Todo: also, no way to indicate cache duration, potentially eating up a lot of memory
   documents(): Documents<T>
   documents(documentId: string): Document<T>
   documents(documentId?: string): Document<T> | Documents<T> {

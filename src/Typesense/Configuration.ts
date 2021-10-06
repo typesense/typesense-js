@@ -5,6 +5,8 @@ export interface Node {
   host: string
   port: number
   protocol: string
+  path?: string
+  url?: string
 }
 
 export interface ConfigurationOptions {
@@ -20,13 +22,13 @@ export interface ConfigurationOptions {
   useServerSideSearchCache?: boolean
   cacheSearchResultsForSeconds?: number
 
-  logLevel?: string // todo: get from the logging package?
+  logLevel?: logger.LogLevel
   logger?: any //todo
 }
 
 export default class Configuration {
-  readonly nodes: any[]
-  readonly nearestNode: any
+  readonly nodes: Node[]
+  readonly nearestNode: Node
   readonly connectionTimeoutSeconds: number
   readonly healthcheckIntervalSeconds: number
   readonly numRetries: number

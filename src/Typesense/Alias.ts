@@ -1,15 +1,15 @@
-import Aliases from './Aliases'
+import Aliases, { CollectionAliasSchema } from './Aliases'
 import ApiCall from './ApiCall'
 
 export default class Alias {
   constructor(private name: string, private apiCall: ApiCall) {}
 
-  retrieve() {
-    return this.apiCall.get(this.endpointPath())
+  async retrieve(): Promise<CollectionAliasSchema> {
+    return await this.apiCall.get<CollectionAliasSchema>(this.endpointPath())
   }
 
-  delete() {
-    return this.apiCall.delete(this.endpointPath())
+  async delete(): Promise<CollectionAliasSchema> {
+    return await this.apiCall.delete<CollectionAliasSchema>(this.endpointPath())
   }
 
   private endpointPath() {

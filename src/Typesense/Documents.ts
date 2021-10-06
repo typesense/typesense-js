@@ -4,41 +4,6 @@ import Configuration from './Configuration'
 import RequestWithCache from './RequestWithCache'
 import { ImportError } from './Errors'
 
-export type FieldType =
-  | 'string'
-  | 'int32'
-  | 'int64'
-  | 'float'
-  | 'bool'
-  | 'geopoint'
-  | 'string[]'
-  | 'int32[]'
-  | 'int64[]'
-  | 'float[]'
-  | 'bool[]'
-  | 'auto'
-  | 'string*'
-
-export interface CollectionFieldSchema {
-  name: string
-  type: FieldType
-  optional?: boolean
-  facet?: boolean
-  index?: boolean
-}
-
-export interface CollectionCreateSchema {
-  name: string
-  default_sorting_field: string // Todo: docs say it's not required but api throws a 400 if missing
-  fields: CollectionFieldSchema[]
-}
-
-export interface CollectionSchema extends CollectionCreateSchema {
-  created_at: number
-  num_documents: number
-  num_memory_shards: number
-}
-
 // Todo: use generic to extract filter_by values
 export interface DeleteQuery {
   filter_by: string
@@ -73,7 +38,6 @@ export interface SearchParams<T extends DocumentSchema> {
   filter_by?: string
   sort_by?: string // default: text match desc
   facet_by?: string
-  prioritize_exact_match?: boolean // default: true
   max_facet_values?: number
   facet_query?: string
   page?: number // default: 1
@@ -94,6 +58,9 @@ export interface SearchParams<T extends DocumentSchema> {
   pinned_hits?: string
   hidden_hits?: string
   limit_hits?: number // default: no limit
+  pre_segmented_query?: boolean
+  enable_overrides?: boolean
+  prioritize_exact_match?: boolean // default: true
   [key: string]: any // allow for future parameters without having to update the library
 }
 
@@ -101,7 +68,10 @@ export interface SearchResponseHit<T extends DocumentSchema> {
   highlights?: [
     {
       field: keyof T
-      snippet: string
+      snippet?: string
+      value?: string
+      snippets?: string[]
+      indices?: string[]
       matched_tokens: string[]
     }
   ]
@@ -109,9 +79,20 @@ export interface SearchResponseHit<T extends DocumentSchema> {
   text_match: number
 }
 
+export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
+  counts: any[]
+  field_name: keyof T
+  stats: {
+    avg?: number
+    max?: number
+    min?: number
+    sum?: number
+  }
+}
+
 // Todo: we could infer whether this is a grouped response by adding the search params as a generic
 export interface SearchResponse<T extends DocumentSchema> {
-  facet_counts: any[]
+  facet_counts: SearchResponseFacetCountSchema<T>[]
   found: number
   out_of: number
   page: number
@@ -124,6 +105,18 @@ export interface SearchResponse<T extends DocumentSchema> {
   }[]
 }
 
+export type DirtyValuesOptions = 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject'
+
+export interface DocumentWriteParameters {
+  dirty_values?: DirtyValuesOptions
+}
+
+export interface DocumentsExportParameters {
+  filter_by?: string
+  include_fields?: string
+  exclude_fields?: string
+}
+
 const RESOURCEPATH = '/documents'
 
 export default class Documents<T extends DocumentSchema = {}> {
@@ -133,17 +126,17 @@ export default class Documents<T extends DocumentSchema = {}> {
     this.requestWithCache = new RequestWithCache()
   }
 
-  async create(document: T, options: Record<string, any> = {}): Promise<T> {
+  async create(document: T, options: DocumentWriteParameters = {}): Promise<T> {
     if (!document) throw new Error('No document provided')
     return await this.apiCall.post<T>(this.endpointPath(), document, options)
   }
 
-  upsert(document: T, options: Record<string, any> = {}): Promise<T> {
+  upsert(document: T, options: DocumentWriteParameters = {}): Promise<T> {
     if (!document) throw new Error('No document provided')
     return this.apiCall.post<T>(this.endpointPath(), document, Object.assign({}, options, { action: 'upsert' }))
   }
 
-  update(document: T, options: Record<string, any> = {}): Promise<T> {
+  update(document: T, options: DocumentWriteParameters = {}): Promise<T> {
     if (!document) throw new Error('No document provided')
     return this.apiCall.post<T>(this.endpointPath(), document, Object.assign({}, options, { action: 'update' }))
   }
@@ -158,7 +151,7 @@ export default class Documents<T extends DocumentSchema = {}> {
     }
   }
 
-  async createMany(documents: T[], options: Record<string, any> = {}) {
+  async createMany(documents: T[], options: DocumentWriteParameters = {}) {
     this.configuration.logger.warn(
       'createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents'
     )
@@ -173,7 +166,7 @@ export default class Documents<T extends DocumentSchema = {}> {
    */
   async import(documents: string, options?: Record<string, any>): Promise<string>
   async import(documents: T[], options?: Record<string, any>): Promise<ImportResponse[]>
-  async import(documents: T[] | string, options: Record<string, any> = {}): Promise<string | ImportResponse[]> {
+  async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
     if (Array.isArray(documents)) {
       documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
@@ -208,13 +201,16 @@ export default class Documents<T extends DocumentSchema = {}> {
   /**
    * Returns a JSONL string for all the documents in this collection
    */
-  async export(options: any = {}): Promise<string> {
+  async export(options: DocumentsExportParameters = {}): Promise<string> {
     return await this.apiCall.get<string>(this.endpointPath('export'), options)
   }
 
   async search(
     searchParameters: SearchParams<T>,
-    { cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds, abortSignal = null } = {}
+    {
+      cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds,
+      abortSignal = null
+    }: { cacheSearchResultsForSeconds?: number; abortSignal?: AbortSignal } = {}
   ): Promise<SearchResponse<T>> {
     let additionalQueryParams = {}
     if (this.configuration.useServerSideSearchCache === true) {

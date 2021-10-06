@@ -2,15 +2,27 @@ import ApiCall from './ApiCall'
 
 const RESOURCEPATH = '/aliases'
 
+export interface CollectionAliasCreateSchema {
+  collection_name: string
+}
+
+export interface CollectionAliasSchema extends CollectionAliasCreateSchema {
+  name: string
+}
+
+export interface CollectionAliasesResponseSchema {
+  aliases: CollectionAliasSchema[]
+}
+
 export default class Aliases {
   constructor(private apiCall: ApiCall) {}
 
-  upsert(name, mapping) {
-    return this.apiCall.put(this.endpointPath(name), mapping)
+  async upsert(name: string, mapping: CollectionAliasCreateSchema): Promise<CollectionAliasSchema> {
+    return await this.apiCall.put<CollectionAliasSchema>(this.endpointPath(name), mapping)
   }
 
-  retrieve(schema) {
-    return this.apiCall.get(RESOURCEPATH)
+  async retrieve(): Promise<CollectionAliasesResponseSchema> {
+    return await this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH)
   }
 
   private endpointPath(aliasName) {
