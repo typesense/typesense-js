@@ -20,7 +20,7 @@
       "url": "https://github.com/dcantu476"
     }
   ],
-  "main": "dist/Typesense.js",
+  "main": "lib/Typesense.js",
   "browser": {
     "crypto": false
   },
@@ -40,6 +40,7 @@
   "devDependencies": {
     "@babel/cli": "^7.14.5",
     "@babel/core": "^7.14.6",
+    "@babel/eslint-parser": "^7.14.7",
     "@babel/plugin-proposal-object-rest-spread": "^7.14.7",
     "@babel/plugin-transform-destructuring": "^7.14.7",
     "@babel/plugin-transform-runtime": "^7.14.5",
@@ -47,7 +48,6 @@
     "@babel/register": "^7.14.5",
     "@types/node": "^15.6.1",
     "axios-mock-adapter": "^1.19.0",
-    "@babel/eslint-parser": "^7.14.7",
     "babel-plugin-istanbul": "^6.0.0",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
@@ -72,17 +72,19 @@
     "nyc": "^15.1.0",
     "prettier": "^2.3.0",
     "timekeeper": "^2.2.0",
+    "tsify": "^5.0.4",
     "typescript": "^4.3.2",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "vinyl-source-stream": "^2.0.0",
+    "ts-mocha": "^8.0.0"
   },
   "scripts": {
     "format": "prettier --write \"(src|test)/**/*.(ts|json|js)\"",
     "pretest": "eslint .",
     "test": "nyc --reporter=html --reporter=text ts-mocha --require @babel/register --recursive",
-    "build": "tsc",
-    "build:watch": "tsc --watch",
-    "build:gulp": "gulp clean build",
+    "build": "tsc --build --verbose && gulp clean build:browser",
+    "build:tsc:watch": "tsc --watch",
+    "build:tsc": "tsc",
     "ci-lint": "eslint .",
     "ci-test": "nyc --reporter=text --reporter=html ts-mocha --require @babel/register --reporter mocha-junit-reporter --recursive",
     "typesenseServer": "docker run -i -p 8108:8108 -v/tmp/typesense-server-data-1c/:/data typesense/typesense:0.20.0.rc39 --data-dir /data --api-key=xyz --listen-port 8108 --enable-cors",
@@ -95,8 +97,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "axios": "^0.21.1",
-    "loglevel": "^1.7.1",
-    "ts-mocha": "^8.0.0"
+    "loglevel": "^1.7.1"
   },
   "peerDependencies": {
     "@babel/runtime": "^7.14.6"
