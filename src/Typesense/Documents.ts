@@ -80,7 +80,13 @@ export interface SearchResponseHit<T extends DocumentSchema> {
 }
 
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
-  counts: any[]
+  counts: [
+    {
+      count: number
+      highlighted: string
+      value: string
+    }
+  ]
   field_name: keyof T
   stats: {
     avg?: number
@@ -92,7 +98,7 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
 
 // Todo: we could infer whether this is a grouped response by adding the search params as a generic
 export interface SearchResponse<T extends DocumentSchema> {
-  facet_counts: SearchResponseFacetCountSchema<T>[]
+  facet_counts?: SearchResponseFacetCountSchema<T>[]
   found: number
   out_of: number
   page: number
