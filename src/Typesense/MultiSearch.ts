@@ -29,12 +29,12 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
   }
 
   perform(
-    searchRequests: MultiSearchRequestSchema<T>,
+    searchRequests: MultiSearchRequestsSchema<T>,
     commonParams: Partial<MultiSearchRequestSchema<T>> = {},
     {
       cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds
     }: { cacheSearchResultsForSeconds?: number } = {}
-  ) {
+  ): Promise<MultiSearchResponse<T>> {
     let additionalHeaders = {}
     if (this.useTextContentType) {
       additionalHeaders['content-type'] = 'text/plain'
