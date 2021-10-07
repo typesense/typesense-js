@@ -1,21 +1,19 @@
 import chai from 'chai'
-import {
-  Client as TypesenseClient,
-  SearchClient as TypesenseSearchClient,
-  Errors
-} from '../src/Typesense'
+import { Client as TypesenseClient, SearchClient as TypesenseSearchClient, Errors } from '../src/Typesense'
 
 let expect = chai.expect
 
 describe('Typesense', function () {
   it('should have a Client object that can be instantiated', function (done) {
     let client = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
 
     expect(client.configuration).to.be.an('object')
@@ -24,12 +22,14 @@ describe('Typesense', function () {
 
   it('should have a SearchClient object that can be instantiated', function (done) {
     let client = new TypesenseSearchClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
 
     expect(client.configuration).to.be.an('object')

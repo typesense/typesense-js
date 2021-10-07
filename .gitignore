@@ -2,4 +2,9 @@ node_modules/
 coverage/
 .nyc_output/
 typesense-server-nodes
+.idea
+*.log
+dist
+lib
+.DS_Store
 test-results.xml

@@ -1,1 +1,0 @@
-{"version":3,"sources":["Typesense.js"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;AAAA;;AACA;;AACA","sourcesContent":["import Client from './Typesense/Client'\nimport SearchClient from './Typesense/SearchClient'\nimport * as Errors from './Typesense/Errors'\n\nexport {\n  Client,\n  SearchClient,\n  Errors\n}\n"],"file":"Typesense.js"}

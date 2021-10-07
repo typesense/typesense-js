@@ -1,1 +1,0 @@
-{"version":3,"sources":["Typesense/Errors/RequestMalformed.js"],"names":["RequestMalformed","TypesenseError"],"mappings":"AAAA;;;;;;;;;;;;;;;;;AAEA;;;;;;IAEqBA,gB;;;;;;;;;;;EAAyBC,wB","sourcesContent":["'use strict'\n\nimport TypesenseError from './TypesenseError'\n\nexport default class RequestMalformed extends TypesenseError {}\n"],"file":"RequestMalformed.js"}

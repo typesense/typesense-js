@@ -15,30 +15,28 @@ describe('Debug', function () {
   beforeEach(function () {
     mockAxios = new MockAxiosAdapter(axios)
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
     apiCall = new ApiCall(typesense.configuration)
   })
 
   describe('.retrieve', function () {
     it('retrieves debugging information', function (done) {
-      let debugInfo = {version: '0.8.0'}
+      let debugInfo = { version: '0.8.0' }
       mockAxios
-        .onGet(
-          apiCall._uriFor('/debug', typesense.configuration.nodes[0]),
-          undefined,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(200, JSON.stringify(debugInfo), {'content-type': 'application/json'})
+        .onGet(apiCall.uriFor('/debug', typesense.configuration.nodes[0]), undefined, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply(200, JSON.stringify(debugInfo), { 'content-type': 'application/json' })
 
       let returnData = typesense.debug.retrieve()
 

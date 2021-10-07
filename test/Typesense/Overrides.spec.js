@@ -17,26 +17,24 @@ describe('Overrides', function () {
 
   beforeEach(function () {
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
 
     override = {
-      'id': 'lex-exact',
-      'rule': {
-        'query': 'lex luthor',
-        'match': 'exact'
+      id: 'lex-exact',
+      rule: {
+        query: 'lex luthor',
+        match: 'exact'
       },
-      'includes': [
-        {'id': '125', 'position': 1}
-      ],
-      'excludes': [
-        {'id': '124'}
-      ]
+      includes: [{ id: '125', position: 1 }],
+      excludes: [{ id: '124' }]
     }
 
     overrides = typesense.collections('companies').overrides()
@@ -48,15 +46,15 @@ describe('Overrides', function () {
     it('creates the override in the collection', function (done) {
       mockAxios
         .onPut(
-          apiCall._uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
+          apiCall.uriFor('/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]),
           override,
           {
-            'Accept': 'application/json, text/plain, */*',
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
           }
         )
-        .reply(201, JSON.stringify(override), {'content-type': 'application/json'})
+        .reply(201, JSON.stringify(override), { 'content-type': 'application/json' })
 
       let returnData = overrides.upsert('lex-exact', override)
       expect(returnData).to.eventually.deep.equal(override).notify(done)
@@ -66,16 +64,12 @@ describe('Overrides', function () {
   describe('.retrieve', function () {
     it('retrieves all overrides', function (done) {
       mockAxios
-        .onGet(
-          apiCall._uriFor('/collections/companies/overrides', typesense.configuration.nodes[0]),
-          undefined,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(200, JSON.stringify([override]), {'content-type': 'application/json'})
+        .onGet(apiCall.uriFor('/collections/companies/overrides', typesense.configuration.nodes[0]), undefined, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply(200, JSON.stringify([override]), { 'content-type': 'application/json' })
 
       let returnData = overrides.retrieve()
 

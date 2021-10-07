@@ -15,12 +15,14 @@ describe('Metrics', function () {
   beforeEach(function () {
     mockAxios = new MockAxiosAdapter(axios)
     typesense = new TypesenseClient({
-      'nodes': [{
-        'host': 'node0',
-        'port': '8108',
-        'protocol': 'http'
-      }],
-      'apiKey': 'abcd'
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd'
     })
     apiCall = new ApiCall(typesense.configuration)
   })
@@ -28,16 +30,12 @@ describe('Metrics', function () {
   describe('.retrieve', function () {
     it('retrieves metrics', function (done) {
       mockAxios
-        .onGet(
-          apiCall._uriFor('/metrics.json', typesense.configuration.nodes[0]),
-          undefined,
-          {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-          }
-        )
-        .reply(200, '{}', {'content-type': 'application/json'})
+        .onGet(apiCall.uriFor('/metrics.json', typesense.configuration.nodes[0]), undefined, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply(200, '{}', { 'content-type': 'application/json' })
 
       let returnData = typesense.metrics.retrieve()
 
