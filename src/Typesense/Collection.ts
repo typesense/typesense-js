@@ -86,7 +86,9 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  overrides(overrideId): Overrides | Override {
+  overrides(): Overrides
+  overrides(overrideId: string): Override
+  overrides(overrideId?: string): Overrides | Override {
     if (overrideId === undefined) {
       return this._overrides
     } else {
@@ -97,7 +99,9 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  synonyms(synonymId): Synonyms | Synonym {
+  synonyms(): Synonyms
+  synonyms(synonymId: string): Synonym
+  synonyms(synonymId?: string): Synonyms | Synonym {
     if (synonymId === undefined) {
       return this._synonyms
     } else {
