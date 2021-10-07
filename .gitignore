@@ -4,7 +4,5 @@ coverage/
 typesense-server-nodes
 .idea
 *.log
-dist
-lib
 .DS_Store
 test-results.xml
