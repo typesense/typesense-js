@@ -39,11 +39,11 @@ export interface CollectionSchema extends CollectionCreateSchema {
 
 export default class Collection<T extends DocumentSchema = {}> {
   private readonly _documents: Documents<T>
-  private individualDocuments: Record<string, any> = {}
+  private individualDocuments: Record<string, Document<T>> = {}
   private readonly _overrides: Overrides
-  private individualOverrides: Record<string, any> = {}
+  private individualOverrides: Record<string, Override> = {}
   private readonly _synonyms: Synonyms
-  private individualSynonyms: Record<string, any> = {}
+  private individualSynonyms: Record<string, Synonym> = {}
 
   constructor(private readonly name: string, private readonly apiCall: ApiCall, private readonly configuration: any) {
     this.name = name
@@ -86,7 +86,7 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  overrides(overrideId): Overrides {
+  overrides(overrideId): Overrides | Override {
     if (overrideId === undefined) {
       return this._overrides
     } else {
@@ -97,7 +97,7 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  synonyms(synonymId): Synonyms {
+  synonyms(synonymId): Synonyms | Synonym {
     if (synonymId === undefined) {
       return this._synonyms
     } else {
