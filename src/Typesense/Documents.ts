@@ -108,10 +108,9 @@ export interface SearchResponse<T extends DocumentSchema> {
   }[]
 }
 
-export type DirtyValuesOptions = 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject'
-
 export interface DocumentWriteParameters {
-  dirty_values?: DirtyValuesOptions
+  dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject'
+  action?: 'create' | 'update' | 'upsert'
 }
 
 export interface DocumentsExportParameters {
@@ -167,8 +166,8 @@ export default class Documents<T extends DocumentSchema = {}> {
    * @param options
    * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
    */
-  async import(documents: string, options?: Record<string, any>): Promise<string>
-  async import(documents: T[], options?: Record<string, any>): Promise<ImportResponse[]>
+  async import(documents: string, options?: DocumentWriteParameters): Promise<string>
+  async import(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>
   async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
     if (Array.isArray(documents)) {
