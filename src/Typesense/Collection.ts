@@ -86,7 +86,7 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  overrides(overrideId) {
+  overrides(overrideId): Overrides {
     if (overrideId === undefined) {
       return this._overrides
     } else {
@@ -97,7 +97,7 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  synonyms(synonymId) {
+  synonyms(synonymId): Synonyms {
     if (synonymId === undefined) {
       return this._synonyms
     } else {
@@ -108,7 +108,7 @@ export default class Collection<T extends DocumentSchema = {}> {
     }
   }
 
-  private endpointPath() {
+  private endpointPath(): string {
     return `${Collections.RESOURCEPATH}/${this.name}`
   }
 }

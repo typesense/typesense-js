@@ -21,7 +21,7 @@ export default class Override {
     return await this.apiCall.delete<OverrideDeleteSchema>(this.endpointPath())
   }
 
-  private endpointPath() {
+  private endpointPath(): string {
     return `${Collections.RESOURCEPATH}/${this.collectionName}${Overrides.RESOURCEPATH}/${this.overrideId}`
   }
 }

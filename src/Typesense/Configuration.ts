@@ -7,11 +7,23 @@ export interface Node {
   protocol: string
   path?: string
   url?: string
+  isHealthy?: boolean
+  index: string | number
 }
 
 export interface ConfigurationOptions {
   apiKey: string
   nodes: Node[]
+  /**
+   * @deprecated
+   * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
+   */
+  masterNode: Node
+  /**
+   * @deprecated
+   * readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
+   */
+  readReplicaNodes: Node[]
   nearestNode?: Node
   connectionTimeoutSeconds?: number
   timeoutSeconds?: number
@@ -68,7 +80,7 @@ export default class Configuration {
     this.validate()
   }
 
-  validate() {
+  validate(): boolean {
     if (this.nodes == null || this.nodes.length === 0 || this.validateNodes()) {
       throw new MissingConfigurationError('Ensure that nodes[].protocol, nodes[].host and nodes[].port are set')
     }
@@ -86,13 +98,13 @@ export default class Configuration {
     return true
   }
 
-  private validateNodes() {
+  private validateNodes(): boolean {
     return this.nodes.some((node) => {
       return this.isNodeMissingAnyParameters(node)
     })
   }
 
-  private isNodeMissingAnyParameters(node) {
+  private isNodeMissingAnyParameters(node: Node): boolean {
     return (
       !['protocol', 'host', 'port', 'path'].every((key) => {
         return node.hasOwnProperty(key)
@@ -100,14 +112,14 @@ export default class Configuration {
     )
   }
 
-  private setDefaultPathInNode(node) {
+  private setDefaultPathInNode(node: Node): Node {
     if (node != null && !node.hasOwnProperty('path')) {
       node.path = ''
     }
     return node
   }
 
-  private setDefaultPortInNode(node) {
+  private setDefaultPortInNode(node: Node): Node {
     if (node != null && !node.hasOwnProperty('port') && node.hasOwnProperty('protocol')) {
       switch (node.protocol) {
         case 'https':
@@ -121,7 +133,7 @@ export default class Configuration {
     return node
   }
 
-  private showDeprecationWarnings(options) {
+  private showDeprecationWarnings(options: ConfigurationOptions): void {
     if (options.timeoutSeconds) {
       this.logger.warn('Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds')
     }

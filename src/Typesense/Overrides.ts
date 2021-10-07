@@ -33,13 +33,13 @@ export default class Overrides {
     return await this.apiCall.get<OverridesRetrieveSchema>(this.endpointPath())
   }
 
-  private endpointPath(operation?: string) {
+  private endpointPath(operation?: string): string {
     return `${Collections.RESOURCEPATH}/${this.collectionName}${Overrides.RESOURCEPATH}${
       operation === undefined ? '' : '/' + operation
     }`
   }
 
-  static get RESOURCEPATH() {
+  static get RESOURCEPATH(): string {
     return RESOURCEPATH
   }
 }

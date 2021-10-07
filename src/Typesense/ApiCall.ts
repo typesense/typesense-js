@@ -9,7 +9,7 @@ import {
   ServerError
 } from './Errors'
 import TypesenseError from './Errors/TypesenseError'
-import Configuration from './Configuration'
+import Configuration, { Node } from './Configuration'
 
 const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 const HEALTHY = true
@@ -17,8 +17,8 @@ const UNHEALTHY = false
 
 export default class ApiCall {
   private readonly apiKey: string
-  private readonly nodes: any
-  private readonly nearestNode: any
+  private readonly nodes: Node[]
+  private readonly nearestNode: Node
   private readonly connectionTimeoutSeconds: number
   private readonly healthcheckIntervalSeconds: number
   private readonly retryIntervalSeconds: number
@@ -204,7 +204,7 @@ export default class ApiCall {
   // Attempts to find the next healthy node, looping through the list of nodes once.
   //   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
   //     so we can try the request for good measure, in case that node has become healthy since
-  getNextNode(requestNumber: number = 0) {
+  getNextNode(requestNumber: number = 0): Node {
     // Check if nearestNode is set and is healthy, if so return it
     if (this.nearestNode != null) {
       this.logger.debug(
@@ -225,7 +225,7 @@ export default class ApiCall {
         .map((node) => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
         .join(' || ')}`
     )
-    let candidateNode
+    let candidateNode: Node
     for (let i = 0; i <= this.nodes.length; i++) {
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.nodes.length
       candidateNode = this.nodes[this.currentNodeIndex]
@@ -243,7 +243,7 @@ export default class ApiCall {
     return candidateNode
   }
 
-  nodeDueForHealthcheck(node, requestNumber: number = 0) {
+  nodeDueForHealthcheck(node, requestNumber: number = 0): boolean {
     const isDueForHealthcheck = Date.now() - node.lastAccessTimestamp > this.healthcheckIntervalSeconds * 1000
     if (isDueForHealthcheck) {
       this.logger.debug(
@@ -253,7 +253,7 @@ export default class ApiCall {
     return isDueForHealthcheck
   }
 
-  initializeMetadataForNodes() {
+  initializeMetadataForNodes(): void {
     if (this.nearestNode != null) {
       this.nearestNode.index = 'nearestNode'
       this.setNodeHealthcheck(this.nearestNode, HEALTHY)
@@ -265,7 +265,7 @@ export default class ApiCall {
     })
   }
 
-  setNodeHealthcheck(node, isHealthy) {
+  setNodeHealthcheck(node, isHealthy): void {
     node.isHealthy = isHealthy
     node.lastAccessTimestamp = Date.now()
   }
@@ -277,7 +277,7 @@ export default class ApiCall {
     return `${node.protocol}://${node.host}:${node.port}${node.path}${endpoint}`
   }
 
-  defaultHeaders() {
+  defaultHeaders(): any {
     let defaultHeaders = {}
     if (!this.sendApiKeyAsQueryParam) {
       defaultHeaders[APIKEYHEADERNAME] = this.apiKey
@@ -286,7 +286,7 @@ export default class ApiCall {
     return defaultHeaders
   }
 
-  async timer(seconds) {
+  async timer(seconds): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
   }
 

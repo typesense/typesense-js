@@ -14,14 +14,14 @@ export default class Synonym {
   constructor(private collectionName: string, private synonymId: string, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<SynonymSchema> {
-    return await this.apiCall.get<SynonymSchema>(this._endpointPath())
+    return await this.apiCall.get<SynonymSchema>(this.endpointPath())
   }
 
   async delete(): Promise<SynonymDeleteSchema> {
-    return await this.apiCall.delete<SynonymDeleteSchema>(this._endpointPath())
+    return await this.apiCall.delete<SynonymDeleteSchema>(this.endpointPath())
   }
 
-  _endpointPath() {
+  private endpointPath(): string {
     return `${Collections.RESOURCEPATH}/${this.collectionName}${Synonyms.RESOURCEPATH}/${this.synonymId}`
   }
 }

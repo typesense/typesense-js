@@ -21,14 +21,14 @@ export default class Key {
   constructor(private id: string, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<KeySchema> {
-    return await this.apiCall.get<KeySchema>(this._endpointPath())
+    return await this.apiCall.get<KeySchema>(this.endpointPath())
   }
 
   async delete(): Promise<KeyDeleteSchema> {
-    return await this.apiCall.delete<KeyDeleteSchema>(this._endpointPath())
+    return await this.apiCall.delete<KeyDeleteSchema>(this.endpointPath())
   }
 
-  _endpointPath() {
+  private endpointPath(): string {
     return `${Keys.RESOURCEPATH}/${this.id}`
   }
 }

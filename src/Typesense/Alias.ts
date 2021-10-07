@@ -12,7 +12,7 @@ export default class Alias {
     return await this.apiCall.delete<CollectionAliasSchema>(this.endpointPath())
   }
 
-  private endpointPath() {
+  private endpointPath(): string {
     return `${Aliases.RESOURCEPATH}/${this.name}`
   }
 }

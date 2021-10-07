@@ -17,7 +17,7 @@ export interface DeleteResponse {
 interface ImportResponseSuccess {
   success: true
 }
-interface ImportResponseFail {
+export interface ImportResponseFail {
   success: false
   error: string
   document: DocumentSchema
@@ -25,9 +25,7 @@ interface ImportResponseFail {
 }
 export type ImportResponse = ImportResponseSuccess | ImportResponseFail
 
-export interface DocumentSchema extends Record<string, any> {
-  // id?: string //may actually give trouble if someone uses non-string id's
-}
+export interface DocumentSchema extends Record<string, any> {}
 
 export interface SearchParams<T extends DocumentSchema> {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
@@ -61,7 +59,6 @@ export interface SearchParams<T extends DocumentSchema> {
   pre_segmented_query?: boolean
   enable_overrides?: boolean
   prioritize_exact_match?: boolean // default: true
-  [key: string]: any // allow for future parameters without having to update the library
 }
 
 export interface SearchResponseHit<T extends DocumentSchema> {

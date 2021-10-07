@@ -13,7 +13,7 @@ export default class Document<T extends DocumentSchema = {}> {
     return await this.apiCall.delete<T>(this.endpointPath())
   }
 
-  async update(partialDocument: Partial<T>, options: DocumentWriteParameters = {}) {
+  async update(partialDocument: Partial<T>, options: DocumentWriteParameters = {}): Promise<T> {
     return await this.apiCall.patch<T>(this.endpointPath(), partialDocument, options)
   }
 

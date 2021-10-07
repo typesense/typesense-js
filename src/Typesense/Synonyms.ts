@@ -30,7 +30,7 @@ export default class Synonyms {
     }`
   }
 
-  static get RESOURCEPATH() {
+  static get RESOURCEPATH(): string {
     return RESOURCEPATH
   }
 }

@@ -25,11 +25,11 @@ export default class Aliases {
     return await this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH)
   }
 
-  private endpointPath(aliasName) {
+  private endpointPath(aliasName): string {
     return `${Aliases.RESOURCEPATH}/${aliasName}`
   }
 
-  static get RESOURCEPATH() {
+  static get RESOURCEPATH(): string {
     return RESOURCEPATH
   }
 }
