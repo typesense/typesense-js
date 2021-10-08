@@ -1,30 +1,28 @@
 import logger from 'loglevel'
 import { MissingConfigurationError } from './Errors'
 
-export interface Node {
+export interface NodeConfiguration {
   host: string
   port: number
   protocol: string
   path?: string
   url?: string
-  isHealthy?: boolean
-  index: string | number
 }
 
 export interface ConfigurationOptions {
   apiKey: string
-  nodes: Node[]
+  nodes: NodeConfiguration[]
   /**
    * @deprecated
    * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
    */
-  masterNode?: Node
+  masterNode?: NodeConfiguration
   /**
    * @deprecated
    * readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
    */
-  readReplicaNodes?: Node[]
-  nearestNode?: Node
+  readReplicaNodes?: NodeConfiguration[]
+  nearestNode?: NodeConfiguration
   connectionTimeoutSeconds?: number
   timeoutSeconds?: number
   healthcheckIntervalSeconds?: number
@@ -39,8 +37,8 @@ export interface ConfigurationOptions {
 }
 
 export default class Configuration {
-  readonly nodes: Node[]
-  readonly nearestNode: Node
+  readonly nodes: NodeConfiguration[]
+  readonly nearestNode: NodeConfiguration
   readonly connectionTimeoutSeconds: number
   readonly healthcheckIntervalSeconds: number
   readonly numRetries: number
@@ -104,7 +102,7 @@ export default class Configuration {
     })
   }
 
-  private isNodeMissingAnyParameters(node: Node): boolean {
+  private isNodeMissingAnyParameters(node: NodeConfiguration): boolean {
     return (
       !['protocol', 'host', 'port', 'path'].every((key) => {
         return node.hasOwnProperty(key)
@@ -112,14 +110,14 @@ export default class Configuration {
     )
   }
 
-  private setDefaultPathInNode(node: Node): Node {
+  private setDefaultPathInNode(node: NodeConfiguration): NodeConfiguration {
     if (node != null && !node.hasOwnProperty('path')) {
       node.path = ''
     }
     return node
   }
 
-  private setDefaultPortInNode(node: Node): Node {
+  private setDefaultPortInNode(node: NodeConfiguration): NodeConfiguration {
     if (node != null && !node.hasOwnProperty('port') && node.hasOwnProperty('protocol')) {
       switch (node.protocol) {
         case 'https':
