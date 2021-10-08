@@ -1,8 +1,8 @@
-const defaultCacheResponseForSeconds = 2 * 60;
-const defaultMaxSize = 20;
+const defaultCacheResponseForSeconds = 2 * 60
+const defaultMaxSize = 20
 
 export default class RequestWithCache {
-  private responseCache: Map<string, any> = new Map<string, any>();
+  private responseCache: Map<string, any> = new Map<string, any>()
 
   // Todo: should probably be passed a callback instead, or an apiCall instance. Types are messy this way
   async perform<T extends any>(
@@ -11,25 +11,25 @@ export default class RequestWithCache {
     requestFunctionArguments: any[],
     cacheOptions: CacheOptions
   ): Promise<T> {
-    const { cacheResponseForSeconds = defaultCacheResponseForSeconds, maxSize = defaultMaxSize } = cacheOptions;
-    const isCacheEnabled = cacheResponseForSeconds <= 0 || maxSize <= 0;
+    const { cacheResponseForSeconds = defaultCacheResponseForSeconds, maxSize = defaultMaxSize } = cacheOptions
+    const isCacheEnabled = cacheResponseForSeconds <= 0 || maxSize <= 0
 
     if (isCacheEnabled) {
       return requestFunction.call(requestContext, ...requestFunctionArguments)
     }
 
     const requestFunctionArgumentsJSON = JSON.stringify(requestFunctionArguments)
-    const cacheEntry = this.responseCache.get(requestFunctionArgumentsJSON);
-    const now = Date.now();
+    const cacheEntry = this.responseCache.get(requestFunctionArgumentsJSON)
+    const now = Date.now()
 
     if (cacheEntry) {
-      const isEntryValid = now - cacheEntry.requestTimestamp < cacheResponseForSeconds * 1000;
+      const isEntryValid = now - cacheEntry.requestTimestamp < cacheResponseForSeconds * 1000
       if (isEntryValid) {
-        this.responseCache.delete(requestFunctionArgumentsJSON);
-        this.responseCache.set(requestFunctionArgumentsJSON, cacheEntry);
+        this.responseCache.delete(requestFunctionArgumentsJSON)
+        this.responseCache.set(requestFunctionArgumentsJSON, cacheEntry)
         return Promise.resolve(cacheEntry.response)
       } else {
-        this.responseCache.delete(requestFunctionArgumentsJSON);
+        this.responseCache.delete(requestFunctionArgumentsJSON)
       }
     }
     const response = await requestFunction.call(requestContext, ...requestFunctionArguments)
@@ -38,9 +38,9 @@ export default class RequestWithCache {
       response
     })
     const isCacheOverMaxSize = this.responseCache.size > maxSize
-    if(isCacheOverMaxSize) {
-     	const oldestEntry = this.responseCache.keys().next().value;
-		 this.responseCache.delete(oldestEntry);
+    if (isCacheOverMaxSize) {
+      const oldestEntry = this.responseCache.keys().next().value
+      this.responseCache.delete(oldestEntry)
     }
     return response as T
   }
@@ -48,5 +48,5 @@ export default class RequestWithCache {
 
 interface CacheOptions {
   cacheResponseForSeconds?: number
-  maxSize?: number;
+  maxSize?: number
 }
