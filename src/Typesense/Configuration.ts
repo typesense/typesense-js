@@ -18,12 +18,12 @@ export interface ConfigurationOptions {
    * @deprecated
    * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
    */
-  masterNode: Node
+  masterNode?: Node
   /**
    * @deprecated
    * readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
    */
-  readReplicaNodes: Node[]
+  readReplicaNodes?: Node[]
   nearestNode?: Node
   connectionTimeoutSeconds?: number
   timeoutSeconds?: number
