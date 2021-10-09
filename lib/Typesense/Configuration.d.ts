@@ -1,27 +1,25 @@
 import logger from 'loglevel';
-export interface Node {
+export interface NodeConfiguration {
     host: string;
     port: number;
     protocol: string;
     path?: string;
     url?: string;
-    isHealthy?: boolean;
-    index: string | number;
 }
 export interface ConfigurationOptions {
     apiKey: string;
-    nodes: Node[];
+    nodes: NodeConfiguration[];
     /**
      * @deprecated
      * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
      */
-    masterNode: Node;
+    masterNode?: NodeConfiguration;
     /**
      * @deprecated
      * readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
      */
-    readReplicaNodes: Node[];
-    nearestNode?: Node;
+    readReplicaNodes?: NodeConfiguration[];
+    nearestNode?: NodeConfiguration;
     connectionTimeoutSeconds?: number;
     timeoutSeconds?: number;
     healthcheckIntervalSeconds?: number;
@@ -34,8 +32,8 @@ export interface ConfigurationOptions {
     logger?: any;
 }
 export default class Configuration {
-    readonly nodes: Node[];
-    readonly nearestNode: Node;
+    readonly nodes: NodeConfiguration[];
+    readonly nearestNode: NodeConfiguration;
     readonly connectionTimeoutSeconds: number;
     readonly healthcheckIntervalSeconds: number;
     readonly numRetries: number;
