@@ -9,11 +9,16 @@ import {
   ServerError
 } from './Errors'
 import TypesenseError from './Errors/TypesenseError'
-import Configuration, { Node } from './Configuration'
+import Configuration, { NodeConfiguration } from './Configuration'
 
 const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 const HEALTHY = true
 const UNHEALTHY = false
+
+interface Node extends NodeConfiguration {
+  isHealthy: boolean
+  index: string | number
+}
 
 export default class ApiCall {
   private readonly apiKey: string
