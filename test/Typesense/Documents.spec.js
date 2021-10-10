@@ -253,8 +253,7 @@ describe('Documents', function () {
         return documents.search(searchParameters)
       })
       .slice(0, 20)
-    console.log(searches.length)
-    console.log(searchParameters.length)
+
     await Promise.all(searches)
 
     // Existing entries should already be in cache.
