@@ -15,15 +15,15 @@ const APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY'
 const HEALTHY = true
 const UNHEALTHY = false
 
-interface NodeInstance extends NodeConfiguration {
+interface Node extends NodeConfiguration {
   isHealthy: boolean
   index: string | number
 }
 
 export default class ApiCall {
   private readonly apiKey: string
-  private readonly nodes: NodeInstance[]
-  private readonly nearestNode: NodeInstance
+  private readonly nodes: Node[]
+  private readonly nearestNode: Node
   private readonly connectionTimeoutSeconds: number
   private readonly healthcheckIntervalSeconds: number
   private readonly retryIntervalSeconds: number
@@ -209,7 +209,7 @@ export default class ApiCall {
   // Attempts to find the next healthy node, looping through the list of nodes once.
   //   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
   //     so we can try the request for good measure, in case that node has become healthy since
-  getNextNode(requestNumber: number = 0): NodeInstance {
+  getNextNode(requestNumber: number = 0): Node {
     // Check if nearestNode is set and is healthy, if so return it
     if (this.nearestNode != null) {
       this.logger.debug(
@@ -230,7 +230,7 @@ export default class ApiCall {
         .map((node) => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
         .join(' || ')}`
     )
-    let candidateNode: NodeInstance
+    let candidateNode: Node
     for (let i = 0; i <= this.nodes.length; i++) {
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.nodes.length
       candidateNode = this.nodes[this.currentNodeIndex]

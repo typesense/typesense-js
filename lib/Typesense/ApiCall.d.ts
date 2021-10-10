@@ -1,6 +1,10 @@
 import { AxiosResponse, Method } from 'axios';
 import TypesenseError from './Errors/TypesenseError';
-import Configuration, { Node } from './Configuration';
+import Configuration, { NodeConfiguration } from './Configuration';
+interface Node extends NodeConfiguration {
+    isHealthy: boolean;
+    index: string | number;
+}
 export default class ApiCall {
     private configuration;
     private readonly apiKey;
@@ -36,3 +40,4 @@ export default class ApiCall {
     timer(seconds: any): Promise<void>;
     customErrorForResponse(response: AxiosResponse, messageFromServer: string): TypesenseError;
 }
+export {};
