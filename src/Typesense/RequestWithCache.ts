@@ -12,9 +12,9 @@ export default class RequestWithCache {
     cacheOptions: CacheOptions
   ): Promise<T> {
     const { cacheResponseForSeconds = defaultCacheResponseForSeconds, maxSize = defaultMaxSize } = cacheOptions
-    const isCacheEnabled = cacheResponseForSeconds <= 0 || maxSize <= 0
+    const isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0
 
-    if (isCacheEnabled) {
+    if (isCacheDisabled) {
       return requestFunction.call(requestContext, ...requestFunctionArguments)
     }
 
