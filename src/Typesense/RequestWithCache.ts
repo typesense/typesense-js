@@ -1,5 +1,5 @@
 const defaultCacheResponseForSeconds = 2 * 60
-const defaultMaxSize = 20
+const defaultMaxSize = 100
 
 export default class RequestWithCache {
   private responseCache: Map<string, any> = new Map<string, any>()

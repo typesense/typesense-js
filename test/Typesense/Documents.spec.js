@@ -202,7 +202,7 @@ describe('Documents', function () {
     })
     let searchParameters = []
 
-    for (let i = 0; i <= 20; i++) {
+    for (let i = 0; i <= 100; i++) {
       searchParameters.push(searchFactory())
     }
 
@@ -252,7 +252,7 @@ describe('Documents', function () {
       .map((searchParameters) => {
         return documents.search(searchParameters)
       })
-      .slice(0, 20)
+      .slice(0, 100)
 
     await Promise.all(searches)
 
@@ -261,13 +261,13 @@ describe('Documents', function () {
     await documents.search(searchParameters[18])
 
     // making a new entry should evict the oldest entry
-    await documents.search(searchParameters[20])
+    await documents.search(searchParameters[100])
 
     // get 0 again because it was the oldest
     await documents.search(searchParameters[0])
 
     const numberOfRequest = mockAxios.history['get'].length
-    expect(numberOfRequest).to.equal(22)
+    expect(numberOfRequest).to.equal(102)
   })
 
   describe('.create', function () {
