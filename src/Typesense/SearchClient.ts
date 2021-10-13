@@ -2,12 +2,13 @@ import Configuration, { ConfigurationOptions } from './Configuration'
 import ApiCall from './ApiCall'
 import Collection from './Collection'
 import MultiSearch from './MultiSearch'
+import { DocumentSchema } from './Documents';
 
-export default class SearchClient {
+export default class SearchClient<TDocumentSchema extends DocumentSchema = {}> {
   private readonly configuration: Configuration
   private readonly apiCall: ApiCall
   private readonly multiSearch: MultiSearch
-  private readonly individualCollections: Record<string, any>
+  private readonly individualCollections: Record<string, Collection<TDocumentSchema>>
 
   constructor(options: ConfigurationOptions) {
     // In v0.20.0 we restrict query params to 2000 in length
@@ -23,7 +24,7 @@ export default class SearchClient {
     this.individualCollections = {}
   }
 
-  collections(collectionName: string): Collection {
+  collections(collectionName: string): Collection<TDocumentSchema> {
     // Nick: changed to less strict check, as null or an empty string would fail this statement
     if (!collectionName) {
       throw new Error(
@@ -32,7 +33,7 @@ export default class SearchClient {
       )
     } else {
       if (this.individualCollections[collectionName] === undefined) {
-        this.individualCollections[collectionName] = new Collection(collectionName, this.apiCall, this.configuration)
+        this.individualCollections[collectionName] = new Collection<TDocumentSchema>(collectionName, this.apiCall, this.configuration)
       }
       return this.individualCollections[collectionName]
     }
