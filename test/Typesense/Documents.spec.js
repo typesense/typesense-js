@@ -195,6 +195,81 @@ describe('Documents', function () {
     })
   })
 
+  it('should evict least used cache entries', async function () {
+    const searchFactory = () => ({
+      q: Math.random().toString(),
+      query_by: 'company_name'
+    })
+    let searchParameters = []
+
+    for (let i = 0; i <= 100; i++) {
+      searchParameters.push(searchFactory())
+    }
+
+    let stubbedSearchResults = [
+      {
+        facet_counts: [],
+        found: 0,
+        search_time_ms: 0,
+        page: 0,
+        hits: [
+          {
+            _highlight: {
+              company_name: '<mark>Stark</mark> Industries'
+            },
+            document: {
+              id: '124',
+              company_name: 'Stark Industries',
+              num_employees: 5215,
+              country: 'USA'
+            }
+          }
+        ]
+      }
+    ]
+
+    searchParameters.forEach((_, i) => {
+      mockAxios
+        .onGet(
+          apiCall.uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0]),
+          {
+            params: searchParameters[i]
+          },
+          {
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          }
+        )
+        .reply(200, JSON.stringify(stubbedSearchResults[i]), { 'content-type': 'application/json' })
+    })
+
+    let currentTime = Date.now()
+    timekeeper.freeze(currentTime)
+
+    // Fill the cache
+    const searches = searchParameters
+      .map((searchParameters) => {
+        return documents.search(searchParameters)
+      })
+      .slice(0, 100)
+
+    await Promise.all(searches)
+
+    // Existing entries should already be in cache.
+    await documents.search(searchParameters[19])
+    await documents.search(searchParameters[18])
+
+    // making a new entry should evict the oldest entry
+    await documents.search(searchParameters[100])
+
+    // get 0 again because it was the oldest
+    await documents.search(searchParameters[0])
+
+    const numberOfRequest = mockAxios.history['get'].length
+    expect(numberOfRequest).to.equal(102)
+  })
+
   describe('.create', function () {
     it('creates the document', function (done) {
       mockAxios
