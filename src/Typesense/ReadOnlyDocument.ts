@@ -1,20 +1,12 @@
+import Documents, { DocumentSchema } from './Documents'
 import ApiCall from './ApiCall'
 import Collections from './Collections'
-import Documents, { DocumentSchema, DocumentWriteParameters } from './Documents'
 
-export class Document<T extends DocumentSchema = {}> {
+export class ReadOnlyDocument<T extends DocumentSchema = {}> {
   constructor(private collectionName: string, private documentId: string, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<T> {
     return await this.apiCall.get<T>(this.endpointPath())
-  }
-
-  async delete(): Promise<T> {
-    return await this.apiCall.delete<T>(this.endpointPath())
-  }
-
-  async update(partialDocument: Partial<T>, options: DocumentWriteParameters = {}): Promise<T> {
-    return await this.apiCall.patch<T>(this.endpointPath(), partialDocument, options)
   }
 
   private endpointPath(): string {

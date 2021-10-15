@@ -1,8 +1,7 @@
 import ApiCall from './ApiCall'
-import Collections from './Collections'
 import Configuration from './Configuration'
-import RequestWithCache from './RequestWithCache'
 import { ImportError } from './Errors'
+import { SearchOnlyDocuments } from './SearchOnlyDocuments'
 
 // Todo: use generic to extract filter_by values
 export interface DeleteQuery {
@@ -17,12 +16,14 @@ export interface DeleteResponse {
 interface ImportResponseSuccess {
   success: true
 }
+
 export interface ImportResponseFail {
   success: false
   error: string
   document: DocumentSchema
   code: number
 }
+
 export type ImportResponse = ImportResponseSuccess | ImportResponseFail
 
 export interface DocumentSchema extends Record<string, any> {}
@@ -119,13 +120,30 @@ export interface DocumentsExportParameters {
   exclude_fields?: string
 }
 
-const RESOURCEPATH = '/documents'
+export interface SearchableDocuments<T> {
+  search(searchParameters: SearchParams<T>, options: SearchOptions): Promise<SearchResponse<T>>
+}
 
-export default class Documents<T extends DocumentSchema = {}> {
-  private requestWithCache: RequestWithCache
+export interface WriteableDocuments<T> {
+  create(document: T, options: DocumentWriteParameters): Promise<T>
+  upsert(document: T, options: DocumentWriteParameters): Promise<T>
+  update(document: T, options: DocumentWriteParameters): Promise<T>
+  delete(idOrQuery: string | DeleteQuery): Promise<DeleteResponse> | Promise<T>
+  import(documents: T[] | string, options: DocumentWriteParameters): Promise<string | ImportResponse[]>
+  export(options: DocumentsExportParameters): Promise<string>
+}
 
-  constructor(private collectionName: string, private apiCall: ApiCall, private configuration: Configuration) {
-    this.requestWithCache = new RequestWithCache()
+export interface SearchOptions {
+  cacheSearchResultsForSeconds?: number
+  abortSignal?: AbortSignal
+}
+
+export default class Documents<T extends DocumentSchema = {}>
+  extends SearchOnlyDocuments<T>
+  implements WriteableDocuments<T>
+{
+  constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration) {
+    super(collectionName, apiCall, configuration)
   }
 
   async create(document: T, options: DocumentWriteParameters = {}): Promise<T> {
@@ -205,38 +223,5 @@ export default class Documents<T extends DocumentSchema = {}> {
    */
   async export(options: DocumentsExportParameters = {}): Promise<string> {
     return await this.apiCall.get<string>(this.endpointPath('export'), options)
-  }
-
-  async search(
-    searchParameters: SearchParams<T>,
-    {
-      cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds,
-      abortSignal = null
-    }: { cacheSearchResultsForSeconds?: number; abortSignal?: AbortSignal } = {}
-  ): Promise<SearchResponse<T>> {
-    let additionalQueryParams = {}
-    if (this.configuration.useServerSideSearchCache === true) {
-      additionalQueryParams['usecache'] = true
-    }
-    const queryParams = Object.assign({}, searchParameters, additionalQueryParams)
-
-    return await this.requestWithCache.perform(
-      this.apiCall,
-      this.apiCall.get,
-      [this.endpointPath('search'), queryParams, { abortSignal }],
-      {
-        cacheResponseForSeconds: cacheSearchResultsForSeconds
-      }
-    )
-  }
-
-  private endpointPath(operation?: string) {
-    return `${Collections.RESOURCEPATH}/${this.collectionName}${Documents.RESOURCEPATH}${
-      operation === undefined ? '' : '/' + operation
-    }`
-  }
-
-  static get RESOURCEPATH() {
-    return RESOURCEPATH
   }
 }

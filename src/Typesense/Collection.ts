@@ -1,12 +1,12 @@
 import ApiCall from './ApiCall'
 import Collections, { CollectionCreateSchema } from './Collections'
 import Documents, { DocumentSchema } from './Documents'
-import Document from './Document'
 import { ObjectNotFound } from './Errors'
 import Overrides from './Overrides'
 import Override from './Override'
 import Synonyms from './Synonyms'
 import Synonym from './Synonym'
+import { Document } from './Document'
 
 export type FieldType =
   | 'string'
