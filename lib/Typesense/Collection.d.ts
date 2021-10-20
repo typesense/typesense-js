@@ -1,11 +1,11 @@
 import ApiCall from './ApiCall';
 import { CollectionCreateSchema } from './Collections';
 import Documents, { DocumentSchema } from './Documents';
-import Document from './Document';
 import Overrides from './Overrides';
 import Override from './Override';
 import Synonyms from './Synonyms';
 import Synonym from './Synonym';
+import { Document } from './Document';
 export declare type FieldType = 'string' | 'int32' | 'int64' | 'float' | 'bool' | 'geopoint' | 'string[]' | 'int32[]' | 'int64[]' | 'float[]' | 'bool[]' | 'auto' | 'string*';
 export interface CollectionFieldSchema {
     name: string;

@@ -1,5 +1,6 @@
 import ApiCall from './ApiCall';
 import Configuration from './Configuration';
+import { SearchOnlyDocuments } from './SearchOnlyDocuments';
 export interface DeleteQuery {
     filter_by: string;
     batch_size?: number;
@@ -103,11 +104,22 @@ export interface DocumentsExportParameters {
     include_fields?: string;
     exclude_fields?: string;
 }
-export default class Documents<T extends DocumentSchema = {}> {
-    private collectionName;
-    private apiCall;
-    private configuration;
-    private requestWithCache;
+export interface SearchableDocuments<T> {
+    search(searchParameters: SearchParams<T>, options: SearchOptions): Promise<SearchResponse<T>>;
+}
+export interface WriteableDocuments<T> {
+    create(document: T, options: DocumentWriteParameters): Promise<T>;
+    upsert(document: T, options: DocumentWriteParameters): Promise<T>;
+    update(document: T, options: DocumentWriteParameters): Promise<T>;
+    delete(idOrQuery: string | DeleteQuery): Promise<DeleteResponse> | Promise<T>;
+    import(documents: T[] | string, options: DocumentWriteParameters): Promise<string | ImportResponse[]>;
+    export(options: DocumentsExportParameters): Promise<string>;
+}
+export interface SearchOptions {
+    cacheSearchResultsForSeconds?: number;
+    abortSignal?: AbortSignal;
+}
+export default class Documents<T extends DocumentSchema = {}> extends SearchOnlyDocuments<T> implements WriteableDocuments<T> {
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
     create(document: T, options?: DocumentWriteParameters): Promise<T>;
     upsert(document: T, options?: DocumentWriteParameters): Promise<T>;
@@ -127,11 +139,5 @@ export default class Documents<T extends DocumentSchema = {}> {
      * Returns a JSONL string for all the documents in this collection
      */
     export(options?: DocumentsExportParameters): Promise<string>;
-    search(searchParameters: SearchParams<T>, { cacheSearchResultsForSeconds, abortSignal }?: {
-        cacheSearchResultsForSeconds?: number;
-        abortSignal?: AbortSignal;
-    }): Promise<SearchResponse<T>>;
-    private endpointPath;
-    static get RESOURCEPATH(): string;
 }
 export {};

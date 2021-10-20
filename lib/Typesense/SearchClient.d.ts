@@ -1,10 +1,12 @@
 import { ConfigurationOptions } from './Configuration';
-import Collection from './Collection';
+import MultiSearch from './MultiSearch';
+import { DocumentSchema } from './Documents';
+import { SearchOnlyCollection } from './SearchOnlyCollection';
 export default class SearchClient {
+    readonly multiSearch: MultiSearch;
     private readonly configuration;
     private readonly apiCall;
-    private readonly multiSearch;
     private readonly individualCollections;
     constructor(options: ConfigurationOptions);
-    collections(collectionName: string): Collection;
+    collections<TDocumentSchema extends DocumentSchema = {}>(collectionName: string): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection;
 }

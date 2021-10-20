@@ -1,6 +1,6 @@
 import ApiCall from './ApiCall';
 import { DocumentSchema, DocumentWriteParameters } from './Documents';
-export default class Document<T extends DocumentSchema = {}> {
+export declare class Document<T extends DocumentSchema = {}> {
     private collectionName;
     private documentId;
     private apiCall;
