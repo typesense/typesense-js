@@ -2,7 +2,7 @@ import ApiCall from './ApiCall'
 import Collections from './Collections'
 import Documents, { DocumentSchema, DocumentWriteParameters } from './Documents'
 
-export default class Document<T extends DocumentSchema = {}> {
+export class Document<T extends DocumentSchema = {}> {
   constructor(private collectionName: string, private documentId: string, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<T> {
