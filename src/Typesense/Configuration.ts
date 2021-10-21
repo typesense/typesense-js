@@ -1,4 +1,4 @@
-import logger from 'loglevel'
+import * as logger from 'loglevel'
 import { MissingConfigurationError } from './Errors'
 
 export interface NodeConfiguration {
@@ -32,7 +32,7 @@ export interface ConfigurationOptions {
   useServerSideSearchCache?: boolean
   cacheSearchResultsForSeconds?: number
 
-  logLevel?: logger.LogLevel
+  logLevel?: logger.LogLevelDesc
   logger?: any //todo
 }
 
