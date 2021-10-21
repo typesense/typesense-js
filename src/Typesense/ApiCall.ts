@@ -29,6 +29,7 @@ export default class ApiCall {
   private readonly retryIntervalSeconds: number
   private readonly sendApiKeyAsQueryParam: boolean
   private readonly numRetriesPerRequest: number
+  private readonly additionalUserHeaders: Record<string, string>
 
   private readonly logger: any
   private currentNodeIndex: number
@@ -42,6 +43,7 @@ export default class ApiCall {
     this.numRetriesPerRequest = this.configuration.numRetries
     this.retryIntervalSeconds = this.configuration.retryIntervalSeconds
     this.sendApiKeyAsQueryParam = this.configuration.sendApiKeyAsQueryParam
+    this.additionalUserHeaders = this.configuration.additionalHeaders
 
     this.logger = this.configuration.logger
 
@@ -112,7 +114,7 @@ export default class ApiCall {
         let requestOptions: AxiosRequestConfig = {
           method: requestType,
           url: this.uriFor(endpoint, node),
-          headers: Object.assign({}, this.defaultHeaders(), additionalHeaders),
+          headers: Object.assign({}, this.defaultHeaders(), additionalHeaders, this.additionalUserHeaders),
           timeout: this.connectionTimeoutSeconds * 1000,
           maxContentLength: Infinity,
           maxBodyLength: Infinity,

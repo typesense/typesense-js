@@ -15,6 +15,7 @@ export default class ApiCall {
     private readonly retryIntervalSeconds;
     private readonly sendApiKeyAsQueryParam;
     private readonly numRetriesPerRequest;
+    private readonly additionalUserHeaders;
     private readonly logger;
     private currentNodeIndex;
     constructor(configuration: Configuration);

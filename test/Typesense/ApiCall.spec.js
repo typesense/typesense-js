@@ -303,4 +303,35 @@ describe('ApiCall', function () {
       done()
     })
   })
+
+  describe('Custom Headers', function () {
+    it('passes on additional user-provided headers in the request', async function () {
+      const client = new TypesenseClient({
+        nodes: [
+          {
+            url: 'https://node0/path'
+          }
+        ],
+        apiKey: 'abcd',
+        additionalHeaders: {
+          'x-header-name': 'value'
+        }
+      })
+
+      this.mockAxios = new MockAxiosAdapter(axios)
+      const apiCall = new ApiCall(client.configuration)
+
+      this.mockAxios
+        .onGet('https://node0/path/collections', null, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': client.configuration.apiKey,
+          'x-header-name': 'value'
+        })
+        .reply(200, JSON.stringify({}), { 'content-type': 'application/json' })
+
+      // Will error out if request doesn't match the stub
+      return apiCall.get('/collections', {})
+    })
+  })
 })

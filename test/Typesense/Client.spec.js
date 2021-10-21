@@ -30,4 +30,21 @@ describe('Client', function () {
     expect(typesense.configuration.apiKey).to.eql('abcd')
     done()
   })
+  it('should allow custom user headers to be passed in', function (done) {
+    typesense = new TypesenseClient({
+      nodes: [
+        {
+          host: 'node0',
+          port: '8108',
+          protocol: 'http'
+        }
+      ],
+      apiKey: 'abcd',
+      additionalHeaders: {
+        'CF-Access-Client-Id': 'abcd'
+      }
+    })
+    expect(typesense.configuration.additionalHeaders['CF-Access-Client-Id']).to.eql('abcd')
+    done()
+  })
 })

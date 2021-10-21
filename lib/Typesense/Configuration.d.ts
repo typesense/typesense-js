@@ -1,4 +1,4 @@
-import logger from 'loglevel';
+import * as logger from 'loglevel';
 export interface NodeConfiguration {
     host: string;
     port: number;
@@ -28,7 +28,8 @@ export interface ConfigurationOptions {
     sendApiKeyAsQueryParam?: boolean;
     useServerSideSearchCache?: boolean;
     cacheSearchResultsForSeconds?: number;
-    logLevel?: logger.LogLevel;
+    additionalHeaders?: Record<string, string>;
+    logLevel?: logger.LogLevelDesc;
     logger?: any;
 }
 export default class Configuration {
@@ -44,6 +45,7 @@ export default class Configuration {
     readonly useServerSideSearchCache: boolean;
     readonly logger: any;
     readonly logLevel: any;
+    readonly additionalHeaders: Record<string, string>;
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;

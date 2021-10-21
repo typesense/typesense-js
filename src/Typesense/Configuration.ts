@@ -31,6 +31,7 @@ export interface ConfigurationOptions {
   sendApiKeyAsQueryParam?: boolean
   useServerSideSearchCache?: boolean
   cacheSearchResultsForSeconds?: number
+  additionalHeaders?: Record<string, string>
 
   logLevel?: logger.LogLevelDesc
   logger?: any //todo
@@ -49,6 +50,7 @@ export default class Configuration {
   readonly useServerSideSearchCache: boolean
   readonly logger: any
   readonly logLevel: any
+  readonly additionalHeaders: Record<string, string>
 
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || []
@@ -73,6 +75,8 @@ export default class Configuration {
     this.logger = options.logger || logger
     this.logLevel = options.logLevel || 'warn'
     this.logger.setLevel(this.logLevel)
+
+    this.additionalHeaders = options.additionalHeaders
 
     this.showDeprecationWarnings(options)
     this.validate()
