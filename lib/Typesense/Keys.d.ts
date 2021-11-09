@@ -4,11 +4,14 @@ import { SearchParams } from './Documents';
 export interface KeysRetrieveSchema {
     keys: KeySchema[];
 }
+export interface GenerateScopedSearchKeyParams extends SearchParams<any> {
+    expires_at?: number;
+}
 export default class Keys {
     private apiCall;
     constructor(apiCall: ApiCall);
     create(params: KeyCreateSchema): Promise<KeySchema>;
     retrieve(): Promise<KeysRetrieveSchema>;
-    generateScopedSearchKey(searchKey: string, parameters: SearchParams<any>): string;
+    generateScopedSearchKey(searchKey: string, parameters: GenerateScopedSearchKeyParams): string;
     static get RESOURCEPATH(): string;
 }

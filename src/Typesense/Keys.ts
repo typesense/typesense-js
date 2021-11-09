@@ -9,6 +9,10 @@ export interface KeysRetrieveSchema {
   keys: KeySchema[]
 }
 
+export interface GenerateScopedSearchKeyParams extends SearchParams<any> {
+  expires_at?: number
+}
+
 export default class Keys {
   constructor(private apiCall: ApiCall) {
     this.apiCall = apiCall
@@ -22,7 +26,7 @@ export default class Keys {
     return this.apiCall.get<KeysRetrieveSchema>(RESOURCEPATH)
   }
 
-  generateScopedSearchKey(searchKey: string, parameters: SearchParams<any>): string {
+  generateScopedSearchKey(searchKey: string, parameters: GenerateScopedSearchKeyParams): string {
     // Note: only a key generated with the `documents:search` action will be
     // accepted by the server, when usined with the search endpoint.
     const paramsJSON = JSON.stringify(parameters)
