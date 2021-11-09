@@ -9,7 +9,7 @@ export interface KeysRetrieveSchema {
   keys: KeySchema[]
 }
 
-export interface GenerateScopedSearchKeyParams extends SearchParams<any> {
+export interface GenerateScopedSearchKeyParams extends Partial<SearchParams<any>> {
   expires_at?: number
 }
 

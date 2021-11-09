@@ -1962,7 +1962,27 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":31}],30:[function(require,module,exports){
+},{"./createError":31}],31:[function(require,module,exports){
+'use strict';
+
+var enhanceError = require('./enhanceError');
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+},{"./enhanceError":33}],30:[function(require,module,exports){
 'use strict';
 
 var isAbsoluteURL = require('../helpers/isAbsoluteURL');
@@ -1984,27 +2004,7 @@ module.exports = function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 };
 
-},{"../helpers/combineURLs":40,"../helpers/isAbsoluteURL":42}],31:[function(require,module,exports){
-'use strict';
-
-var enhanceError = require('./enhanceError');
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-},{"./enhanceError":33}],38:[function(require,module,exports){
+},{"../helpers/combineURLs":40,"../helpers/isAbsoluteURL":42}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -2038,26 +2038,6 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],43:[function(require,module,exports){
-'use strict';
-
-/**
- * Determines whether the payload is an error thrown by Axios
- *
- * @param {*} payload The value to test
- * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
- */
-module.exports = function isAxiosError(payload) {
-  return (typeof payload === 'object') && (payload.isAxiosError === true);
-};
-
-},{}],27:[function(require,module,exports){
-'use strict';
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
 },{}],47:[function(require,module,exports){
 'use strict';
 
@@ -2085,6 +2065,26 @@ module.exports = function spread(callback) {
   return function wrap(arr) {
     return callback.apply(null, arr);
   };
+};
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+},{}],43:[function(require,module,exports){
+'use strict';
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+module.exports = function isAxiosError(payload) {
+  return (typeof payload === 'object') && (payload.isAxiosError === true);
 };
 
 },{}],34:[function(require,module,exports){
@@ -7261,7 +7261,7 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments_) {
 
 exports["default"] = Documents;
 
-},{"./Errors":77,"./SearchOnlyDocuments":89,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/getPrototypeOf":8,"@babel/runtime/helpers/inherits":9,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/helpers/possibleConstructorReturn":15,"@babel/runtime/regenerator":21}],91:[function(require,module,exports){
+},{"./Errors":77,"./SearchOnlyDocuments":89,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/getPrototypeOf":8,"@babel/runtime/helpers/inherits":9,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/helpers/possibleConstructorReturn":15,"@babel/runtime/regenerator":21}],84:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7286,25 +7286,26 @@ Object.defineProperty(exports, "__esModule", {
 
 var Collections_1 = __importDefault(require("./Collections"));
 
-var RESOURCEPATH = '/synonyms';
+var Overrides_1 = __importDefault(require("./Overrides"));
 
-var Synonyms = /*#__PURE__*/function () {
-  function Synonyms(collectionName, apiCall) {
-    (0, _classCallCheck2["default"])(this, Synonyms);
+var Override = /*#__PURE__*/function () {
+  function Override(collectionName, overrideId, apiCall) {
+    (0, _classCallCheck2["default"])(this, Override);
     this.collectionName = collectionName;
+    this.overrideId = overrideId;
     this.apiCall = apiCall;
   }
 
-  (0, _createClass2["default"])(Synonyms, [{
-    key: "upsert",
+  (0, _createClass2["default"])(Override, [{
+    key: "retrieve",
     value: function () {
-      var _upsert = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(synonymId, params) {
+      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return this.apiCall.put(this.endpointPath(synonymId), params);
+                return this.apiCall.get(this.endpointPath());
 
               case 2:
                 return _context.abrupt("return", _context.sent);
@@ -7317,22 +7318,22 @@ var Synonyms = /*#__PURE__*/function () {
         }, _callee, this);
       }));
 
-      function upsert(_x, _x2) {
-        return _upsert.apply(this, arguments);
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
       }
 
-      return upsert;
+      return retrieve;
     }()
   }, {
-    key: "retrieve",
+    key: "delete",
     value: function () {
-      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+      var _delete2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
         return _regenerator["default"].wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return this.apiCall.get(this.endpointPath());
+                return this.apiCall["delete"](this.endpointPath());
 
               case 2:
                 return _context2.abrupt("return", _context2.sent);
@@ -7345,29 +7346,24 @@ var Synonyms = /*#__PURE__*/function () {
         }, _callee2, this);
       }));
 
-      function retrieve() {
-        return _retrieve.apply(this, arguments);
+      function _delete() {
+        return _delete2.apply(this, arguments);
       }
 
-      return retrieve;
+      return _delete;
     }()
   }, {
     key: "endpointPath",
-    value: function endpointPath(operation) {
-      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
-    }
-  }], [{
-    key: "RESOURCEPATH",
-    get: function get() {
-      return RESOURCEPATH;
+    value: function endpointPath() {
+      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Overrides_1["default"].RESOURCEPATH, "/").concat(this.overrideId);
     }
   }]);
-  return Synonyms;
+  return Override;
 }();
 
-exports["default"] = Synonyms;
+exports["default"] = Override;
 
-},{"./Collections":62,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],85:[function(require,module,exports){
+},{"./Collections":62,"./Overrides":85,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],85:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7473,7 +7469,7 @@ var Overrides = /*#__PURE__*/function () {
 
 exports["default"] = Overrides;
 
-},{"./Collections":62,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],84:[function(require,module,exports){
+},{"./Collections":62,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],91:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7498,17 +7494,123 @@ Object.defineProperty(exports, "__esModule", {
 
 var Collections_1 = __importDefault(require("./Collections"));
 
-var Overrides_1 = __importDefault(require("./Overrides"));
+var RESOURCEPATH = '/synonyms';
 
-var Override = /*#__PURE__*/function () {
-  function Override(collectionName, overrideId, apiCall) {
-    (0, _classCallCheck2["default"])(this, Override);
+var Synonyms = /*#__PURE__*/function () {
+  function Synonyms(collectionName, apiCall) {
+    (0, _classCallCheck2["default"])(this, Synonyms);
     this.collectionName = collectionName;
-    this.overrideId = overrideId;
     this.apiCall = apiCall;
   }
 
-  (0, _createClass2["default"])(Override, [{
+  (0, _createClass2["default"])(Synonyms, [{
+    key: "upsert",
+    value: function () {
+      var _upsert = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(synonymId, params) {
+        return _regenerator["default"].wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.apiCall.put(this.endpointPath(synonymId), params);
+
+              case 2:
+                return _context.abrupt("return", _context.sent);
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function upsert(_x, _x2) {
+        return _upsert.apply(this, arguments);
+      }
+
+      return upsert;
+    }()
+  }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return this.apiCall.get(this.endpointPath());
+
+              case 2:
+                return _context2.abrupt("return", _context2.sent);
+
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+
+      return retrieve;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath(operation) {
+      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Synonyms;
+}();
+
+exports["default"] = Synonyms;
+
+},{"./Collections":62,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],90:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Collections_1 = __importDefault(require("./Collections"));
+
+var Synonyms_1 = __importDefault(require("./Synonyms"));
+
+var Synonym = /*#__PURE__*/function () {
+  function Synonym(collectionName, synonymId, apiCall) {
+    (0, _classCallCheck2["default"])(this, Synonym);
+    this.collectionName = collectionName;
+    this.synonymId = synonymId;
+    this.apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Synonym, [{
     key: "retrieve",
     value: function () {
       var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
@@ -7567,15 +7669,15 @@ var Override = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Overrides_1["default"].RESOURCEPATH, "/").concat(this.overrideId);
+      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms_1["default"].RESOURCEPATH, "/").concat(this.synonymId);
     }
   }]);
-  return Override;
+  return Synonym;
 }();
 
-exports["default"] = Override;
+exports["default"] = Synonym;
 
-},{"./Collections":62,"./Overrides":85,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],65:[function(require,module,exports){
+},{"./Collections":62,"./Synonyms":91,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],65:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7709,109 +7811,7 @@ var Document = /*#__PURE__*/function () {
 
 exports.Document = Document;
 
-},{"./Collections":62,"./Documents":66,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],90:[function(require,module,exports){
-"use strict";
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
-
-var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var Collections_1 = __importDefault(require("./Collections"));
-
-var Synonyms_1 = __importDefault(require("./Synonyms"));
-
-var Synonym = /*#__PURE__*/function () {
-  function Synonym(collectionName, synonymId, apiCall) {
-    (0, _classCallCheck2["default"])(this, Synonym);
-    this.collectionName = collectionName;
-    this.synonymId = synonymId;
-    this.apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Synonym, [{
-    key: "retrieve",
-    value: function () {
-      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
-        return _regenerator["default"].wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return this.apiCall.get(this.endpointPath());
-
-              case 2:
-                return _context.abrupt("return", _context.sent);
-
-              case 3:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-
-      function retrieve() {
-        return _retrieve.apply(this, arguments);
-      }
-
-      return retrieve;
-    }()
-  }, {
-    key: "delete",
-    value: function () {
-      var _delete2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
-        return _regenerator["default"].wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.next = 2;
-                return this.apiCall["delete"](this.endpointPath());
-
-              case 2:
-                return _context2.abrupt("return", _context2.sent);
-
-              case 3:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2, this);
-      }));
-
-      function _delete() {
-        return _delete2.apply(this, arguments);
-      }
-
-      return _delete;
-    }()
-  }, {
-    key: "endpointPath",
-    value: function endpointPath() {
-      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms_1["default"].RESOURCEPATH, "/").concat(this.synonymId);
-    }
-  }]);
-  return Synonym;
-}();
-
-exports["default"] = Synonym;
-
-},{"./Collections":62,"./Synonyms":91,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],89:[function(require,module,exports){
+},{"./Collections":62,"./Documents":66,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],89:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
