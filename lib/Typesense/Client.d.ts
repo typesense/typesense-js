@@ -31,5 +31,5 @@ export default class Client {
     aliases(): Aliases;
     aliases(aliasName: string): Alias;
     keys(): Keys;
-    keys(id: string): Key;
+    keys(id: number): Key;
 }

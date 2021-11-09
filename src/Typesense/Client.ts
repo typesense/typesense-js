@@ -25,7 +25,7 @@ export default class Client {
   private readonly _aliases: Aliases
   private readonly individualAliases: Record<string, Alias>
   private readonly _keys: Keys
-  private readonly individualKeys: Record<string, Key>
+  private readonly individualKeys: Record<number, Key>
 
   constructor(options: ConfigurationOptions) {
     this.configuration = new Configuration(options)
@@ -70,8 +70,8 @@ export default class Client {
   }
 
   keys(): Keys
-  keys(id: string): Key
-  keys(id?: string): Keys | Key {
+  keys(id: number): Key
+  keys(id?: number): Keys | Key {
     if (id === undefined) {
       return this._keys
     } else {

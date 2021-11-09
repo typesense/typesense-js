@@ -18,7 +18,7 @@ export interface KeySchema extends KeyCreateSchema {
 }
 
 export default class Key {
-  constructor(private id: string, private apiCall: ApiCall) {}
+  constructor(private id: number, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<KeySchema> {
     return await this.apiCall.get<KeySchema>(this.endpointPath())

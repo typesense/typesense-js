@@ -15,7 +15,7 @@ export interface KeySchema extends KeyCreateSchema {
 export default class Key {
     private id;
     private apiCall;
-    constructor(id: string, apiCall: ApiCall);
+    constructor(id: number, apiCall: ApiCall);
     retrieve(): Promise<KeySchema>;
     delete(): Promise<KeyDeleteSchema>;
     private endpointPath;
