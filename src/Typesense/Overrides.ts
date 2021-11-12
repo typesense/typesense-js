@@ -15,7 +15,7 @@ export interface OverrideCreateSchema {
       position: number
     }
   ]
-  excludes?: [id: string]
+  excludes?: [{ id: string }]
 }
 
 export interface OverridesRetrieveSchema {
