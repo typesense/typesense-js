@@ -150,7 +150,11 @@ export default class ApiCall {
           requestOptions.params['x-typesense-api-key'] = this.apiKey
         }
 
-        if (bodyParameters && Object.keys(bodyParameters).length !== 0) {
+        if (
+          bodyParameters &&
+          ((typeof bodyParameters === 'string' && bodyParameters.length !== 0) ||
+            (typeof bodyParameters === 'object' && Object.keys(bodyParameters).length !== 0))
+        ) {
           requestOptions.data = bodyParameters
         }
 
