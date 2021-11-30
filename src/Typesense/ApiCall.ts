@@ -20,14 +20,6 @@ interface Node extends NodeConfiguration {
   index: string | number
 }
 
-interface PerformRequestOptions {
-  queryParameters?: any
-  bodyParameters?: any
-  additionalHeaders?: any
-  abortSignal?: any
-  responseType?: AxiosRequestConfig['responseType']
-}
-
 export default class ApiCall {
   private readonly apiKey: string
   private readonly nodes: Node[]
@@ -100,7 +92,13 @@ export default class ApiCall {
       additionalHeaders = {},
       abortSignal = null,
       responseType = null
-    }: PerformRequestOptions
+    }: {
+      queryParameters?: any
+      bodyParameters?: any
+      additionalHeaders?: any
+      abortSignal?: any
+      responseType?: AxiosRequestConfig['responseType']
+    }
   ): Promise<T> {
     this.configuration.validate()
 
