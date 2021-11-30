@@ -62,7 +62,10 @@ export default class ApiCall {
   get<T extends any>(
     endpoint: string,
     queryParameters: any = {},
-    { abortSignal, responseType }: { abortSignal?: any; responseType?: AxiosRequestConfig['responseType'] } = {}
+    {
+      abortSignal = null,
+      responseType = null
+    }: { abortSignal?: any; responseType?: AxiosRequestConfig['responseType'] } = {}
   ): Promise<T> {
     return this.performRequest<T>('get', endpoint, { queryParameters, abortSignal, responseType })
   }
