@@ -503,7 +503,7 @@ describe('Documents', function () {
     })
   })
 
-  describe('.exportStream', () => {
+  describe('.exportStream', function () {
     const tempDirectory = 'test-files'
     const tempFile = `${tempDirectory}/exportStreamData.jsonl`
     const directoryExists = (dir) =>
@@ -512,20 +512,20 @@ describe('Documents', function () {
         .then(() => true)
         .catch(() => false)
 
-    beforeEach(async () => {
+    beforeEach(async function () {
       if (!(await directoryExists(tempDirectory))) {
         await fs.promises.mkdir(tempDirectory)
       }
       await fs.promises.writeFile(tempFile, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
     })
 
-    afterEach(async () => {
+    afterEach(async function () {
       if (await directoryExists(tempDirectory)) {
         await fs.promises.rm(tempDirectory, { recursive: true })
       }
     })
 
-    it('exports a nodejs stream', async () => {
+    it('exports a nodejs stream', async function () {
       mockAxios
         .onGet(apiCall.uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]), undefined, {
           Accept: 'application/json, text/plain, */*',
