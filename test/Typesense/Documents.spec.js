@@ -1,3 +1,4 @@
+import fs from 'fs'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { Client as TypesenseClient } from '../../src/Typesense'
@@ -499,6 +500,55 @@ describe('Documents', function () {
       expect(returnData)
         .to.eventually.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
         .notify(done)
+    })
+  })
+
+  describe('.exportStream', function () {
+    const tempDirectory = 'test-files'
+    const tempFile = `${tempDirectory}/exportStreamData.jsonl`
+    const directoryExists = (dir) =>
+      fs.promises
+        .access(dir)
+        .then(() => true)
+        .catch(() => false)
+
+    beforeEach(async function () {
+      if (!(await directoryExists(tempDirectory))) {
+        await fs.promises.mkdir(tempDirectory)
+      }
+      await fs.promises.writeFile(tempFile, [JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
+    })
+
+    afterEach(async function () {
+      if (await directoryExists(tempDirectory)) {
+        await fs.promises.rm(tempDirectory, { recursive: true })
+      }
+    })
+
+    it('exports a nodejs stream', async function () {
+      mockAxios
+        .onGet(apiCall.uriFor('/collections/companies/documents/export', typesense.configuration.nodes[0]), undefined, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply((config) => {
+          expect(config.params.include_fields).to.equal('field1')
+          return [200, fs.createReadStream(tempFile)]
+        })
+
+      const stream = await documents.exportStream({ include_fields: 'field1' })
+      const getDataFromStream = () =>
+        new Promise((resolve, reject) => {
+          let finalData = ''
+          stream.on('data', (data) => {
+            finalData += data
+          })
+          stream.on('end', () => resolve(finalData))
+          stream.on('error', (err) => reject(err))
+        })
+      const data = await getDataFromStream()
+      expect(data).to.deep.equal([JSON.stringify(document), JSON.stringify(anotherDocument)].join('\n'))
     })
   })
 

@@ -1,3 +1,4 @@
+import type { ReadStream } from 'fs'
 import ApiCall from './ApiCall'
 import Configuration from './Configuration'
 import { ImportError } from './Errors'
@@ -222,6 +223,13 @@ export default class Documents<T extends DocumentSchema = {}>
    * Returns a JSONL string for all the documents in this collection
    */
   async export(options: DocumentsExportParameters = {}): Promise<string> {
-    return await this.apiCall.get<string>(this.endpointPath('export'), options)
+    return this.apiCall.get<string>(this.endpointPath('export'), options)
+  }
+
+  /**
+   * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+   */
+  async exportStream(options: DocumentsExportParameters = {}): Promise<ReadStream> {
+    return this.apiCall.get<ReadStream>(this.endpointPath('export'), options, { responseType: 'stream' })
   }
 }
