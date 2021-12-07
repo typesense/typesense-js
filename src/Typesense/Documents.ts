@@ -189,19 +189,8 @@ export default class Documents<T extends DocumentSchema = {}>
   async import(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>
   async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
-
     if (Array.isArray(documents)) {
-      try {
-        documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
-      } catch (error) {
-        if(RangeError instanceof error && error?.includes("Too many properties to enumerate")) {
-          throw new Error(`${error}
-          Hey There! It looks like you were passing too many keys into a single document. You are limited in the number of keys you can stringify from an Object depending on your specific JS environment: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object
-
-          Why don't you try to reduce the number of keys you want to pass in and try again?
-          `)
-        }
-      }
+      documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
     } else {
       documentsInJSONLFormat = documents
     }
