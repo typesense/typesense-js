@@ -521,7 +521,7 @@ describe('Documents', function () {
 
     afterEach(async function () {
       if (await directoryExists(tempDirectory)) {
-        await fs.promises.rm(tempDirectory, { recursive: true })
+        await fs.promises.rmdir(tempDirectory, { recursive: true })
       }
     })
 
