@@ -1,4 +1,4 @@
-import { AxiosResponse, Method } from 'axios';
+import { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import TypesenseError from './Errors/TypesenseError';
 import Configuration, { NodeConfiguration } from './Configuration';
 interface Node extends NodeConfiguration {
@@ -19,18 +19,20 @@ export default class ApiCall {
     private readonly logger;
     private currentNodeIndex;
     constructor(configuration: Configuration);
-    get<T extends any>(endpoint: string, queryParameters?: any, { abortSignal }?: {
+    get<T extends any>(endpoint: string, queryParameters?: any, { abortSignal, responseType }?: {
         abortSignal?: any;
+        responseType?: AxiosRequestConfig['responseType'];
     }): Promise<T>;
     delete<T extends any>(endpoint: string, queryParameters?: any): Promise<T>;
     post<T extends any>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any): Promise<T>;
     put<T extends any>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
     patch<T extends any>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
-    performRequest<T extends any>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal }: {
+    performRequest<T extends any>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType }: {
         queryParameters?: any;
         bodyParameters?: any;
         additionalHeaders?: any;
         abortSignal?: any;
+        responseType?: AxiosRequestConfig['responseType'];
     }): Promise<T>;
     getNextNode(requestNumber?: number): Node;
     nodeDueForHealthcheck(node: any, requestNumber?: number): boolean;

@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import type { ReadStream } from 'fs';
 import ApiCall from './ApiCall';
 import Configuration from './Configuration';
 import { SearchOnlyDocuments } from './SearchOnlyDocuments';
@@ -139,5 +141,9 @@ export default class Documents<T extends DocumentSchema = {}> extends SearchOnly
      * Returns a JSONL string for all the documents in this collection
      */
     export(options?: DocumentsExportParameters): Promise<string>;
+    /**
+     * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+     */
+    exportStream(options?: DocumentsExportParameters): Promise<ReadStream>;
 }
 export {};
