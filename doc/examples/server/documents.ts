@@ -5,11 +5,10 @@
 
 import Configuration, { NodeConfiguration, ConfigurationOptions } from '../../../src/Typesense/Configuration'
 import { CollectionCreateSchema } from '../../../src/Typesense/Collections'
-
-const Typesense = require('../../../src/Typesense')
+import { Client } from '../../../src/Typesense'
 
 // Create a client
-const typesense = new Typesense.Client({
+const typesense = new Client({
   nodes: [
     {
       host: 'localhost',

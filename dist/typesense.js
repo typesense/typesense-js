@@ -1763,61 +1763,6 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":49}],46:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
 },{"./../utils":49}],41:[function(require,module,exports){
 'use strict';
 
@@ -1943,6 +1888,61 @@ module.exports = (
     })()
 );
 
+},{"./../utils":49}],46:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
 },{"./../utils":49}],35:[function(require,module,exports){
 'use strict';
 
@@ -2046,6 +2046,26 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
+},{}],27:[function(require,module,exports){
+'use strict';
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+},{}],43:[function(require,module,exports){
+'use strict';
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+module.exports = function isAxiosError(payload) {
+  return (typeof payload === 'object') && (payload.isAxiosError === true);
+};
+
 },{}],47:[function(require,module,exports){
 'use strict';
 
@@ -2073,26 +2093,6 @@ module.exports = function spread(callback) {
   return function wrap(arr) {
     return callback.apply(null, arr);
   };
-};
-
-},{}],27:[function(require,module,exports){
-'use strict';
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-},{}],43:[function(require,module,exports){
-'use strict';
-
-/**
- * Determines whether the payload is an error thrown by Axios
- *
- * @param {*} payload The value to test
- * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
- */
-module.exports = function isAxiosError(payload) {
-  return (typeof payload === 'object') && (payload.isAxiosError === true);
 };
 
 },{}],34:[function(require,module,exports){
@@ -2764,23 +2764,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":27,"../defaults":37,"./../utils":49,"./transformData":36}],42:[function(require,module,exports){
-'use strict';
-
-/**
- * Determines whether the specified URL is absolute
- *
- * @param {string} url The URL to test
- * @returns {boolean} True if the specified URL is absolute, otherwise false
- */
-module.exports = function isAbsoluteURL(url) {
-  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
-  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
-  // by any combination of letters, digits, plus, period, or hyphen.
-  return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
-};
-
-},{}],40:[function(require,module,exports){
+},{"../cancel/isCancel":27,"../defaults":37,"./../utils":49,"./transformData":36}],40:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2794,6 +2778,22 @@ module.exports = function combineURLs(baseURL, relativeURL) {
   return relativeURL
     ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
     : baseURL;
+};
+
+},{}],42:[function(require,module,exports){
+'use strict';
+
+/**
+ * Determines whether the specified URL is absolute
+ *
+ * @param {string} url The URL to test
+ * @returns {boolean} True if the specified URL is absolute, otherwise false
+ */
+module.exports = function isAbsoluteURL(url) {
+  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+  // by any combination of letters, digits, plus, period, or hyphen.
+  return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
 },{}],33:[function(require,module,exports){
@@ -5509,6 +5509,11 @@ exports.SearchClient = SearchClient_1["default"];
 var Errors = __importStar(require("./Typesense/Errors"));
 
 exports.Errors = Errors;
+exports["default"] = {
+  Client: Client_1["default"],
+  SearchClient: SearchClient_1["default"],
+  Errors: Errors
+};
 
 },{"./Typesense/Client":62,"./Typesense/Errors":79,"./Typesense/SearchClient":89}],89:[function(require,module,exports){
 "use strict";
@@ -6629,98 +6634,7 @@ var Configuration = /*#__PURE__*/function () {
 
 exports["default"] = Configuration;
 
-},{"./Errors":79,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"loglevel":55}],64:[function(require,module,exports){
-"use strict";
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
-
-var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var RESOURCEPATH = '/collections';
-
-var Collections = /*#__PURE__*/function () {
-  function Collections(apiCall) {
-    (0, _classCallCheck2["default"])(this, Collections);
-    this.apiCall = apiCall;
-  }
-
-  (0, _createClass2["default"])(Collections, [{
-    key: "create",
-    value: function () {
-      var _create = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(schema) {
-        return _regenerator["default"].wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return this.apiCall.post(RESOURCEPATH, schema);
-
-              case 2:
-                return _context.abrupt("return", _context.sent);
-
-              case 3:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-
-      function create(_x) {
-        return _create.apply(this, arguments);
-      }
-
-      return create;
-    }()
-  }, {
-    key: "retrieve",
-    value: function () {
-      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
-        return _regenerator["default"].wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.next = 2;
-                return this.apiCall.get(RESOURCEPATH);
-
-              case 2:
-                return _context2.abrupt("return", _context2.sent);
-
-              case 3:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2, this);
-      }));
-
-      function retrieve() {
-        return _retrieve.apply(this, arguments);
-      }
-
-      return retrieve;
-    }()
-  }], [{
-    key: "RESOURCEPATH",
-    get: function get() {
-      return RESOURCEPATH;
-    }
-  }]);
-  return Collections;
-}();
-
-exports["default"] = Collections;
-
-},{"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],81:[function(require,module,exports){
+},{"./Errors":79,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"loglevel":55}],81:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7226,7 +7140,98 @@ var Collection = /*#__PURE__*/function () {
 
 exports["default"] = Collection;
 
-},{"./Collections":64,"./Document":67,"./Documents":68,"./Errors":79,"./Override":86,"./Overrides":87,"./Synonym":92,"./Synonyms":93,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],84:[function(require,module,exports){
+},{"./Collections":64,"./Document":67,"./Documents":68,"./Errors":79,"./Override":86,"./Overrides":87,"./Synonym":92,"./Synonyms":93,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],64:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var RESOURCEPATH = '/collections';
+
+var Collections = /*#__PURE__*/function () {
+  function Collections(apiCall) {
+    (0, _classCallCheck2["default"])(this, Collections);
+    this.apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Collections, [{
+    key: "create",
+    value: function () {
+      var _create = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(schema) {
+        return _regenerator["default"].wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.apiCall.post(RESOURCEPATH, schema);
+
+              case 2:
+                return _context.abrupt("return", _context.sent);
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function create(_x) {
+        return _create.apply(this, arguments);
+      }
+
+      return create;
+    }()
+  }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return this.apiCall.get(RESOURCEPATH);
+
+              case 2:
+                return _context2.abrupt("return", _context2.sent);
+
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+
+      return retrieve;
+    }()
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Collections;
+}();
+
+exports["default"] = Collections;
+
+},{"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],84:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7291,294 +7296,7 @@ var MultiSearch = /*#__PURE__*/function () {
 
 exports["default"] = MultiSearch;
 
-},{"./RequestWithCache":88,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10}],68:[function(require,module,exports){
-"use strict";
-
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
-var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
-
-var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var Errors_1 = require("./Errors");
-
-var SearchOnlyDocuments_1 = require("./SearchOnlyDocuments");
-
-var Documents = /*#__PURE__*/function (_SearchOnlyDocuments_) {
-  (0, _inherits2["default"])(Documents, _SearchOnlyDocuments_);
-
-  var _super = _createSuper(Documents);
-
-  function Documents(collectionName, apiCall, configuration) {
-    (0, _classCallCheck2["default"])(this, Documents);
-    return _super.call(this, collectionName, apiCall, configuration);
-  }
-
-  (0, _createClass2["default"])(Documents, [{
-    key: "create",
-    value: function () {
-      var _create = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(document) {
-        var options,
-            _args = arguments;
-        return _regenerator["default"].wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-
-                if (document) {
-                  _context.next = 3;
-                  break;
-                }
-
-                throw new Error('No document provided');
-
-              case 3:
-                _context.next = 5;
-                return this.apiCall.post(this.endpointPath(), document, options);
-
-              case 5:
-                return _context.abrupt("return", _context.sent);
-
-              case 6:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this);
-      }));
-
-      function create(_x) {
-        return _create.apply(this, arguments);
-      }
-
-      return create;
-    }()
-  }, {
-    key: "upsert",
-    value: function upsert(document) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      if (!document) throw new Error('No document provided');
-      return this.apiCall.post(this.endpointPath(), document, Object.assign({}, options, {
-        action: 'upsert'
-      }));
-    }
-  }, {
-    key: "update",
-    value: function update(document) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      if (!document) throw new Error('No document provided');
-      return this.apiCall.post(this.endpointPath(), document, Object.assign({}, options, {
-        action: 'update'
-      }));
-    }
-  }, {
-    key: "delete",
-    value: function _delete() {
-      var idOrQuery = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-      if (typeof idOrQuery === 'string') {
-        return this.apiCall["delete"](this.endpointPath(idOrQuery), idOrQuery);
-      } else {
-        return this.apiCall["delete"](this.endpointPath(), idOrQuery);
-      }
-    }
-  }, {
-    key: "createMany",
-    value: function () {
-      var _createMany = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(documents) {
-        var options,
-            _args2 = arguments;
-        return _regenerator["default"].wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                options = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
-                this.configuration.logger.warn('createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents');
-                return _context2.abrupt("return", this["import"](documents, options));
-
-              case 3:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2, this);
-      }));
-
-      function createMany(_x2) {
-        return _createMany.apply(this, arguments);
-      }
-
-      return createMany;
-    }()
-  }, {
-    key: "import",
-    value: function () {
-      var _import2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(documents) {
-        var options,
-            documentsInJSONLFormat,
-            resultsInJSONLFormat,
-            resultsInJSONFormat,
-            failedItems,
-            _args3 = arguments;
-        return _regenerator["default"].wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                options = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
-
-                if (Array.isArray(documents)) {
-                  documentsInJSONLFormat = documents.map(function (document) {
-                    return JSON.stringify(document);
-                  }).join('\n');
-                } else {
-                  documentsInJSONLFormat = documents;
-                }
-
-                _context3.next = 4;
-                return this.apiCall.performRequest('post', this.endpointPath('import'), {
-                  queryParameters: options,
-                  bodyParameters: documentsInJSONLFormat,
-                  additionalHeaders: {
-                    'Content-Type': 'text/plain'
-                  }
-                });
-
-              case 4:
-                resultsInJSONLFormat = _context3.sent;
-
-                if (!Array.isArray(documents)) {
-                  _context3.next = 15;
-                  break;
-                }
-
-                resultsInJSONFormat = resultsInJSONLFormat.split('\n').map(function (r) {
-                  return JSON.parse(r);
-                });
-                failedItems = resultsInJSONFormat.filter(function (r) {
-                  return r.success === false;
-                });
-
-                if (!(failedItems.length > 0)) {
-                  _context3.next = 12;
-                  break;
-                }
-
-                throw new Errors_1.ImportError("".concat(resultsInJSONFormat.length - failedItems.length, " documents imported successfully, ").concat(failedItems.length, " documents failed during import. Use `error.importResults` from the raised exception to get a detailed error reason for each document."), resultsInJSONFormat);
-
-              case 12:
-                return _context3.abrupt("return", resultsInJSONFormat);
-
-              case 13:
-                _context3.next = 16;
-                break;
-
-              case 15:
-                return _context3.abrupt("return", resultsInJSONLFormat);
-
-              case 16:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, _callee3, this);
-      }));
-
-      function _import(_x3) {
-        return _import2.apply(this, arguments);
-      }
-
-      return _import;
-    }()
-    /**
-     * Returns a JSONL string for all the documents in this collection
-     */
-
-  }, {
-    key: "export",
-    value: function () {
-      var _export2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4() {
-        var options,
-            _args4 = arguments;
-        return _regenerator["default"].wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                options = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : {};
-                return _context4.abrupt("return", this.apiCall.get(this.endpointPath('export'), options));
-
-              case 2:
-              case "end":
-                return _context4.stop();
-            }
-          }
-        }, _callee4, this);
-      }));
-
-      function _export() {
-        return _export2.apply(this, arguments);
-      }
-
-      return _export;
-    }()
-    /**
-     * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
-     */
-
-  }, {
-    key: "exportStream",
-    value: function () {
-      var _exportStream = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee5() {
-        var options,
-            _args5 = arguments;
-        return _regenerator["default"].wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                options = _args5.length > 0 && _args5[0] !== undefined ? _args5[0] : {};
-                return _context5.abrupt("return", this.apiCall.get(this.endpointPath('export'), options, {
-                  responseType: 'stream'
-                }));
-
-              case 2:
-              case "end":
-                return _context5.stop();
-            }
-          }
-        }, _callee5, this);
-      }));
-
-      function exportStream() {
-        return _exportStream.apply(this, arguments);
-      }
-
-      return exportStream;
-    }()
-  }]);
-  return Documents;
-}(SearchOnlyDocuments_1.SearchOnlyDocuments);
-
-exports["default"] = Documents;
-
-},{"./Errors":79,"./SearchOnlyDocuments":91,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/getPrototypeOf":8,"@babel/runtime/helpers/inherits":9,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/helpers/possibleConstructorReturn":15,"@babel/runtime/regenerator":21}],86:[function(require,module,exports){
+},{"./RequestWithCache":88,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10}],86:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7888,7 +7606,7 @@ var Synonym = /*#__PURE__*/function () {
 
 exports["default"] = Synonym;
 
-},{"./Collections":64,"./Synonyms":93,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],93:[function(require,module,exports){
+},{"./Collections":64,"./Synonyms":93,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],68:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -7901,42 +7619,61 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var Collections_1 = __importDefault(require("./Collections"));
+var Errors_1 = require("./Errors");
 
-var RESOURCEPATH = '/synonyms';
+var SearchOnlyDocuments_1 = require("./SearchOnlyDocuments");
 
-var Synonyms = /*#__PURE__*/function () {
-  function Synonyms(collectionName, apiCall) {
-    (0, _classCallCheck2["default"])(this, Synonyms);
-    this.collectionName = collectionName;
-    this.apiCall = apiCall;
+var Documents = /*#__PURE__*/function (_SearchOnlyDocuments_) {
+  (0, _inherits2["default"])(Documents, _SearchOnlyDocuments_);
+
+  var _super = _createSuper(Documents);
+
+  function Documents(collectionName, apiCall, configuration) {
+    (0, _classCallCheck2["default"])(this, Documents);
+    return _super.call(this, collectionName, apiCall, configuration);
   }
 
-  (0, _createClass2["default"])(Synonyms, [{
-    key: "upsert",
+  (0, _createClass2["default"])(Documents, [{
+    key: "create",
     value: function () {
-      var _upsert = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(synonymId, params) {
+      var _create = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(document) {
+        var options,
+            _args = arguments;
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return this.apiCall.put(this.endpointPath(synonymId), params);
+                options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
 
-              case 2:
-                return _context.abrupt("return", _context.sent);
+                if (document) {
+                  _context.next = 3;
+                  break;
+                }
+
+                throw new Error('No document provided');
 
               case 3:
+                _context.next = 5;
+                return this.apiCall.post(this.endpointPath(), document, options);
+
+              case 5:
+                return _context.abrupt("return", _context.sent);
+
+              case 6:
               case "end":
                 return _context.stop();
             }
@@ -7944,25 +7681,54 @@ var Synonyms = /*#__PURE__*/function () {
         }, _callee, this);
       }));
 
-      function upsert(_x, _x2) {
-        return _upsert.apply(this, arguments);
+      function create(_x) {
+        return _create.apply(this, arguments);
       }
 
-      return upsert;
+      return create;
     }()
   }, {
-    key: "retrieve",
+    key: "upsert",
+    value: function upsert(document) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      if (!document) throw new Error('No document provided');
+      return this.apiCall.post(this.endpointPath(), document, Object.assign({}, options, {
+        action: 'upsert'
+      }));
+    }
+  }, {
+    key: "update",
+    value: function update(document) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      if (!document) throw new Error('No document provided');
+      return this.apiCall.post(this.endpointPath(), document, Object.assign({}, options, {
+        action: 'update'
+      }));
+    }
+  }, {
+    key: "delete",
+    value: function _delete() {
+      var idOrQuery = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      if (typeof idOrQuery === 'string') {
+        return this.apiCall["delete"](this.endpointPath(idOrQuery), idOrQuery);
+      } else {
+        return this.apiCall["delete"](this.endpointPath(), idOrQuery);
+      }
+    }
+  }, {
+    key: "createMany",
     value: function () {
-      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+      var _createMany = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(documents) {
+        var options,
+            _args2 = arguments;
         return _regenerator["default"].wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _context2.next = 2;
-                return this.apiCall.get(this.endpointPath());
-
-              case 2:
-                return _context2.abrupt("return", _context2.sent);
+                options = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
+                this.configuration.logger.warn('createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents');
+                return _context2.abrupt("return", this["import"](documents, options));
 
               case 3:
               case "end":
@@ -7972,29 +7738,162 @@ var Synonyms = /*#__PURE__*/function () {
         }, _callee2, this);
       }));
 
-      function retrieve() {
-        return _retrieve.apply(this, arguments);
+      function createMany(_x2) {
+        return _createMany.apply(this, arguments);
       }
 
-      return retrieve;
+      return createMany;
     }()
   }, {
-    key: "endpointPath",
-    value: function endpointPath(operation) {
-      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
-    }
-  }], [{
-    key: "RESOURCEPATH",
-    get: function get() {
-      return RESOURCEPATH;
-    }
+    key: "import",
+    value: function () {
+      var _import2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(documents) {
+        var options,
+            documentsInJSONLFormat,
+            resultsInJSONLFormat,
+            resultsInJSONFormat,
+            failedItems,
+            _args3 = arguments;
+        return _regenerator["default"].wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                options = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
+
+                if (Array.isArray(documents)) {
+                  documentsInJSONLFormat = documents.map(function (document) {
+                    return JSON.stringify(document);
+                  }).join('\n');
+                } else {
+                  documentsInJSONLFormat = documents;
+                }
+
+                _context3.next = 4;
+                return this.apiCall.performRequest('post', this.endpointPath('import'), {
+                  queryParameters: options,
+                  bodyParameters: documentsInJSONLFormat,
+                  additionalHeaders: {
+                    'Content-Type': 'text/plain'
+                  }
+                });
+
+              case 4:
+                resultsInJSONLFormat = _context3.sent;
+
+                if (!Array.isArray(documents)) {
+                  _context3.next = 15;
+                  break;
+                }
+
+                resultsInJSONFormat = resultsInJSONLFormat.split('\n').map(function (r) {
+                  return JSON.parse(r);
+                });
+                failedItems = resultsInJSONFormat.filter(function (r) {
+                  return r.success === false;
+                });
+
+                if (!(failedItems.length > 0)) {
+                  _context3.next = 12;
+                  break;
+                }
+
+                throw new Errors_1.ImportError("".concat(resultsInJSONFormat.length - failedItems.length, " documents imported successfully, ").concat(failedItems.length, " documents failed during import. Use `error.importResults` from the raised exception to get a detailed error reason for each document."), resultsInJSONFormat);
+
+              case 12:
+                return _context3.abrupt("return", resultsInJSONFormat);
+
+              case 13:
+                _context3.next = 16;
+                break;
+
+              case 15:
+                return _context3.abrupt("return", resultsInJSONLFormat);
+
+              case 16:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function _import(_x3) {
+        return _import2.apply(this, arguments);
+      }
+
+      return _import;
+    }()
+    /**
+     * Returns a JSONL string for all the documents in this collection
+     */
+
+  }, {
+    key: "export",
+    value: function () {
+      var _export2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4() {
+        var options,
+            _args4 = arguments;
+        return _regenerator["default"].wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                options = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : {};
+                return _context4.abrupt("return", this.apiCall.get(this.endpointPath('export'), options));
+
+              case 2:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function _export() {
+        return _export2.apply(this, arguments);
+      }
+
+      return _export;
+    }()
+    /**
+     * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+     */
+
+  }, {
+    key: "exportStream",
+    value: function () {
+      var _exportStream = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee5() {
+        var options,
+            _args5 = arguments;
+        return _regenerator["default"].wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                options = _args5.length > 0 && _args5[0] !== undefined ? _args5[0] : {};
+                return _context5.abrupt("return", this.apiCall.get(this.endpointPath('export'), options, {
+                  responseType: 'stream'
+                }));
+
+              case 2:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function exportStream() {
+        return _exportStream.apply(this, arguments);
+      }
+
+      return exportStream;
+    }()
   }]);
-  return Synonyms;
-}();
+  return Documents;
+}(SearchOnlyDocuments_1.SearchOnlyDocuments);
 
-exports["default"] = Synonyms;
+exports["default"] = Documents;
 
-},{"./Collections":64,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],67:[function(require,module,exports){
+},{"./Errors":79,"./SearchOnlyDocuments":91,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/getPrototypeOf":8,"@babel/runtime/helpers/inherits":9,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/helpers/possibleConstructorReturn":15,"@babel/runtime/regenerator":21}],67:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -8128,7 +8027,113 @@ var Document = /*#__PURE__*/function () {
 
 exports.Document = Document;
 
-},{"./Collections":64,"./Documents":68,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],91:[function(require,module,exports){
+},{"./Collections":64,"./Documents":68,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],93:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var __importDefault = void 0 && (void 0).__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Collections_1 = __importDefault(require("./Collections"));
+
+var RESOURCEPATH = '/synonyms';
+
+var Synonyms = /*#__PURE__*/function () {
+  function Synonyms(collectionName, apiCall) {
+    (0, _classCallCheck2["default"])(this, Synonyms);
+    this.collectionName = collectionName;
+    this.apiCall = apiCall;
+  }
+
+  (0, _createClass2["default"])(Synonyms, [{
+    key: "upsert",
+    value: function () {
+      var _upsert = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(synonymId, params) {
+        return _regenerator["default"].wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.apiCall.put(this.endpointPath(synonymId), params);
+
+              case 2:
+                return _context.abrupt("return", _context.sent);
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function upsert(_x, _x2) {
+        return _upsert.apply(this, arguments);
+      }
+
+      return upsert;
+    }()
+  }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return this.apiCall.get(this.endpointPath());
+
+              case 2:
+                return _context2.abrupt("return", _context2.sent);
+
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+
+      return retrieve;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath(operation) {
+      return "".concat(Collections_1["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Synonyms;
+}();
+
+exports["default"] = Synonyms;
+
+},{"./Collections":64,"@babel/runtime/helpers/asyncToGenerator":4,"@babel/runtime/helpers/classCallCheck":5,"@babel/runtime/helpers/createClass":7,"@babel/runtime/helpers/interopRequireDefault":10,"@babel/runtime/regenerator":21}],91:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
