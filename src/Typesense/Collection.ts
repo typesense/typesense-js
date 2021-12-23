@@ -15,6 +15,7 @@ export type FieldType =
   | 'float'
   | 'bool'
   | 'geopoint'
+  | 'geopoint[]'
   | 'string[]'
   | 'int32[]'
   | 'int64[]'
