@@ -76,7 +76,7 @@ let documents = [
   }
 ]
 
-async function runExample() {
+async function runExample () {
   try {
     // Delete if the collection already exists from a previous example run
     await typesense.collections('users').delete()

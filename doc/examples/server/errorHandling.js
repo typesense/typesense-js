@@ -20,7 +20,7 @@ const typesense = new Typesense.Client({
   logLevel: 'debug'
 })
 
-async function runExample() {
+async function runExample () {
   try {
     // Let's try to index data to a non-existent collection
     await typesense.collections('non-existent').documents().create({ badSchema: 'badSchema' })

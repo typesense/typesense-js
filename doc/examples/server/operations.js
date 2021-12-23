@@ -21,7 +21,7 @@ const typesense = new Typesense.Client({
   logLevel: 'debug'
 })
 
-async function runExample() {
+async function runExample () {
   try {
     let result
 
