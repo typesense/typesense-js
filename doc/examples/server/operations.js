@@ -4,31 +4,31 @@
 */
 require('@babel/register')
 
-const Typesense = require('../../../src/Typesense')
+const Typesense = require('../../../lib/Typesense')
 
 // Create a client
 const typesense = new Typesense.Client({
-  'nodes': [
+  nodes: [
     {
-      'host': 'localhost',
-      'port': '8108',
-      'protocol': 'http'
+      host: 'localhost',
+      port: '8108',
+      protocol: 'http'
     }
   ],
-  'apiKey': 'xyz',
-  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
-  'connectionTimeoutSeconds': 10,
-  'logLevel': 'debug'
+  apiKey: 'xyz',
+  numRetries: 3, // A total of 4 tries (1 original try + 3 retries)
+  connectionTimeoutSeconds: 10,
+  logLevel: 'debug'
 })
 
-async function runExample () {
+async function runExample() {
   try {
     let result
 
     result = await typesense.operations.perform('snapshot', {
       snapshot_path: '/tmp/dbsnap'
     })
-    console.dir(result, {depth: null})
+    console.dir(result, { depth: null })
   } catch (error) {
     console.log(error)
   }

@@ -4,15 +4,15 @@
 */
 require('@babel/register')
 
-const Typesense = require('../../../src/Typesense')
+const Typesense = require('../../../lib/Typesense')
 
 // Create a client
 const typesense = new Typesense.Client({
-  'nodes': [
+  nodes: [
     {
-      'host': 'localhost',
-      'port': '8108',
-      'protocol': 'http'
+      host: 'localhost',
+      port: '8108',
+      protocol: 'http'
     } // ,
     // {
     //   'host': 'localhost',
@@ -25,51 +25,51 @@ const typesense = new Typesense.Client({
     //   'protocol': 'http'
     // }
   ],
-  'apiKey': 'xyz',
-  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
-  'connectionTimeoutSeconds': 120, // Set a longer timeout for large imports
-  'logLevel': 'debug'
+  apiKey: 'xyz',
+  numRetries: 3, // A total of 4 tries (1 original try + 3 retries)
+  connectionTimeoutSeconds: 120, // Set a longer timeout for large imports
+  logLevel: 'debug'
 })
 
 let schema = {
-  'name': 'companies',
-  'num_documents': 0,
-  'fields': [
+  name: 'companies',
+  num_documents: 0,
+  fields: [
     {
-      'name': 'company_name',
-      'type': 'string',
-      'facet': false
+      name: 'company_name',
+      type: 'string',
+      facet: false
     },
     {
-      'name': 'num_employees',
-      'type': 'int32',
-      'facet': false
+      name: 'num_employees',
+      type: 'int32',
+      facet: false
     },
     {
-      'name': 'country',
-      'type': 'string',
-      'facet': true
+      name: 'country',
+      type: 'string',
+      facet: true
     }
   ],
-  'default_sorting_field': 'num_employees'
+  default_sorting_field: 'num_employees'
 }
 
 let documents = [
   {
-    'id': '124',
-    'company_name': 'Stark Industries',
-    'num_employees': 5215,
-    'country': 'USA'
+    id: '124',
+    company_name: 'Stark Industries',
+    num_employees: 5215,
+    country: 'USA'
   },
   {
-    'id': '125',
-    'company_name': 'Acme Corp',
-    'num_employees': 1002,
-    'country': 'France'
+    id: '125',
+    company_name: 'Acme Corp',
+    num_employees: 1002,
+    country: 'France'
   }
 ]
 
-async function runExample () {
+async function runExample() {
   try {
     // Delete if the collection already exists from a previous example run
     await typesense.collections('companies').delete()
@@ -106,7 +106,7 @@ async function runExample () {
 
     // update a document
     result = await typesense.collections('companies').documents(124).update({
-      'num_employees': 5500
+      num_employees: 5500
     })
     console.log(result)
 
@@ -123,8 +123,8 @@ async function runExample () {
   }
 }
 
-async function timer (seconds) {
-  return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+async function timer(seconds) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 
 runExample()

@@ -4,56 +4,57 @@
 */
 require('@babel/register')
 
-const Typesense = require('../../../src/Typesense')
+const Typesense = require('../../../lib/Typesense')
 
 // Create a client
 const typesense = new Typesense.Client({
-  'nodes': [
+  nodes: [
     {
-      'host': 'localhost',
-      'port': '8108',
-      'protocol': 'http'
+      host: 'localhost',
+      port: '8108',
+      protocol: 'http'
     },
     {
-      'host': 'localhost',
-      'port': '7108',
-      'protocol': 'http'
+      host: 'localhost',
+      port: '7108',
+      protocol: 'http'
     },
     {
-      'host': 'localhost',
-      'port': '9108',
-      'protocol': 'http'
-    }],
-  'apiKey': 'xyz',
-  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
-  'connectionTimeoutSeconds': 10,
-  'logLevel': 'debug'
+      host: 'localhost',
+      port: '9108',
+      protocol: 'http'
+    }
+  ],
+  apiKey: 'xyz',
+  numRetries: 3, // A total of 4 tries (1 original try + 3 retries)
+  connectionTimeoutSeconds: 10,
+  logLevel: 'debug'
 })
 
 let schema = {
-  'name': 'companies',
-  'num_documents': 0,
-  'fields': [
+  name: 'companies',
+  num_documents: 0,
+  fields: [
     {
-      'name': 'company_name',
-      'type': 'string',
-      'facet': false
+      name: 'company_name',
+      type: 'string',
+      facet: false
     },
     {
-      'name': 'num_employees',
-      'type': 'int32',
-      'facet': false
+      name: 'num_employees',
+      type: 'int32',
+      facet: false
     },
     {
-      'name': 'country',
-      'type': 'string',
-      'facet': true
+      name: 'country',
+      type: 'string',
+      facet: true
     }
   ],
-  'default_sorting_field': 'num_employees'
+  default_sorting_field: 'num_employees'
 }
 
-async function runExample () {
+async function runExample() {
   try {
     // Delete if the collection already exists from a previous example run
     await typesense.collections('companies').delete()
@@ -83,12 +84,15 @@ async function runExample () {
     console.log(error)
   } finally {
     // Cleanup
-    typesense.collections('companies').delete().catch(() => {})
+    typesense
+      .collections('companies')
+      .delete()
+      .catch(() => {})
   }
 }
 
-async function timer (seconds) {
-  return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+async function timer(seconds) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 
 runExample()
