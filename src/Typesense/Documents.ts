@@ -1,3 +1,4 @@
+import type { ReadStream } from 'fs'
 import ApiCall from './ApiCall'
 import Configuration from './Configuration'
 import { ImportError } from './Errors'
@@ -52,6 +53,9 @@ export interface SearchParams<T extends DocumentSchema> {
   highlight_end_tag?: string // default: </mark>
   snippet_threshold?: number // default: 30
   num_typos?: string // default: 2
+  min_len_1typo?: number
+  min_len_2typo?: number
+  exhaustive_search?: boolean
   drop_tokens_threshold?: number // default: 10
   typo_tokens_threshold?: number // default: 100
   pinned_hits?: string
@@ -60,6 +64,8 @@ export interface SearchParams<T extends DocumentSchema> {
   pre_segmented_query?: boolean
   enable_overrides?: boolean
   prioritize_exact_match?: boolean // default: true
+  search_cutoff_ms?: number
+  use_cache?: boolean
 }
 
 export interface SearchResponseHit<T extends DocumentSchema> {
@@ -188,18 +194,23 @@ export default class Documents<T extends DocumentSchema = {}>
   async import(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>
   async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
-
     if (Array.isArray(documents)) {
+      let documentsInJSONLFormat = null;
+      
       try {
         documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
       } catch (error) {
+        // if rangeerror, throw custom error message
         if(RangeError instanceof error && error?.includes("Too many properties to enumerate")) {
           throw new Error(`${error}
-          Hey There! It looks like you were passing too many keys into a single document. You are limited in the number of keys you can stringify from an Object depending on your specific JS environment: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object
+          It looks like you have reached a Node.js limit that restricts the number of keys in an Object: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object
 
-          Why don't you try to reduce the number of keys you want to pass in and try again?
+          Please try reducing the number of keys in your document, or using CURL to import your data.
           `)
         }
+
+        // else, throw the non-range error anyways
+        throw new Error(error)
       }
     } else {
       documentsInJSONLFormat = documents
@@ -233,6 +244,13 @@ export default class Documents<T extends DocumentSchema = {}>
    * Returns a JSONL string for all the documents in this collection
    */
   async export(options: DocumentsExportParameters = {}): Promise<string> {
-    return await this.apiCall.get<string>(this.endpointPath('export'), options)
+    return this.apiCall.get<string>(this.endpointPath('export'), options)
+  }
+
+  /**
+   * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+   */
+  async exportStream(options: DocumentsExportParameters = {}): Promise<ReadStream> {
+    return this.apiCall.get<ReadStream>(this.endpointPath('export'), options, { responseType: 'stream' })
   }
 }
