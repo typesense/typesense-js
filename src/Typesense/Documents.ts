@@ -195,13 +195,13 @@ export default class Documents<T extends DocumentSchema = {}>
   async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
     if (Array.isArray(documents)) {
-      let documentsInJSONLFormat = null;
-      
+      let documentsInJSONLFormat
+
       try {
         documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
       } catch (error) {
         // if rangeerror, throw custom error message
-        if(RangeError instanceof error && error?.includes("Too many properties to enumerate")) {
+        if (RangeError instanceof error && error?.includes('Too many properties to enumerate')) {
           throw new Error(`${error}
           It looks like you have reached a Node.js limit that restricts the number of keys in an Object: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object
 
