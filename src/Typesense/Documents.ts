@@ -195,8 +195,6 @@ export default class Documents<T extends DocumentSchema = {}>
   async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
     if (Array.isArray(documents)) {
-      let documentsInJSONLFormat
-
       try {
         documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
       } catch (error) {
