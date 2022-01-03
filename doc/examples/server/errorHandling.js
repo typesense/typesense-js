@@ -5,25 +5,25 @@
 */
 require('@babel/register')
 
-const Typesense = require('../../../src/Typesense')
+const Typesense = require('../../../lib/Typesense')
 
 // Create a client
 const typesense = new Typesense.Client({
-  'nodes': [
+  nodes: [
     {
-      'host': 'localhost',
-      'port': '8108',
-      'protocol': 'http'
+      host: 'localhost',
+      port: '8108',
+      protocol: 'http'
     }
   ],
-  'apiKey': 'xyz',
-  'logLevel': 'debug'
+  apiKey: 'xyz',
+  logLevel: 'debug'
 })
 
 async function runExample () {
   try {
     // Let's try to index data to a non-existent collection
-    await typesense.collections('non-existent').documents().create({badSchema: 'badSchema'})
+    await typesense.collections('non-existent').documents().create({ badSchema: 'badSchema' })
   } catch (error) {
     // You can check if `error` is an instanceof any of the custom error classes and handle it accordingly
     // See src/Typesense/Errors for a list of all available error classes

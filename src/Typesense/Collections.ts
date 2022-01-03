@@ -5,6 +5,8 @@ export interface CollectionCreateSchema {
   name: string
   default_sorting_field?: string
   fields: CollectionFieldSchema[]
+  symbols_to_index?: string[]
+  token_separators?: string[]
 }
 
 const RESOURCEPATH = '/collections'

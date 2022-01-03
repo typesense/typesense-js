@@ -9,6 +9,8 @@ export interface OverrideCreateSchema {
     query: string
     match: 'exact' | 'contains'
   }
+  filter_by?: string
+  remove_matched_tokens?: boolean
   includes?: [
     {
       id: string

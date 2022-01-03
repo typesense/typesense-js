@@ -6,3 +6,4 @@ typesense-server-nodes
 *.log
 .DS_Store
 test-results.xml
+test-files

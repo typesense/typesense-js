@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import type { ReadStream } from 'fs';
 import ApiCall from './ApiCall';
 import Configuration from './Configuration';
 import { SearchOnlyDocuments } from './SearchOnlyDocuments';
@@ -43,6 +45,9 @@ export interface SearchParams<T extends DocumentSchema> {
     highlight_end_tag?: string;
     snippet_threshold?: number;
     num_typos?: string;
+    min_len_1typo?: number;
+    min_len_2typo?: number;
+    exhaustive_search?: boolean;
     drop_tokens_threshold?: number;
     typo_tokens_threshold?: number;
     pinned_hits?: string;
@@ -51,6 +56,8 @@ export interface SearchParams<T extends DocumentSchema> {
     pre_segmented_query?: boolean;
     enable_overrides?: boolean;
     prioritize_exact_match?: boolean;
+    search_cutoff_ms?: number;
+    use_cache?: boolean;
 }
 export interface SearchResponseHit<T extends DocumentSchema> {
     highlights?: [
@@ -139,5 +146,9 @@ export default class Documents<T extends DocumentSchema = {}> extends SearchOnly
      * Returns a JSONL string for all the documents in this collection
      */
     export(options?: DocumentsExportParameters): Promise<string>;
+    /**
+     * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+     */
+    exportStream(options?: DocumentsExportParameters): Promise<ReadStream>;
 }
 export {};

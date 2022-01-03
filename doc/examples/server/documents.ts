@@ -2,34 +2,25 @@
  These examples walk you through all the operations you can do on a document
  See clientInitalization.js for quick instructions on starting the Typesense server.
 */
-require('@babel/register')
 
-const Typesense = require('../../../lib/Typesense')
+import Configuration, { NodeConfiguration, ConfigurationOptions } from '../../../src/Typesense/Configuration'
+import { CollectionCreateSchema } from '../../../src/Typesense/Collections'
+import { Client } from '../../../src/Typesense'
 
 // Create a client
-const typesense = new Typesense.Client({
+const typesense = new Client({
   nodes: [
     {
       host: 'localhost',
-      port: '8108',
+      port: 8108,
       protocol: 'http'
-    } // ,
-    // {
-    //   'host': 'localhost',
-    //   'port': '7108',
-    //   'protocol': 'http'
-    // },
-    // {
-    //   'host': 'localhost',
-    //   'port': '9108',
-    //   'protocol': 'http'
-    // }
+    } as NodeConfiguration
   ],
   apiKey: 'xyz',
   numRetries: 3, // A total of 4 tries (1 original try + 3 retries)
   connectionTimeoutSeconds: 120, // Set a longer timeout for large imports
   logLevel: 'debug'
-})
+} as ConfigurationOptions)
 
 let schema = {
   name: 'companies',
@@ -69,7 +60,7 @@ let documents = [
   }
 ]
 
-async function runExample () {
+async function runExample() {
   try {
     // Delete if the collection already exists from a previous example run
     await typesense.collections('companies').delete()
@@ -80,7 +71,7 @@ async function runExample () {
   try {
     let result
     // create a collection
-    result = await typesense.collections().create(schema)
+    result = await typesense.collections().create(schema as CollectionCreateSchema)
     console.log(result)
 
     // create a document
@@ -105,7 +96,7 @@ async function runExample () {
     console.log(result)
 
     // update a document
-    result = await typesense.collections('companies').documents(124).update({
+    result = await typesense.collections('companies').documents('124').update({
       num_employees: 5500
     })
     console.log(result)
@@ -123,7 +114,7 @@ async function runExample () {
   }
 }
 
-async function timer (seconds) {
+async function timer(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 

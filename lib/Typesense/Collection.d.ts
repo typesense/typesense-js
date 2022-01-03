@@ -6,7 +6,7 @@ import Override from './Override';
 import Synonyms from './Synonyms';
 import Synonym from './Synonym';
 import { Document } from './Document';
-export declare type FieldType = 'string' | 'int32' | 'int64' | 'float' | 'bool' | 'geopoint' | 'string[]' | 'int32[]' | 'int64[]' | 'float[]' | 'bool[]' | 'auto' | 'string*';
+export declare type FieldType = 'string' | 'int32' | 'int64' | 'float' | 'bool' | 'geopoint' | 'geopoint[]' | 'string[]' | 'int32[]' | 'int64[]' | 'float[]' | 'bool[]' | 'auto' | 'string*';
 export interface CollectionFieldSchema {
     name: string;
     type: FieldType;

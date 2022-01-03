@@ -51,8 +51,15 @@ export default class ApiCall {
     this.currentNodeIndex = -1
   }
 
-  get<T extends any>(endpoint: string, queryParameters: any = {}, { abortSignal = null } = {}): Promise<T> {
-    return this.performRequest<T>('get', endpoint, { queryParameters, abortSignal })
+  get<T extends any>(
+    endpoint: string,
+    queryParameters: any = {},
+    {
+      abortSignal = null,
+      responseType = null
+    }: { abortSignal?: any; responseType?: AxiosRequestConfig['responseType'] } = {}
+  ): Promise<T> {
+    return this.performRequest<T>('get', endpoint, { queryParameters, abortSignal, responseType })
   }
 
   delete<T extends any>(endpoint: string, queryParameters: any = {}): Promise<T> {
@@ -83,12 +90,14 @@ export default class ApiCall {
       queryParameters = null,
       bodyParameters = null,
       additionalHeaders = {},
-      abortSignal = null
+      abortSignal = null,
+      responseType = null
     }: {
       queryParameters?: any
       bodyParameters?: any
       additionalHeaders?: any
       abortSignal?: any
+      responseType?: AxiosRequestConfig['responseType']
     }
   ): Promise<T> {
     this.configuration.validate()
@@ -118,6 +127,7 @@ export default class ApiCall {
           timeout: this.connectionTimeoutSeconds * 1000,
           maxContentLength: Infinity,
           maxBodyLength: Infinity,
+          responseType,
           validateStatus: (status) => {
             /* Override default validateStatus, which only considers 2xx a success.
                 In our case, if the server returns any HTTP code, we will handle it below.
