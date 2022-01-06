@@ -2,9 +2,9 @@ import RequestWithCache from './RequestWithCache'
 import ApiCall from './ApiCall'
 import Configuration from './Configuration'
 import Collections from './Collections'
-import Documents, { SearchableDocuments, SearchOptions, SearchParams, SearchResponse } from './Documents'
+import type { SearchableDocuments, SearchOptions, SearchParams, SearchResponse } from './Documents'
 
-const RESOURCEPATH = '/documents'
+const RESOURCEPATH = '/documents';
 
 export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
   protected requestWithCache: RequestWithCache = new RequestWithCache()
@@ -35,12 +35,12 @@ export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
   }
 
   protected endpointPath(operation?: string) {
-    return `${Collections.RESOURCEPATH}/${this.collectionName}${Documents.RESOURCEPATH}${
+    return `${Collections.RESOURCEPATH}/${this.collectionName}${RESOURCEPATH}${
       operation === undefined ? '' : '/' + operation
     }`
   }
 
   static get RESOURCEPATH() {
-    return RESOURCEPATH
+    return RESOURCEPATH;
   }
 }
