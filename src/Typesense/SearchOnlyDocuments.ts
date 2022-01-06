@@ -4,7 +4,7 @@ import Configuration from './Configuration'
 import Collections from './Collections'
 import type { SearchableDocuments, SearchOptions, SearchParams, SearchResponse } from './Documents'
 
-const RESOURCEPATH = '/documents';
+const RESOURCEPATH = '/documents'
 
 export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
   protected requestWithCache: RequestWithCache = new RequestWithCache()
@@ -41,6 +41,6 @@ export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
   }
 
   static get RESOURCEPATH() {
-    return RESOURCEPATH;
+    return RESOURCEPATH
   }
 }
