@@ -34,7 +34,7 @@ export interface SearchParams<T extends DocumentSchema> {
     facet_query?: string;
     page?: number;
     per_page?: number;
-    group_by?: keyof T;
+    group_by?: string;
     group_limit?: number;
     include_fields?: string;
     exclude_fields?: string;

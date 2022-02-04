@@ -42,7 +42,7 @@ export interface SearchParams<T extends DocumentSchema> {
   facet_query?: string
   page?: number // default: 1
   per_page?: number // default: 10, max 250
-  group_by?: keyof T
+  group_by?: string
   group_limit?: number // default:
   include_fields?: string
   exclude_fields?: string
