@@ -26,7 +26,7 @@ export interface SearchParams<T extends DocumentSchema> {
     q: string;
     query_by: string;
     query_by_weights?: string;
-    prefix?: string;
+    prefix?: string | boolean;
     filter_by?: string;
     sort_by?: string;
     facet_by?: string;
@@ -44,7 +44,7 @@ export interface SearchParams<T extends DocumentSchema> {
     highlight_start_tag?: string;
     highlight_end_tag?: string;
     snippet_threshold?: number;
-    num_typos?: string;
+    num_typos?: string | number;
     min_len_1typo?: number;
     min_len_2typo?: number;
     exhaustive_search?: boolean;

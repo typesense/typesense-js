@@ -34,7 +34,7 @@ export interface SearchParams<T extends DocumentSchema> {
   q: string
   query_by: string
   query_by_weights?: string
-  prefix?: string // default: true
+  prefix?: string | boolean // default: true
   filter_by?: string
   sort_by?: string // default: text match desc
   facet_by?: string
@@ -52,7 +52,7 @@ export interface SearchParams<T extends DocumentSchema> {
   highlight_start_tag?: string // default: <mark>
   highlight_end_tag?: string // default: </mark>
   snippet_threshold?: number // default: 30
-  num_typos?: string // default: 2
+  num_typos?: string | number // default: 2
   min_len_1typo?: number
   min_len_2typo?: number
   exhaustive_search?: boolean
