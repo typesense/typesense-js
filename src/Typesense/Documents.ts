@@ -34,7 +34,7 @@ export interface SearchParams<T extends DocumentSchema> {
   q: string
   query_by: string
   query_by_weights?: string
-  prefix?: boolean // default: true
+  prefix?: string // default: true
   filter_by?: string
   sort_by?: string // default: text match desc
   facet_by?: string

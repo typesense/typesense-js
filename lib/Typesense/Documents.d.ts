@@ -26,7 +26,7 @@ export interface SearchParams<T extends DocumentSchema> {
     q: string;
     query_by: string;
     query_by_weights?: string;
-    prefix?: boolean;
+    prefix?: string;
     filter_by?: string;
     sort_by?: string;
     facet_by?: string;
