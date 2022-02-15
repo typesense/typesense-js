@@ -42,7 +42,7 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
 
     let additionalQueryParams = {}
     if (this.configuration.useServerSideSearchCache === true) {
-      additionalQueryParams['usecache'] = true
+      additionalQueryParams['use_cache'] = true
     }
     const queryParams = Object.assign({}, commonParams, additionalQueryParams)
 

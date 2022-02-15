@@ -20,7 +20,7 @@ export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
   ): Promise<SearchResponse<T>> {
     let additionalQueryParams = {}
     if (this.configuration.useServerSideSearchCache === true) {
-      additionalQueryParams['usecache'] = true
+      additionalQueryParams['use_cache'] = true
     }
     const queryParams = Object.assign({}, searchParameters, additionalQueryParams)
 
