@@ -17,6 +17,8 @@ Install peer dependencies:
 npm install --save @babel/runtime
 ```
 
+Note: `@babel/runtime` is very a common dependency among many JS libraries. So instead of each library adding it as a dependency independently (which will cause multiple instances of `@babel/runtime` to be installed increasing bundle size), Babel's recommendation is that the libraries ask users to install it once as a direct dependency, so there's only one copy of `@babel/runtime` for the entire project. In some cases, your JS framework might already include `@babel/runtime` as a dependency.
+
 #### Option 2: Include the minified JS file for use in the browser directly
 
 ```html
