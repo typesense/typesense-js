@@ -28,7 +28,7 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
     this.requestWithCache = new RequestWithCache()
   }
 
-  perform(
+  async perform(
     searchRequests: MultiSearchRequestsSchema<T>,
     commonParams: Partial<MultiSearchRequestSchema<T>> = {},
     {

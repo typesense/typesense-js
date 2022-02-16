@@ -18,11 +18,11 @@ export default class Aliases {
   constructor(private apiCall: ApiCall) {}
 
   async upsert(name: string, mapping: CollectionAliasCreateSchema): Promise<CollectionAliasSchema> {
-    return await this.apiCall.put<CollectionAliasSchema>(this.endpointPath(name), mapping)
+    return this.apiCall.put<CollectionAliasSchema>(this.endpointPath(name), mapping)
   }
 
   async retrieve(): Promise<CollectionAliasesResponseSchema> {
-    return await this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH)
+    return this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH)
   }
 
   private endpointPath(aliasName): string {

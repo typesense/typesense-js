@@ -20,10 +20,10 @@ export default class Keys {
   }
 
   async create(params: KeyCreateSchema): Promise<KeySchema> {
-    return await this.apiCall.post<KeySchema>(Keys.RESOURCEPATH, params)
+    return this.apiCall.post<KeySchema>(Keys.RESOURCEPATH, params)
   }
 
-  retrieve(): Promise<KeysRetrieveSchema> {
+  async retrieve(): Promise<KeysRetrieveSchema> {
     return this.apiCall.get<KeysRetrieveSchema>(RESOURCEPATH)
   }
 

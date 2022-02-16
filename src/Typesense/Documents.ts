@@ -154,22 +154,22 @@ export default class Documents<T extends DocumentSchema = {}>
 
   async create(document: T, options: DocumentWriteParameters = {}): Promise<T> {
     if (!document) throw new Error('No document provided')
-    return await this.apiCall.post<T>(this.endpointPath(), document, options)
+    return this.apiCall.post<T>(this.endpointPath(), document, options)
   }
 
-  upsert(document: T, options: DocumentWriteParameters = {}): Promise<T> {
+  async upsert(document: T, options: DocumentWriteParameters = {}): Promise<T> {
     if (!document) throw new Error('No document provided')
     return this.apiCall.post<T>(this.endpointPath(), document, Object.assign({}, options, { action: 'upsert' }))
   }
 
-  update(document: T, options: DocumentWriteParameters = {}): Promise<T> {
+  async update(document: T, options: DocumentWriteParameters = {}): Promise<T> {
     if (!document) throw new Error('No document provided')
     return this.apiCall.post<T>(this.endpointPath(), document, Object.assign({}, options, { action: 'update' }))
   }
 
-  delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>
-  delete(idOrQuery: string): Promise<T>
-  delete(idOrQuery: string | DeleteQuery = {} as DeleteQuery): Promise<DeleteResponse> | Promise<T> {
+  async delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>
+  async delete(idOrQuery: string): Promise<T>
+  async delete(idOrQuery: string | DeleteQuery = {} as DeleteQuery): Promise<DeleteResponse | T> {
     if (typeof idOrQuery === 'string') {
       return this.apiCall.delete<T>(this.endpointPath(idOrQuery), idOrQuery)
     } else {

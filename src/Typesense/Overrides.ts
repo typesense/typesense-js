@@ -28,11 +28,11 @@ export default class Overrides {
   constructor(private collectionName: string, private apiCall: ApiCall) {}
 
   async upsert(overrideId: string, params: OverrideCreateSchema): Promise<OverrideSchema> {
-    return await this.apiCall.put<OverrideSchema>(this.endpointPath(overrideId), params)
+    return this.apiCall.put<OverrideSchema>(this.endpointPath(overrideId), params)
   }
 
   async retrieve(): Promise<OverridesRetrieveSchema> {
-    return await this.apiCall.get<OverridesRetrieveSchema>(this.endpointPath())
+    return this.apiCall.get<OverridesRetrieveSchema>(this.endpointPath())
   }
 
   private endpointPath(operation?: string): string {

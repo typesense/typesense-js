@@ -11,6 +11,6 @@ export default class Debug {
   constructor(private apiCall: ApiCall) {}
 
   async retrieve(): Promise<DebugResponseSchema> {
-    return await this.apiCall.get<DebugResponseSchema>(RESOURCEPATH)
+    return this.apiCall.get<DebugResponseSchema>(RESOURCEPATH)
   }
 }

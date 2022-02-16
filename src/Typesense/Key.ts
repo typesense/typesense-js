@@ -21,11 +21,11 @@ export default class Key {
   constructor(private id: number, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<KeySchema> {
-    return await this.apiCall.get<KeySchema>(this.endpointPath())
+    return this.apiCall.get<KeySchema>(this.endpointPath())
   }
 
   async delete(): Promise<KeyDeleteSchema> {
-    return await this.apiCall.delete<KeyDeleteSchema>(this.endpointPath())
+    return this.apiCall.delete<KeyDeleteSchema>(this.endpointPath())
   }
 
   private endpointPath(): string {

@@ -10,6 +10,6 @@ export default class Health {
   constructor(private apiCall: ApiCall) {}
 
   async retrieve(): Promise<HealthResponse> {
-    return await this.apiCall.get<HealthResponse>(RESOURCEPATH)
+    return this.apiCall.get<HealthResponse>(RESOURCEPATH)
   }
 }

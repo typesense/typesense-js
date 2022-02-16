@@ -57,11 +57,11 @@ export default class Collection<T extends DocumentSchema = {}> {
   }
 
   async retrieve(): Promise<CollectionSchema> {
-    return await this.apiCall.get<CollectionSchema>(this.endpointPath())
+    return this.apiCall.get<CollectionSchema>(this.endpointPath())
   }
 
   async delete(): Promise<CollectionSchema> {
-    return await this.apiCall.delete<CollectionSchema>(this.endpointPath())
+    return this.apiCall.delete<CollectionSchema>(this.endpointPath())
   }
 
   async exists(): Promise<boolean> {

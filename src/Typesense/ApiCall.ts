@@ -51,7 +51,7 @@ export default class ApiCall {
     this.currentNodeIndex = -1
   }
 
-  get<T extends any>(
+  async get<T extends any>(
     endpoint: string,
     queryParameters: any = {},
     {
@@ -62,11 +62,11 @@ export default class ApiCall {
     return this.performRequest<T>('get', endpoint, { queryParameters, abortSignal, responseType })
   }
 
-  delete<T extends any>(endpoint: string, queryParameters: any = {}): Promise<T> {
+  async delete<T extends any>(endpoint: string, queryParameters: any = {}): Promise<T> {
     return this.performRequest<T>('delete', endpoint, { queryParameters })
   }
 
-  post<T extends any>(
+  async post<T extends any>(
     endpoint: string,
     bodyParameters: any = {},
     queryParameters: any = {},
@@ -75,11 +75,11 @@ export default class ApiCall {
     return this.performRequest<T>('post', endpoint, { queryParameters, bodyParameters, additionalHeaders })
   }
 
-  put<T extends any>(endpoint: string, bodyParameters: any = {}, queryParameters: any = {}): Promise<T> {
+  async put<T extends any>(endpoint: string, bodyParameters: any = {}, queryParameters: any = {}): Promise<T> {
     return this.performRequest<T>('put', endpoint, { queryParameters, bodyParameters })
   }
 
-  patch<T extends any>(endpoint: string, bodyParameters: any = {}, queryParameters: any = {}): Promise<T> {
+  async patch<T extends any>(endpoint: string, bodyParameters: any = {}, queryParameters: any = {}): Promise<T> {
     return this.performRequest<T>('patch', endpoint, { queryParameters, bodyParameters })
   }
 

@@ -6,15 +6,15 @@ export class Document<T extends DocumentSchema = {}> {
   constructor(private collectionName: string, private documentId: string, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<T> {
-    return await this.apiCall.get<T>(this.endpointPath())
+    return this.apiCall.get<T>(this.endpointPath())
   }
 
   async delete(): Promise<T> {
-    return await this.apiCall.delete<T>(this.endpointPath())
+    return this.apiCall.delete<T>(this.endpointPath())
   }
 
   async update(partialDocument: Partial<T>, options: DocumentWriteParameters = {}): Promise<T> {
-    return await this.apiCall.patch<T>(this.endpointPath(), partialDocument, options)
+    return this.apiCall.patch<T>(this.endpointPath(), partialDocument, options)
   }
 
   private endpointPath(): string {

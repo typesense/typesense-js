@@ -26,7 +26,7 @@ export interface MetricsResponse {
 export default class Metrics {
   constructor(private apiCall: ApiCall) {}
 
-  retrieve(): Promise<MetricsResponse> {
+  async retrieve(): Promise<MetricsResponse> {
     return this.apiCall.get(RESOURCEPATH)
   }
 }

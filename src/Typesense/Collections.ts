@@ -15,11 +15,11 @@ export default class Collections {
   constructor(private apiCall: ApiCall) {}
 
   async create(schema: CollectionCreateSchema): Promise<CollectionSchema> {
-    return await this.apiCall.post<CollectionSchema>(RESOURCEPATH, schema)
+    return this.apiCall.post<CollectionSchema>(RESOURCEPATH, schema)
   }
 
   async retrieve(): Promise<CollectionSchema[]> {
-    return await this.apiCall.get<CollectionSchema[]>(RESOURCEPATH)
+    return this.apiCall.get<CollectionSchema[]>(RESOURCEPATH)
   }
 
   static get RESOURCEPATH() {

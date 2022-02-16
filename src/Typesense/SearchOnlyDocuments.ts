@@ -24,7 +24,7 @@ export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
     }
     const queryParams = Object.assign({}, searchParameters, additionalQueryParams)
 
-    return await this.requestWithCache.perform(
+    return this.requestWithCache.perform(
       this.apiCall,
       this.apiCall.get,
       [this.endpointPath('search'), queryParams, { abortSignal }],

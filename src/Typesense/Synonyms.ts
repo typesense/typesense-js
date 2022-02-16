@@ -17,11 +17,11 @@ export default class Synonyms {
   constructor(private collectionName: string, private apiCall: ApiCall) {}
 
   async upsert(synonymId: string, params: SynonymCreateSchema): Promise<SynonymSchema> {
-    return await this.apiCall.put<SynonymSchema>(this.endpointPath(synonymId), params)
+    return this.apiCall.put<SynonymSchema>(this.endpointPath(synonymId), params)
   }
 
   async retrieve(): Promise<SynonymsRetrieveSchema> {
-    return await this.apiCall.get<SynonymsRetrieveSchema>(this.endpointPath())
+    return this.apiCall.get<SynonymsRetrieveSchema>(this.endpointPath())
   }
 
   private endpointPath(operation?: string) {

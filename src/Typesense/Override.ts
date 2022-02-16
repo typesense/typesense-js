@@ -14,11 +14,11 @@ export default class Override {
   constructor(private collectionName: string, private overrideId: string, private apiCall: ApiCall) {}
 
   async retrieve(): Promise<OverrideSchema> {
-    return await this.apiCall.get<OverrideSchema>(this.endpointPath())
+    return this.apiCall.get<OverrideSchema>(this.endpointPath())
   }
 
   async delete(): Promise<OverrideDeleteSchema> {
-    return await this.apiCall.delete<OverrideDeleteSchema>(this.endpointPath())
+    return this.apiCall.delete<OverrideDeleteSchema>(this.endpointPath())
   }
 
   private endpointPath(): string {
