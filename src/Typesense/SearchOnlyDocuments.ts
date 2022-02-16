@@ -12,7 +12,7 @@ export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
   constructor(protected collectionName: string, protected apiCall: ApiCall, protected configuration: Configuration) {}
 
   async search(
-    searchParameters: SearchParams<T>,
+    searchParameters: SearchParams,
     {
       cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds,
       abortSignal = null

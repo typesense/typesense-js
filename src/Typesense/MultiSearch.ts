@@ -5,12 +5,12 @@ import { DocumentSchema, SearchParams, SearchResponse } from './Documents'
 
 const RESOURCEPATH = '/multi_search'
 
-export interface MultiSearchRequestSchema<T> extends SearchParams<T> {
+export interface MultiSearchRequestSchema extends SearchParams {
   collection?: string
 }
 
-export interface MultiSearchRequestsSchema<T> {
-  searches: MultiSearchRequestSchema<T>[]
+export interface MultiSearchRequestsSchema {
+  searches: MultiSearchRequestSchema[]
 }
 
 export interface MultiSearchResponse<T> {
@@ -29,8 +29,8 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
   }
 
   async perform(
-    searchRequests: MultiSearchRequestsSchema<T>,
-    commonParams: Partial<MultiSearchRequestSchema<T>> = {},
+    searchRequests: MultiSearchRequestsSchema,
+    commonParams: Partial<MultiSearchRequestSchema> = {},
     {
       cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds
     }: { cacheSearchResultsForSeconds?: number } = {}

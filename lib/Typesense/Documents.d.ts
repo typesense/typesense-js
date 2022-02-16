@@ -22,7 +22,7 @@ export interface ImportResponseFail {
 export declare type ImportResponse = ImportResponseSuccess | ImportResponseFail;
 export interface DocumentSchema extends Record<string, any> {
 }
-export interface SearchParams<T extends DocumentSchema> {
+export interface SearchParams {
     q: string;
     query_by: string;
     query_by_weights?: string;
@@ -94,7 +94,7 @@ export interface SearchResponse<T extends DocumentSchema> {
     found: number;
     out_of: number;
     page: number;
-    request_params: SearchParams<T>;
+    request_params: SearchParams;
     search_time_ms: number;
     hits?: SearchResponseHit<T>[];
     grouped_hits?: {
@@ -112,7 +112,7 @@ export interface DocumentsExportParameters {
     exclude_fields?: string;
 }
 export interface SearchableDocuments<T> {
-    search(searchParameters: SearchParams<T>, options: SearchOptions): Promise<SearchResponse<T>>;
+    search(searchParameters: SearchParams, options: SearchOptions): Promise<SearchResponse<T>>;
 }
 export interface WriteableDocuments<T> {
     create(document: T, options: DocumentWriteParameters): Promise<T>;

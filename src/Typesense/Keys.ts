@@ -9,7 +9,7 @@ export interface KeysRetrieveSchema {
   keys: KeySchema[]
 }
 
-export interface GenerateScopedSearchKeyParams extends Partial<SearchParams<any>> {
+export interface GenerateScopedSearchKeyParams extends Partial<SearchParams> {
   expires_at?: number
   cache_ttl?: number
 }

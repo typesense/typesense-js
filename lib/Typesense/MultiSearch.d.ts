@@ -1,11 +1,11 @@
 import ApiCall from './ApiCall';
 import Configuration from './Configuration';
 import { DocumentSchema, SearchParams, SearchResponse } from './Documents';
-export interface MultiSearchRequestSchema<T> extends SearchParams<T> {
+export interface MultiSearchRequestSchema extends SearchParams {
     collection?: string;
 }
-export interface MultiSearchRequestsSchema<T> {
-    searches: MultiSearchRequestSchema<T>[];
+export interface MultiSearchRequestsSchema {
+    searches: MultiSearchRequestSchema[];
 }
 export interface MultiSearchResponse<T> {
     results: SearchResponse<T>[];
@@ -16,7 +16,7 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
     private useTextContentType;
     private requestWithCache;
     constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
-    perform(searchRequests: MultiSearchRequestsSchema<T>, commonParams?: Partial<MultiSearchRequestSchema<T>>, { cacheSearchResultsForSeconds }?: {
+    perform(searchRequests: MultiSearchRequestsSchema, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds }?: {
         cacheSearchResultsForSeconds?: number;
     }): Promise<MultiSearchResponse<T>>;
 }
