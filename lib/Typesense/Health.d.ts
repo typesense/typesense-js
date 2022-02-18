@@ -1,6 +1,6 @@
 import ApiCall from './ApiCall';
 export interface HealthResponse {
-    status: string;
+    ok: boolean;
 }
 export default class Health {
     private apiCall;
