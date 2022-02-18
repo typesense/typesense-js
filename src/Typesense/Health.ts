@@ -3,7 +3,7 @@ import ApiCall from './ApiCall'
 const RESOURCEPATH = '/health'
 
 export interface HealthResponse {
-  status: string
+  ok: boolean
 }
 
 export default class Health {
