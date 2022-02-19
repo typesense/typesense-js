@@ -67,7 +67,7 @@ export default class Configuration {
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1
 
     this.apiKey = options.apiKey
-    this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam || false
+    this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam // We will set a default for this in Client and SearchClient
 
     this.cacheSearchResultsForSeconds = options.cacheSearchResultsForSeconds || 0 // Disable client-side cache by default
     this.useServerSideSearchCache = options.useServerSideSearchCache || false
