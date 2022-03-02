@@ -11,13 +11,11 @@ export interface OverrideCreateSchema {
   }
   filter_by?: string
   remove_matched_tokens?: boolean
-  includes?: [
-    {
-      id: string
-      position: number
-    }
-  ]
-  excludes?: [{ id: string }]
+  includes?: Array<{
+    id: string
+    position: number
+  }>
+  excludes?: Array<{ id: string }>
 }
 
 export interface OverridesRetrieveSchema {
