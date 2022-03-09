@@ -1,1 +1,1 @@
-{"version":3,"file":"ServerError.js","sourceRoot":"","sources":["../../../src/Typesense/Errors/ServerError.ts"],"names":[],"mappings":";;;;;AAAA,sEAA6C;AAE7C,MAAqB,WAAY,SAAQ,wBAAc;CAAG;AAA1D,8BAA0D"}
+{"version":3,"file":"ServerError.js","sourceRoot":"","sources":["../../../src/Typesense/Errors/ServerError.ts"],"names":[],"mappings":";;;;;;;;;;;;;;IAAA,sEAA6C;IAE7C,MAAqB,WAAY,SAAQ,wBAAc;KAAG;IAA1D,8BAA0D"}
