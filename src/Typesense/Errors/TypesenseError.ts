@@ -4,7 +4,7 @@ export default class TypesenseError extends Error {
   // Source: https://stackoverflow.com/a/58417721/123545
   constructor(message?: string) {
     super(message)
-    this.name = 'TypesenseError'
+    this.name = new.target.name
     Object.setPrototypeOf(this, new.target.prototype)
   }
 }
