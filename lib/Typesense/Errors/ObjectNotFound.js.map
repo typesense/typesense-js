@@ -1,1 +1,1 @@
-{"version":3,"file":"ObjectNotFound.js","sourceRoot":"","sources":["../../../src/Typesense/Errors/ObjectNotFound.ts"],"names":[],"mappings":";;;;;;;;;;;;;;IAAA,sEAA6C;IAE7C,MAAqB,cAAe,SAAQ,wBAAc;KAAG;IAA7D,iCAA6D"}
+{"version":3,"file":"ObjectNotFound.js","sourceRoot":"","sources":["../../../src/Typesense/Errors/ObjectNotFound.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;AAAA,oEAA6C;AAE7C;IAA4C,kCAAc;IAA1D;;IAA4D,CAAC;IAAD,qBAAC;AAAD,CAAC,AAA7D,CAA4C,wBAAc,GAAG"}
