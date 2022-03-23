@@ -19,6 +19,10 @@
     "promise",
     "standard"
   ],
+  "extends": [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
 
   "globals": {
     "document": false,
@@ -180,6 +184,8 @@
 
     "node/no-deprecated-api": "error",
     "node/process-exit-as-throw": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+
 
     "promise/param-names": "error",
 
