@@ -30,12 +30,21 @@ export interface CollectionFieldSchema {
   optional?: boolean
   facet?: boolean
   index?: boolean
+  sort?: boolean
 }
 
 export interface CollectionSchema extends CollectionCreateSchema {
   created_at: number
   num_documents: number
   num_memory_shards: number
+}
+
+export interface CollectionUpdateFieldSchema extends CollectionFieldSchema {
+  drop?: boolean
+}
+
+export interface CollectionUpdateSchema extends Partial<Omit<CollectionCreateSchema, 'name'>> {
+  fields?: CollectionUpdateFieldSchema[]
 }
 
 export default class Collection<T extends DocumentSchema = {}> {
@@ -58,6 +67,10 @@ export default class Collection<T extends DocumentSchema = {}> {
 
   async retrieve(): Promise<CollectionSchema> {
     return this.apiCall.get<CollectionSchema>(this.endpointPath())
+  }
+
+  async update(schema: CollectionUpdateSchema): Promise<CollectionSchema> {
+    return this.apiCall.patch<CollectionSchema>(this.endpointPath(), schema)
   }
 
   async delete(): Promise<CollectionSchema> {
