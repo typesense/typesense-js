@@ -24,7 +24,7 @@ export interface DocumentSchema extends Record<string, any> {
 }
 export interface SearchParams {
     q: string;
-    query_by: string;
+    query_by: string | string[];
     query_by_weights?: string;
     prefix?: string | boolean;
     filter_by?: string;
