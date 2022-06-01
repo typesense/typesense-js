@@ -69,17 +69,18 @@ Checkout the [Typesense-InstantSearch.js](https://github.com/typesense/typesense
 This table refers to server=>client compatibility. Newer versions of the client library maintain backwards compatibility with older versions of the server library.
 
 | Typesense Server | typesense-js |
-|------------------|----------------|
-| \>= v0.21.0 | \>= v0.14.0 |
-| \>= v0.20.0 | \>= v0.12.0 |
-| \>= v0.19.0 | \>= v0.11.0 |
-| \>= v0.18.0 | \>= v0.10.0 |
-| \>= v0.17.0 | \>= v0.9.0 |
-| \>= v0.16.0 | \>= v0.8.0 |
-| \>= v0.15.0 | \>= v0.7.0 |
-| \>= v0.12.1 | \>= v0.5.0 |
-| \>= v0.12.0 | \>= v0.4.7 |
-| <= v0.11 | <= v0.3.0 |
+|------------------|--------------|
+| \>= v0.23.0      | \>= v1.3.0   |
+| \>= v0.21.0      | \>= v0.14.0  |
+| \>= v0.20.0      | \>= v0.12.0  |
+| \>= v0.19.0      | \>= v0.11.0  |
+| \>= v0.18.0      | \>= v0.10.0  |
+| \>= v0.17.0      | \>= v0.9.0   |
+| \>= v0.16.0      | \>= v0.8.0   |
+| \>= v0.15.0      | \>= v0.7.0   |
+| \>= v0.12.1      | \>= v0.5.0   |
+| \>= v0.12.0      | \>= v0.4.7   |
+| <= v0.11         | <= v0.3.0    |
 
 ## Development
 
