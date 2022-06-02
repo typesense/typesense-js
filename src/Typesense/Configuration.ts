@@ -72,8 +72,8 @@ export default class Configuration {
     this.nearestNode = this.setDefaultPathInNode(this.nearestNode)
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode)
 
-    this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10
-    this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15
+    this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 5
+    this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60
     this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1
 

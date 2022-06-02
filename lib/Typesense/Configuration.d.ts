@@ -9,6 +9,7 @@ export interface NodeConfiguration {
 export interface ConfigurationOptions {
     apiKey: string;
     nodes: NodeConfiguration[];
+    randomizeNodes: boolean;
     /**
      * @deprecated
      * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
@@ -53,4 +54,5 @@ export default class Configuration {
     private setDefaultPathInNode;
     private setDefaultPortInNode;
     private showDeprecationWarnings;
+    private shuffleArray;
 }
