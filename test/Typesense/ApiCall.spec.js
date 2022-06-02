@@ -94,7 +94,7 @@ let sharedNodeSelectionBehavior = (method) => {
       .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0]))
       .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
-    timekeeper.freeze(currentTime + 125 * 1000)
+    timekeeper.freeze(currentTime + 185 * 1000)
     await this.apiCall[method]('/') // Request should have been made to Node 0, since it is now healthy and the unhealthy threshold was exceeded
 
     let requestHistory = this.mockAxios.history[method]
@@ -179,7 +179,7 @@ let sharedNodeSelectionBehavior = (method) => {
         .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nearestNode))
         .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
-      timekeeper.freeze(currentTime + 125 * 1000)
+      timekeeper.freeze(currentTime + 185 * 1000)
       await this.apiCall[method]('/') // Request should have been made to nearestNode, since it is now healthy and the unhealthy threshold was exceeded
       await this.apiCall[method]('/') // Request should have been made to nearestNode, since no roundrobin if it is present and healthy
       await this.apiCall[method]('/') // Request should have been made to nearestNode, since no roundrobin if it is present and healthy

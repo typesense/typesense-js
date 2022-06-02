@@ -27,7 +27,7 @@ describe('Client', function () {
         path: ''
       }
     ])
-    expect(typesense.configuration.connectionTimeoutSeconds).to.eql(10)
+    expect(typesense.configuration.connectionTimeoutSeconds).to.eql(5)
     expect(typesense.configuration.apiKey).to.eql('abcd')
     done()
   })
