@@ -145,6 +145,7 @@ let sharedNodeSelectionBehavior = (method) => {
           }
         ],
         apiKey: 'abcd',
+        randomizeNodes: false,
         logLevel: 'error',
         retryIntervalSeconds: 0.001 // To keep tests fast
       })
@@ -261,6 +262,7 @@ describe('ApiCall', function () {
           }
         ],
         apiKey: 'abcd',
+        randomizeNodes: false,
         logLevel: 'error',
         retryIntervalSeconds: 0.001 // To keep tests fast
       })
@@ -293,7 +295,8 @@ describe('ApiCall', function () {
             url: 'https://node0/path'
           }
         ],
-        apiKey: 'abcd'
+        apiKey: 'abcd',
+        randomizeNodes: false
       })
 
       const apiCall = new ApiCall(client.configuration)
@@ -313,6 +316,7 @@ describe('ApiCall', function () {
           }
         ],
         apiKey: 'abcd',
+        randomizeNodes: false,
         additionalHeaders: {
           'x-header-name': 'value'
         }

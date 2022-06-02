@@ -28,7 +28,8 @@ describe('Document', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
     document = typesense.collections('companies').documents('124')
     apiCall = new ApiCall(typesense.configuration)

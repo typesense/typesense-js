@@ -14,7 +14,8 @@ describe('Client', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
   })
   it('should set the right default configuration values', function (done) {
@@ -40,6 +41,7 @@ describe('Client', function () {
         }
       ],
       apiKey: 'abcd',
+      randomizeNodes: false,
       additionalHeaders: {
         'CF-Access-Client-Id': 'abcd'
       }

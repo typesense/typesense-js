@@ -16,7 +16,8 @@ describe('Configuration', function () {
             protocol: 'http'
           }
         ],
-        apiKey: 'abcd'
+        apiKey: 'abcd',
+        randomizeNodes: false
       })
     }).to.throw(MissingConfigurationError)
 
@@ -32,7 +33,8 @@ describe('Configuration', function () {
             port: '8108'
           }
         ],
-        apiKey: 'abcd'
+        apiKey: 'abcd',
+        randomizeNodes: false
       })
     }).to.throw(MissingConfigurationError)
 
@@ -48,7 +50,8 @@ describe('Configuration', function () {
             protocol: 'http'
           }
         ],
-        apiKey: 'abcd'
+        apiKey: 'abcd',
+        randomizeNodes: false
       })
       expect(typesense.configuration.nodes[0].port).to.equal(80)
     }).to.not.throw(MissingConfigurationError)
@@ -68,7 +71,8 @@ describe('Configuration', function () {
         nearestNode: {
           host: 'node1'
         },
-        apiKey: 'abcd'
+        apiKey: 'abcd',
+        randomizeNodes: false
       })
     }).to.throw(MissingConfigurationError)
 
@@ -98,11 +102,30 @@ describe('Configuration', function () {
             url: 'https://example.net/'
           }
         ],
-        apiKey: 'abcd'
+        apiKey: 'abcd',
+        randomizeNodes: false
       })
       expect(typesense.configuration.nodes[0].url).to.equal('https://example.net/')
     }).to.not.throw(MissingConfigurationError)
 
     done()
+  })
+
+  it('randomizes nodes by default', function (done) {
+    for (let i = 0; i < 10; i++) {
+      typesense = new TypesenseClient({
+        nodes: [
+          { host: 'node0', protocol: 'https' },
+          { host: 'node1', protocol: 'https' }
+        ],
+        apiKey: 'abcd'
+      })
+      if (typesense.configuration.nodes[0].host === 'node1') {
+        expect(typesense.configuration.nodes[0].host).to.equal('node1')
+        return done()
+      }
+    }
+    expect(typesense.configuration.nodes[0].host).to.equal('node1')
+    return done()
   })
 })

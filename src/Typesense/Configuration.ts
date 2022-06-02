@@ -12,6 +12,7 @@ export interface NodeConfiguration {
 export interface ConfigurationOptions {
   apiKey: string
   nodes: NodeConfiguration[]
+  randomizeNodes: boolean
   /**
    * @deprecated
    * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
@@ -57,6 +58,16 @@ export default class Configuration {
     this.nodes = this.nodes
       .map((node) => this.setDefaultPathInNode(node))
       .map((node) => this.setDefaultPortInNode(node))
+      .map((node) => ({ ...node })) // Make a deep copy
+
+    if (options.randomizeNodes == null) {
+      options.randomizeNodes = true
+    }
+
+    if (options.randomizeNodes === true) {
+      this.shuffleArray(this.nodes)
+    }
+
     this.nearestNode = options.nearestNode || null
     this.nearestNode = this.setDefaultPathInNode(this.nearestNode)
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode)
@@ -148,6 +159,13 @@ export default class Configuration {
       this.logger.warn(
         'Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
       )
+    }
+  }
+
+  private shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[array[i], array[j]] = [array[j], array[i]]
     }
   }
 }

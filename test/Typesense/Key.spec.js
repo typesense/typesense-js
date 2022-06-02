@@ -22,7 +22,8 @@ describe('Key', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
     key = typesense.keys('123')
     apiCall = new ApiCall(typesense.configuration)

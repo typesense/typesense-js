@@ -22,7 +22,8 @@ describe('Alias', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
     alias = typesense.aliases('companies')
     apiCall = new ApiCall(typesense.configuration)

@@ -22,7 +22,8 @@ describe('Health', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
     apiCall = new ApiCall(typesense.configuration)
   })
