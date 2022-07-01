@@ -28,24 +28,25 @@ const Typesense = require('../..')
 // Create a client
 // eslint-disable-next-line no-unused-vars
 const typesense = new Typesense.Client({
-  'nodes': [
+  nodes: [
     {
-      'host': 'localhost',
-      'port': '8108',
-      'protocol': 'http'
+      host: 'localhost',
+      port: '8108',
+      protocol: 'http'
     },
     {
-      'host': 'localhost',
-      'port': '7108',
-      'protocol': 'http'
+      host: 'localhost',
+      port: '7108',
+      protocol: 'http'
     },
     {
-      'host': 'localhost',
-      'port': '9108',
-      'protocol': 'http'
-    }],
-  'apiKey': 'xyz',
-  'numRetries': 3, // A total of 4 tries (1 original try + 3 retries)
-  'connectionTimeoutSeconds': 10,
-  'logLevel': 'debug'
+      host: 'localhost',
+      port: '9108',
+      protocol: 'http'
+    }
+  ],
+  apiKey: 'xyz',
+  numRetries: 3, // A total of 4 tries (1 original try + 3 retries)
+  connectionTimeoutSeconds: 10,
+  logLevel: 'debug'
 })
