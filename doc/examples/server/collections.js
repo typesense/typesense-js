@@ -54,7 +54,7 @@ let schema = {
   default_sorting_field: 'num_employees'
 }
 
-async function runExample () {
+async function runExample() {
   try {
     // Delete if the collection already exists from a previous example run
     await typesense.collections('companies').delete()
@@ -71,6 +71,19 @@ async function runExample () {
     // retrieve the created collection
     await timer(0.5) // Give Typesense cluster a few hundred ms to create collection on all nodes, before reading it right after (eventually consistent)
     result = await typesense.collections('companies').retrieve()
+    console.log(result)
+
+    // update collection schema
+    result = await typesense.collections('companies').update({
+      fields: [
+        { name: 'num_employees', drop: true },
+        {
+          name: 'num_employees',
+          type: 'int32',
+          facet: true
+        }
+      ]
+    })
     console.log(result)
 
     // retrieve all collections
@@ -91,7 +104,7 @@ async function runExample () {
   }
 }
 
-async function timer (seconds) {
+async function timer(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 
