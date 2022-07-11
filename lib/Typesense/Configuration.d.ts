@@ -9,7 +9,7 @@ export interface NodeConfiguration {
 export interface ConfigurationOptions {
     apiKey: string;
     nodes: NodeConfiguration[];
-    randomizeNodes: boolean;
+    randomizeNodes?: boolean;
     /**
      * @deprecated
      * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
