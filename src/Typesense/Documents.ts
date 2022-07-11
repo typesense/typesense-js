@@ -117,7 +117,7 @@ export interface SearchResponse<T extends DocumentSchema> {
 
 export interface DocumentWriteParameters {
   dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject'
-  action?: 'create' | 'update' | 'upsert'
+  action?: 'create' | 'update' | 'upsert' | 'emplace'
 }
 
 export interface DocumentsExportParameters {
