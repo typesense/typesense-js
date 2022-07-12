@@ -39,7 +39,7 @@ Tests are also a good place to know how the library works internally: [test](tes
 
 **Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.** See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
 
-See [Configuration.js](src/Typesense/Configuration.js) for a list of all client configuration options.
+See [Configuration.ts](src/Typesense/Configuration.ts) for a list of all client configuration options.
 
 ### Examples
 
