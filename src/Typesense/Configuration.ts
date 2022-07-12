@@ -1,4 +1,5 @@
 import * as logger from 'loglevel'
+import { Logger, LogLevelDesc } from 'loglevel'
 import { MissingConfigurationError } from './Errors'
 
 export interface NodeConfiguration {
@@ -34,8 +35,8 @@ export interface ConfigurationOptions {
   cacheSearchResultsForSeconds?: number
   additionalHeaders?: Record<string, string>
 
-  logLevel?: logger.LogLevelDesc
-  logger?: any //todo
+  logLevel?: LogLevelDesc
+  logger?: Logger
 }
 
 export default class Configuration {
@@ -49,8 +50,8 @@ export default class Configuration {
   readonly sendApiKeyAsQueryParam: boolean
   readonly cacheSearchResultsForSeconds: number
   readonly useServerSideSearchCache: boolean
-  readonly logger: any
-  readonly logLevel: any
+  readonly logger: Logger
+  readonly logLevel: LogLevelDesc
   readonly additionalHeaders: Record<string, string>
 
   constructor(options: ConfigurationOptions) {
