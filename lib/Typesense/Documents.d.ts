@@ -70,6 +70,9 @@ export interface SearchResponseHit<T extends DocumentSchema> {
             matched_tokens: string[];
         }
     ];
+    geo_distance_meters?: {
+		location?: number;
+    };
     document: T;
     text_match: number;
 }
