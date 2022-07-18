@@ -11,9 +11,12 @@ export default class SearchClient {
   private readonly individualCollections: Record<string, SearchOnlyCollection>
 
   constructor(options: ConfigurationOptions) {
-    const shouldSendApiKeyAsQueryParam = (options['apiKey'] || '').length < 2000
-    if (shouldSendApiKeyAsQueryParam) {
-      options['sendApiKeyAsQueryParam'] = true
+    options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? true
+    if (options.sendApiKeyAsQueryParam === true && (options.apiKey || '').length > 2000) {
+      console.warn(
+        '[typesense] API Key is longer than 2000 characters which is over the allowed limit, so disabling sending it as a query parameter.'
+      )
+      options.sendApiKeyAsQueryParam = false
     }
 
     this.configuration = new Configuration(options)

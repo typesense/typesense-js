@@ -28,6 +28,8 @@ export default class Client {
   private readonly individualKeys: Record<number, Key>
 
   constructor(options: ConfigurationOptions) {
+    options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false
+
     this.configuration = new Configuration(options)
     this.apiCall = new ApiCall(this.configuration)
     this.debug = new Debug(this.apiCall)
