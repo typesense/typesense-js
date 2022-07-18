@@ -13,7 +13,8 @@ describe('Typesense', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
 
     expect(client.configuration).to.be.an('object')
@@ -29,7 +30,8 @@ describe('Typesense', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
 
     expect(client.configuration).to.be.an('object')

@@ -13,11 +13,18 @@ export interface CollectionFieldSchema {
     optional?: boolean;
     facet?: boolean;
     index?: boolean;
+    sort?: boolean;
 }
 export interface CollectionSchema extends CollectionCreateSchema {
     created_at: number;
     num_documents: number;
     num_memory_shards: number;
+}
+export interface CollectionUpdateFieldSchema extends CollectionFieldSchema {
+    drop?: boolean;
+}
+export interface CollectionUpdateSchema extends Partial<Omit<CollectionCreateSchema, 'name'>> {
+    fields?: CollectionUpdateFieldSchema[];
 }
 export default class Collection<T extends DocumentSchema = {}> {
     private readonly name;
@@ -31,6 +38,7 @@ export default class Collection<T extends DocumentSchema = {}> {
     private individualSynonyms;
     constructor(name: string, apiCall: ApiCall, configuration: any);
     retrieve(): Promise<CollectionSchema>;
+    update(schema: CollectionUpdateSchema): Promise<CollectionSchema>;
     delete(): Promise<CollectionSchema>;
     exists(): Promise<boolean>;
     documents(): Documents<T>;

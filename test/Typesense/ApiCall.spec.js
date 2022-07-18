@@ -94,7 +94,7 @@ let sharedNodeSelectionBehavior = (method) => {
       .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nodes[0]))
       .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
-    timekeeper.freeze(currentTime + 125 * 1000)
+    timekeeper.freeze(currentTime + 185 * 1000)
     await this.apiCall[method]('/') // Request should have been made to Node 0, since it is now healthy and the unhealthy threshold was exceeded
 
     let requestHistory = this.mockAxios.history[method]
@@ -145,6 +145,7 @@ let sharedNodeSelectionBehavior = (method) => {
           }
         ],
         apiKey: 'abcd',
+        randomizeNodes: false,
         logLevel: 'error',
         retryIntervalSeconds: 0.001 // To keep tests fast
       })
@@ -178,7 +179,7 @@ let sharedNodeSelectionBehavior = (method) => {
         .onAny(this.apiCall.uriFor('/', this.typesense.configuration.nearestNode))
         .reply(200, JSON.stringify({ message: 'Success' }), { 'content-type': 'application/json' })
 
-      timekeeper.freeze(currentTime + 125 * 1000)
+      timekeeper.freeze(currentTime + 185 * 1000)
       await this.apiCall[method]('/') // Request should have been made to nearestNode, since it is now healthy and the unhealthy threshold was exceeded
       await this.apiCall[method]('/') // Request should have been made to nearestNode, since no roundrobin if it is present and healthy
       await this.apiCall[method]('/') // Request should have been made to nearestNode, since no roundrobin if it is present and healthy
@@ -261,6 +262,7 @@ describe('ApiCall', function () {
           }
         ],
         apiKey: 'abcd',
+        randomizeNodes: false,
         logLevel: 'error',
         retryIntervalSeconds: 0.001 // To keep tests fast
       })
@@ -293,7 +295,8 @@ describe('ApiCall', function () {
             url: 'https://node0/path'
           }
         ],
-        apiKey: 'abcd'
+        apiKey: 'abcd',
+        randomizeNodes: false
       })
 
       const apiCall = new ApiCall(client.configuration)
@@ -313,6 +316,7 @@ describe('ApiCall', function () {
           }
         ],
         apiKey: 'abcd',
+        randomizeNodes: false,
         additionalHeaders: {
           'x-header-name': 'value'
         }

@@ -28,6 +28,7 @@ describe('Documents', function () {
         }
       ],
       apiKey: 'abcd',
+      randomizeNodes: false,
       cacheSearchResultsForSeconds: 2 * 60
     })
 

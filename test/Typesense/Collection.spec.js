@@ -44,7 +44,8 @@ describe('Collection', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
     collection = typesense.collections('companies')
     apiCall = new ApiCall(typesense.configuration)
@@ -64,6 +65,25 @@ describe('Collection', function () {
       let returnData = collection.retrieve()
 
       expect(returnData).to.eventually.deep.equal(companySchema).notify(done)
+    })
+  })
+
+  describe('.update', function () {
+    it('updates a collection', function (done) {
+      const updateSchema = {
+        fields: [{ name: 'fieldX', drop: true }]
+      }
+      mockAxios
+        .onPatch(apiCall.uriFor('/collections/companies', typesense.configuration.nodes[0]), updateSchema, {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+        })
+        .reply(200, JSON.stringify(updateSchema), { 'content-type': 'application/json' })
+
+      let returnData = collection.update(updateSchema)
+
+      expect(returnData).to.eventually.deep.equal(updateSchema).notify(done)
     })
   })
 

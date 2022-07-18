@@ -1,4 +1,5 @@
 import * as logger from 'loglevel'
+import { Logger, LogLevelDesc } from 'loglevel'
 import { MissingConfigurationError } from './Errors'
 
 export interface NodeConfiguration {
@@ -12,6 +13,7 @@ export interface NodeConfiguration {
 export interface ConfigurationOptions {
   apiKey: string
   nodes: NodeConfiguration[]
+  randomizeNodes?: boolean
   /**
    * @deprecated
    * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
@@ -33,8 +35,8 @@ export interface ConfigurationOptions {
   cacheSearchResultsForSeconds?: number
   additionalHeaders?: Record<string, string>
 
-  logLevel?: logger.LogLevelDesc
-  logger?: any //todo
+  logLevel?: LogLevelDesc
+  logger?: Logger
 }
 
 export default class Configuration {
@@ -48,8 +50,8 @@ export default class Configuration {
   readonly sendApiKeyAsQueryParam: boolean
   readonly cacheSearchResultsForSeconds: number
   readonly useServerSideSearchCache: boolean
-  readonly logger: any
-  readonly logLevel: any
+  readonly logger: Logger
+  readonly logLevel: LogLevelDesc
   readonly additionalHeaders: Record<string, string>
 
   constructor(options: ConfigurationOptions) {
@@ -57,12 +59,22 @@ export default class Configuration {
     this.nodes = this.nodes
       .map((node) => this.setDefaultPathInNode(node))
       .map((node) => this.setDefaultPortInNode(node))
+      .map((node) => ({ ...node })) // Make a deep copy
+
+    if (options.randomizeNodes == null) {
+      options.randomizeNodes = true
+    }
+
+    if (options.randomizeNodes === true) {
+      this.shuffleArray(this.nodes)
+    }
+
     this.nearestNode = options.nearestNode || null
     this.nearestNode = this.setDefaultPathInNode(this.nearestNode)
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode)
 
-    this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 10
-    this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 15
+    this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 5
+    this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60
     this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1
 
@@ -148,6 +160,13 @@ export default class Configuration {
       this.logger.warn(
         'Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
       )
+    }
+  }
+
+  private shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[array[i], array[j]] = [array[j], array[i]]
     }
   }
 }

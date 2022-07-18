@@ -73,6 +73,19 @@ async function runExample () {
     result = await typesense.collections('companies').retrieve()
     console.log(result)
 
+    // update collection schema
+    result = await typesense.collections('companies').update({
+      fields: [
+        { name: 'num_employees', drop: true },
+        {
+          name: 'num_employees',
+          type: 'int32',
+          facet: true
+        }
+      ]
+    })
+    console.log(result)
+
     // retrieve all collections
     result = await typesense.collections().retrieve()
     console.log(result)

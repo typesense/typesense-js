@@ -24,6 +24,7 @@ describe('MultiSearch', function () {
         }
       ],
       apiKey: 'abcd',
+      randomizeNodes: false,
       cacheSearchResultsForSeconds: 2 * 60
     })
     apiCall = new ApiCall(typesense.configuration)

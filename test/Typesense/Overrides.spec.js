@@ -24,7 +24,8 @@ describe('Overrides', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
 
     override = {

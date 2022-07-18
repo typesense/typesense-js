@@ -44,7 +44,8 @@ describe('Collections', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
     collections = typesense.collections()
     apiCall = new ApiCall(typesense.configuration)

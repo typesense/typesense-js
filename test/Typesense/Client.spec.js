@@ -14,7 +14,8 @@ describe('Client', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
   })
   it('should set the right default configuration values', function (done) {
@@ -26,7 +27,7 @@ describe('Client', function () {
         path: ''
       }
     ])
-    expect(typesense.configuration.connectionTimeoutSeconds).to.eql(10)
+    expect(typesense.configuration.connectionTimeoutSeconds).to.eql(5)
     expect(typesense.configuration.apiKey).to.eql('abcd')
     done()
   })
@@ -40,6 +41,7 @@ describe('Client', function () {
         }
       ],
       apiKey: 'abcd',
+      randomizeNodes: false,
       additionalHeaders: {
         'CF-Access-Client-Id': 'abcd'
       }

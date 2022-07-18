@@ -24,7 +24,8 @@ describe('Synonyms', function () {
           protocol: 'http'
         }
       ],
-      apiKey: 'abcd'
+      apiKey: 'abcd',
+      randomizeNodes: false
     })
 
     synonyms = typesense.collections('companies').synonyms()
