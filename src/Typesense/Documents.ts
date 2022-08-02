@@ -84,13 +84,11 @@ export interface SearchResponseHit<T extends DocumentSchema> {
 }
 
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
-  counts: [
-    {
-      count: number
-      highlighted: string
-      value: string
-    }
-  ]
+  counts: {
+    count: number
+    highlighted: string
+    value: string
+  }[]
   field_name: keyof T
   stats: {
     avg?: number
