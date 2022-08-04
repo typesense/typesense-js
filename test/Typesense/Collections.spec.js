@@ -67,6 +67,26 @@ describe('Collections', function () {
 
       expect(returnData).to.eventually.deep.equal(companySchema).notify(done)
     })
+
+    context('when a query paramater is passed', function () {
+      it('passes the query parameter to the API', function (done) {
+        let { num_documents: numDocuments, ...schemaForCreation } = companySchema
+        mockAxios
+          .onPost(apiCall.uriFor('/collections', typesense.configuration.nodes[0]), schemaForCreation, {
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
+          })
+          .reply((config) => {
+            expect(config.params.src_name).to.equal('collection_x')
+            return [201, JSON.stringify(companySchema), { 'content-type': 'application/json' }]
+          })
+
+        let returnData = collections.create(schemaForCreation, { src_name: 'collection_x' })
+
+        expect(returnData).to.eventually.deep.equal(companySchema).notify(done)
+      })
+    })
   })
 
   describe('.retrieve', function () {
