@@ -126,6 +126,7 @@ export interface DocumentsExportParameters {
 
 export interface SearchableDocuments<T> {
   search(searchParameters: SearchParams, options: SearchOptions): Promise<SearchResponse<T>>
+  clearCache(): void
 }
 
 export interface WriteableDocuments<T> {

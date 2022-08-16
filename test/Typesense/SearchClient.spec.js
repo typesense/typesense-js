@@ -10,6 +10,10 @@ chai.use(chaiAsPromised)
 
 describe('SearchClient', function () {
   let typesense
+  let documents
+  let apiCall
+  let mockAxios
+
   beforeEach(function () {
     typesense = new TypesenseSearchClient({
       nodes: [
@@ -20,8 +24,13 @@ describe('SearchClient', function () {
         }
       ],
       apiKey: 'abcd',
-      randomizeNodes: false
+      randomizeNodes: false,
+      cacheSearchResultsForSeconds: 2 * 60
     })
+
+    documents = typesense.collections('companies').documents()
+    apiCall = new ApiCall(typesense.configuration)
+    mockAxios = new MockAxiosAdapter(axios)
   })
   it('should set the right default configuration values', function (done) {
     expect(typesense.configuration.nodes).to.eql([
@@ -82,5 +91,84 @@ describe('SearchClient', function () {
     let returnData = typesense.multiSearch.perform(searches, commonParams)
 
     expect(returnData).to.eventually.deep.equal({}).notify(done)
+  })
+  it('should programatically clear document cache', async function () {
+    let searchParameters = [
+      {
+        q: 'Stark',
+        query_by: 'company_name'
+      }
+    ]
+    let stubbedSearchResults = [
+      {
+        facet_counts: [],
+        found: 0,
+        search_time_ms: 0,
+        page: 0,
+        hits: [
+          {
+            _highlight: {
+              company_name: '<mark>Stark</mark> Industries'
+            },
+            document: {
+              id: '124',
+              company_name: 'Stark Industries',
+              num_employees: 5215,
+              country: 'USA'
+            }
+          }
+        ]
+      }
+    ]
+
+    searchParameters.forEach((_, i) => {
+      mockAxios
+        .onGet(
+          apiCall.uriFor('/collections/companies/documents/search', typesense.configuration.nodes[0])
+        )
+        .reply(200, JSON.stringify(stubbedSearchResults[i]), { 'content-type': 'application/json' })
+    })
+
+    await documents.search(searchParameters[0])
+
+    // programmatically clear cache
+    typesense.clearCache()
+
+    await documents.search(searchParameters[0])
+
+    // if 2 requests are made, then we know that cache was cleared successfully
+    expect(mockAxios.history['get'].length).to.equal(2)
+  })
+  it('should programatically clear multi_search cache', async function () {
+    let searchRequests = [
+      {
+        searches: [{ q: 'term1' }, { q: 'term2' }]
+      }
+    ]
+    let commonParams = [
+      {
+        collection: 'docs',
+        query_by: 'field'
+      }
+    ]
+    let stubbedSearchResults = [{ results1: [] }, { results2: [] }]
+
+    searchRequests.forEach((_, i) => {
+      mockAxios
+        .onPost(apiCall.uriFor('/multi_search', typesense.configuration.nodes[0]))
+        .reply((config) => {
+          return [200, JSON.stringify(stubbedSearchResults[i]), { 'content-type': 'application/json' }]
+        })
+    })
+
+    await typesense.multiSearch.perform(searchRequests[0], commonParams[0])
+
+    // programmatically clear cache
+    typesense.clearCache()
+
+    await typesense.multiSearch.perform(searchRequests[0], commonParams[0])
+
+    // if 2 requests are made, then we know that cache was cleared successfully
+    expect(mockAxios.history['post'].length).to.equal(2)
   })
 })

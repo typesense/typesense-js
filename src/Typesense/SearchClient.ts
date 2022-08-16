@@ -25,6 +25,14 @@ export default class SearchClient {
     this.individualCollections = {}
   }
 
+  clearCache() {
+    this.multiSearch.clearCache()
+
+    Object.entries(this.individualCollections).forEach(([_, collection]) => {
+      collection.documents().clearCache()
+    })
+  }
+
   collections<TDocumentSchema extends DocumentSchema = {}>(
     collectionName: string
   ): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection {
