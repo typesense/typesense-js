@@ -11,6 +11,10 @@ export class SearchOnlyDocuments<T> implements SearchableDocuments<T> {
 
   constructor(protected collectionName: string, protected apiCall: ApiCall, protected configuration: Configuration) {}
 
+  clearCache() {
+    this.requestWithCache.clearCache()
+  }
+
   async search(
     searchParameters: SearchParams,
     {
