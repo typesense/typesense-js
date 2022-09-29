@@ -8,5 +8,6 @@ export default class SearchClient {
     private readonly apiCall;
     private readonly individualCollections;
     constructor(options: ConfigurationOptions);
+    clearCache(): void;
     collections<TDocumentSchema extends DocumentSchema = {}>(collectionName: string): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection;
 }

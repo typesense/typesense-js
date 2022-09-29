@@ -28,6 +28,10 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
     this.requestWithCache = new RequestWithCache()
   }
 
+  clearCache() {
+    this.requestWithCache.clearCache()
+  }
+
   async perform(
     searchRequests: MultiSearchRequestsSchema,
     commonParams: Partial<MultiSearchRequestSchema> = {},

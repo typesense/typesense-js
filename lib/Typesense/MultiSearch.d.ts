@@ -16,6 +16,7 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
     private useTextContentType;
     private requestWithCache;
     constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
+    clearCache(): void;
     perform(searchRequests: MultiSearchRequestsSchema, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds }?: {
         cacheSearchResultsForSeconds?: number;
     }): Promise<MultiSearchResponse<T>>;

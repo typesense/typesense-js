@@ -4,6 +4,10 @@ const defaultMaxSize = 100
 export default class RequestWithCache {
   private responseCache: Map<string, any> = new Map<string, any>()
 
+  clearCache() {
+    this.responseCache = new Map<string, any>()
+  }
+
   // Todo: should probably be passed a callback instead, or an apiCall instance. Types are messy this way
   async perform<T extends any>(
     requestContext: any,
