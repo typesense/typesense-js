@@ -75,8 +75,8 @@ export interface SearchResponseHit<T extends DocumentSchema> {
       snippet?: string
       value?: string
       snippets?: string[]
-      indices?: string[]
-      matched_tokens: string[]
+      indices?: number[]
+      matched_tokens: string[][] | string[]
     }
   ]
   document: T
