@@ -32,6 +32,7 @@ export interface SearchParams {
     facet_by?: string;
     max_facet_values?: number;
     facet_query?: string;
+    facet_query_num_typos?: number;
     page?: number;
     per_page?: number;
     group_by?: string;
@@ -47,6 +48,7 @@ export interface SearchParams {
     num_typos?: string | number;
     min_len_1typo?: number;
     min_len_2typo?: number;
+    split_join_tokens?: string;
     exhaustive_search?: boolean;
     drop_tokens_threshold?: number;
     typo_tokens_threshold?: number;
@@ -56,8 +58,11 @@ export interface SearchParams {
     pre_segmented_query?: boolean;
     enable_overrides?: boolean;
     prioritize_exact_match?: boolean;
+    prioritize_token_position?: boolean;
     search_cutoff_ms?: number;
     use_cache?: boolean;
+    max_candidates?: number;
+    infix?: string;
 }
 export interface SearchResponseHit<T extends DocumentSchema> {
     highlights?: [
@@ -66,8 +71,8 @@ export interface SearchResponseHit<T extends DocumentSchema> {
             snippet?: string;
             value?: string;
             snippets?: string[];
-            indices?: string[];
-            matched_tokens: string[];
+            indices?: number[];
+            matched_tokens: string[][] | string[];
         }
     ];
     document: T;
