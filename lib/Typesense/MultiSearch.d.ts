@@ -7,7 +7,7 @@ export interface MultiSearchRequestSchema extends SearchParams {
 export interface MultiSearchRequestsSchema {
     searches: MultiSearchRequestSchema[];
 }
-export interface MultiSearchResponse<T> {
+export interface MultiSearchResponse<T extends DocumentSchema = {}> {
     results: SearchResponse<T>[];
 }
 export default class MultiSearch<T extends DocumentSchema = {}> {

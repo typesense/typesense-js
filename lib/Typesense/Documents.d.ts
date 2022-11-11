@@ -114,7 +114,7 @@ export interface DocumentsExportParameters {
     include_fields?: string;
     exclude_fields?: string;
 }
-export interface SearchableDocuments<T> {
+export interface SearchableDocuments<T extends DocumentSchema> {
     search(searchParameters: SearchParams, options: SearchOptions): Promise<SearchResponse<T>>;
     clearCache(): void;
 }
@@ -128,7 +128,7 @@ export interface WriteableDocuments<T> {
 }
 export interface SearchOptions {
     cacheSearchResultsForSeconds?: number;
-    abortSignal?: AbortSignal;
+    abortSignal?: AbortSignal | null;
 }
 export default class Documents<T extends DocumentSchema = {}> extends SearchOnlyDocuments<T> implements WriteableDocuments<T> {
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);

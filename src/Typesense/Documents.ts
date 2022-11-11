@@ -129,7 +129,7 @@ export interface DocumentsExportParameters {
   exclude_fields?: string
 }
 
-export interface SearchableDocuments<T> {
+export interface SearchableDocuments<T extends DocumentSchema> {
   search(searchParameters: SearchParams, options: SearchOptions): Promise<SearchResponse<T>>
   clearCache(): void
 }
@@ -145,7 +145,7 @@ export interface WriteableDocuments<T> {
 
 export interface SearchOptions {
   cacheSearchResultsForSeconds?: number
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal | null
 }
 
 export default class Documents<T extends DocumentSchema = {}>
@@ -201,7 +201,7 @@ export default class Documents<T extends DocumentSchema = {}>
     if (Array.isArray(documents)) {
       try {
         documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
-      } catch (error) {
+      } catch (error: any) {
         // if rangeerror, throw custom error message
         if (RangeError instanceof error && error?.includes('Too many properties to enumerate')) {
           throw new Error(`${error}
