@@ -30,7 +30,7 @@ export interface ConfigurationOptions {
   healthcheckIntervalSeconds?: number
   numRetries?: number
   retryIntervalSeconds?: number
-  sendApiKeyAsQueryParam?: boolean
+  sendApiKeyAsQueryParam?: boolean | undefined
   useServerSideSearchCache?: boolean
   cacheSearchResultsForSeconds?: number
   additionalHeaders?: Record<string, string>
@@ -41,25 +41,25 @@ export interface ConfigurationOptions {
 
 export default class Configuration {
   readonly nodes: NodeConfiguration[]
-  readonly nearestNode: NodeConfiguration
+  readonly nearestNode?: NodeConfiguration
   readonly connectionTimeoutSeconds: number
   readonly healthcheckIntervalSeconds: number
   readonly numRetries: number
   readonly retryIntervalSeconds: number
   readonly apiKey: string
-  readonly sendApiKeyAsQueryParam: boolean
+  readonly sendApiKeyAsQueryParam?: boolean
   readonly cacheSearchResultsForSeconds: number
   readonly useServerSideSearchCache: boolean
   readonly logger: Logger
   readonly logLevel: LogLevelDesc
-  readonly additionalHeaders: Record<string, string>
+  readonly additionalHeaders?: Record<string, string>
 
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || []
     this.nodes = this.nodes
       .map((node) => this.setDefaultPathInNode(node))
       .map((node) => this.setDefaultPortInNode(node))
-      .map((node) => ({ ...node })) // Make a deep copy
+      .map((node) => ({ ...node })) as NodeConfiguration[] // Make a deep copy
 
     if (options.randomizeNodes == null) {
       options.randomizeNodes = true
@@ -69,7 +69,7 @@ export default class Configuration {
       this.shuffleArray(this.nodes)
     }
 
-    this.nearestNode = options.nearestNode || null
+    this.nearestNode = options.nearestNode
     this.nearestNode = this.setDefaultPathInNode(this.nearestNode)
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode)
 
@@ -126,14 +126,14 @@ export default class Configuration {
     )
   }
 
-  private setDefaultPathInNode(node: NodeConfiguration): NodeConfiguration {
+  private setDefaultPathInNode(node: NodeConfiguration | undefined): NodeConfiguration | undefined {
     if (node != null && !node.hasOwnProperty('path')) {
       node.path = ''
     }
     return node
   }
 
-  private setDefaultPortInNode(node: NodeConfiguration): NodeConfiguration {
+  private setDefaultPortInNode(node: NodeConfiguration | undefined): NodeConfiguration | undefined {
     if (node != null && !node.hasOwnProperty('port') && node.hasOwnProperty('protocol')) {
       switch (node.protocol) {
         case 'https':

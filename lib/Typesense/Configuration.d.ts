@@ -26,7 +26,7 @@ export interface ConfigurationOptions {
     healthcheckIntervalSeconds?: number;
     numRetries?: number;
     retryIntervalSeconds?: number;
-    sendApiKeyAsQueryParam?: boolean;
+    sendApiKeyAsQueryParam?: boolean | undefined;
     useServerSideSearchCache?: boolean;
     cacheSearchResultsForSeconds?: number;
     additionalHeaders?: Record<string, string>;
@@ -35,18 +35,18 @@ export interface ConfigurationOptions {
 }
 export default class Configuration {
     readonly nodes: NodeConfiguration[];
-    readonly nearestNode: NodeConfiguration;
+    readonly nearestNode?: NodeConfiguration;
     readonly connectionTimeoutSeconds: number;
     readonly healthcheckIntervalSeconds: number;
     readonly numRetries: number;
     readonly retryIntervalSeconds: number;
     readonly apiKey: string;
-    readonly sendApiKeyAsQueryParam: boolean;
+    readonly sendApiKeyAsQueryParam?: boolean;
     readonly cacheSearchResultsForSeconds: number;
     readonly useServerSideSearchCache: boolean;
     readonly logger: Logger;
     readonly logLevel: LogLevelDesc;
-    readonly additionalHeaders: Record<string, string>;
+    readonly additionalHeaders?: Record<string, string>;
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;

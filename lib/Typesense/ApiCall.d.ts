@@ -13,15 +13,15 @@ export default class ApiCall {
     private readonly connectionTimeoutSeconds;
     private readonly healthcheckIntervalSeconds;
     private readonly retryIntervalSeconds;
-    private readonly sendApiKeyAsQueryParam;
+    private readonly sendApiKeyAsQueryParam?;
     private readonly numRetriesPerRequest;
-    private readonly additionalUserHeaders;
+    private readonly additionalUserHeaders?;
     private readonly logger;
     private currentNodeIndex;
     constructor(configuration: Configuration);
     get<T extends any>(endpoint: string, queryParameters?: any, { abortSignal, responseType }?: {
         abortSignal?: any;
-        responseType?: AxiosRequestConfig['responseType'];
+        responseType?: AxiosRequestConfig['responseType'] | undefined;
     }): Promise<T>;
     delete<T extends any>(endpoint: string, queryParameters?: any): Promise<T>;
     post<T extends any>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any): Promise<T>;
@@ -32,7 +32,7 @@ export default class ApiCall {
         bodyParameters?: any;
         additionalHeaders?: any;
         abortSignal?: any;
-        responseType?: AxiosRequestConfig['responseType'];
+        responseType?: AxiosRequestConfig['responseType'] | undefined;
     }): Promise<T>;
     getNextNode(requestNumber?: number): Node;
     nodeDueForHealthcheck(node: any, requestNumber?: number): boolean;

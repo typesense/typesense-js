@@ -28,17 +28,21 @@ export default class ApiCall {
   private readonly connectionTimeoutSeconds: number
   private readonly healthcheckIntervalSeconds: number
   private readonly retryIntervalSeconds: number
-  private readonly sendApiKeyAsQueryParam: boolean
+  private readonly sendApiKeyAsQueryParam?: boolean
   private readonly numRetriesPerRequest: number
-  private readonly additionalUserHeaders: Record<string, string>
+  private readonly additionalUserHeaders?: Record<string, string>
 
   private readonly logger: Logger
   private currentNodeIndex: number
 
   constructor(private configuration: Configuration) {
     this.apiKey = this.configuration.apiKey
-    this.nodes = JSON.parse(JSON.stringify(this.configuration.nodes)) // Make a copy, since we'll be adding additional metadata to the nodes
-    this.nearestNode = JSON.parse(JSON.stringify(this.configuration.nearestNode))
+    this.nodes =
+      this.configuration.nodes == null ? this.configuration.nodes : JSON.parse(JSON.stringify(this.configuration.nodes)) // Make a copy, since we'll be adding additional metadata to the nodes
+    this.nearestNode =
+      this.configuration.nearestNode == null
+        ? this.configuration.nearestNode
+        : JSON.parse(JSON.stringify(this.configuration.nearestNode))
     this.connectionTimeoutSeconds = this.configuration.connectionTimeoutSeconds
     this.healthcheckIntervalSeconds = this.configuration.healthcheckIntervalSeconds
     this.numRetriesPerRequest = this.configuration.numRetries
@@ -57,8 +61,8 @@ export default class ApiCall {
     queryParameters: any = {},
     {
       abortSignal = null,
-      responseType = null
-    }: { abortSignal?: any; responseType?: AxiosRequestConfig['responseType'] } = {}
+      responseType = undefined
+    }: { abortSignal?: any; responseType?: AxiosRequestConfig['responseType'] | undefined } = {}
   ): Promise<T> {
     return this.performRequest<T>('get', endpoint, { queryParameters, abortSignal, responseType })
   }
@@ -92,13 +96,13 @@ export default class ApiCall {
       bodyParameters = null,
       additionalHeaders = {},
       abortSignal = null,
-      responseType = null
+      responseType = undefined
     }: {
       queryParameters?: any
       bodyParameters?: any
       additionalHeaders?: any
       abortSignal?: any
-      responseType?: AxiosRequestConfig['responseType']
+      responseType?: AxiosRequestConfig['responseType'] | undefined
     }
   ): Promise<T> {
     this.configuration.validate()
@@ -199,7 +203,7 @@ export default class ApiCall {
           // This will get caught by the catch block below
           throw this.customErrorForResponse(response, response.data?.message)
         }
-      } catch (error) {
+      } catch (error: any) {
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
         this.setNodeHealthcheck(node, UNHEALTHY)
         lastException = error
@@ -247,7 +251,7 @@ export default class ApiCall {
         .map((node) => `Node ${node.index} is ${node.isHealthy === true ? 'Healthy' : 'Unhealthy'}`)
         .join(' || ')}`
     )
-    let candidateNode: Node
+    let candidateNode: Node = this.nodes[0]
     for (let i = 0; i <= this.nodes.length; i++) {
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.nodes.length
       candidateNode = this.nodes[this.currentNodeIndex]
