@@ -73,6 +73,18 @@ export interface SearchParams {
   infix?: string
 }
 
+type SearchResponseHighlightObject = {
+  matched_tokens?: string[]
+  snippet?: string
+  value?: string
+}
+
+export type SearchResponseHighlight<T> = T extends string | number
+  ? SearchResponseHighlightObject
+  : {
+      [TValue in keyof T]?: SearchResponseHighlight<T[TValue]>
+    }
+
 export interface SearchResponseHit<T extends DocumentSchema> {
   highlights?: [
     {
@@ -84,8 +96,16 @@ export interface SearchResponseHit<T extends DocumentSchema> {
       matched_tokens: string[][] | string[]
     }
   ]
+  highlight: SearchResponseHighlight<T>
   document: T
   text_match: number
+  text_match_info?: {
+    best_field_score: string // To prevent scores from being truncated by JSON spec
+    best_field_weight: number
+    fields_matched: number
+    score: string // To prevent scores from being truncated by JSON spec
+    tokens_matched: number
+  }
 }
 
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
