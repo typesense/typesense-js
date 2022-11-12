@@ -82,7 +82,7 @@ type SearchResponseHighlightObject = {
 export type SearchResponseHighlight<T> = T extends string | number
   ? SearchResponseHighlightObject
   : {
-      [TValue in keyof T]?: SearchResponseHighlight<T[TValue]>
+      [TAttribute in keyof T]?: SearchResponseHighlight<T[TAttribute]>
     }
 
 export interface SearchResponseHit<T extends DocumentSchema> {
