@@ -13,7 +13,7 @@ export interface MultiSearchRequestsSchema {
   searches: MultiSearchRequestSchema[]
 }
 
-export interface MultiSearchResponse<T> {
+export interface MultiSearchResponse<T extends DocumentSchema = {}> {
   results: SearchResponse<T>[]
 }
 
@@ -55,6 +55,6 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
       this.apiCall.post,
       [RESOURCEPATH, searchRequests, queryParams, additionalHeaders],
       { cacheResponseForSeconds: cacheSearchResultsForSeconds }
-    )
+    ) as Promise<MultiSearchResponse<T>>
   }
 }

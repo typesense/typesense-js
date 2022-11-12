@@ -14,7 +14,7 @@ export default class RequestWithCache {
     requestFunction: (...params: any) => unknown,
     requestFunctionArguments: any[],
     cacheOptions: CacheOptions
-  ): Promise<T> {
+  ): Promise<T | unknown> {
     const { cacheResponseForSeconds = defaultCacheResponseForSeconds, maxSize = defaultMaxSize } = cacheOptions
     const isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0
 
