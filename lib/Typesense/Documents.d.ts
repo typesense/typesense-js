@@ -125,6 +125,9 @@ export interface DocumentWriteParameters {
     dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject';
     action?: 'create' | 'update' | 'upsert' | 'emplace';
 }
+export interface DocumentImportParameters extends DocumentWriteParameters {
+    batch_size?: number;
+}
 export interface DocumentsExportParameters {
     filter_by?: string;
     include_fields?: string;
@@ -153,15 +156,15 @@ export default class Documents<T extends DocumentSchema = {}> extends SearchOnly
     update(document: T, options?: DocumentWriteParameters): Promise<T>;
     delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>;
     delete(idOrQuery: string): Promise<T>;
-    createMany(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>;
+    createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
     /**
      * Import a set of documents in a batch.
      * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
      * @param options
      * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
      */
-    import(documents: string, options?: DocumentWriteParameters): Promise<string>;
-    import(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>;
+    import(documents: string, options?: DocumentImportParameters): Promise<string>;
+    import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
     /**
      * Returns a JSONL string for all the documents in this collection
      */

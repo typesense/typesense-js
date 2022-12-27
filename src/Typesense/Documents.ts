@@ -143,6 +143,10 @@ export interface DocumentWriteParameters {
   action?: 'create' | 'update' | 'upsert' | 'emplace'
 }
 
+export interface DocumentImportParameters extends DocumentWriteParameters {
+  batch_size?: number
+}
+
 export interface DocumentsExportParameters {
   filter_by?: string
   include_fields?: string
@@ -201,7 +205,7 @@ export default class Documents<T extends DocumentSchema = {}>
     }
   }
 
-  async createMany(documents: T[], options: DocumentWriteParameters = {}) {
+  async createMany(documents: T[], options: DocumentImportParameters = {}) {
     this.configuration.logger.warn(
       'createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents'
     )
@@ -214,9 +218,9 @@ export default class Documents<T extends DocumentSchema = {}>
    * @param options
    * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
    */
-  async import(documents: string, options?: DocumentWriteParameters): Promise<string>
-  async import(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>
-  async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
+  async import(documents: string, options?: DocumentImportParameters): Promise<string>
+  async import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>
+  async import(documents: T[] | string, options: DocumentImportParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
     if (Array.isArray(documents)) {
       try {
