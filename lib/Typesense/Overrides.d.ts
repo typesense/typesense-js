@@ -14,6 +14,7 @@ export interface OverrideCreateSchema {
     excludes?: Array<{
         id: string;
     }>;
+    filter_curated_hits?: boolean;
 }
 export interface OverridesRetrieveSchema {
     overrides: OverrideSchema[];
