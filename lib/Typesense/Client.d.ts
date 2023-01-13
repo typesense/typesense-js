@@ -11,6 +11,8 @@ import Metrics from './Metrics';
 import Health from './Health';
 import Operations from './Operations';
 import MultiSearch from './MultiSearch';
+import Presets from './Presets';
+import Preset from './Preset';
 export default class Client {
     configuration: Configuration;
     apiCall: ApiCall;
@@ -25,6 +27,8 @@ export default class Client {
     private readonly individualAliases;
     private readonly _keys;
     private readonly individualKeys;
+    private readonly _presets;
+    private readonly individualPresets;
     constructor(options: ConfigurationOptions);
     collections(): Collections;
     collections<T extends Record<string, any> = {}>(collectionName: string): Collection<T>;
@@ -32,4 +36,6 @@ export default class Client {
     aliases(aliasName: string): Alias;
     keys(): Keys;
     keys(id: number): Key;
+    presets(): Presets;
+    presets(id: string): Preset;
 }

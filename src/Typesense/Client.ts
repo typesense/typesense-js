@@ -11,6 +11,8 @@ import Metrics from './Metrics'
 import Health from './Health'
 import Operations from './Operations'
 import MultiSearch from './MultiSearch'
+import Presets from './Presets'
+import Preset from './Preset'
 
 export default class Client {
   configuration: Configuration
@@ -26,6 +28,8 @@ export default class Client {
   private readonly individualAliases: Record<string, Alias>
   private readonly _keys: Keys
   private readonly individualKeys: Record<number, Key>
+  private readonly _presets: Presets
+  private readonly individualPresets: Record<number, Preset>
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false
@@ -43,6 +47,8 @@ export default class Client {
     this.individualAliases = {}
     this._keys = new Keys(this.apiCall)
     this.individualKeys = {}
+    this._presets = new Presets(this.apiCall)
+    this.individualPresets = {}
   }
 
   collections(): Collections
@@ -81,6 +87,19 @@ export default class Client {
         this.individualKeys[id] = new Key(id, this.apiCall)
       }
       return this.individualKeys[id]
+    }
+  }
+
+  presets(): Presets
+  presets(id: string): Preset
+  presets(id?: string): Presets | Preset {
+    if (id === undefined) {
+      return this._presets
+    } else {
+      if (this.individualPresets[id] === undefined) {
+        this.individualPresets[id] = new Preset(id, this.apiCall)
+      }
+      return this.individualPresets[id]
     }
   }
 }
