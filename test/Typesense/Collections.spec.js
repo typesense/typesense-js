@@ -31,6 +31,12 @@ describe('Collections', function () {
         name: 'country',
         type: 'string',
         facet: true
+      },
+      {
+        name: 'address',
+        type: 'string',
+        locale: 'el',
+        infix: true
       }
     ],
     default_sorting_field: 'num_employees'

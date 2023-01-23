@@ -31,6 +31,9 @@ export interface CollectionFieldSchema {
   facet?: boolean
   index?: boolean
   sort?: boolean
+  locale?: string
+  infix?: boolean
+  [t: string]: unknown
 }
 
 export interface CollectionSchema extends CollectionCreateSchema {
