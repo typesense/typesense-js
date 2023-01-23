@@ -1,6 +1,6 @@
 {
   "name": "typesense",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Javascript Library for Typesense",
   "homepage": "https://github.com/typesense/typesense-js",
   "author": {
