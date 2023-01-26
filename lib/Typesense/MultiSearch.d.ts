@@ -3,6 +3,7 @@ import Configuration from './Configuration';
 import { DocumentSchema, SearchParams, SearchResponse } from './Documents';
 export interface MultiSearchRequestSchema extends SearchParams {
     collection?: string;
+    'x-typesense-api-key'?: string;
 }
 export interface MultiSearchRequestsSchema {
     searches: MultiSearchRequestSchema[];
