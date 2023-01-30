@@ -71,7 +71,20 @@ export interface SearchParams {
   use_cache?: boolean
   max_candidates?: number
   infix?: string
+  preset?: string
 }
+
+type SearchResponseHighlightObject = {
+  matched_tokens?: string[]
+  snippet?: string
+  value?: string
+}
+
+export type SearchResponseHighlight<T> = T extends string | number
+  ? SearchResponseHighlightObject
+  : {
+      [TAttribute in keyof T]?: SearchResponseHighlight<T[TAttribute]>
+    }
 
 export interface SearchResponseHit<T extends DocumentSchema> {
   highlights?: [
@@ -84,8 +97,16 @@ export interface SearchResponseHit<T extends DocumentSchema> {
       matched_tokens: string[][] | string[]
     }
   ]
+  highlight: SearchResponseHighlight<T>
   document: T
   text_match: number
+  text_match_info?: {
+    best_field_score: string // To prevent scores from being truncated by JSON spec
+    best_field_weight: number
+    fields_matched: number
+    score: string // To prevent scores from being truncated by JSON spec
+    tokens_matched: number
+  }
 }
 
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
@@ -121,6 +142,10 @@ export interface SearchResponse<T extends DocumentSchema> {
 export interface DocumentWriteParameters {
   dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject'
   action?: 'create' | 'update' | 'upsert' | 'emplace'
+}
+
+export interface DocumentImportParameters extends DocumentWriteParameters {
+  batch_size?: number
 }
 
 export interface DocumentsExportParameters {
@@ -181,7 +206,7 @@ export default class Documents<T extends DocumentSchema = {}>
     }
   }
 
-  async createMany(documents: T[], options: DocumentWriteParameters = {}) {
+  async createMany(documents: T[], options: DocumentImportParameters = {}) {
     this.configuration.logger.warn(
       'createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents'
     )
@@ -194,9 +219,9 @@ export default class Documents<T extends DocumentSchema = {}>
    * @param options
    * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
    */
-  async import(documents: string, options?: DocumentWriteParameters): Promise<string>
-  async import(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>
-  async import(documents: T[] | string, options: DocumentWriteParameters = {}): Promise<string | ImportResponse[]> {
+  async import(documents: string, options?: DocumentImportParameters): Promise<string>
+  async import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>
+  async import(documents: T[] | string, options: DocumentImportParameters = {}): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat
     if (Array.isArray(documents)) {
       try {

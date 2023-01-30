@@ -42,7 +42,7 @@ export default class ApiCall {
     this.nearestNode =
       this.configuration.nearestNode == null
         ? this.configuration.nearestNode
-        : JSON.parse(JSON.stringify(this.configuration.nearestNode))
+        :JSON.parse(JSON.stringify(this.configuration.nearestNode))
     this.connectionTimeoutSeconds = this.configuration.connectionTimeoutSeconds
     this.healthcheckIntervalSeconds = this.configuration.healthcheckIntervalSeconds
     this.numRetriesPerRequest = this.configuration.numRetries

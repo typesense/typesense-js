@@ -63,7 +63,16 @@ export interface SearchParams {
     use_cache?: boolean;
     max_candidates?: number;
     infix?: string;
+    preset?: string;
 }
+declare type SearchResponseHighlightObject = {
+    matched_tokens?: string[];
+    snippet?: string;
+    value?: string;
+};
+export declare type SearchResponseHighlight<T> = T extends string | number ? SearchResponseHighlightObject : {
+    [TAttribute in keyof T]?: SearchResponseHighlight<T[TAttribute]>;
+};
 export interface SearchResponseHit<T extends DocumentSchema> {
     highlights?: [
         {
@@ -75,8 +84,16 @@ export interface SearchResponseHit<T extends DocumentSchema> {
             matched_tokens: string[][] | string[];
         }
     ];
+    highlight: SearchResponseHighlight<T>;
     document: T;
     text_match: number;
+    text_match_info?: {
+        best_field_score: string;
+        best_field_weight: number;
+        fields_matched: number;
+        score: string;
+        tokens_matched: number;
+    };
 }
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
     counts: {
@@ -109,6 +126,9 @@ export interface DocumentWriteParameters {
     dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject';
     action?: 'create' | 'update' | 'upsert' | 'emplace';
 }
+export interface DocumentImportParameters extends DocumentWriteParameters {
+    batch_size?: number;
+}
 export interface DocumentsExportParameters {
     filter_by?: string;
     include_fields?: string;
@@ -137,15 +157,15 @@ export default class Documents<T extends DocumentSchema = {}> extends SearchOnly
     update(document: T, options?: DocumentWriteParameters): Promise<T>;
     delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>;
     delete(idOrQuery: string): Promise<T>;
-    createMany(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>;
+    createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
     /**
      * Import a set of documents in a batch.
      * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
      * @param options
      * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
      */
-    import(documents: string, options?: DocumentWriteParameters): Promise<string>;
-    import(documents: T[], options?: DocumentWriteParameters): Promise<ImportResponse[]>;
+    import(documents: string, options?: DocumentImportParameters): Promise<string>;
+    import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
     /**
      * Returns a JSONL string for all the documents in this collection
      */
