@@ -7,6 +7,7 @@ const RESOURCEPATH = '/multi_search'
 
 export interface MultiSearchRequestSchema extends SearchParams {
   collection?: string
+  'x-typesense-api-key'?: string
 }
 
 export interface MultiSearchRequestsSchema {
