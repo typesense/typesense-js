@@ -16,6 +16,7 @@ export interface CollectionFieldSchema {
     sort?: boolean;
     locale?: string;
     infix?: boolean;
+    num_dim?: number;
     [t: string]: unknown;
 }
 export interface CollectionSchema extends CollectionCreateSchema {

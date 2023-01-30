@@ -63,6 +63,7 @@ export interface SearchParams {
     use_cache?: boolean;
     max_candidates?: number;
     infix?: string;
+    preset?: string;
 }
 declare type SearchResponseHighlightObject = {
     matched_tokens?: string[];

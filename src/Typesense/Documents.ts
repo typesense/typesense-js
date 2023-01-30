@@ -71,6 +71,7 @@ export interface SearchParams {
   use_cache?: boolean
   max_candidates?: number
   infix?: string
+  preset?: string
 }
 
 type SearchResponseHighlightObject = {
