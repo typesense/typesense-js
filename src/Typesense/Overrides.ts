@@ -4,19 +4,30 @@ import { OverrideSchema } from './Override'
 
 const RESOURCEPATH = '/overrides'
 
+export interface OverrideRuleQuerySchema {
+  query: string
+  match: 'exact' | 'contains'
+}
+
+export interface OverrideRuleFilterSchema {
+  filter_by: string
+}
+
 export interface OverrideCreateSchema {
-  rule: {
-    query: string
-    match: 'exact' | 'contains'
-  }
+  rule: OverrideRuleQuerySchema | OverrideRuleFilterSchema
   filter_by?: string
+  sort_by?: string
   remove_matched_tokens?: boolean
+  replace_query?: string
   includes?: Array<{
     id: string
     position: number
   }>
   excludes?: Array<{ id: string }>
   filter_curated_hits?: boolean
+  effective_from_ts?: number
+  effective_to_ts?: number
+  stop_processing?: boolean
 }
 
 export interface OverridesRetrieveSchema {

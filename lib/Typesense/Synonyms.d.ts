@@ -3,6 +3,8 @@ import { SynonymSchema } from './Synonym';
 export interface SynonymCreateSchema {
     synonyms: string[];
     root?: string;
+    locale?: string;
+    symbols_to_index?: string[];
 }
 export interface SynonymsRetrieveSchema {
     synonyms: SynonymSchema[];

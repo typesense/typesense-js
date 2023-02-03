@@ -72,6 +72,7 @@ export interface SearchParams {
   max_candidates?: number
   infix?: string
   preset?: string
+  text_match_type?: string
 }
 
 type SearchResponseHighlightObject = {

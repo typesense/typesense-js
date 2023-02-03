@@ -21,6 +21,8 @@ export type FieldType =
   | 'int64[]'
   | 'float[]'
   | 'bool[]'
+  | 'object'
+  | 'object[]'
   | 'auto'
   | 'string*'
 
