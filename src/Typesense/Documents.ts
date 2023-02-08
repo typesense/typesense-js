@@ -147,6 +147,8 @@ export interface DocumentWriteParameters {
 
 export interface DocumentImportParameters extends DocumentWriteParameters {
   batch_size?: number
+  return_doc?: boolean
+  return_id?: boolean
 }
 
 export interface DocumentsExportParameters {
