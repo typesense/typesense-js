@@ -4,7 +4,7 @@ import { CollectionFieldSchema, CollectionSchema } from './Collection'
 export interface CollectionCreateSchema {
   name: string
   default_sorting_field?: string
-  fields?: CollectionFieldSchema[]
+  fields: CollectionFieldSchema[]
   symbols_to_index?: string[]
   token_separators?: string[]
   enable_nested_fields?: boolean
@@ -19,7 +19,10 @@ const RESOURCEPATH = '/collections'
 export default class Collections {
   constructor(private apiCall: ApiCall) {}
 
-  async create(schema: CollectionCreateSchema, options: CollectionCreateOptions = {}): Promise<CollectionSchema> {
+  async create<TOptions extends CollectionCreateOptions>(
+    schema: TOptions['src_name'] extends string ? Pick<CollectionCreateSchema, 'name'> : CollectionCreateSchema,
+    options?: TOptions
+  ): Promise<CollectionSchema> {
     return this.apiCall.post<CollectionSchema>(RESOURCEPATH, schema, options)
   }
 
