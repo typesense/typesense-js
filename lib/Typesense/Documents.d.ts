@@ -65,6 +65,7 @@ export interface SearchParams {
     infix?: string;
     preset?: string;
     text_match_type?: string;
+    vector_query?: string;
 }
 declare type SearchResponseHighlightObject = {
     matched_tokens?: string[];

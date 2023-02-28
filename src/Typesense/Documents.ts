@@ -73,6 +73,7 @@ export interface SearchParams {
   infix?: string
   preset?: string
   text_match_type?: string
+  vector_query?: string
 }
 
 type SearchResponseHighlightObject = {
