@@ -229,7 +229,15 @@ export default class Documents<T extends DocumentSchema = {}>
     let documentsInJSONLFormat
     if (Array.isArray(documents)) {
       try {
-        documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join('\n')
+        // JSON.stringify doesn't support BigInt, so use a 2 step process to get BigInt into JSONL
+        // 1. Cast BigInt to a string and wrap in an object for identifying in replace later
+        const bigIntToObject = (_, v) =>
+          typeof v === 'bigint' ? { __typename: 'Typesense.BigInt', value: v.toString() } : v
+        documentsInJSONLFormat = documents
+          .map((document) => JSON.stringify(document, bigIntToObject))
+          .join('\n')
+          // 2. Remove the BigInt object wrap to leave an unquoted BigInt remaining.
+          .replace(/{"__typename":"Typesense.BigInt","value":"(\d*)"}/g, '$1')
       } catch (error: any) {
         // if rangeerror, throw custom error message
         if (RangeError instanceof error && error?.includes('Too many properties to enumerate')) {
