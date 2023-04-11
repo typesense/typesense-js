@@ -10,21 +10,32 @@ export interface NodeConfiguration {
   url?: string
 }
 
+export interface NodeConfigurationWithHostname {
+  host: string
+  port: number
+  protocol: string
+  path?: string
+}
+
+export interface NodeConfigurationWithUrl {
+  url: string
+}
+
 export interface ConfigurationOptions {
   apiKey: string
-  nodes: NodeConfiguration[]
+  nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[]
   randomizeNodes?: boolean
   /**
    * @deprecated
    * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
    */
-  masterNode?: NodeConfiguration
+  masterNode?: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl
   /**
    * @deprecated
    * readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
    */
-  readReplicaNodes?: NodeConfiguration[]
-  nearestNode?: NodeConfiguration
+  readReplicaNodes?: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[]
+  nearestNode?: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl
   connectionTimeoutSeconds?: number
   timeoutSeconds?: number
   healthcheckIntervalSeconds?: number
@@ -40,8 +51,8 @@ export interface ConfigurationOptions {
 }
 
 export default class Configuration {
-  readonly nodes: NodeConfiguration[]
-  readonly nearestNode?: NodeConfiguration
+  readonly nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[]
+  readonly nearestNode?: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl
   readonly connectionTimeoutSeconds: number
   readonly healthcheckIntervalSeconds: number
   readonly numRetries: number
@@ -118,29 +129,35 @@ export default class Configuration {
     })
   }
 
-  private isNodeMissingAnyParameters(node: NodeConfiguration): boolean {
+  private isNodeMissingAnyParameters(
+    node: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl
+  ): boolean {
     return (
       !['protocol', 'host', 'port', 'path'].every((key) => {
         return node.hasOwnProperty(key)
-      }) && node.url == null
+      }) && node['url'] == null
     )
   }
 
-  private setDefaultPathInNode(node: NodeConfiguration | undefined): NodeConfiguration | undefined {
+  private setDefaultPathInNode(
+    node: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl | undefined
+  ): NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl | undefined {
     if (node != null && !node.hasOwnProperty('path')) {
-      node.path = ''
+      node['path'] = ''
     }
     return node
   }
 
-  private setDefaultPortInNode(node: NodeConfiguration | undefined): NodeConfiguration | undefined {
+  private setDefaultPortInNode(
+    node: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl | undefined
+  ): NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl | undefined {
     if (node != null && !node.hasOwnProperty('port') && node.hasOwnProperty('protocol')) {
-      switch (node.protocol) {
+      switch (node['protocol']) {
         case 'https':
-          node.port = 443
+          node['port'] = 443
           break
         case 'http':
-          node.port = 80
+          node['port'] = 80
           break
       }
     }

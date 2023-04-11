@@ -6,21 +6,30 @@ export interface NodeConfiguration {
     path?: string;
     url?: string;
 }
+export interface NodeConfigurationWithHostname {
+    host: string;
+    port: number;
+    protocol: string;
+    path?: string;
+}
+export interface NodeConfigurationWithUrl {
+    url: string;
+}
 export interface ConfigurationOptions {
     apiKey: string;
-    nodes: NodeConfiguration[];
+    nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
     randomizeNodes?: boolean;
     /**
      * @deprecated
      * masterNode is now consolidated to nodes, starting with Typesense Server v0.12'
      */
-    masterNode?: NodeConfiguration;
+    masterNode?: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl;
     /**
      * @deprecated
      * readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12'
      */
-    readReplicaNodes?: NodeConfiguration[];
-    nearestNode?: NodeConfiguration;
+    readReplicaNodes?: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
+    nearestNode?: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl;
     connectionTimeoutSeconds?: number;
     timeoutSeconds?: number;
     healthcheckIntervalSeconds?: number;
@@ -34,8 +43,8 @@ export interface ConfigurationOptions {
     logger?: Logger;
 }
 export default class Configuration {
-    readonly nodes: NodeConfiguration[];
-    readonly nearestNode?: NodeConfiguration;
+    readonly nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
+    readonly nearestNode?: NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl;
     readonly connectionTimeoutSeconds: number;
     readonly healthcheckIntervalSeconds: number;
     readonly numRetries: number;
