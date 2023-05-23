@@ -1,12 +1,16 @@
 import ApiCall from './ApiCall';
 import Configuration from './Configuration';
-import { DocumentSchema, SearchParams, SearchResponse } from './Documents';
+import { DocumentSchema, SearchParams, SearchParamsWithPreset, SearchResponse } from './Documents';
 export interface MultiSearchRequestSchema extends SearchParams {
     collection?: string;
     'x-typesense-api-key'?: string;
 }
+export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPreset {
+    collection?: string;
+    'x-typesense-api-key'?: string;
+}
 export interface MultiSearchRequestsSchema {
-    searches: MultiSearchRequestSchema[];
+    searches: MultiSearchRequestSchema[] | MultiSearchRequestWithPresetSchema[];
 }
 export interface MultiSearchResponse<T extends DocumentSchema = {}> {
     results: SearchResponse<T>[];

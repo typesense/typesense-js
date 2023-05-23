@@ -1,7 +1,7 @@
 import ApiCall from './ApiCall'
 import Configuration from './Configuration'
 import RequestWithCache from './RequestWithCache'
-import { DocumentSchema, SearchParams, SearchResponse } from './Documents'
+import { DocumentSchema, SearchParams, SearchParamsWithPreset, SearchResponse } from './Documents'
 
 const RESOURCEPATH = '/multi_search'
 
@@ -10,8 +10,13 @@ export interface MultiSearchRequestSchema extends SearchParams {
   'x-typesense-api-key'?: string
 }
 
+export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPreset {
+  collection?: string
+  'x-typesense-api-key'?: string
+}
+
 export interface MultiSearchRequestsSchema {
-  searches: MultiSearchRequestSchema[]
+  searches: MultiSearchRequestSchema[] | MultiSearchRequestWithPresetSchema[]
 }
 
 export interface MultiSearchResponse<T extends DocumentSchema = {}> {

@@ -2,7 +2,14 @@ import RequestWithCache from './RequestWithCache'
 import ApiCall from './ApiCall'
 import Configuration from './Configuration'
 import Collections from './Collections'
-import type { DocumentSchema, SearchableDocuments, SearchOptions, SearchParams, SearchResponse } from './Documents'
+import type {
+  DocumentSchema,
+  SearchableDocuments,
+  SearchOptions,
+  SearchParams,
+  SearchParamsWithPreset,
+  SearchResponse
+} from './Documents'
 
 const RESOURCEPATH = '/documents'
 
@@ -16,7 +23,7 @@ export class SearchOnlyDocuments<T extends DocumentSchema> implements Searchable
   }
 
   async search(
-    searchParameters: SearchParams,
+    searchParameters: SearchParams | SearchParamsWithPreset,
     {
       cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds,
       abortSignal = null

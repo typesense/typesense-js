@@ -29,6 +29,10 @@ export type ImportResponse = ImportResponseSuccess | ImportResponseFail
 
 export interface DocumentSchema extends Record<string, any> {}
 
+export interface SearchParamsWithPreset extends Partial<SearchParams> {
+  preset: string
+}
+
 export interface SearchParams {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
   q: string
@@ -132,7 +136,7 @@ export interface SearchResponse<T extends DocumentSchema> {
   found: number
   out_of: number
   page: number
-  request_params: SearchParams
+  request_params: SearchParams | SearchParamsWithPreset
   search_time_ms: number
   hits?: SearchResponseHit<T>[]
   grouped_hits?: {
@@ -159,7 +163,7 @@ export interface DocumentsExportParameters {
 }
 
 export interface SearchableDocuments<T extends DocumentSchema> {
-  search(searchParameters: SearchParams, options: SearchOptions): Promise<SearchResponse<T>>
+  search(searchParameters: SearchParams | SearchParamsWithPreset, options: SearchOptions): Promise<SearchResponse<T>>
   clearCache(): void
 }
 
