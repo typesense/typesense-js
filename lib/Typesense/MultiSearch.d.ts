@@ -10,7 +10,7 @@ export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPres
     'x-typesense-api-key'?: string;
 }
 export interface MultiSearchRequestsSchema {
-    searches: MultiSearchRequestSchema[] | MultiSearchRequestWithPresetSchema[];
+    searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
 export interface MultiSearchResponse<T extends DocumentSchema = {}> {
     results: SearchResponse<T>[];

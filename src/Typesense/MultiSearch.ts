@@ -16,7 +16,7 @@ export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPres
 }
 
 export interface MultiSearchRequestsSchema {
-  searches: MultiSearchRequestSchema[] | MultiSearchRequestWithPresetSchema[]
+  searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[]
 }
 
 export interface MultiSearchResponse<T extends DocumentSchema = {}> {
