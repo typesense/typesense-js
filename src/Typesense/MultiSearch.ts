@@ -19,11 +19,11 @@ export interface MultiSearchRequestsSchema {
   searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[]
 }
 
-export interface MultiSearchResponse<T extends DocumentSchema = {}> {
-  results: SearchResponse<T>[]
+export interface MultiSearchResponse<T extends DocumentSchema[] = []> {
+  results: { [Index in keyof T]: SearchResponse<T[Index]> } & { length: T['length'] }
 }
 
-export default class MultiSearch<T extends DocumentSchema = {}> {
+export default class MultiSearch {
   private requestWithCache: RequestWithCache
 
   constructor(
@@ -38,7 +38,7 @@ export default class MultiSearch<T extends DocumentSchema = {}> {
     this.requestWithCache.clearCache()
   }
 
-  async perform(
+  async perform<T extends DocumentSchema[] = []>(
     searchRequests: MultiSearchRequestsSchema,
     commonParams: Partial<MultiSearchRequestSchema> = {},
     {
