@@ -12,17 +12,21 @@ export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPres
 export interface MultiSearchRequestsSchema {
     searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
-export interface MultiSearchResponse<T extends DocumentSchema = {}> {
-    results: SearchResponse<T>[];
+export interface MultiSearchResponse<T extends DocumentSchema[] = []> {
+    results: {
+        [Index in keyof T]: SearchResponse<T[Index]>;
+    } & {
+        length: T['length'];
+    };
 }
-export default class MultiSearch<T extends DocumentSchema = {}> {
+export default class MultiSearch {
     private apiCall;
     private configuration;
     private useTextContentType;
     private requestWithCache;
     constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
     clearCache(): void;
-    perform(searchRequests: MultiSearchRequestsSchema, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds }?: {
+    perform<T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsSchema, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds }?: {
         cacheSearchResultsForSeconds?: number;
     }): Promise<MultiSearchResponse<T>>;
 }
