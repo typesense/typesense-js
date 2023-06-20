@@ -12,6 +12,7 @@ export interface KeysRetrieveSchema {
 export interface GenerateScopedSearchKeyParams extends Partial<SearchParams> {
   expires_at?: number
   cache_ttl?: number
+  limit_multi_searches?: number
 }
 
 export default class Keys {
