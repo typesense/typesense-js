@@ -1,4 +1,4 @@
-name: typesense-js tests
+name: tests
 
 on: [push, pull_request]
 
