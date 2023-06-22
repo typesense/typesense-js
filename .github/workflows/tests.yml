@@ -1,0 +1,23 @@
+name: typesense-js tests
+
+on: [push, pull_request]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run ci-lint
+      - run: npm run ci-test
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 1
+
