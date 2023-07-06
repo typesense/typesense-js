@@ -1,5 +1,5 @@
-import ApiCall from './ApiCall';
-import { PresetCreateSchema } from './Presets';
+import ApiCall from "./ApiCall";
+import { PresetCreateSchema } from "./Presets";
 export interface PresetSchema extends PresetCreateSchema {
     id: string;
 }

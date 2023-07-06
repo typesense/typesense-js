@@ -1,4 +1,4 @@
-import { Logger, LogLevelDesc } from 'loglevel';
+import { Logger, LogLevelDesc } from "loglevel";
 export interface NodeConfiguration {
     host: string;
     port: number;

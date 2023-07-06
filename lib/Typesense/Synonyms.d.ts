@@ -1,5 +1,5 @@
-import ApiCall from './ApiCall';
-import { SynonymSchema } from './Synonym';
+import ApiCall from "./ApiCall";
+import { SynonymSchema } from "./Synonym";
 export interface SynonymCreateSchema {
     synonyms: string[];
     root?: string;

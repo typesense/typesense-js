@@ -1,4 +1,4 @@
-import ApiCall from './ApiCall';
+import ApiCall from "./ApiCall";
 export interface CollectionAliasCreateSchema {
     collection_name: string;
 }

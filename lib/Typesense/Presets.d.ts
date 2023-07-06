@@ -1,7 +1,7 @@
-import ApiCall from './ApiCall';
-import { PresetSchema } from './Preset';
-import { SearchParams } from './Documents';
-import { MultiSearchRequestsSchema } from './MultiSearch';
+import ApiCall from "./ApiCall";
+import { PresetSchema } from "./Preset";
+import { SearchParams } from "./Documents";
+import { MultiSearchRequestsSchema } from "./MultiSearch";
 export interface PresetCreateSchema {
     value: SearchParams | MultiSearchRequestsSchema;
 }

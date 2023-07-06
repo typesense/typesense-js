@@ -1,8 +1,8 @@
 /// <reference types="node" />
-import type { ReadStream } from 'fs';
-import ApiCall from './ApiCall';
-import Configuration from './Configuration';
-import { SearchOnlyDocuments } from './SearchOnlyDocuments';
+import type { ReadStream } from "fs";
+import ApiCall from "./ApiCall";
+import Configuration from "./Configuration";
+import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
 export interface DeleteQuery {
     filter_by: string;
     batch_size?: number;
@@ -20,8 +20,7 @@ export interface ImportResponseFail {
     code: number;
 }
 export declare type ImportResponse = ImportResponseSuccess | ImportResponseFail;
-export interface DocumentSchema extends Record<string, any> {
-}
+export declare type DocumentSchema = Record<string, any>;
 export interface SearchParamsWithPreset extends Partial<SearchParams> {
     preset: string;
 }
@@ -128,8 +127,8 @@ export interface SearchResponse<T extends DocumentSchema> {
     }[];
 }
 export interface DocumentWriteParameters {
-    dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject';
-    action?: 'create' | 'update' | 'upsert' | 'emplace';
+    dirty_values?: "coerce_or_reject" | "coerce_or_drop" | "drop" | "reject";
+    action?: "create" | "update" | "upsert" | "emplace";
 }
 export interface DocumentImportParameters extends DocumentWriteParameters {
     batch_size?: number;
@@ -157,7 +156,7 @@ export interface SearchOptions {
     cacheSearchResultsForSeconds?: number;
     abortSignal?: AbortSignal | null;
 }
-export default class Documents<T extends DocumentSchema = {}> extends SearchOnlyDocuments<T> implements WriteableDocuments<T> {
+export default class Documents<T extends DocumentSchema = object> extends SearchOnlyDocuments<T> implements WriteableDocuments<T> {
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
     create(document: T, options?: DocumentWriteParameters): Promise<T>;
     upsert(document: T, options?: DocumentWriteParameters): Promise<T>;

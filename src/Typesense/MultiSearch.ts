@@ -1,66 +1,75 @@
-import ApiCall from './ApiCall'
-import Configuration from './Configuration'
-import RequestWithCache from './RequestWithCache'
-import { DocumentSchema, SearchParams, SearchParamsWithPreset, SearchResponse } from './Documents'
+import ApiCall from "./ApiCall";
+import Configuration from "./Configuration";
+import RequestWithCache from "./RequestWithCache";
+import {
+  DocumentSchema,
+  SearchParams,
+  SearchParamsWithPreset,
+  SearchResponse,
+} from "./Documents";
 
-const RESOURCEPATH = '/multi_search'
+const RESOURCEPATH = "/multi_search";
 
 export interface MultiSearchRequestSchema extends SearchParams {
-  collection?: string
-  'x-typesense-api-key'?: string
+  collection?: string;
+  "x-typesense-api-key"?: string;
 }
 
-export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPreset {
-  collection?: string
-  'x-typesense-api-key'?: string
+export interface MultiSearchRequestWithPresetSchema
+  extends SearchParamsWithPreset {
+  collection?: string;
+  "x-typesense-api-key"?: string;
 }
 
 export interface MultiSearchRequestsSchema {
-  searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[]
+  searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
 
 export interface MultiSearchResponse<T extends DocumentSchema[] = []> {
-  results: { [Index in keyof T]: SearchResponse<T[Index]> } & { length: T['length'] }
+  results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
+    length: T["length"];
+  };
 }
 
 export default class MultiSearch {
-  private requestWithCache: RequestWithCache
+  private requestWithCache: RequestWithCache;
 
   constructor(
     private apiCall: ApiCall,
     private configuration: Configuration,
     private useTextContentType: boolean = false
   ) {
-    this.requestWithCache = new RequestWithCache()
+    this.requestWithCache = new RequestWithCache();
   }
 
   clearCache() {
-    this.requestWithCache.clearCache()
+    this.requestWithCache.clearCache();
   }
 
   async perform<T extends DocumentSchema[] = []>(
     searchRequests: MultiSearchRequestsSchema,
     commonParams: Partial<MultiSearchRequestSchema> = {},
     {
-      cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds
+      cacheSearchResultsForSeconds = this.configuration
+        .cacheSearchResultsForSeconds,
     }: { cacheSearchResultsForSeconds?: number } = {}
   ): Promise<MultiSearchResponse<T>> {
-    let additionalHeaders = {}
+    const additionalHeaders = {};
     if (this.useTextContentType) {
-      additionalHeaders['content-type'] = 'text/plain'
+      additionalHeaders["content-type"] = "text/plain";
     }
 
-    let additionalQueryParams = {}
+    const additionalQueryParams = {};
     if (this.configuration.useServerSideSearchCache === true) {
-      additionalQueryParams['use_cache'] = true
+      additionalQueryParams["use_cache"] = true;
     }
-    const queryParams = Object.assign({}, commonParams, additionalQueryParams)
+    const queryParams = Object.assign({}, commonParams, additionalQueryParams);
 
     return this.requestWithCache.perform(
       this.apiCall,
       this.apiCall.post,
       [RESOURCEPATH, searchRequests, queryParams, additionalHeaders],
       { cacheResponseForSeconds: cacheSearchResultsForSeconds }
-    ) as Promise<MultiSearchResponse<T>>
+    ) as Promise<MultiSearchResponse<T>>;
   }
 }

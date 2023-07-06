@@ -1,5 +1,5 @@
-import ApiCall from './ApiCall';
-import { OverrideCreateSchema } from './Overrides';
+import ApiCall from "./ApiCall";
+import { OverrideCreateSchema } from "./Overrides";
 export interface OverrideSchema extends OverrideCreateSchema {
     id: string;
 }

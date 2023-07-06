@@ -1,6 +1,6 @@
-import { DocumentSchema, SearchableDocuments } from './Documents';
-import ApiCall from './ApiCall';
-export declare class SearchOnlyCollection<T extends DocumentSchema = {}> {
+import { DocumentSchema, SearchableDocuments } from "./Documents";
+import ApiCall from "./ApiCall";
+export declare class SearchOnlyCollection<T extends DocumentSchema = object> {
     private readonly name;
     private readonly apiCall;
     private readonly configuration;

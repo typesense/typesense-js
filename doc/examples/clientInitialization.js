@@ -21,32 +21,33 @@ Start node 3:
 
  */
 
-require('@babel/register')
+require("@babel/register");
 
-const Typesense = require('../..')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Typesense = require("../..");
 
 // Create a client
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: 'localhost',
-      port: '8108',
-      protocol: 'http'
+      host: "localhost",
+      port: "8108",
+      protocol: "http",
     },
     {
-      host: 'localhost',
-      port: '7108',
-      protocol: 'http'
+      host: "localhost",
+      port: "7108",
+      protocol: "http",
     },
     {
-      host: 'localhost',
-      port: '9108',
-      protocol: 'http'
-    }
+      host: "localhost",
+      port: "9108",
+      protocol: "http",
+    },
   ],
-  apiKey: 'xyz',
+  apiKey: "xyz",
   numRetries: 3, // A total of 4 tries (1 original try + 3 retries)
   connectionTimeoutSeconds: 10,
-  logLevel: 'debug'
-})
+  logLevel: "debug",
+});

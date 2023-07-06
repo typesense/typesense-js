@@ -1,35 +1,41 @@
-import ApiCall from './ApiCall'
+import ApiCall from "./ApiCall";
 
-const RESOURCEPATH = '/aliases'
+const RESOURCEPATH = "/aliases";
 
 export interface CollectionAliasCreateSchema {
-  collection_name: string
+  collection_name: string;
 }
 
 export interface CollectionAliasSchema extends CollectionAliasCreateSchema {
-  name: string
+  name: string;
 }
 
 export interface CollectionAliasesResponseSchema {
-  aliases: CollectionAliasSchema[]
+  aliases: CollectionAliasSchema[];
 }
 
 export default class Aliases {
   constructor(private apiCall: ApiCall) {}
 
-  async upsert(name: string, mapping: CollectionAliasCreateSchema): Promise<CollectionAliasSchema> {
-    return this.apiCall.put<CollectionAliasSchema>(this.endpointPath(name), mapping)
+  async upsert(
+    name: string,
+    mapping: CollectionAliasCreateSchema
+  ): Promise<CollectionAliasSchema> {
+    return this.apiCall.put<CollectionAliasSchema>(
+      this.endpointPath(name),
+      mapping
+    );
   }
 
   async retrieve(): Promise<CollectionAliasesResponseSchema> {
-    return this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH)
+    return this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH);
   }
 
   private endpointPath(aliasName): string {
-    return `${Aliases.RESOURCEPATH}/${aliasName}`
+    return `${Aliases.RESOURCEPATH}/${aliasName}`;
   }
 
   static get RESOURCEPATH(): string {
-    return RESOURCEPATH
+    return RESOURCEPATH;
   }
 }

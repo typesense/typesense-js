@@ -1,111 +1,138 @@
-import chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
-import { Client as TypesenseClient } from '../../src/Typesense'
-import ApiCall from '../../src/Typesense/ApiCall'
-import axios from 'axios'
-import MockAxiosAdapter from 'axios-mock-adapter'
+import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+import { Client as TypesenseClient } from "../../src/Typesense";
+import ApiCall from "../../src/Typesense/ApiCall";
+import axios from "axios";
+import MockAxiosAdapter from "axios-mock-adapter";
 
-let expect = chai.expect
-chai.use(chaiAsPromised)
+let expect = chai.expect;
+chai.use(chaiAsPromised);
 
-describe('Collection', function () {
-  let typesense
-  let collection
-  let apiCall
-  let mockAxios
+describe("Collection", function () {
+  let typesense;
+  let collection;
+  let apiCall;
+  let mockAxios;
   let companySchema = {
-    name: 'companies',
+    name: "companies",
     num_documents: 0,
     fields: [
       {
-        name: 'company_name',
-        type: 'string',
-        facet: false
+        name: "company_name",
+        type: "string",
+        facet: false,
       },
       {
-        name: 'num_employees',
-        type: 'int32',
-        facet: false
+        name: "num_employees",
+        type: "int32",
+        facet: false,
       },
       {
-        name: 'country',
-        type: 'string',
-        facet: true
+        name: "country",
+        type: "string",
+        facet: true,
       },
       {
-        name: 'address',
-        type: 'string',
-        locale: 'el',
-        infix: true
-      }
+        name: "address",
+        type: "string",
+        locale: "el",
+        infix: true,
+      },
     ],
-    default_sorting_field: 'num_employees'
-  }
+    default_sorting_field: "num_employees",
+  };
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
         {
-          host: 'node0',
-          port: '8108',
-          protocol: 'http'
-        }
+          host: "node0",
+          port: "8108",
+          protocol: "http",
+        },
       ],
-      apiKey: 'abcd',
-      randomizeNodes: false
-    })
-    collection = typesense.collections('companies')
-    apiCall = new ApiCall(typesense.configuration)
-    mockAxios = new MockAxiosAdapter(axios)
-  })
+      apiKey: "abcd",
+      randomizeNodes: false,
+    });
+    collection = typesense.collections("companies");
+    apiCall = new ApiCall(typesense.configuration);
+    mockAxios = new MockAxiosAdapter(axios);
+  });
 
-  describe('.retrieve', function () {
-    it('retrieves a collection', function (done) {
+  describe(".retrieve", function () {
+    it("retrieves a collection", function (done) {
       mockAxios
-        .onGet(apiCall.uriFor('/collections/companies', typesense.configuration.nodes[0]), null, {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
-          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-        })
-        .reply(200, JSON.stringify(companySchema), { 'content-type': 'application/json' })
+        .onGet(
+          apiCall.uriFor(
+            "/collections/companies",
+            typesense.configuration.nodes[0]
+          ),
+          null,
+          {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+          }
+        )
+        .reply(200, JSON.stringify(companySchema), {
+          "content-type": "application/json",
+        });
 
-      let returnData = collection.retrieve()
+      let returnData = collection.retrieve();
 
-      expect(returnData).to.eventually.deep.equal(companySchema).notify(done)
-    })
-  })
+      expect(returnData).to.eventually.deep.equal(companySchema).notify(done);
+    });
+  });
 
-  describe('.update', function () {
-    it('updates a collection', function (done) {
+  describe(".update", function () {
+    it("updates a collection", function (done) {
       const updateSchema = {
-        fields: [{ name: 'fieldX', drop: true }]
-      }
+        fields: [{ name: "fieldX", drop: true }],
+      };
       mockAxios
-        .onPatch(apiCall.uriFor('/collections/companies', typesense.configuration.nodes[0]), updateSchema, {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
-          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-        })
-        .reply(200, JSON.stringify(updateSchema), { 'content-type': 'application/json' })
+        .onPatch(
+          apiCall.uriFor(
+            "/collections/companies",
+            typesense.configuration.nodes[0]
+          ),
+          updateSchema,
+          {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+          }
+        )
+        .reply(200, JSON.stringify(updateSchema), {
+          "content-type": "application/json",
+        });
 
-      let returnData = collection.update(updateSchema)
+      let returnData = collection.update(updateSchema);
 
-      expect(returnData).to.eventually.deep.equal(updateSchema).notify(done)
-    })
-  })
+      expect(returnData).to.eventually.deep.equal(updateSchema).notify(done);
+    });
+  });
 
-  describe('.delete', function () {
-    it('deletes a collection', function (done) {
+  describe(".delete", function () {
+    it("deletes a collection", function (done) {
       mockAxios
-        .onDelete(apiCall.uriFor('/collections/companies', typesense.configuration.nodes[0]), null, {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
-          'X-TYPESENSE-API-KEY': typesense.configuration.apiKey
-        })
-        .reply(200, JSON.stringify(companySchema), { 'content-type': 'application/json' })
+        .onDelete(
+          apiCall.uriFor(
+            "/collections/companies",
+            typesense.configuration.nodes[0]
+          ),
+          null,
+          {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+          }
+        )
+        .reply(200, JSON.stringify(companySchema), {
+          "content-type": "application/json",
+        });
 
-      let returnData = collection.delete()
+      let returnData = collection.delete();
 
-      expect(returnData).to.eventually.deep.equal(companySchema).notify(done)
-    })
-  })
-})
+      expect(returnData).to.eventually.deep.equal(companySchema).notify(done);
+    });
+  });
+});
