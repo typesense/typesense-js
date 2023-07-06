@@ -13,6 +13,7 @@ import Operations from "./Operations";
 import MultiSearch from "./MultiSearch";
 import Presets from "./Presets";
 import Preset from "./Preset";
+import Analytics from "./Analytics";
 export default class Client {
     configuration: Configuration;
     apiCall: ApiCall;
@@ -21,6 +22,7 @@ export default class Client {
     health: Health;
     operations: Operations;
     multiSearch: MultiSearch;
+    analytics: Analytics;
     private readonly _collections;
     private readonly individualCollections;
     private readonly _aliases;

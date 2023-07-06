@@ -68,6 +68,8 @@ export interface SearchParams {
     preset?: string;
     text_match_type?: string;
     vector_query?: string;
+    "x-typesense-api-key"?: string;
+    "x-typesense-user-id"?: string;
 }
 declare type SearchResponseHighlightObject = {
     matched_tokens?: string[];

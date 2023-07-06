@@ -15,6 +15,7 @@ import Operations from "./Operations";
 import MultiSearch from "./MultiSearch";
 import Presets from "./Presets";
 import Preset from "./Preset";
+import Analytics from "./Analytics";
 
 export default class Client {
   configuration: Configuration;
@@ -24,6 +25,7 @@ export default class Client {
   health: Health;
   operations: Operations;
   multiSearch: MultiSearch;
+  analytics: Analytics;
   private readonly _collections: Collections;
   private readonly individualCollections: Record<string, Collection>;
   private readonly _aliases: Aliases;
@@ -31,7 +33,7 @@ export default class Client {
   private readonly _keys: Keys;
   private readonly individualKeys: Record<number, Key>;
   private readonly _presets: Presets;
-  private readonly individualPresets: Record<number, Preset>;
+  private readonly individualPresets: Record<string, Preset>;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false;
@@ -51,6 +53,7 @@ export default class Client {
     this.individualKeys = {};
     this._presets = new Presets(this.apiCall);
     this.individualPresets = {};
+    this.analytics = new Analytics(this.apiCall);
   }
 
   collections(): Collections;
