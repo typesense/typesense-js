@@ -125,12 +125,14 @@ export default class ApiCall {
       additionalHeaders = {},
       abortSignal = null,
       responseType = undefined,
+      skipConnectionTimeout = false,
     }: {
       queryParameters?: any;
       bodyParameters?: any;
       additionalHeaders?: any;
       abortSignal?: any;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
+      skipConnectionTimeout?: boolean;
     }
   ): Promise<T> {
     this.configuration.validate();
@@ -168,7 +170,6 @@ export default class ApiCall {
             additionalHeaders,
             this.additionalUserHeaders
           ),
-          timeout: this.connectionTimeoutSeconds * 1000,
           maxContentLength: Infinity,
           maxBodyLength: Infinity,
           responseType,
@@ -194,6 +195,10 @@ export default class ApiCall {
             },
           ],
         };
+
+        if (skipConnectionTimeout !== true) {
+          requestOptions.timeout = this.connectionTimeoutSeconds * 1000;
+        }
 
         if (queryParameters && Object.keys(queryParameters).length !== 0) {
           requestOptions.params = queryParameters;

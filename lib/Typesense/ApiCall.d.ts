@@ -27,12 +27,13 @@ export default class ApiCall {
     post<T>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any): Promise<T>;
     put<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
     patch<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
-    performRequest<T>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, }: {
+    performRequest<T>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, skipConnectionTimeout, }: {
         queryParameters?: any;
         bodyParameters?: any;
         additionalHeaders?: any;
         abortSignal?: any;
         responseType?: AxiosRequestConfig["responseType"] | undefined;
+        skipConnectionTimeout?: boolean;
     }): Promise<T>;
     getNextNode(requestNumber?: number): Node;
     nodeDueForHealthcheck(node: any, requestNumber?: number): boolean;
