@@ -15,14 +15,24 @@ export default class AnalyticsRules {
     this.apiCall = apiCall;
   }
 
-  async create(
-    schema: AnalyticsRuleCreateSchema
+  async upsert(
+    name: string,
+    params: AnalyticsRuleCreateSchema
   ): Promise<AnalyticsRuleCreateSchema> {
-    return this.apiCall.post<AnalyticsRuleCreateSchema>(RESOURCEPATH, schema);
+    return this.apiCall.put<AnalyticsRuleCreateSchema>(
+      this.endpointPath(name),
+      params
+    );
   }
 
   async retrieve(): Promise<AnalyticsRulesRetrieveSchema> {
-    return this.apiCall.get<AnalyticsRulesRetrieveSchema>(RESOURCEPATH);
+    return this.apiCall.get<AnalyticsRulesRetrieveSchema>(this.endpointPath());
+  }
+
+  private endpointPath(operation?: string): string {
+    return `${AnalyticsRules.RESOURCEPATH}${
+      operation === undefined ? "" : "/" + operation
+    }`;
   }
 
   static get RESOURCEPATH() {

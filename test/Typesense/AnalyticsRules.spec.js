@@ -30,13 +30,15 @@ describe("AnalyticsRules", function () {
     mockAxios = new MockAxiosAdapter(axios);
   });
 
-  describe(".create", function () {
-    it("creates an analytics rule", function (done) {
+  describe(".upsert", function () {
+    it("upserts an analytics rule", function (done) {
       mockAxios
-        .onPost(
-          apiCall.uriFor("/analytics/rules", typesense.configuration.nodes[0]),
+        .onPut(
+          apiCall.uriFor(
+            "/analytics/rules/search_suggestions",
+            typesense.configuration.nodes[0]
+          ),
           {
-            name: "search_suggestions",
             type: "popular_queries",
             params: {
               source: { collections: ["products"] },
@@ -52,8 +54,7 @@ describe("AnalyticsRules", function () {
         )
         .reply(201, "{}", { "content-type": "application/json" });
 
-      let returnData = analyticsRules.create({
-        name: "search_suggestions",
+      let returnData = analyticsRules.upsert("search_suggestions", {
         type: "popular_queries",
         params: {
           source: { collections: ["products"] },

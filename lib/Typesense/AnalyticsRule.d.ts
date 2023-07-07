@@ -1,6 +1,5 @@
 import ApiCall from "./ApiCall";
 export interface AnalyticsRuleCreateSchema {
-    name: string;
     type: "popular_queries";
     params: {
         source: {
@@ -22,6 +21,7 @@ export default class AnalyticsRule {
     private name;
     private apiCall;
     constructor(name: string, apiCall: ApiCall);
+    retrieve(): Promise<AnalyticsRuleSchema>;
     delete(): Promise<AnalyticsRuleDeleteSchema>;
     private endpointPath;
 }

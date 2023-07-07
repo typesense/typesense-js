@@ -6,7 +6,8 @@ export interface AnalyticsRulesRetrieveSchema {
 export default class AnalyticsRules {
     private readonly apiCall;
     constructor(apiCall: ApiCall);
-    create(schema: AnalyticsRuleCreateSchema): Promise<AnalyticsRuleCreateSchema>;
+    upsert(name: string, params: AnalyticsRuleCreateSchema): Promise<AnalyticsRuleCreateSchema>;
     retrieve(): Promise<AnalyticsRulesRetrieveSchema>;
+    private endpointPath;
     static get RESOURCEPATH(): string;
 }

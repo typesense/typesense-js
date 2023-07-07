@@ -30,6 +30,31 @@ describe("AnalyticsRule", function () {
     mockAxios = new MockAxiosAdapter(axios);
   });
 
+  describe(".retrieve", function () {
+    it("retrieves the rule", function (done) {
+      mockAxios
+        .onGet(
+          apiCall.uriFor(
+            "/analytics/rules/123",
+            typesense.configuration.nodes[0]
+          ),
+          null,
+          {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+          }
+        )
+        .reply(200, "{}", { "content-type": "application/json" });
+
+      // console.log(mockAxios.handlers)
+
+      let returnData = analyticsRule.retrieve();
+
+      expect(returnData).to.eventually.deep.equal({}).notify(done);
+    });
+  });
+
   describe(".delete", function () {
     it("deletes a key", function (done) {
       mockAxios

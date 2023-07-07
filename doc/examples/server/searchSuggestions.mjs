@@ -1,12 +1,14 @@
 /*
- These examples walk you through key management operations.
+ These examples walk you through how to use search suggestions in Typesense.
 
  See clientInitalization.js for quick instructions on starting the Typesense server.
 */
-require("@babel/register");
+import "@babel/register";
+/* eslint-disable @typescript-eslint/no-var-requires */
+import Typesense from "../../../lib/Typesense.js";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Typesense = require("../../../lib/Typesense");
+// import axios from "axios";
+// import curlirize from "axios-curlirize";
 
 const masterApiKey = "xyz";
 
@@ -20,6 +22,8 @@ const typesense = new Typesense.Client({
   ],
   apiKey: masterApiKey,
 });
+
+// curlirize(axios);
 
 async function runExample() {
   await deleteDataFromPreviousRuns();
@@ -45,9 +49,8 @@ async function runExample() {
       ],
     });
 
-    // Create a rule to capture top queries
-    result = await typesense.analytics.rules().create({
-      name: "search_suggestions",
+    // Upsert a rule to capture top queries
+    result = await typesense.analytics.rules().upsert("search_suggestions", {
       type: "popular_queries",
       params: {
         source: { collections: ["products"] },
@@ -57,8 +60,25 @@ async function runExample() {
     });
     console.dir(result);
 
+    // This will result in any search terms sent to the `products` to be logged in the `products_top_queries` along with a count of how many times it was searched for.
+
     // Retrieve all rules
     result = await typesense.analytics.rules().retrieve();
+    console.dir(result);
+
+    // Update the limit in the rule
+    result = await typesense.analytics.rules().upsert("search_suggestions", {
+      type: "popular_queries",
+      params: {
+        source: { collections: ["products"] },
+        destination: { collection: "products_top_queries" },
+      },
+      limit: 10,
+    });
+    console.dir(result);
+
+    // Retrieve a single rule
+    result = await typesense.analytics.rules("search_suggestions").retrieve();
     console.dir(result);
 
     // Delete rule
