@@ -10,14 +10,14 @@ import Typesense from "../../../lib/Typesense.js";
 // import axios from "axios";
 // import curlirize from "axios-curlirize";
 
-const masterApiKey = "88wtByxMS0FMkEoNoYHnnxYgDBiE3mL9";
+const masterApiKey = "xyz";
 
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: "disr73ob5juwm081d-1.a1.typesense.net",
-      port: "443",
-      protocol: "https",
+      host: "localhost",
+      port: "8108",
+      protocol: "http",
     },
   ],
   apiKey: masterApiKey,
