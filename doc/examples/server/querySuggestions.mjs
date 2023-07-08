@@ -10,14 +10,14 @@ import Typesense from "../../../lib/Typesense.js";
 // import axios from "axios";
 // import curlirize from "axios-curlirize";
 
-const masterApiKey = "xyz";
+const masterApiKey = "88wtByxMS0FMkEoNoYHnnxYgDBiE3mL9";
 
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: "localhost",
-      port: "8108",
-      protocol: "http",
+      host: "disr73ob5juwm081d-1.a1.typesense.net",
+      port: "443",
+      protocol: "https",
     },
   ],
   apiKey: masterApiKey,
@@ -55,12 +55,13 @@ async function runExample() {
       params: {
         source: { collections: ["products"] },
         destination: { collection: "products_top_queries" },
+        limit: 100,
       },
-      limit: 100,
     });
     console.dir(result);
 
     // This will result in any search terms sent to the `products` to be logged in the `products_top_queries` along with a count of how many times it was searched for.
+    // You can now use the data in this `products_top_queries` collection to power your query suggestions experience.
 
     // Retrieve all rules
     result = await typesense.analytics.rules().retrieve();
@@ -72,8 +73,8 @@ async function runExample() {
       params: {
         source: { collections: ["products"] },
         destination: { collection: "products_top_queries" },
+        limit: 10,
       },
-      limit: 10,
     });
     console.dir(result);
 
