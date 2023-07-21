@@ -45,13 +45,14 @@ export interface CollectionSchema extends CollectionCreateSchema {
   num_memory_shards: number;
 }
 
-export interface CollectionUpdateFieldSchema extends CollectionFieldSchema {
-  drop?: boolean;
+export interface CollectionDropFieldSchema {
+  name: string;
+  drop: true;
 }
 
 export interface CollectionUpdateSchema
-  extends Partial<Omit<CollectionCreateSchema, "name">> {
-  fields?: CollectionUpdateFieldSchema[];
+  extends Partial<Omit<CollectionCreateSchema, "name" | "fields">> {
+  fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
 }
 
 export default class Collection<T extends DocumentSchema = object> {

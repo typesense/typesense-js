@@ -40,6 +40,11 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams["use_cache"] = true;
     }
+    for (const key in searchParameters) {
+      if (Array.isArray(searchParameters[key])) {
+        additionalQueryParams[key] = searchParameters[key].join(",");
+      }
+    }
     const queryParams = Object.assign(
       {},
       searchParameters,
