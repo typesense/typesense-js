@@ -95,6 +95,7 @@ export type SearchResponseHighlight<T> = T extends string | number
     };
 
 export interface SearchResponseHit<T extends DocumentSchema> {
+  curated?: true;
   highlights?: [
     {
       field: keyof T;
