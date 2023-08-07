@@ -43,8 +43,8 @@ describe("AnalyticsRules", function () {
             params: {
               source: { collections: ["products"] },
               destination: { collection: "products_top_queries" },
+              limit: 100,
             },
-            limit: 100,
           },
           {
             Accept: "application/json, text/plain, */*",
@@ -59,8 +59,8 @@ describe("AnalyticsRules", function () {
         params: {
           source: { collections: ["products"] },
           destination: { collection: "products_top_queries" },
+          limit: 100,
         },
-        limit: 100,
       });
 
       expect(returnData).to.eventually.deep.equal({}).notify(done);
