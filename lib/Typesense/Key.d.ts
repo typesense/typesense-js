@@ -4,7 +4,7 @@ export interface KeyCreateSchema {
     collections: string[];
     description?: string;
     value?: string;
-    value_prefix? string;
+    value_prefix?: string;
     expires_at?: number;
 }
 export interface KeyDeleteSchema {
