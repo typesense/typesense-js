@@ -123,6 +123,14 @@ async function runExample() {
     });
     console.log(result);
 
+    // update by query
+    console.log("Updating by query")
+    result = await typesense.collections("companies").documents().update(
+      { num_employees: 200},
+      { filter_by: 'num_employees:>5000' }
+    );
+    console.log(result);
+
     // Export all documents in a collection in JSON Lines format
     //  We use JSON Lines format for performance reasons. You can choose to parse selected lines (elements in the array) as needed.
     await timer(0.5); // Give Typesense cluster a few hundred ms to index document on all nodes, before reading it right after (eventually consistent)

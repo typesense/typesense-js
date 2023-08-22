@@ -154,6 +154,14 @@ export interface DocumentWriteParameters {
   action?: "create" | "update" | "upsert" | "emplace";
 }
 
+export interface UpdateByFilterParameters {
+  filter_by?: "string";
+}
+
+export interface UpdateByFilterResponse {
+  num_updated: number;
+}
+
 export interface DocumentImportParameters extends DocumentWriteParameters {
   batch_size?: number;
   return_doc?: boolean;
@@ -217,13 +225,30 @@ export default class Documents<T extends DocumentSchema = object>
     );
   }
 
-  async update(document: T, options: DocumentWriteParameters = {}): Promise<T> {
+  async update(
+    document: T,
+    options: UpdateByFilterParameters
+  ): Promise<UpdateByFilterResponse>;
+  async update(document: T, options: DocumentWriteParameters): Promise<T>;
+  async update(
+    document: T,
+    options: DocumentWriteParameters | UpdateByFilterParameters = {}
+  ): Promise<UpdateByFilterResponse | T> {
     if (!document) throw new Error("No document provided");
-    return this.apiCall.post<T>(
-      this.endpointPath(),
-      document,
-      Object.assign({}, options, { action: "update" })
-    );
+
+    if (options["filter_by"] != null) {
+      return this.apiCall.patch<T>(
+        this.endpointPath(),
+        document,
+        Object.assign({}, options)
+      );
+    } else {
+      return this.apiCall.post<T>(
+        this.endpointPath(),
+        document,
+        Object.assign({}, options, { action: "update" })
+      );
+    }
   }
 
   async delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>;

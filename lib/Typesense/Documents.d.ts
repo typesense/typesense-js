@@ -134,6 +134,12 @@ export interface DocumentWriteParameters {
     dirty_values?: "coerce_or_reject" | "coerce_or_drop" | "drop" | "reject";
     action?: "create" | "update" | "upsert" | "emplace";
 }
+export interface UpdateByFilterParameters {
+    filter_by?: "string";
+}
+export interface UpdateByFilterResponse {
+    num_updated: number;
+}
 export interface DocumentImportParameters extends DocumentWriteParameters {
     batch_size?: number;
     return_doc?: boolean;
@@ -164,7 +170,8 @@ export default class Documents<T extends DocumentSchema = object> extends Search
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
     create(document: T, options?: DocumentWriteParameters): Promise<T>;
     upsert(document: T, options?: DocumentWriteParameters): Promise<T>;
-    update(document: T, options?: DocumentWriteParameters): Promise<T>;
+    update(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
+    update(document: T, options: DocumentWriteParameters): Promise<T>;
     delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>;
     delete(idOrQuery: string): Promise<T>;
     createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
