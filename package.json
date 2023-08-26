@@ -107,6 +107,5 @@
   },
   "peerDependencies": {
     "@babel/runtime": "^7.17.2"
-  },
-  "optionalDependencies": {}
+  }
 }
