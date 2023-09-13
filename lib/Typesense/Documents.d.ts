@@ -71,6 +71,8 @@ export interface SearchParams {
     vector_query?: string;
     "x-typesense-api-key"?: string;
     "x-typesense-user-id"?: string;
+    offset?: number;
+    limit?: number;
 }
 declare type SearchResponseHighlightObject = {
     matched_tokens?: string[];
