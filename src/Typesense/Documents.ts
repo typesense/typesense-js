@@ -157,7 +157,7 @@ export interface DocumentWriteParameters {
 }
 
 export interface UpdateByFilterParameters {
-  filter_by?: "string";
+  filter_by?: string;
 }
 
 export interface UpdateByFilterResponse {

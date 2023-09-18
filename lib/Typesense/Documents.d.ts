@@ -137,7 +137,7 @@ export interface DocumentWriteParameters {
     action?: "create" | "update" | "upsert" | "emplace";
 }
 export interface UpdateByFilterParameters {
-    filter_by?: "string";
+    filter_by?: string;
 }
 export interface UpdateByFilterResponse {
     num_updated: number;
