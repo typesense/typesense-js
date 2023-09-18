@@ -122,6 +122,7 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
 export interface SearchResponse<T extends DocumentSchema> {
     facet_counts?: SearchResponseFacetCountSchema<T>[];
     found: number;
+    found_docs?: number;
     out_of: number;
     page: number;
     request_params: SearchParams | SearchParamsWithPreset;
@@ -130,6 +131,7 @@ export interface SearchResponse<T extends DocumentSchema> {
     grouped_hits?: {
         group_key: string[];
         hits: SearchResponseHit<T>[];
+        found?: number;
     }[];
 }
 export interface DocumentWriteParameters {
