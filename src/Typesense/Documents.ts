@@ -136,6 +136,10 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
   };
 }
 
+export interface SearchResponseRequestParams extends Partial<SearchParams> {
+  collection_name?: string;
+}
+
 // Todo: we could infer whether this is a grouped response by adding the search params as a generic
 export interface SearchResponse<T extends DocumentSchema> {
   facet_counts?: SearchResponseFacetCountSchema<T>[];
@@ -143,7 +147,7 @@ export interface SearchResponse<T extends DocumentSchema> {
   found_docs?: number;
   out_of: number;
   page: number;
-  request_params: SearchParams | SearchParamsWithPreset;
+  request_params: SearchResponseRequestParams;
   search_time_ms: number;
   hits?: SearchResponseHit<T>[];
   grouped_hits?: {
