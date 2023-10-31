@@ -19,12 +19,12 @@ export interface ImportResponseFail {
     document: DocumentSchema;
     code: number;
 }
-export declare type ImportResponse = ImportResponseSuccess | ImportResponseFail;
-export declare type DocumentSchema = Record<string, any>;
+export type ImportResponse = ImportResponseSuccess | ImportResponseFail;
+export type DocumentSchema = Record<string, any>;
 export interface SearchParamsWithPreset extends Partial<SearchParams> {
     preset: string;
 }
-declare type OperationMode = "off" | "always" | "fallback";
+type OperationMode = "off" | "always" | "fallback";
 export interface SearchParams {
     q: string;
     query_by: string | string[];
@@ -74,12 +74,12 @@ export interface SearchParams {
     offset?: number;
     limit?: number;
 }
-declare type SearchResponseHighlightObject = {
+type SearchResponseHighlightObject = {
     matched_tokens?: string[];
     snippet?: string;
     value?: string;
 };
-export declare type SearchResponseHighlight<T> = T extends string | number ? SearchResponseHighlightObject : {
+export type SearchResponseHighlight<T> = T extends string | number ? SearchResponseHighlightObject : {
     [TAttribute in keyof T]?: SearchResponseHighlight<T[TAttribute]>;
 };
 export interface SearchResponseHit<T extends DocumentSchema> {

@@ -21,7 +21,8 @@
     "node",
     "promise",
     "standard",
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "prettier"
   ],
 
   "globals": {
