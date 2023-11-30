@@ -83,6 +83,7 @@ export interface SearchParams {
   "x-typesense-user-id"?: string;
   offset?: number;
   limit?: number;
+  stopwords?: string;
 }
 
 type SearchResponseHighlightObject = {
@@ -107,7 +108,7 @@ export interface SearchResponseHit<T extends DocumentSchema> {
       snippets?: string[];
       indices?: number[];
       matched_tokens: string[][] | string[];
-    }
+    },
   ];
   highlight: SearchResponseHighlight<T>;
   document: T;
@@ -185,7 +186,7 @@ export interface DocumentsExportParameters {
 export interface SearchableDocuments<T extends DocumentSchema> {
   search(
     searchParameters: SearchParams | SearchParamsWithPreset,
-    options: SearchOptions
+    options: SearchOptions,
   ): Promise<SearchResponse<T>>;
   clearCache(): void;
 }
@@ -197,7 +198,7 @@ export interface WriteableDocuments<T> {
   delete(idOrQuery: string | DeleteQuery): Promise<DeleteResponse> | Promise<T>;
   import(
     documents: T[] | string,
-    options: DocumentWriteParameters
+    options: DocumentWriteParameters,
   ): Promise<string | ImportResponse[]>;
   export(options: DocumentsExportParameters): Promise<string>;
 }
@@ -214,7 +215,7 @@ export default class Documents<T extends DocumentSchema = object>
   constructor(
     collectionName: string,
     apiCall: ApiCall,
-    configuration: Configuration
+    configuration: Configuration,
   ) {
     super(collectionName, apiCall, configuration);
   }
@@ -229,18 +230,18 @@ export default class Documents<T extends DocumentSchema = object>
     return this.apiCall.post<T>(
       this.endpointPath(),
       document,
-      Object.assign({}, options, { action: "upsert" })
+      Object.assign({}, options, { action: "upsert" }),
     );
   }
 
   async update(
     document: T,
-    options: UpdateByFilterParameters
+    options: UpdateByFilterParameters,
   ): Promise<UpdateByFilterResponse>;
   async update(document: T, options: DocumentWriteParameters): Promise<T>;
   async update(
     document: T,
-    options: DocumentWriteParameters | UpdateByFilterParameters = {}
+    options: DocumentWriteParameters | UpdateByFilterParameters = {},
   ): Promise<UpdateByFilterResponse | T> {
     if (!document) throw new Error("No document provided");
 
@@ -248,13 +249,13 @@ export default class Documents<T extends DocumentSchema = object>
       return this.apiCall.patch<T>(
         this.endpointPath(),
         document,
-        Object.assign({}, options)
+        Object.assign({}, options),
       );
     } else {
       return this.apiCall.post<T>(
         this.endpointPath(),
         document,
-        Object.assign({}, options, { action: "update" })
+        Object.assign({}, options, { action: "update" }),
       );
     }
   }
@@ -262,21 +263,21 @@ export default class Documents<T extends DocumentSchema = object>
   async delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>;
   async delete(idOrQuery: string): Promise<T>;
   async delete(
-    idOrQuery: string | DeleteQuery = {} as DeleteQuery
+    idOrQuery: string | DeleteQuery = {} as DeleteQuery,
   ): Promise<DeleteResponse | T> {
     if (typeof idOrQuery === "string") {
       return this.apiCall.delete<T>(this.endpointPath(idOrQuery), idOrQuery);
     } else {
       return this.apiCall.delete<DeleteResponse>(
         this.endpointPath(),
-        idOrQuery
+        idOrQuery,
       );
     }
   }
 
   async createMany(documents: T[], options: DocumentImportParameters = {}) {
     this.configuration.logger.warn(
-      "createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents"
+      "createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents",
     );
     return this.import(documents, options);
   }
@@ -289,15 +290,15 @@ export default class Documents<T extends DocumentSchema = object>
    */
   async import(
     documents: string,
-    options?: DocumentImportParameters
+    options?: DocumentImportParameters,
   ): Promise<string>;
   async import(
     documents: T[],
-    options?: DocumentImportParameters
+    options?: DocumentImportParameters,
   ): Promise<ImportResponse[]>;
   async import(
     documents: T[] | string,
-    options: DocumentImportParameters = {}
+    options: DocumentImportParameters = {},
   ): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat;
     if (Array.isArray(documents)) {
@@ -333,7 +334,7 @@ export default class Documents<T extends DocumentSchema = object>
         bodyParameters: documentsInJSONLFormat,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-      }
+      },
     );
 
     if (Array.isArray(documents)) {
@@ -341,7 +342,7 @@ export default class Documents<T extends DocumentSchema = object>
         .split("\n")
         .map((r) => JSON.parse(r)) as ImportResponse[];
       const failedItems = resultsInJSONFormat.filter(
-        (r) => r.success === false
+        (r) => r.success === false,
       );
       if (failedItems.length > 0) {
         throw new ImportError(
@@ -350,7 +351,7 @@ export default class Documents<T extends DocumentSchema = object>
           } documents imported successfully, ${
             failedItems.length
           } documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`,
-          resultsInJSONFormat
+          resultsInJSONFormat,
         );
       } else {
         return resultsInJSONFormat;
@@ -371,7 +372,7 @@ export default class Documents<T extends DocumentSchema = object>
    * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
    */
   async exportStream(
-    options: DocumentsExportParameters = {}
+    options: DocumentsExportParameters = {},
   ): Promise<ReadStream> {
     return this.apiCall.get<ReadStream>(this.endpointPath("export"), options, {
       responseType: "stream",

@@ -70,6 +70,7 @@ This table refers to server=>client compatibility. Newer versions of the client 
 
 | Typesense Server | typesense-js |
 |------------------|--------------|
+| \>= v0.26.0.rc38 | \>= v1.8.0   |
 | \>= v0.25.0      | \>= v1.7.0   |
 | \>= v0.24.0      | \>= v1.5.0   |
 | \>= v0.23.0      | \>= v1.3.0   |

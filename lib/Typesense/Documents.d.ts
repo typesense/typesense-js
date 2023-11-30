@@ -73,6 +73,7 @@ export interface SearchParams {
     "x-typesense-user-id"?: string;
     offset?: number;
     limit?: number;
+    stopwords?: string;
 }
 type SearchResponseHighlightObject = {
     matched_tokens?: string[];

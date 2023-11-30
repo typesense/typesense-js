@@ -887,9 +887,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Presets__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Presets */ "./src/Typesense/Presets.ts");
 /* harmony import */ var _Preset__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Preset */ "./src/Typesense/Preset.ts");
 /* harmony import */ var _Analytics__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Analytics */ "./src/Typesense/Analytics.ts");
+/* harmony import */ var _Stopwords__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Stopwords */ "./src/Typesense/Stopwords.ts");
+/* harmony import */ var _Stopword__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./Stopword */ "./src/Typesense/Stopword.ts");
 
 
 /* eslint-disable no-dupe-class-members */
+
+
 
 
 
@@ -927,6 +931,8 @@ var Client = /*#__PURE__*/function () {
     this.individualKeys = {};
     this._presets = new _Presets__WEBPACK_IMPORTED_MODULE_15__["default"](this.apiCall);
     this.individualPresets = {};
+    this._stopwords = new _Stopwords__WEBPACK_IMPORTED_MODULE_18__["default"](this.apiCall);
+    this.individualStopwords = {};
     this.analytics = new _Analytics__WEBPACK_IMPORTED_MODULE_17__["default"](this.apiCall);
   }
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__["default"])(Client, [{
@@ -975,6 +981,18 @@ var Client = /*#__PURE__*/function () {
           this.individualPresets[id] = new _Preset__WEBPACK_IMPORTED_MODULE_16__["default"](id, this.apiCall);
         }
         return this.individualPresets[id];
+      }
+    }
+  }, {
+    key: "stopwords",
+    value: function stopwords(id) {
+      if (id === undefined) {
+        return this._stopwords;
+      } else {
+        if (this.individualStopwords[id] === undefined) {
+          this.individualStopwords[id] = new _Stopword__WEBPACK_IMPORTED_MODULE_19__["default"](id, this.apiCall);
+        }
+        return this.individualStopwords[id];
       }
     }
   }]);
@@ -3395,6 +3413,165 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
   }]);
   return SearchOnlyDocuments;
 }();
+
+/***/ }),
+
+/***/ "./src/Typesense/Stopword.ts":
+/*!***********************************!*\
+  !*** ./src/Typesense/Stopword.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Stopword)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _Stopwords__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Stopwords */ "./src/Typesense/Stopwords.ts");
+
+
+
+
+
+var Stopword = /*#__PURE__*/function () {
+  function Stopword(stopwordId, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Stopword);
+    this.stopwordId = stopwordId;
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(Stopword, [{
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "delete",
+    value: function () {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.delete(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function _delete() {
+        return _delete2.apply(this, arguments);
+      }
+      return _delete;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath() {
+      return "".concat(_Stopwords__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.stopwordId);
+    }
+  }]);
+  return Stopword;
+}();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/Stopwords.ts":
+/*!************************************!*\
+  !*** ./src/Typesense/Stopwords.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Stopwords)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+var RESOURCEPATH = "/stopwords";
+var Stopwords = /*#__PURE__*/function () {
+  function Stopwords(apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Stopwords);
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(Stopwords, [{
+    key: "upsert",
+    value: function () {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(stopwordId, params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.put(this.endpointPath(stopwordId), params));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function upsert(_x, _x2) {
+        return _upsert.apply(this, arguments);
+      }
+      return upsert;
+    }()
+  }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath(operation) {
+      return "".concat(Stopwords.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return Stopwords;
+}();
+
 
 /***/ }),
 

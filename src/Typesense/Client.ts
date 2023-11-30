@@ -16,6 +16,8 @@ import MultiSearch from "./MultiSearch";
 import Presets from "./Presets";
 import Preset from "./Preset";
 import Analytics from "./Analytics";
+import Stopwords from "./Stopwords";
+import Stopword from "./Stopword";
 
 export default class Client {
   configuration: Configuration;
@@ -34,6 +36,8 @@ export default class Client {
   private readonly individualKeys: Record<number, Key>;
   private readonly _presets: Presets;
   private readonly individualPresets: Record<string, Preset>;
+  private readonly _stopwords: Stopwords;
+  private readonly individualStopwords: Record<string, Stopword>;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false;
@@ -53,12 +57,14 @@ export default class Client {
     this.individualKeys = {};
     this._presets = new Presets(this.apiCall);
     this.individualPresets = {};
+    this._stopwords = new Stopwords(this.apiCall);
+    this.individualStopwords = {};
     this.analytics = new Analytics(this.apiCall);
   }
 
   collections(): Collections;
   collections<T extends Record<string, any> = object>(
-    collectionName: string
+    collectionName: string,
   ): Collection<T>;
   collections(collectionName?: string): Collections | Collection {
     if (collectionName === undefined) {
@@ -68,7 +74,7 @@ export default class Client {
         this.individualCollections[collectionName] = new Collection(
           collectionName,
           this.apiCall,
-          this.configuration
+          this.configuration,
         );
       }
       return this.individualCollections[collectionName];
@@ -111,6 +117,19 @@ export default class Client {
         this.individualPresets[id] = new Preset(id, this.apiCall);
       }
       return this.individualPresets[id];
+    }
+  }
+
+  stopwords(): Stopwords;
+  stopwords(id: string): Stopword;
+  stopwords(id?: string): Stopwords | Stopword {
+    if (id === undefined) {
+      return this._stopwords;
+    } else {
+      if (this.individualStopwords[id] === undefined) {
+        this.individualStopwords[id] = new Stopword(id, this.apiCall);
+      }
+      return this.individualStopwords[id];
     }
   }
 }
