@@ -34,6 +34,8 @@ export interface SearchParams {
     sort_by?: string | string[];
     facet_by?: string | string[];
     max_facet_values?: number;
+    facet_sample_threshold?: number;
+    facet_sample_percent?: number;
     facet_query?: string;
     facet_query_num_typos?: number;
     page?: number;
@@ -47,6 +49,7 @@ export interface SearchParams {
     highlight_affix_num_tokens?: number;
     highlight_start_tag?: string;
     highlight_end_tag?: string;
+    enable_highlight_v1?: boolean;
     snippet_threshold?: number;
     num_typos?: string | number | number[];
     min_len_1typo?: number;

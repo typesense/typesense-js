@@ -44,6 +44,8 @@ export interface SearchParams {
   sort_by?: string | string[]; // default: text match desc
   facet_by?: string | string[];
   max_facet_values?: number;
+  facet_sample_threshold?: number;
+  facet_sample_percent?: number;
   facet_query?: string;
   facet_query_num_typos?: number;
   page?: number; // default: 1
@@ -57,6 +59,7 @@ export interface SearchParams {
   highlight_affix_num_tokens?: number; // default: 4
   highlight_start_tag?: string; // default: <mark>
   highlight_end_tag?: string; // default: </mark>
+  enable_highlight_v1?: boolean;
   snippet_threshold?: number; // default: 30
   num_typos?: string | number | number[]; // default: 2
   min_len_1typo?: number;
