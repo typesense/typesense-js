@@ -54,12 +54,12 @@ export default class MultiSearch {
         .cacheSearchResultsForSeconds,
     }: { cacheSearchResultsForSeconds?: number } = {}
   ): Promise<MultiSearchResponse<T>> {
-    const additionalHeaders = {};
+    const additionalHeaders: Record<string, string> = {};
     if (this.useTextContentType) {
       additionalHeaders["content-type"] = "text/plain";
     }
 
-    const additionalQueryParams = {};
+    const additionalQueryParams: Record<string, boolean> = {};
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams["use_cache"] = true;
     }

@@ -36,12 +36,14 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
       abortSignal = null,
     }: SearchOptions = {}
   ): Promise<SearchResponse<T>> {
-    const additionalQueryParams = {};
+    const additionalQueryParams: Record<string, boolean> = {};
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams["use_cache"] = true;
     }
     for (const key in searchParameters) {
+      // @ts-expect-error allow random lookup
       if (Array.isArray(searchParameters[key])) {
+	// @ts-expect-error allow random lookup
         additionalQueryParams[key] = searchParameters[key].join(",");
       }
     }

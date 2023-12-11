@@ -248,7 +248,8 @@ export default class Documents<T extends DocumentSchema = object>
   ): Promise<UpdateByFilterResponse | T> {
     if (!document) throw new Error("No document provided");
 
-    if (options["filter_by"] != null) {
+    // @ts-expect-error filter_by does not exist in options
+    if (options ["filter_by"] != null) {
       return this.apiCall.patch<T>(
         this.endpointPath(),
         document,
