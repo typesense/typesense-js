@@ -111,6 +111,6 @@
     "@babel/runtime": "^7.23.2"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }
