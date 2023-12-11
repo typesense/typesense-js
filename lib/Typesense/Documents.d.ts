@@ -38,6 +38,7 @@ export interface SearchParams {
     facet_sample_percent?: number;
     facet_query?: string;
     facet_query_num_typos?: number;
+    facet_return_parent?: string;
     page?: number;
     per_page?: number;
     group_by?: string | string[];
