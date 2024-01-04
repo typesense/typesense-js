@@ -1712,20 +1712,14 @@ var Documents = /*#__PURE__*/function (_ref) {
     key: "delete",
     value: function () {
       var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee4() {
-        var idOrQuery,
+        var query,
           _args4 = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
-              idOrQuery = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : {};
-              if (!(typeof idOrQuery === "string")) {
-                _context4.next = 5;
-                break;
-              }
-              return _context4.abrupt("return", this.apiCall.delete(this.endpointPath(idOrQuery), idOrQuery));
-            case 5:
-              return _context4.abrupt("return", this.apiCall.delete(this.endpointPath(), idOrQuery));
-            case 6:
+              query = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : {};
+              return _context4.abrupt("return", this.apiCall.delete(this.endpointPath(), query));
+            case 2:
             case "end":
               return _context4.stop();
           }

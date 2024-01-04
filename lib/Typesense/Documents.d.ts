@@ -170,7 +170,7 @@ export interface WriteableDocuments<T> {
     create(document: T, options: DocumentWriteParameters): Promise<T>;
     upsert(document: T, options: DocumentWriteParameters): Promise<T>;
     update(document: T, options: DocumentWriteParameters): Promise<T>;
-    delete(idOrQuery: string | DeleteQuery): Promise<DeleteResponse> | Promise<T>;
+    delete(query: DeleteQuery): Promise<DeleteResponse>;
     import(documents: T[] | string, options: DocumentWriteParameters): Promise<string | ImportResponse[]>;
     export(options: DocumentsExportParameters): Promise<string>;
 }
@@ -184,8 +184,7 @@ export default class Documents<T extends DocumentSchema = object> extends Search
     upsert(document: T, options?: DocumentWriteParameters): Promise<T>;
     update(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
     update(document: T, options: DocumentWriteParameters): Promise<T>;
-    delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>;
-    delete(idOrQuery: string): Promise<T>;
+    delete(query?: DeleteQuery): Promise<DeleteResponse>;
     createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
     /**
      * Import a set of documents in a batch.

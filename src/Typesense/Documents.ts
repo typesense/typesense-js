@@ -199,7 +199,7 @@ export interface WriteableDocuments<T> {
   create(document: T, options: DocumentWriteParameters): Promise<T>;
   upsert(document: T, options: DocumentWriteParameters): Promise<T>;
   update(document: T, options: DocumentWriteParameters): Promise<T>;
-  delete(idOrQuery: string | DeleteQuery): Promise<DeleteResponse> | Promise<T>;
+  delete(query: DeleteQuery): Promise<DeleteResponse>;
   import(
     documents: T[] | string,
     options: DocumentWriteParameters,
@@ -264,19 +264,10 @@ export default class Documents<T extends DocumentSchema = object>
     }
   }
 
-  async delete(idOrQuery: DeleteQuery): Promise<DeleteResponse>;
-  async delete(idOrQuery: string): Promise<T>;
   async delete(
-    idOrQuery: string | DeleteQuery = {} as DeleteQuery,
-  ): Promise<DeleteResponse | T> {
-    if (typeof idOrQuery === "string") {
-      return this.apiCall.delete<T>(this.endpointPath(idOrQuery), idOrQuery);
-    } else {
-      return this.apiCall.delete<DeleteResponse>(
-        this.endpointPath(),
-        idOrQuery,
-      );
-    }
+    query: DeleteQuery = {} as DeleteQuery,
+  ): Promise<DeleteResponse> {
+    return this.apiCall.delete<DeleteResponse>(this.endpointPath(), query);
   }
 
   async createMany(documents: T[], options: DocumentImportParameters = {}) {
