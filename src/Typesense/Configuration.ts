@@ -2,14 +2,6 @@ import * as logger from "loglevel";
 import { Logger, LogLevelDesc } from "loglevel";
 import { MissingConfigurationError } from "./Errors";
 
-export interface NodeConfiguration {
-  host: string;
-  port: number;
-  protocol: string;
-  path?: string;
-  url?: string;
-}
-
 export interface NodeConfigurationWithHostname {
   host: string;
   port: number;
@@ -17,8 +9,19 @@ export interface NodeConfigurationWithHostname {
   path?: string;
 }
 
+export interface NodeConfiguration extends NodeConfigurationWithHostname {
+  url?: string;
+}
+
 export interface NodeConfigurationWithUrl {
   url: string;
+}
+
+type NodeType = NodeConfiguration | NodeConfigurationWithHostname | NodeConfigurationWithUrl | undefined;
+
+
+function isNodeConfigurationWithHostname(node: NodeType): node is NodeConfigurationWithHostname {
+    return node !== undefined && (node as NodeConfigurationWithHostname).protocol !== undefined;
 }
 
 export interface ConfigurationOptions {
@@ -166,49 +169,29 @@ export default class Configuration {
     return (
       !["protocol", "host", "port", "path"].every((key) => {
         return node.hasOwnProperty(key);
-      }) && node["url"] == null
+      }) && node.hasOwnProperty("url") == null
     );
   }
 
   private setDefaultPathInNode(
-    node:
-      | NodeConfiguration
-      | NodeConfigurationWithHostname
-      | NodeConfigurationWithUrl
-      | undefined
-  ):
-    | NodeConfiguration
-    | NodeConfigurationWithHostname
-    | NodeConfigurationWithUrl
-    | undefined {
-    if (node != null && !node.hasOwnProperty("path")) {
-      node["path"] = "";
-    }
+    node: NodeType
+  ): NodeType {
+      if (isNodeConfigurationWithHostname(node)) {
+	node.path = "";
+      }
     return node;
   }
 
   private setDefaultPortInNode(
-    node:
-      | NodeConfiguration
-      | NodeConfigurationWithHostname
-      | NodeConfigurationWithUrl
-      | undefined
-  ):
-    | NodeConfiguration
-    | NodeConfigurationWithHostname
-    | NodeConfigurationWithUrl
-    | undefined {
-    if (
-      node != null &&
-      !node.hasOwnProperty("port") &&
-      node.hasOwnProperty("protocol")
-    ) {
-      switch (node["protocol"]) {
+    node: NodeType
+  ): NodeType {
+      if (isNodeConfigurationWithHostname(node)) {
+      switch (node.protocol) {
         case "https":
-          node["port"] = 443;
+          node.port = 443;
           break;
         case "http":
-          node["port"] = 80;
+          node.port = 80;
           break;
       }
     }
@@ -233,7 +216,7 @@ export default class Configuration {
     }
   }
 
-  private shuffleArray(array) {
+  private shuffleArray(array: object[]) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];

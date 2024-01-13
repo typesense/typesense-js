@@ -31,7 +31,7 @@ export default class Aliases {
     return this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH);
   }
 
-  private endpointPath(aliasName): string {
+  private endpointPath(aliasName: string): string {
     return `${Aliases.RESOURCEPATH}/${aliasName}`;
   }
 

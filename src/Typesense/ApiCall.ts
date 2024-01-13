@@ -19,6 +19,7 @@ const UNHEALTHY = false;
 interface Node extends NodeConfiguration {
   isHealthy: boolean;
   index: string | number;
+  lastAccessTimestamp: number;
 }
 
 export default class ApiCall {
@@ -340,7 +341,7 @@ export default class ApiCall {
     return candidateNode;
   }
 
-  nodeDueForHealthcheck(node, requestNumber = 0): boolean {
+  nodeDueForHealthcheck(node: Node, requestNumber = 0): boolean {
     const isDueForHealthcheck =
       Date.now() - node.lastAccessTimestamp >
       this.healthcheckIntervalSeconds * 1000;
@@ -364,12 +365,12 @@ export default class ApiCall {
     });
   }
 
-  setNodeHealthcheck(node, isHealthy): void {
+  setNodeHealthcheck(node: Node, isHealthy: boolean): void {
     node.isHealthy = isHealthy;
     node.lastAccessTimestamp = Date.now();
   }
 
-  uriFor(endpoint: string, node): string {
+  uriFor(endpoint: string, node: NodeConfiguration): string {
     if (node.url != null) {
       return `${node.url}${endpoint}`;
     }
@@ -377,7 +378,7 @@ export default class ApiCall {
   }
 
   defaultHeaders(): any {
-    const defaultHeaders = {};
+    const defaultHeaders: Record<string, string> = {};
     if (!this.sendApiKeyAsQueryParam) {
       defaultHeaders[APIKEYHEADERNAME] = this.apiKey;
     }
@@ -385,7 +386,7 @@ export default class ApiCall {
     return defaultHeaders;
   }
 
-  async timer(seconds): Promise<void> {
+  async timer(seconds: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
   }
 
