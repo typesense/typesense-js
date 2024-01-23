@@ -2,11 +2,11 @@ import ApiCall from "./ApiCall";
 import Presets, { PresetCreateSchema } from "./Presets";
 
 export interface PresetSchema extends PresetCreateSchema {
-  id: string;
+  name: string;
 }
 
 export interface PresetDeleteSchema {
-  id: string;
+  name: string;
 }
 
 export default class Preset {
