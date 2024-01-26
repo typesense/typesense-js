@@ -68,7 +68,7 @@ export default class ApiCall {
     }: {
       abortSignal?: any;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
-    } = {}
+    } = {},
   ): Promise<T> {
     return this.performRequest<T>("get", endpoint, {
       queryParameters,
@@ -85,7 +85,7 @@ export default class ApiCall {
     endpoint: string,
     bodyParameters: any = {},
     queryParameters: any = {},
-    additionalHeaders: any = {}
+    additionalHeaders: any = {},
   ): Promise<T> {
     return this.performRequest<T>("post", endpoint, {
       queryParameters,
@@ -97,7 +97,7 @@ export default class ApiCall {
   async put<T>(
     endpoint: string,
     bodyParameters: any = {},
-    queryParameters: any = {}
+    queryParameters: any = {},
   ): Promise<T> {
     return this.performRequest<T>("put", endpoint, {
       queryParameters,
@@ -108,7 +108,7 @@ export default class ApiCall {
   async patch<T>(
     endpoint: string,
     bodyParameters: any = {},
-    queryParameters: any = {}
+    queryParameters: any = {},
   ): Promise<T> {
     return this.performRequest<T>("patch", endpoint, {
       queryParameters,
@@ -133,14 +133,14 @@ export default class ApiCall {
       abortSignal?: any;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       skipConnectionTimeout?: boolean;
-    }
+    },
   ): Promise<T> {
     this.configuration.validate();
 
     const requestNumber = Date.now();
     let lastException;
     this.logger.debug(
-      `Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`
+      `Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`,
     );
     for (
       let numTries = 1;
@@ -151,7 +151,7 @@ export default class ApiCall {
       this.logger.debug(
         `Request #${requestNumber}: Attempting ${requestType.toUpperCase()} request Try #${numTries} to Node ${
           node.index
-        }`
+        }`,
       );
 
       if (abortSignal && abortSignal.aborted) {
@@ -168,7 +168,7 @@ export default class ApiCall {
             {},
             this.defaultHeaders(),
             additionalHeaders,
-            this.additionalUserHeaders
+            this.additionalUserHeaders,
           ),
           maxContentLength: Infinity,
           maxBodyLength: Infinity,
@@ -209,6 +209,19 @@ export default class ApiCall {
           requestOptions.params["x-typesense-api-key"] = this.apiKey;
         }
 
+        if (this.configuration.httpAgent) {
+          this.logger.debug(
+            `Request #${requestNumber}: Using custom httpAgent`,
+          );
+          requestOptions.httpAgent = this.configuration.httpAgent;
+        }
+        if (this.configuration.httpsAgent) {
+          this.logger.debug(
+            `Request #${requestNumber}: Using custom httpsAgent`,
+          );
+          requestOptions.httpsAgent = this.configuration.httpsAgent;
+        }
+
         if (
           bodyParameters &&
           ((typeof bodyParameters === "string" &&
@@ -235,7 +248,7 @@ export default class ApiCall {
           this.setNodeHealthcheck(node, HEALTHY);
         }
         this.logger.debug(
-          `Request #${requestNumber}: Request to Node ${node.index} was made. Response Code was ${response.status}.`
+          `Request #${requestNumber}: Request to Node ${node.index} was made. Response Code was ${response.status}.`,
         );
 
         if (response.status >= 200 && response.status < 300) {
@@ -244,7 +257,7 @@ export default class ApiCall {
         } else if (response.status < 500) {
           // Next, if response is anything but 5xx, don't retry, return a custom error
           return Promise.reject(
-            this.customErrorForResponse(response, response.data?.message)
+            this.customErrorForResponse(response, response.data?.message),
           );
         } else {
           // Retry all other HTTP errors (HTTPStatus > 500)
@@ -262,11 +275,11 @@ export default class ApiCall {
             error.response == null
               ? ""
               : " - " + JSON.stringify(error.response?.data)
-          }"`
+          }"`,
         );
         // this.logger.debug(error.stack)
         this.logger.warn(
-          `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`
+          `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`,
         );
         await this.timer(this.retryIntervalSeconds);
       } finally {
@@ -276,7 +289,7 @@ export default class ApiCall {
       }
     }
     this.logger.debug(
-      `Request #${requestNumber}: No retries left. Raising last error`
+      `Request #${requestNumber}: No retries left. Raising last error`,
     );
     return Promise.reject(lastException);
   }
@@ -290,19 +303,19 @@ export default class ApiCall {
       this.logger.debug(
         `Request #${requestNumber}: Nodes Health: Node ${
           this.nearestNode.index
-        } is ${this.nearestNode.isHealthy === true ? "Healthy" : "Unhealthy"}`
+        } is ${this.nearestNode.isHealthy === true ? "Healthy" : "Unhealthy"}`,
       );
       if (
         this.nearestNode.isHealthy === true ||
         this.nodeDueForHealthcheck(this.nearestNode, requestNumber)
       ) {
         this.logger.debug(
-          `Request #${requestNumber}: Updated current node to Node ${this.nearestNode.index}`
+          `Request #${requestNumber}: Updated current node to Node ${this.nearestNode.index}`,
         );
         return this.nearestNode;
       }
       this.logger.debug(
-        `Request #${requestNumber}: Falling back to individual nodes`
+        `Request #${requestNumber}: Falling back to individual nodes`,
       );
     }
 
@@ -313,9 +326,9 @@ export default class ApiCall {
           (node) =>
             `Node ${node.index} is ${
               node.isHealthy === true ? "Healthy" : "Unhealthy"
-            }`
+            }`,
         )
-        .join(" || ")}`
+        .join(" || ")}`,
     );
     let candidateNode: Node = this.nodes[0];
     for (let i = 0; i <= this.nodes.length; i++) {
@@ -326,7 +339,7 @@ export default class ApiCall {
         this.nodeDueForHealthcheck(candidateNode, requestNumber)
       ) {
         this.logger.debug(
-          `Request #${requestNumber}: Updated current node to Node ${candidateNode.index}`
+          `Request #${requestNumber}: Updated current node to Node ${candidateNode.index}`,
         );
         return candidateNode;
       }
@@ -335,7 +348,7 @@ export default class ApiCall {
     // None of the nodes are marked healthy, but some of them could have become healthy since last health check.
     //  So we will just return the next node.
     this.logger.debug(
-      `Request #${requestNumber}: No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`
+      `Request #${requestNumber}: No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`,
     );
     return candidateNode;
   }
@@ -346,7 +359,7 @@ export default class ApiCall {
       this.healthcheckIntervalSeconds * 1000;
     if (isDueForHealthcheck) {
       this.logger.debug(
-        `Request #${requestNumber}: Node ${node.index} has exceeded healtcheckIntervalSeconds of ${this.healthcheckIntervalSeconds}. Adding it back into rotation.`
+        `Request #${requestNumber}: Node ${node.index} has exceeded healtcheckIntervalSeconds of ${this.healthcheckIntervalSeconds}. Adding it back into rotation.`,
       );
     }
     return isDueForHealthcheck;
@@ -391,7 +404,7 @@ export default class ApiCall {
 
   customErrorForResponse(
     response: AxiosResponse,
-    messageFromServer: string
+    messageFromServer: string,
   ): TypesenseError {
     let errorMessage = `Request failed with HTTP code ${response.status}`;
     if (

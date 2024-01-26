@@ -1,4 +1,8 @@
+/// <reference types="node" />
+/// <reference types="node" />
 import { Logger, LogLevelDesc } from "loglevel";
+import type { Agent as HTTPAgent } from "http";
+import type { Agent as HTTPSAgent } from "https";
 export interface NodeConfiguration {
     host: string;
     port: number;
@@ -41,6 +45,8 @@ export interface ConfigurationOptions {
     additionalHeaders?: Record<string, string>;
     logLevel?: LogLevelDesc;
     logger?: Logger;
+    httpAgent?: HTTPAgent;
+    httpsAgent?: HTTPSAgent;
 }
 export default class Configuration {
     readonly nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
@@ -56,6 +62,8 @@ export default class Configuration {
     readonly logger: Logger;
     readonly logLevel: LogLevelDesc;
     readonly additionalHeaders?: Record<string, string>;
+    readonly httpAgent?: HTTPAgent;
+    readonly httpsAgent?: HTTPSAgent;
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;

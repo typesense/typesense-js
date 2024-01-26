@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 /*
  These examples walk you through the search operation.
 
@@ -5,8 +7,11 @@
 */
 require("@babel/register");
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Typesense = require("../../../lib/Typesense");
+
+// If you need to use a custom agent:
+// const { Agent: HTTPAgent } = require("http");
+// const { Agent: HTTPSAgent } = require("https");
 
 // Create a client
 const typesense = new Typesense.Client({
@@ -40,6 +45,10 @@ const typesense = new Typesense.Client({
   retryIntervalSeconds: 0.1,
   healthcheckIntervalSeconds: 2,
   logLevel: "debug",
+
+  // If you need to use a custom agent:
+  // httpAgent: new HTTPAgent({ keepAlive: true }),
+  // httpsAgent: new HTTPSAgent({ keepAlive: true }),
 });
 
 let schema = {
@@ -108,7 +117,7 @@ async function runExample() {
     await Promise.all(
       documents.map((document) => {
         return typesense.collections("companies").documents().create(document);
-      })
+      }),
     );
 
     // Search for documents
@@ -159,7 +168,7 @@ async function runExample() {
       {
         query_by: "company_name",
         collection: "companies",
-      }
+      },
     );
     console.log(searchResults);
   } catch (error) {

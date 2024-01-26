@@ -623,6 +623,14 @@ var ApiCall = /*#__PURE__*/function () {
                         requestOptions.params = requestOptions.params || {};
                         requestOptions.params["x-typesense-api-key"] = _this.apiKey;
                       }
+                      if (_this.configuration.httpAgent) {
+                        _this.logger.debug("Request #".concat(requestNumber, ": Using custom httpAgent"));
+                        requestOptions.httpAgent = _this.configuration.httpAgent;
+                      }
+                      if (_this.configuration.httpsAgent) {
+                        _this.logger.debug("Request #".concat(requestNumber, ": Using custom httpsAgent"));
+                        requestOptions.httpsAgent = _this.configuration.httpsAgent;
+                      }
                       if (bodyParameters && (typeof bodyParameters === "string" && bodyParameters.length !== 0 || (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(bodyParameters) === "object" && Object.keys(bodyParameters).length !== 0)) {
                         requestOptions.data = bodyParameters;
                       }
@@ -637,9 +645,9 @@ var ApiCall = /*#__PURE__*/function () {
                         abortSignal.addEventListener("abort", abortListener);
                         requestOptions.cancelToken = source.token;
                       }
-                      _context6.next = 13;
+                      _context6.next = 15;
                       return (0,axios__WEBPACK_IMPORTED_MODULE_7__["default"])(requestOptions);
-                    case 13:
+                    case 15:
                       response = _context6.sent;
                       if (response.status >= 1 && response.status <= 499) {
                         // Treat any status code > 0 and < 500 to be an indication that node is healthy
@@ -648,27 +656,27 @@ var ApiCall = /*#__PURE__*/function () {
                       }
                       _this.logger.debug("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " was made. Response Code was ").concat(response.status, "."));
                       if (!(response.status >= 200 && response.status < 300)) {
-                        _context6.next = 20;
+                        _context6.next = 22;
                         break;
                       }
                       return _context6.abrupt("return", {
                         v: Promise.resolve(response.data)
                       });
-                    case 20:
+                    case 22:
                       if (!(response.status < 500)) {
-                        _context6.next = 24;
+                        _context6.next = 26;
                         break;
                       }
                       return _context6.abrupt("return", {
                         v: Promise.reject(_this.customErrorForResponse(response, (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.message))
                       });
-                    case 24:
+                    case 26:
                       throw _this.customErrorForResponse(response, (_response$data2 = response.data) === null || _response$data2 === void 0 ? void 0 : _response$data2.message);
-                    case 25:
-                      _context6.next = 35;
-                      break;
                     case 27:
-                      _context6.prev = 27;
+                      _context6.next = 37;
+                      break;
+                    case 29:
+                      _context6.prev = 29;
                       _context6.t0 = _context6["catch"](4);
                       // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
                       _this.setNodeHealthcheck(node, UNHEALTHY);
@@ -676,19 +684,19 @@ var ApiCall = /*#__PURE__*/function () {
                       _this.logger.warn("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " failed due to \"").concat(_context6.t0.code, " ").concat(_context6.t0.message).concat(_context6.t0.response == null ? "" : " - " + JSON.stringify((_error$response = _context6.t0.response) === null || _error$response === void 0 ? void 0 : _error$response.data), "\""));
                       // this.logger.debug(error.stack)
                       _this.logger.warn("Request #".concat(requestNumber, ": Sleeping for ").concat(_this.retryIntervalSeconds, "s and then retrying request..."));
-                      _context6.next = 35;
+                      _context6.next = 37;
                       return _this.timer(_this.retryIntervalSeconds);
-                    case 35:
-                      _context6.prev = 35;
+                    case 37:
+                      _context6.prev = 37;
                       if (abortSignal && abortListener) {
                         abortSignal.removeEventListener("abort", abortListener);
                       }
-                      return _context6.finish(35);
-                    case 38:
+                      return _context6.finish(37);
+                    case 40:
                     case "end":
                       return _context6.stop();
                   }
-                }, _loop, null, [[4, 27, 35, 38]]);
+                }, _loop, null, [[4, 29, 37, 40]]);
               });
               numTries = 1;
             case 6:
@@ -1332,6 +1340,8 @@ var Configuration = /*#__PURE__*/function () {
     this.logLevel = options.logLevel || "warn";
     this.logger.setLevel(this.logLevel);
     this.additionalHeaders = options.additionalHeaders;
+    this.httpAgent = options.httpAgent;
+    this.httpsAgent = options.httpsAgent;
     this.showDeprecationWarnings(options);
     this.validate();
   }

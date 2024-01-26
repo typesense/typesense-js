@@ -1,6 +1,8 @@
 import * as logger from "loglevel";
 import { Logger, LogLevelDesc } from "loglevel";
 import { MissingConfigurationError } from "./Errors";
+import type { Agent as HTTPAgent } from "http";
+import type { Agent as HTTPSAgent } from "https";
 
 export interface NodeConfiguration {
   host: string;
@@ -60,6 +62,9 @@ export interface ConfigurationOptions {
 
   logLevel?: LogLevelDesc;
   logger?: Logger;
+
+  httpAgent?: HTTPAgent;
+  httpsAgent?: HTTPSAgent;
 }
 
 export default class Configuration {
@@ -82,6 +87,8 @@ export default class Configuration {
   readonly logger: Logger;
   readonly logLevel: LogLevelDesc;
   readonly additionalHeaders?: Record<string, string>;
+  readonly httpAgent?: HTTPAgent;
+  readonly httpsAgent?: HTTPSAgent;
 
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || [];
@@ -124,6 +131,9 @@ export default class Configuration {
 
     this.additionalHeaders = options.additionalHeaders;
 
+    this.httpAgent = options.httpAgent;
+    this.httpsAgent = options.httpsAgent;
+
     this.showDeprecationWarnings(options);
     this.validate();
   }
@@ -131,7 +141,7 @@ export default class Configuration {
   validate(): boolean {
     if (this.nodes == null || this.nodes.length === 0 || this.validateNodes()) {
       throw new MissingConfigurationError(
-        "Ensure that nodes[].protocol, nodes[].host and nodes[].port are set"
+        "Ensure that nodes[].protocol, nodes[].host and nodes[].port are set",
       );
     }
 
@@ -140,7 +150,7 @@ export default class Configuration {
       this.isNodeMissingAnyParameters(this.nearestNode)
     ) {
       throw new MissingConfigurationError(
-        "Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set"
+        "Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set",
       );
     }
 
@@ -161,7 +171,7 @@ export default class Configuration {
     node:
       | NodeConfiguration
       | NodeConfigurationWithHostname
-      | NodeConfigurationWithUrl
+      | NodeConfigurationWithUrl,
   ): boolean {
     return (
       !["protocol", "host", "port", "path"].every((key) => {
@@ -175,7 +185,7 @@ export default class Configuration {
       | NodeConfiguration
       | NodeConfigurationWithHostname
       | NodeConfigurationWithUrl
-      | undefined
+      | undefined,
   ):
     | NodeConfiguration
     | NodeConfigurationWithHostname
@@ -192,7 +202,7 @@ export default class Configuration {
       | NodeConfiguration
       | NodeConfigurationWithHostname
       | NodeConfigurationWithUrl
-      | undefined
+      | undefined,
   ):
     | NodeConfiguration
     | NodeConfigurationWithHostname
@@ -218,17 +228,17 @@ export default class Configuration {
   private showDeprecationWarnings(options: ConfigurationOptions): void {
     if (options.timeoutSeconds) {
       this.logger.warn(
-        "Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds"
+        "Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds",
       );
     }
     if (options.masterNode) {
       this.logger.warn(
-        "Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12"
+        "Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12",
       );
     }
     if (options.readReplicaNodes) {
       this.logger.warn(
-        "Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12"
+        "Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12",
       );
     }
   }
