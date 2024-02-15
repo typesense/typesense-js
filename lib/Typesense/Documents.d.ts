@@ -26,8 +26,8 @@ export interface SearchParamsWithPreset extends Partial<SearchParams> {
 }
 type OperationMode = "off" | "always" | "fallback";
 export interface SearchParams {
-    q: string;
-    query_by: string | string[];
+    q?: string;
+    query_by?: string | string[];
     query_by_weights?: string | number[];
     prefix?: string | boolean | boolean[];
     filter_by?: string;

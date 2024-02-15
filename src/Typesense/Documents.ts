@@ -36,8 +36,8 @@ export interface SearchParamsWithPreset extends Partial<SearchParams> {
 type OperationMode = "off" | "always" | "fallback";
 export interface SearchParams {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
-  q: string;
-  query_by: string | string[];
+  q?: string;
+  query_by?: string | string[];
   query_by_weights?: string | number[];
   prefix?: string | boolean | boolean[]; // default: true
   filter_by?: string;
