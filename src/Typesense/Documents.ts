@@ -53,6 +53,7 @@ export interface SearchParams {
   per_page?: number; // default: 10, max 250
   group_by?: string | string[];
   group_limit?: number; // default:
+  group_missing_values?: boolean;
   include_fields?: string | string[];
   exclude_fields?: string | string[];
   highlight_fields?: string | string[]; // default: all queried fields
@@ -76,6 +77,7 @@ export interface SearchParams {
   enable_overrides?: boolean;
   prioritize_exact_match?: boolean; // default: true
   prioritize_token_position?: boolean;
+  prioritize_num_matching_fields?: boolean;
   search_cutoff_ms?: number;
   use_cache?: boolean;
   max_candidates?: number;
