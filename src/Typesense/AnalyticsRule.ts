@@ -2,7 +2,7 @@ import ApiCall from "./ApiCall";
 import AnalyticsRules from "./AnalyticsRules";
 
 export interface AnalyticsRuleCreateSchema {
-  type: "popular_queries";
+  type: "popular_queries" | "nohits_queries";
   params: {
     source: {
       collections: string[];
@@ -23,7 +23,10 @@ export interface AnalyticsRuleSchema extends AnalyticsRuleCreateSchema {
 }
 
 export default class AnalyticsRule {
-  constructor(private name: string, private apiCall: ApiCall) {}
+  constructor(
+    private name: string,
+    private apiCall: ApiCall,
+  ) {}
 
   async retrieve(): Promise<AnalyticsRuleSchema> {
     return this.apiCall.get<AnalyticsRuleSchema>(this.endpointPath());
