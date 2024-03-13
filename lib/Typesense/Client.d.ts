@@ -16,6 +16,8 @@ import Preset from "./Preset";
 import Analytics from "./Analytics";
 import Stopwords from "./Stopwords";
 import Stopword from "./Stopword";
+import Conversations from "./Conversations";
+import Conversation from "./Conversation";
 export default class Client {
     configuration: Configuration;
     apiCall: ApiCall;
@@ -35,6 +37,8 @@ export default class Client {
     private readonly individualPresets;
     private readonly _stopwords;
     private readonly individualStopwords;
+    private readonly _conversations;
+    private readonly individualConversations;
     constructor(options: ConfigurationOptions);
     collections(): Collections;
     collections<T extends Record<string, any> = object>(collectionName: string): Collection<T>;
@@ -46,4 +50,6 @@ export default class Client {
     presets(id: string): Preset;
     stopwords(): Stopwords;
     stopwords(id: string): Stopword;
+    conversations(): Conversations;
+    conversations(id: string): Conversation;
 }

@@ -18,6 +18,8 @@ import Preset from "./Preset";
 import Analytics from "./Analytics";
 import Stopwords from "./Stopwords";
 import Stopword from "./Stopword";
+import Conversations from "./Conversations";
+import Conversation from "./Conversation";
 
 export default class Client {
   configuration: Configuration;
@@ -38,6 +40,8 @@ export default class Client {
   private readonly individualPresets: Record<string, Preset>;
   private readonly _stopwords: Stopwords;
   private readonly individualStopwords: Record<string, Stopword>;
+  private readonly _conversations: Conversations;
+  private readonly individualConversations: Record<string, Conversation>;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false;
@@ -60,6 +64,8 @@ export default class Client {
     this._stopwords = new Stopwords(this.apiCall);
     this.individualStopwords = {};
     this.analytics = new Analytics(this.apiCall);
+    this._conversations = new Conversations(this.apiCall);
+    this.individualConversations = {};
   }
 
   collections(): Collections;
@@ -130,6 +136,19 @@ export default class Client {
         this.individualStopwords[id] = new Stopword(id, this.apiCall);
       }
       return this.individualStopwords[id];
+    }
+  }
+
+  conversations(): Conversations;
+  conversations(id: string): Conversation;
+  conversations(id?: string): Conversations | Conversation {
+    if (id === undefined) {
+      return this._conversations;
+    } else {
+      if (this.individualConversations[id] === undefined) {
+        this.individualConversations[id] = new Conversation(id, this.apiCall);
+      }
+      return this.individualConversations[id];
     }
   }
 }

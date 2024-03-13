@@ -1,6 +1,6 @@
 import ApiCall from "./ApiCall";
 export interface AnalyticsRuleCreateSchema {
-    type: "popular_queries";
+    type: "popular_queries" | "nohits_queries";
     params: {
         source: {
             collections: string[];

@@ -90,6 +90,9 @@ export interface SearchParams {
   offset?: number;
   limit?: number;
   stopwords?: string;
+  conversation?: boolean;
+  conversation_model_id?: string;
+  conversation_id?: string;
 }
 
 type SearchResponseHighlightObject = {
@@ -162,6 +165,17 @@ export interface SearchResponse<T extends DocumentSchema> {
     hits: SearchResponseHit<T>[];
     found?: number;
   }[];
+  conversation?: {
+    answer: string;
+    conversation_history: {
+      conversation: object[];
+      id: string;
+      last_updated: number;
+      ttl: number;
+    };
+    conversation_id: string;
+    query: string;
+  };
 }
 
 export interface DocumentWriteParameters {
