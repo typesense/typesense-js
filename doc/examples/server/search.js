@@ -17,7 +17,7 @@ const Typesense = require("../../../lib/Typesense");
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: "localhost",
+      host: "127.0.0.1",
       port: "8108",
       protocol: "http",
     },
@@ -128,6 +128,7 @@ async function runExample() {
       .search({
         q: "Stark",
         query_by: "company_name",
+        facet_by: "country",
       });
     console.log(searchResults);
 
