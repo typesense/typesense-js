@@ -8,6 +8,7 @@ import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
 export interface DeleteQuery {
   filter_by: string;
   batch_size?: number;
+  ignore_not_found?: boolean;
 }
 
 export interface DeleteResponse {
