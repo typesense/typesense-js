@@ -26,6 +26,7 @@ module.exports = (env, argv) => {
         argv && argv.mode === "production" ? ".min" : ""
       }.js`,
       path: path.resolve(__dirname, "dist"),
+      library: "Typesense",
     },
     devtool: "source-map",
   };
