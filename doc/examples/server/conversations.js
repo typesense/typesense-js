@@ -108,7 +108,7 @@ async function runExample() {
         system_prompt: "Be very elaborate in your responses",
         max_bytes: 1024,
       });
-    console.log(result);
+    console.log(conversationModelResult);
 
     // Retrieve all conversation models
     result = await typesense.conversations().models().retrieve();
