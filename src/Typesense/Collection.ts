@@ -24,7 +24,8 @@ export type FieldType =
   | "object"
   | "object[]"
   | "auto"
-  | "string*";
+  | "string*"
+  | "image";
 
 export interface CollectionFieldSchema {
   name: string;
@@ -36,6 +37,7 @@ export interface CollectionFieldSchema {
   locale?: string;
   infix?: boolean;
   num_dim?: number;
+  store?: boolean;
   [t: string]: unknown;
 }
 
@@ -66,7 +68,7 @@ export default class Collection<T extends DocumentSchema = object> {
   constructor(
     private readonly name: string,
     private readonly apiCall: ApiCall,
-    private readonly configuration: any
+    private readonly configuration: any,
   ) {
     this.name = name;
     this.apiCall = apiCall;
@@ -75,7 +77,7 @@ export default class Collection<T extends DocumentSchema = object> {
     this._documents = new Documents(
       this.name,
       this.apiCall,
-      this.configuration
+      this.configuration,
     );
     this._overrides = new Overrides(this.name, this.apiCall);
     this._synonyms = new Synonyms(this.name, this.apiCall);
@@ -113,7 +115,7 @@ export default class Collection<T extends DocumentSchema = object> {
         this.individualDocuments[documentId] = new Document(
           this.name,
           documentId,
-          this.apiCall
+          this.apiCall,
         );
       }
       return this.individualDocuments[documentId];
@@ -130,7 +132,7 @@ export default class Collection<T extends DocumentSchema = object> {
         this.individualOverrides[overrideId] = new Override(
           this.name,
           overrideId,
-          this.apiCall
+          this.apiCall,
         );
       }
       return this.individualOverrides[overrideId];
@@ -147,7 +149,7 @@ export default class Collection<T extends DocumentSchema = object> {
         this.individualSynonyms[synonymId] = new Synonym(
           this.name,
           synonymId,
-          this.apiCall
+          this.apiCall,
         );
       }
       return this.individualSynonyms[synonymId];
