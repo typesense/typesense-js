@@ -8,6 +8,7 @@ export interface CollectionCreateSchema {
   symbols_to_index?: string[];
   token_separators?: string[];
   enable_nested_fields?: boolean;
+  metadata?: object;
 }
 
 export interface CollectionCreateOptions {
@@ -21,7 +22,7 @@ export default class Collections {
 
   async create(
     schema: CollectionCreateSchema,
-    options: CollectionCreateOptions = {}
+    options: CollectionCreateOptions = {},
   ): Promise<CollectionSchema> {
     return this.apiCall.post<CollectionSchema>(RESOURCEPATH, schema, options);
   }

@@ -1,14 +1,17 @@
 import ApiCall from "./ApiCall";
 import { OverrideSchema } from "./Override";
 export interface OverrideRuleQuerySchema {
-    query: string;
-    match: "exact" | "contains";
+    query?: string;
+    match?: "exact" | "contains";
 }
 export interface OverrideRuleFilterSchema {
-    filter_by: string;
+    filter_by?: string;
+}
+export interface OverrideRuleTagsSchema {
+    tags?: string[];
 }
 export interface OverrideCreateSchema {
-    rule: OverrideRuleQuerySchema | OverrideRuleFilterSchema;
+    rule: OverrideRuleQuerySchema & OverrideRuleFilterSchema & OverrideRuleTagsSchema;
     filter_by?: string;
     sort_by?: string;
     remove_matched_tokens?: boolean;
@@ -24,6 +27,7 @@ export interface OverrideCreateSchema {
     effective_from_ts?: number;
     effective_to_ts?: number;
     stop_processing?: boolean;
+    metadata?: object;
 }
 export interface OverridesRetrieveSchema {
     overrides: OverrideSchema[];

@@ -7,6 +7,7 @@ export interface CollectionCreateSchema {
     symbols_to_index?: string[];
     token_separators?: string[];
     enable_nested_fields?: boolean;
+    metadata?: object;
 }
 export interface CollectionCreateOptions {
     src_name?: string;
