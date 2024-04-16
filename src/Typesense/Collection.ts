@@ -36,6 +36,7 @@ export interface CollectionFieldSchema {
   sort?: boolean;
   locale?: string;
   infix?: boolean;
+  stem?: boolean;
   num_dim?: number;
   store?: boolean;
   [t: string]: unknown;
