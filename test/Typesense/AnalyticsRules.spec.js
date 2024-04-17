@@ -36,7 +36,7 @@ describe("AnalyticsRules", function () {
         .onPut(
           apiCall.uriFor(
             "/analytics/rules/search_suggestions",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           {
             type: "popular_queries",
@@ -51,7 +51,7 @@ describe("AnalyticsRules", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(201, "{}", { "content-type": "application/json" });
 
@@ -60,6 +60,7 @@ describe("AnalyticsRules", function () {
         params: {
           source: { collections: ["products"] },
           destination: { collection: "products_top_queries" },
+          expand_query: true,
           limit: 100,
         },
       });
@@ -78,7 +79,7 @@ describe("AnalyticsRules", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, "[]", { "content-type": "application/json" });
 
