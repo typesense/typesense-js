@@ -7,6 +7,7 @@ export interface AnalyticsRuleCreateSchema {
     source: {
       collections: string[];
     };
+    expand_query?: boolean;
     destination: {
       collection: string;
     };
