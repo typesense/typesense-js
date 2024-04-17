@@ -4,11 +4,18 @@ export interface AnalyticsRuleCreateSchema {
     params: {
         source: {
             collections: string[];
+            events?: Array<{
+                type: string;
+                weight: number;
+                name: string;
+            }>;
         };
+        expand_query?: boolean;
         destination: {
             collection: string;
+            counter_field?: string;
         };
-        limit: number;
+        limit?: number;
     };
 }
 export interface AnalyticsRuleDeleteSchema {

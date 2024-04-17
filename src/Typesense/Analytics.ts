@@ -1,16 +1,19 @@
 import ApiCall from "./ApiCall";
 import AnalyticsRules from "./AnalyticsRules";
 import AnalyticsRule from "./AnalyticsRule";
+import AnalyticsEvents from "./AnalyticsEvents";
 
 const RESOURCEPATH = "/analytics";
 
 export default class Analytics {
   private readonly _analyticsRules: AnalyticsRules;
   private readonly individualAnalyticsRules: Record<string, AnalyticsRule> = {};
+  private readonly _analyticsEvents: AnalyticsEvents;
 
   constructor(private readonly apiCall: ApiCall) {
     this.apiCall = apiCall;
     this._analyticsRules = new AnalyticsRules(this.apiCall);
+    this._analyticsEvents = new AnalyticsEvents(this.apiCall);
   }
 
   rules(id?: string): AnalyticsRules | AnalyticsRule {
@@ -22,6 +25,10 @@ export default class Analytics {
       }
       return this.individualAnalyticsRules[id];
     }
+  }
+
+  events(): AnalyticsEvents {
+    return this._analyticsEvents;
   }
 
   static get RESOURCEPATH() {
