@@ -43,6 +43,7 @@ describe("AnalyticsRules", function () {
             params: {
               source: { collections: ["products"] },
               destination: { collection: "products_top_queries" },
+              expand_query: true,
               limit: 100,
             },
           },
