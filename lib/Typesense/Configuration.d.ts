@@ -45,7 +45,27 @@ export interface ConfigurationOptions {
     additionalHeaders?: Record<string, string>;
     logLevel?: LogLevelDesc;
     logger?: Logger;
+    /**
+     * Set a custom HTTP Agent
+     *
+     * This is helpful for eg, to enable keepAlive which helps prevents ECONNRESET socket hang up errors
+     *    Usage:
+     *      const { Agent: HTTPAgent } = require("http");
+     *      ...
+     *      httpAgent: new HTTPAgent({ keepAlive: true }),
+     * @type {HTTPAgent}
+     */
     httpAgent?: HTTPAgent;
+    /**
+     * Set a custom HTTPS Agent
+     *
+     * This is helpful for eg, to enable keepAlive which helps prevents ECONNRESET socket hang up errors
+     *    Usage:
+     *      const { Agent: HTTPSAgent } = require("https");
+     *      ...
+     *      httpsAgent: new HTTPSAgent({ keepAlive: true }),
+     * @type {HTTPSAgent}
+     */
     httpsAgent?: HTTPSAgent;
 }
 export default class Configuration {

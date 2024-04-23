@@ -11,6 +11,8 @@ import {
 } from "./Errors";
 import TypesenseError from "./Errors/TypesenseError";
 import Configuration, { NodeConfiguration } from "./Configuration";
+import { Agent as HTTPAgent } from "http";
+import { Agent as HTTPSAgent } from "https";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 const HEALTHY = true;
@@ -126,6 +128,7 @@ export default class ApiCall {
       abortSignal = null,
       responseType = undefined,
       skipConnectionTimeout = false,
+      enableKeepAlive = undefined,
     }: {
       queryParameters?: any;
       bodyParameters?: any;
@@ -133,6 +136,7 @@ export default class ApiCall {
       abortSignal?: any;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       skipConnectionTimeout?: boolean;
+      enableKeepAlive?: boolean | undefined;
     },
   ): Promise<T> {
     this.configuration.validate();
@@ -214,12 +218,19 @@ export default class ApiCall {
             `Request #${requestNumber}: Using custom httpAgent`,
           );
           requestOptions.httpAgent = this.configuration.httpAgent;
+        } else if (enableKeepAlive === true) {
+          this.logger.debug(`Request #${requestNumber}: Enabling KeepAlive`);
+          requestOptions.httpAgent = new HTTPAgent({ keepAlive: true });
         }
+
         if (this.configuration.httpsAgent) {
           this.logger.debug(
             `Request #${requestNumber}: Using custom httpsAgent`,
           );
           requestOptions.httpsAgent = this.configuration.httpsAgent;
+        } else if (enableKeepAlive === true) {
+          this.logger.debug(`Request #${requestNumber}: Enabling keepAlive`);
+          requestOptions.httpsAgent = new HTTPSAgent({ keepAlive: true });
         }
 
         if (

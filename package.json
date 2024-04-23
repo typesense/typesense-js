@@ -23,7 +23,9 @@
   "main": "lib/Typesense.js",
   "types": "lib/Typesense.d.ts",
   "browser": {
-    "crypto": false
+    "crypto": false,
+    "http": false,
+    "https": false
   },
   "files": [
     "lib/",

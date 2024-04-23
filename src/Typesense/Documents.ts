@@ -346,6 +346,7 @@ export default class Documents<T extends DocumentSchema = object>
         bodyParameters: documentsInJSONLFormat,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
+        enableKeepAlive: true, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },
     );
 

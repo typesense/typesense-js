@@ -463,9 +463,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
 /* harmony import */ var _Errors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Errors */ "./src/Typesense/Errors/index.ts");
 /* harmony import */ var _Errors_TypesenseError__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Errors/TypesenseError */ "./src/Typesense/Errors/TypesenseError.ts");
+/* harmony import */ var http__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! http */ "?e89d");
+/* harmony import */ var http__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(http__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var https__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! https */ "?77e4");
+/* harmony import */ var https__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(https__WEBPACK_IMPORTED_MODULE_8__);
+
+
 
 
 
@@ -639,11 +645,11 @@ var ApiCall = /*#__PURE__*/function () {
     value: function () {
       var _performRequest = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee6(requestType, endpoint, _ref2) {
         var _this = this;
-        var _ref2$queryParameters, queryParameters, _ref2$bodyParameters, bodyParameters, _ref2$additionalHeade, additionalHeaders, _ref2$abortSignal, abortSignal, _ref2$responseType, responseType, _ref2$skipConnectionT, skipConnectionTimeout, requestNumber, lastException, _loop, _ret, numTries;
+        var _ref2$queryParameters, queryParameters, _ref2$bodyParameters, bodyParameters, _ref2$additionalHeade, additionalHeaders, _ref2$abortSignal, abortSignal, _ref2$responseType, responseType, _ref2$skipConnectionT, skipConnectionTimeout, _ref2$enableKeepAlive, enableKeepAlive, requestNumber, lastException, _loop, _ret, numTries;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee6$(_context7) {
           while (1) switch (_context7.prev = _context7.next) {
             case 0:
-              _ref2$queryParameters = _ref2.queryParameters, queryParameters = _ref2$queryParameters === void 0 ? null : _ref2$queryParameters, _ref2$bodyParameters = _ref2.bodyParameters, bodyParameters = _ref2$bodyParameters === void 0 ? null : _ref2$bodyParameters, _ref2$additionalHeade = _ref2.additionalHeaders, additionalHeaders = _ref2$additionalHeade === void 0 ? {} : _ref2$additionalHeade, _ref2$abortSignal = _ref2.abortSignal, abortSignal = _ref2$abortSignal === void 0 ? null : _ref2$abortSignal, _ref2$responseType = _ref2.responseType, responseType = _ref2$responseType === void 0 ? undefined : _ref2$responseType, _ref2$skipConnectionT = _ref2.skipConnectionTimeout, skipConnectionTimeout = _ref2$skipConnectionT === void 0 ? false : _ref2$skipConnectionT;
+              _ref2$queryParameters = _ref2.queryParameters, queryParameters = _ref2$queryParameters === void 0 ? null : _ref2$queryParameters, _ref2$bodyParameters = _ref2.bodyParameters, bodyParameters = _ref2$bodyParameters === void 0 ? null : _ref2$bodyParameters, _ref2$additionalHeade = _ref2.additionalHeaders, additionalHeaders = _ref2$additionalHeade === void 0 ? {} : _ref2$additionalHeade, _ref2$abortSignal = _ref2.abortSignal, abortSignal = _ref2$abortSignal === void 0 ? null : _ref2$abortSignal, _ref2$responseType = _ref2.responseType, responseType = _ref2$responseType === void 0 ? undefined : _ref2$responseType, _ref2$skipConnectionT = _ref2.skipConnectionTimeout, skipConnectionTimeout = _ref2$skipConnectionT === void 0 ? false : _ref2$skipConnectionT, _ref2$enableKeepAlive = _ref2.enableKeepAlive, enableKeepAlive = _ref2$enableKeepAlive === void 0 ? undefined : _ref2$enableKeepAlive;
               this.configuration.validate();
               requestNumber = Date.now();
               this.logger.debug("Request #".concat(requestNumber, ": Performing ").concat(requestType.toUpperCase(), " request: ").concat(endpoint));
@@ -698,10 +704,20 @@ var ApiCall = /*#__PURE__*/function () {
                       if (_this.configuration.httpAgent) {
                         _this.logger.debug("Request #".concat(requestNumber, ": Using custom httpAgent"));
                         requestOptions.httpAgent = _this.configuration.httpAgent;
+                      } else if (enableKeepAlive === true) {
+                        _this.logger.debug("Request #".concat(requestNumber, ": Enabling KeepAlive"));
+                        requestOptions.httpAgent = new http__WEBPACK_IMPORTED_MODULE_7__.Agent({
+                          keepAlive: true
+                        });
                       }
                       if (_this.configuration.httpsAgent) {
                         _this.logger.debug("Request #".concat(requestNumber, ": Using custom httpsAgent"));
                         requestOptions.httpsAgent = _this.configuration.httpsAgent;
+                      } else if (enableKeepAlive === true) {
+                        _this.logger.debug("Request #".concat(requestNumber, ": Enabling keepAlive"));
+                        requestOptions.httpsAgent = new https__WEBPACK_IMPORTED_MODULE_8__.Agent({
+                          keepAlive: true
+                        });
                       }
                       if (bodyParameters && (typeof bodyParameters === "string" && bodyParameters.length !== 0 || (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(bodyParameters) === "object" && Object.keys(bodyParameters).length !== 0)) {
                         requestOptions.data = bodyParameters;
@@ -709,7 +725,7 @@ var ApiCall = /*#__PURE__*/function () {
 
                       // Translate from user-provided AbortController to the Axios request cancel mechanism.
                       if (abortSignal) {
-                        cancelToken = axios__WEBPACK_IMPORTED_MODULE_7__["default"].CancelToken;
+                        cancelToken = axios__WEBPACK_IMPORTED_MODULE_9__["default"].CancelToken;
                         source = cancelToken.source();
                         abortListener = function abortListener() {
                           return source.cancel();
@@ -718,7 +734,7 @@ var ApiCall = /*#__PURE__*/function () {
                         requestOptions.cancelToken = source.token;
                       }
                       _context6.next = 15;
-                      return (0,axios__WEBPACK_IMPORTED_MODULE_7__["default"])(requestOptions);
+                      return (0,axios__WEBPACK_IMPORTED_MODULE_9__["default"])(requestOptions);
                     case 15:
                       response = _context6.sent;
                       if (response.status >= 1 && response.status <= 499) {
@@ -2259,7 +2275,9 @@ var Documents = /*#__PURE__*/function (_ref) {
                 additionalHeaders: {
                   "Content-Type": "text/plain"
                 },
-                skipConnectionTimeout: true // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
+                skipConnectionTimeout: true,
+                // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
+                enableKeepAlive: true // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
               });
             case 16:
               resultsInJSONLFormat = _context6.sent;
@@ -4549,6 +4567,26 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
 /*!************************!*\
   !*** crypto (ignored) ***!
   \************************/
+/***/ (() => {
+
+/* (ignored) */
+
+/***/ }),
+
+/***/ "?e89d":
+/*!**********************!*\
+  !*** http (ignored) ***!
+  \**********************/
+/***/ (() => {
+
+/* (ignored) */
+
+/***/ }),
+
+/***/ "?77e4":
+/*!***********************!*\
+  !*** https (ignored) ***!
+  \***********************/
 /***/ (() => {
 
 /* (ignored) */
