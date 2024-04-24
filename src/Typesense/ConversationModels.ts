@@ -4,10 +4,6 @@ import {
   ConversationModelSchema,
 } from "./ConversationModel";
 
-export interface ConversationModelsRetrieveSchema {
-  models: ConversationModelSchema[];
-}
-
 const RESOURCEPATH = "/conversations/models";
 
 export default class ConversationModels {
@@ -24,8 +20,8 @@ export default class ConversationModels {
     );
   }
 
-  async retrieve(): Promise<ConversationModelsRetrieveSchema> {
-    return this.apiCall.get<ConversationModelsRetrieveSchema>(
+  async retrieve(): Promise<ConversationModelSchema[]> {
+    return this.apiCall.get<ConversationModelSchema[]>(
       this.endpointPath(),
     );
   }

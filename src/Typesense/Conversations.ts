@@ -25,6 +25,8 @@ export default class Conversations {
     return this.apiCall.get<ConversationsRetrieveSchema>(RESOURCEPATH);
   }
 
+  models(): ConversationModels;
+  models(id: string): ConversationModel;
   models(id?: string): ConversationModels | ConversationModel {
     if (id === undefined) {
       return this._conversationsModels;
