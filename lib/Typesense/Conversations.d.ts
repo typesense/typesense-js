@@ -11,6 +11,7 @@ export default class Conversations {
     private readonly individualConversationModels;
     constructor(apiCall: ApiCall);
     retrieve(): Promise<ConversationsRetrieveSchema>;
-    models(id?: string): ConversationModels | ConversationModel;
+    models(): ConversationModels;
+    models(id: string): ConversationModel;
     static get RESOURCEPATH(): string;
 }
