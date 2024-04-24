@@ -321,8 +321,8 @@ export default class Documents<T extends DocumentSchema = object>
       } catch (error: any) {
         // if rangeerror, throw custom error message
         if (
-          RangeError instanceof error &&
-          error?.includes("Too many properties to enumerate")
+          error instanceof RangeError &&
+          error.message.includes("Too many properties to enumerate")
         ) {
           throw new Error(`${error}
           It looks like you have reached a Node.js limit that restricts the number of keys in an Object: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object

@@ -2255,7 +2255,7 @@ var Documents = /*#__PURE__*/function (_ref) {
             case 6:
               _context6.prev = 6;
               _context6.t0 = _context6["catch"](2);
-              if (!(RangeError instanceof _context6.t0 && _context6.t0 !== null && _context6.t0 !== void 0 && _context6.t0.includes("Too many properties to enumerate"))) {
+              if (!(_context6.t0 instanceof RangeError && _context6.t0.message.includes("Too many properties to enumerate"))) {
                 _context6.next = 10;
                 break;
               }
