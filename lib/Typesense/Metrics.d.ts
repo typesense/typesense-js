@@ -1,14 +1,13 @@
 import ApiCall from "./ApiCall";
 export interface MetricsResponse {
-    system_cpu1_active_percentage: string;
-    system_cpu2_active_percentage: string;
-    system_cpu3_active_percentage: string;
-    system_cpu4_active_percentage: string;
+    [key: `system_cpu${number}_active_percentage`]: string;
     system_cpu_active_percentage: string;
     system_disk_total_bytes: string;
     system_disk_used_bytes: string;
     system_memory_total_bytes: string;
+    system_memory_total_swap_bytes?: string;
     system_memory_used_bytes: string;
+    system_memory_used_swap_bytes?: string;
     system_network_received_bytes: string;
     system_network_sent_bytes: string;
     typesense_memory_active_bytes: string;
