@@ -67,6 +67,14 @@ export interface ConfigurationOptions {
      * @type {HTTPSAgent}
      */
     httpsAgent?: HTTPSAgent;
+    /**
+     * Set a custom paramsSerializer
+     *
+     * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
+     *  This is helpful for handling React Native issues like this: https://github.com/axios/axios/issues/6102#issuecomment-2085301397
+     * @type {any}
+     */
+    paramsSerializer?: any;
 }
 export default class Configuration {
     readonly nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
@@ -84,6 +92,7 @@ export default class Configuration {
     readonly additionalHeaders?: Record<string, string>;
     readonly httpAgent?: HTTPAgent;
     readonly httpsAgent?: HTTPSAgent;
+    readonly paramsSerializer?: any;
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;

@@ -233,6 +233,13 @@ export default class ApiCall {
           requestOptions.httpsAgent = new HTTPSAgent({ keepAlive: true });
         }
 
+        if (this.configuration.paramsSerializer) {
+          this.logger.debug(
+            `Request #${requestNumber}: Using custom paramsSerializer`,
+          );
+          requestOptions.paramsSerializer = this.configuration.paramsSerializer;
+        }
+
         if (
           bodyParameters &&
           ((typeof bodyParameters === "string" &&
