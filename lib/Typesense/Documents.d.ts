@@ -84,6 +84,7 @@ export interface SearchParams {
     conversation?: boolean;
     conversation_model_id?: string;
     conversation_id?: string;
+    voice_query?: string;
 }
 type SearchResponseHighlightObject = {
     matched_tokens?: string[];
@@ -130,8 +131,15 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
         sum?: number;
     };
 }
-export interface SearchResponseRequestParams extends Partial<SearchParams> {
+export interface SearchResponseRequestParams {
     collection_name?: string;
+    q?: string;
+    page?: number;
+    per_page?: number;
+    first_q?: string;
+    voice_query?: {
+        transcribed_query?: string;
+    };
 }
 export interface SearchResponse<T extends DocumentSchema> {
     facet_counts?: SearchResponseFacetCountSchema<T>[];
@@ -141,6 +149,7 @@ export interface SearchResponse<T extends DocumentSchema> {
     page: number;
     request_params: SearchResponseRequestParams;
     search_time_ms: number;
+    search_cutoff?: boolean;
     hits?: SearchResponseHit<T>[];
     grouped_hits?: {
         group_key: string[];
