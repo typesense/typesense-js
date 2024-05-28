@@ -9,6 +9,9 @@ export interface CollectionCreateSchema {
   token_separators?: string[];
   enable_nested_fields?: boolean;
   metadata?: object;
+  voice_query_model?: {
+    model_name?: string;
+  };
 }
 
 export interface CollectionCreateOptions {
