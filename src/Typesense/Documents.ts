@@ -42,6 +42,7 @@ export interface SearchParams {
   query_by_weights?: string | number[];
   prefix?: string | boolean | boolean[]; // default: true
   filter_by?: string;
+  enable_lazy_filter?: boolean; // default: false
   sort_by?: string | string[]; // default: text match desc
   facet_by?: string | string[];
   max_facet_values?: number;
