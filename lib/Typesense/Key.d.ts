@@ -1,4 +1,4 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 export interface KeyCreateSchema {
     actions: string[];
     collections: string[];

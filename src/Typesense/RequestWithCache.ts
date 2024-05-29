@@ -15,7 +15,7 @@ export default class RequestWithCache {
     requestContext: any,
     requestFunction: (...params: any) => unknown,
     requestFunctionArguments: any[],
-    cacheOptions: CacheOptions
+    cacheOptions: CacheOptions,
   ): Promise<T | unknown> {
     const {
       cacheResponseForSeconds = defaultCacheResponseForSeconds,
@@ -28,7 +28,7 @@ export default class RequestWithCache {
     }
 
     const requestFunctionArgumentsJSON = JSON.stringify(
-      requestFunctionArguments
+      requestFunctionArguments,
     );
     const cacheEntry = this.responseCache.get(requestFunctionArgumentsJSON);
     const now = Date.now();
@@ -46,7 +46,7 @@ export default class RequestWithCache {
     }
 
     const cachePromiseEntry = this.responsePromiseCache.get(
-      requestFunctionArgumentsJSON
+      requestFunctionArgumentsJSON,
     );
 
     if (cachePromiseEntry) {
@@ -57,7 +57,7 @@ export default class RequestWithCache {
         this.responsePromiseCache.delete(requestFunctionArgumentsJSON);
         this.responsePromiseCache.set(
           requestFunctionArgumentsJSON,
-          cachePromiseEntry
+          cachePromiseEntry,
         );
         return cachePromiseEntry.responsePromise;
       } else {
@@ -67,7 +67,7 @@ export default class RequestWithCache {
 
     const responsePromise = requestFunction.call(
       requestContext,
-      ...requestFunctionArguments
+      ...requestFunctionArguments,
     );
     this.responsePromiseCache.set(requestFunctionArgumentsJSON, {
       requestTimestamp: now,

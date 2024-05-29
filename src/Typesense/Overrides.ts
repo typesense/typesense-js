@@ -1,12 +1,12 @@
-import ApiCall from "./ApiCall";
-import Collections from "./Collections";
-import { OverrideSchema } from "./Override";
+import ApiCall from './ApiCall';
+import Collections from './Collections';
+import { OverrideSchema } from './Override';
 
-const RESOURCEPATH = "/overrides";
+const RESOURCEPATH = '/overrides';
 
 export interface OverrideRuleQuerySchema {
   query?: string;
-  match?: "exact" | "contains";
+  match?: 'exact' | 'contains';
 }
 
 export interface OverrideRuleFilterSchema {
@@ -64,7 +64,7 @@ export default class Overrides {
   private endpointPath(operation?: string): string {
     return `${Collections.RESOURCEPATH}/${this.collectionName}${
       Overrides.RESOURCEPATH
-    }${operation === undefined ? "" : "/" + operation}`;
+    }${operation === undefined ? '' : '/' + operation}`;
   }
 
   static get RESOURCEPATH(): string {

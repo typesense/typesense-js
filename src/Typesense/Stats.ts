@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 
-const RESOURCEPATH = "/stats.json";
+const RESOURCEPATH = '/stats.json';
 
 export interface EndpointStats {
   [endpoint: string]: number;

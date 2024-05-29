@@ -1,8 +1,8 @@
-import * as logger from "loglevel";
-import { Logger, LogLevelDesc } from "loglevel";
-import { MissingConfigurationError } from "./Errors";
-import type { Agent as HTTPAgent } from "http";
-import type { Agent as HTTPSAgent } from "https";
+import * as logger from 'loglevel';
+import { Logger, LogLevelDesc } from 'loglevel';
+import { MissingConfigurationError } from './Errors';
+import type { Agent as HTTPAgent } from 'http';
+import type { Agent as HTTPSAgent } from 'https';
 
 export interface NodeConfiguration {
   host: string;
@@ -157,7 +157,7 @@ export default class Configuration {
     this.useServerSideSearchCache = options.useServerSideSearchCache || false;
 
     this.logger = options.logger || logger;
-    this.logLevel = options.logLevel || "warn";
+    this.logLevel = options.logLevel || 'warn';
     this.logger.setLevel(this.logLevel);
 
     this.additionalHeaders = options.additionalHeaders;
@@ -174,7 +174,7 @@ export default class Configuration {
   validate(): boolean {
     if (this.nodes == null || this.nodes.length === 0 || this.validateNodes()) {
       throw new MissingConfigurationError(
-        "Ensure that nodes[].protocol, nodes[].host and nodes[].port are set",
+        'Ensure that nodes[].protocol, nodes[].host and nodes[].port are set',
       );
     }
 
@@ -183,12 +183,12 @@ export default class Configuration {
       this.isNodeMissingAnyParameters(this.nearestNode)
     ) {
       throw new MissingConfigurationError(
-        "Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set",
+        'Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set',
       );
     }
 
     if (this.apiKey == null) {
-      throw new MissingConfigurationError("Ensure that apiKey is set");
+      throw new MissingConfigurationError('Ensure that apiKey is set');
     }
 
     return true;
@@ -207,9 +207,9 @@ export default class Configuration {
       | NodeConfigurationWithUrl,
   ): boolean {
     return (
-      !["protocol", "host", "port", "path"].every((key) => {
+      !['protocol', 'host', 'port', 'path'].every((key) => {
         return node.hasOwnProperty(key);
-      }) && node["url"] == null
+      }) && node['url'] == null
     );
   }
 
@@ -224,8 +224,8 @@ export default class Configuration {
     | NodeConfigurationWithHostname
     | NodeConfigurationWithUrl
     | undefined {
-    if (node != null && !node.hasOwnProperty("path")) {
-      node["path"] = "";
+    if (node != null && !node.hasOwnProperty('path')) {
+      node['path'] = '';
     }
     return node;
   }
@@ -243,15 +243,15 @@ export default class Configuration {
     | undefined {
     if (
       node != null &&
-      !node.hasOwnProperty("port") &&
-      node.hasOwnProperty("protocol")
+      !node.hasOwnProperty('port') &&
+      node.hasOwnProperty('protocol')
     ) {
-      switch (node["protocol"]) {
-        case "https":
-          node["port"] = 443;
+      switch (node['protocol']) {
+        case 'https':
+          node['port'] = 443;
           break;
-        case "http":
-          node["port"] = 80;
+        case 'http':
+          node['port'] = 80;
           break;
       }
     }
@@ -261,17 +261,17 @@ export default class Configuration {
   private showDeprecationWarnings(options: ConfigurationOptions): void {
     if (options.timeoutSeconds) {
       this.logger.warn(
-        "Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds",
+        'Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds',
       );
     }
     if (options.masterNode) {
       this.logger.warn(
-        "Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12",
+        'Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12',
       );
     }
     if (options.readReplicaNodes) {
       this.logger.warn(
-        "Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12",
+        'Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12',
       );
     }
   }

@@ -1,8 +1,8 @@
-import Configuration, { ConfigurationOptions } from "./Configuration";
-import ApiCall from "./ApiCall";
-import MultiSearch from "./MultiSearch";
-import { DocumentSchema } from "./Documents";
-import { SearchOnlyCollection } from "./SearchOnlyCollection";
+import Configuration, { ConfigurationOptions } from './Configuration';
+import ApiCall from './ApiCall';
+import MultiSearch from './MultiSearch';
+import { DocumentSchema } from './Documents';
+import { SearchOnlyCollection } from './SearchOnlyCollection';
 
 export default class SearchClient {
   public readonly multiSearch: MultiSearch;
@@ -14,10 +14,10 @@ export default class SearchClient {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? true;
     if (
       options.sendApiKeyAsQueryParam === true &&
-      (options.apiKey || "").length > 2000
+      (options.apiKey || '').length > 2000
     ) {
       console.warn(
-        "[typesense] API Key is longer than 2000 characters which is over the allowed limit, so disabling sending it as a query parameter."
+        '[typesense] API Key is longer than 2000 characters which is over the allowed limit, so disabling sending it as a query parameter.',
       );
       options.sendApiKeyAsQueryParam = false;
     }
@@ -38,19 +38,19 @@ export default class SearchClient {
   }
 
   collections<TDocumentSchema extends DocumentSchema = object>(
-    collectionName: string
+    collectionName: string,
   ): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection {
     if (!collectionName) {
       throw new Error(
-        "Typesense.SearchClient only supports search operations, so the collectionName that needs to " +
-          "be searched must be specified. Use Typesense.Client if you need to access the collection object."
+        'Typesense.SearchClient only supports search operations, so the collectionName that needs to ' +
+          'be searched must be specified. Use Typesense.Client if you need to access the collection object.',
       );
     } else {
       if (this.individualCollections[collectionName] === undefined) {
         this.individualCollections[collectionName] = new SearchOnlyCollection(
           collectionName,
           this.apiCall,
-          this.configuration
+          this.configuration,
         );
       }
       return this.individualCollections[collectionName];

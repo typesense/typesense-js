@@ -1,14 +1,14 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
-import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import { Client as TypesenseClient } from '../../src/Typesense';
+import ApiCall from '../../src/Typesense/ApiCall';
+import axios from 'axios';
+import MockAxiosAdapter from 'axios-mock-adapter';
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-describe("ConversationModels", function () {
+describe('ConversationModels', function () {
   let typesense;
   let conversationModels;
   let apiCall;
@@ -17,12 +17,12 @@ describe("ConversationModels", function () {
     typesense = new TypesenseClient({
       nodes: [
         {
-          host: "node0",
-          port: "8108",
-          protocol: "http",
+          host: 'node0',
+          port: '8108',
+          protocol: 'http',
         },
       ],
-      apiKey: "abcd",
+      apiKey: 'abcd',
       randomizeNodes: false,
     });
     conversationModels = typesense.conversations().models();
@@ -30,47 +30,47 @@ describe("ConversationModels", function () {
     mockAxios = new MockAxiosAdapter(axios);
   });
 
-  describe(".create", function () {
-    it("creates a conversation model", function (done) {
+  describe('.create', function () {
+    it('creates a conversation model', function (done) {
       mockAxios
         .onPost(
           apiCall.uriFor(
-            "/conversations/models",
+            '/conversations/models',
             typesense.configuration.nodes[0],
           ),
           {
-            model_name: "test",
+            model_name: 'test',
           },
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
           },
         )
-        .reply(201, "{}", { "content-type": "application/json" });
+        .reply(201, '{}', { 'content-type': 'application/json' });
 
-      let returnData = conversationModels.create({ model_name: "test" });
+      let returnData = conversationModels.create({ model_name: 'test' });
 
       expect(returnData).to.eventually.deep.equal({}).notify(done);
     });
   });
 
-  describe(".retrieve", function () {
-    it("retrieves all conversations models", function (done) {
+  describe('.retrieve', function () {
+    it('retrieves all conversations models', function (done) {
       mockAxios
         .onGet(
           apiCall.uriFor(
-            "/conversations/models",
+            '/conversations/models',
             typesense.configuration.nodes[0],
           ),
           undefined,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
           },
         )
-        .reply(200, "[]", { "content-type": "application/json" });
+        .reply(200, '[]', { 'content-type': 'application/json' });
 
       let returnData = conversationModels.retrieve();
 

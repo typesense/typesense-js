@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 
-const RESOURCEPATH = "/health";
+const RESOURCEPATH = '/health';
 
 export interface HealthResponse {
   ok: boolean;

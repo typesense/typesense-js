@@ -1,7 +1,7 @@
-import ApiCall from "./ApiCall";
-import ConversationModels from "./ConversationModels";
-import ConversationModel from "./ConversationModel";
-import { ConversationSchema } from "./Conversation";
+import ApiCall from './ApiCall';
+import ConversationModels from './ConversationModels';
+import ConversationModel from './ConversationModel';
+import { ConversationSchema } from './Conversation';
 export interface ConversationsRetrieveSchema {
     conversations: ConversationSchema[];
 }

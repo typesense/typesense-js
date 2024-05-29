@@ -1,8 +1,8 @@
 /// <reference types="node" />
-import type { ReadStream } from "fs";
-import ApiCall from "./ApiCall";
-import Configuration from "./Configuration";
-import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
+import type { ReadStream } from 'fs';
+import ApiCall from './ApiCall';
+import Configuration from './Configuration';
+import { SearchOnlyDocuments } from './SearchOnlyDocuments';
 export interface DeleteQuery {
     filter_by: string;
     batch_size?: number;
@@ -25,7 +25,7 @@ export type DocumentSchema = Record<string, any>;
 export interface SearchParamsWithPreset extends Partial<SearchParams> {
     preset: string;
 }
-type OperationMode = "off" | "always" | "fallback";
+type OperationMode = 'off' | 'always' | 'fallback';
 export interface SearchParams {
     q?: string;
     query_by?: string | string[];
@@ -75,10 +75,10 @@ export interface SearchParams {
     max_candidates?: number;
     infix?: OperationMode | OperationMode[];
     preset?: string;
-    text_match_type?: "max_score" | "max_weight";
+    text_match_type?: 'max_score' | 'max_weight';
     vector_query?: string;
-    "x-typesense-api-key"?: string;
-    "x-typesense-user-id"?: string;
+    'x-typesense-api-key'?: string;
+    'x-typesense-user-id'?: string;
     offset?: number;
     limit?: number;
     stopwords?: string;
@@ -170,8 +170,8 @@ export interface SearchResponse<T extends DocumentSchema> {
     };
 }
 export interface DocumentWriteParameters {
-    dirty_values?: "coerce_or_reject" | "coerce_or_drop" | "drop" | "reject";
-    action?: "create" | "update" | "upsert" | "emplace";
+    dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject';
+    action?: 'create' | 'update' | 'upsert' | 'emplace';
 }
 export interface UpdateByFilterParameters {
     filter_by?: string;

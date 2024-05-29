@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import { CollectionFieldSchema, CollectionSchema } from "./Collection";
+import ApiCall from './ApiCall';
+import { CollectionFieldSchema, CollectionSchema } from './Collection';
 export interface CollectionCreateSchema {
     name: string;
     default_sorting_field?: string;

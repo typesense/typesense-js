@@ -1,26 +1,26 @@
 /* eslint-disable no-dupe-class-members */
 
-import Configuration, { ConfigurationOptions } from "./Configuration";
-import ApiCall from "./ApiCall";
-import Collections from "./Collections";
-import Collection from "./Collection";
-import Aliases from "./Aliases";
-import Alias from "./Alias";
-import Keys from "./Keys";
-import Key from "./Key";
-import Debug from "./Debug";
-import Metrics from "./Metrics";
-import Stats from "./Stats";
-import Health from "./Health";
-import Operations from "./Operations";
-import MultiSearch from "./MultiSearch";
-import Presets from "./Presets";
-import Preset from "./Preset";
-import Analytics from "./Analytics";
-import Stopwords from "./Stopwords";
-import Stopword from "./Stopword";
-import Conversations from "./Conversations";
-import Conversation from "./Conversation";
+import Configuration, { ConfigurationOptions } from './Configuration';
+import ApiCall from './ApiCall';
+import Collections from './Collections';
+import Collection from './Collection';
+import Aliases from './Aliases';
+import Alias from './Alias';
+import Keys from './Keys';
+import Key from './Key';
+import Debug from './Debug';
+import Metrics from './Metrics';
+import Stats from './Stats';
+import Health from './Health';
+import Operations from './Operations';
+import MultiSearch from './MultiSearch';
+import Presets from './Presets';
+import Preset from './Preset';
+import Analytics from './Analytics';
+import Stopwords from './Stopwords';
+import Stopword from './Stopword';
+import Conversations from './Conversations';
+import Conversation from './Conversation';
 
 export default class Client {
   configuration: Configuration;

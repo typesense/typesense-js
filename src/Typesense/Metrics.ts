@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 
-const RESOURCEPATH = "/metrics.json";
+const RESOURCEPATH = '/metrics.json';
 
 export interface MetricsResponse {
   [key: `system_cpu${number}_active_percentage`]: string;

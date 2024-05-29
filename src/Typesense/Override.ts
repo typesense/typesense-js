@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
-import Collections from "./Collections";
-import Overrides, { OverrideCreateSchema } from "./Overrides";
+import ApiCall from './ApiCall';
+import Collections from './Collections';
+import Overrides, { OverrideCreateSchema } from './Overrides';
 
 export interface OverrideSchema extends OverrideCreateSchema {
   id: string;
@@ -14,7 +14,7 @@ export default class Override {
   constructor(
     private collectionName: string,
     private overrideId: string,
-    private apiCall: ApiCall
+    private apiCall: ApiCall,
   ) {}
 
   async retrieve(): Promise<OverrideSchema> {

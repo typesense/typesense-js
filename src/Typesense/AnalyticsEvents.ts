@@ -1,7 +1,7 @@
-import ApiCall from "./ApiCall";
-import { AnalyticsEventCreateSchema } from "./AnalyticsEvent";
+import ApiCall from './ApiCall';
+import { AnalyticsEventCreateSchema } from './AnalyticsEvent';
 
-const RESOURCEPATH = "/analytics/events";
+const RESOURCEPATH = '/analytics/events';
 
 export default class AnalyticsEvents {
   constructor(private readonly apiCall: ApiCall) {
@@ -19,7 +19,7 @@ export default class AnalyticsEvents {
 
   private endpointPath(operation?: string): string {
     return `${AnalyticsEvents.RESOURCEPATH}${
-      operation === undefined ? "" : "/" + operation
+      operation === undefined ? '' : '/' + operation
     }`;
   }
 

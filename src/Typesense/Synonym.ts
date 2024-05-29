@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
-import Collections from "./Collections";
-import Synonyms, { SynonymCreateSchema } from "./Synonyms";
+import ApiCall from './ApiCall';
+import Collections from './Collections';
+import Synonyms, { SynonymCreateSchema } from './Synonyms';
 
 export interface SynonymSchema extends SynonymCreateSchema {
   id: string;
@@ -14,7 +14,7 @@ export default class Synonym {
   constructor(
     private collectionName: string,
     private synonymId: string,
-    private apiCall: ApiCall
+    private apiCall: ApiCall,
   ) {}
 
   async retrieve(): Promise<SynonymSchema> {

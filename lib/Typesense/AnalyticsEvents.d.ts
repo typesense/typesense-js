@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import { AnalyticsEventCreateSchema } from "./AnalyticsEvent";
+import ApiCall from './ApiCall';
+import { AnalyticsEventCreateSchema } from './AnalyticsEvent';
 export default class AnalyticsEvents {
     private readonly apiCall;
     constructor(apiCall: ApiCall);

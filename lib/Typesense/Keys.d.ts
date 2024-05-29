@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
-import { KeyCreateSchema, KeySchema } from "./Key";
-import { SearchParams } from "./Documents";
+import ApiCall from './ApiCall';
+import { KeyCreateSchema, KeySchema } from './Key';
+import { SearchParams } from './Documents';
 export interface KeysRetrieveSchema {
     keys: KeySchema[];
 }

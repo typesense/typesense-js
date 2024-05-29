@@ -1,10 +1,10 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 import {
   ConversationModelCreateSchema,
   ConversationModelSchema,
-} from "./ConversationModel";
+} from './ConversationModel';
 
-const RESOURCEPATH = "/conversations/models";
+const RESOURCEPATH = '/conversations/models';
 
 export default class ConversationModels {
   constructor(private readonly apiCall: ApiCall) {
@@ -21,14 +21,12 @@ export default class ConversationModels {
   }
 
   async retrieve(): Promise<ConversationModelSchema[]> {
-    return this.apiCall.get<ConversationModelSchema[]>(
-      this.endpointPath(),
-    );
+    return this.apiCall.get<ConversationModelSchema[]>(this.endpointPath());
   }
 
   private endpointPath(operation?: string): string {
     return `${ConversationModels.RESOURCEPATH}${
-      operation === undefined ? "" : "/" + operation
+      operation === undefined ? '' : '/' + operation
     }`;
   }
 

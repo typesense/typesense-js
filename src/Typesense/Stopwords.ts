@@ -1,7 +1,7 @@
-import ApiCall from "./ApiCall";
-import { StopwordSchema } from "./Stopword";
+import ApiCall from './ApiCall';
+import { StopwordSchema } from './Stopword';
 
-const RESOURCEPATH = "/stopwords";
+const RESOURCEPATH = '/stopwords';
 
 export interface StopwordCreateSchema {
   stopwords: string[];
@@ -31,7 +31,7 @@ export default class Stopwords {
 
   private endpointPath(operation?: string): string {
     return `${Stopwords.RESOURCEPATH}${
-      operation === undefined ? "" : "/" + operation
+      operation === undefined ? '' : '/' + operation
     }`;
   }
 

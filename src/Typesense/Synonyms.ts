@@ -1,8 +1,8 @@
-import ApiCall from "./ApiCall";
-import Collections from "./Collections";
-import { SynonymSchema } from "./Synonym";
+import ApiCall from './ApiCall';
+import Collections from './Collections';
+import { SynonymSchema } from './Synonym';
 
-const RESOURCEPATH = "/synonyms";
+const RESOURCEPATH = '/synonyms';
 
 export interface SynonymCreateSchema {
   synonyms: string[];
@@ -16,15 +16,18 @@ export interface SynonymsRetrieveSchema {
 }
 
 export default class Synonyms {
-  constructor(private collectionName: string, private apiCall: ApiCall) {}
+  constructor(
+    private collectionName: string,
+    private apiCall: ApiCall,
+  ) {}
 
   async upsert(
     synonymId: string,
-    params: SynonymCreateSchema
+    params: SynonymCreateSchema,
   ): Promise<SynonymSchema> {
     return this.apiCall.put<SynonymSchema>(
       this.endpointPath(synonymId),
-      params
+      params,
     );
   }
 
@@ -35,7 +38,7 @@ export default class Synonyms {
   private endpointPath(operation?: string) {
     return `${Collections.RESOURCEPATH}/${this.collectionName}${
       Synonyms.RESOURCEPATH
-    }${operation === undefined ? "" : "/" + operation}`;
+    }${operation === undefined ? '' : '/' + operation}`;
   }
 
   static get RESOURCEPATH(): string {

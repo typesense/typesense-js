@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import Conversations from "./Conversations";
+import ApiCall from './ApiCall';
+import Conversations from './Conversations';
 
 export interface ConversationDeleteSchema {
   id: number;

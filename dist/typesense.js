@@ -100,7 +100,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/aliases";
+var RESOURCEPATH = '/aliases';
 var Aliases = /*#__PURE__*/function () {
   function Aliases(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Aliases);
@@ -184,7 +184,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/analytics";
+var RESOURCEPATH = '/analytics';
 var Analytics = /*#__PURE__*/function () {
   function Analytics(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__["default"])(this, Analytics);
@@ -243,7 +243,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/analytics/events";
+var RESOURCEPATH = '/analytics/events';
 var AnalyticsEvents = /*#__PURE__*/function () {
   function AnalyticsEvents(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, AnalyticsEvents);
@@ -272,7 +272,7 @@ var AnalyticsEvents = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(AnalyticsEvents.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(AnalyticsEvents.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -384,7 +384,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/analytics/rules";
+var RESOURCEPATH = '/analytics/rules';
 var AnalyticsRules = /*#__PURE__*/function () {
   function AnalyticsRules(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, AnalyticsRules);
@@ -432,7 +432,7 @@ var AnalyticsRules = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(AnalyticsRules.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(AnalyticsRules.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -480,7 +480,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
+var APIKEYHEADERNAME = 'X-TYPESENSE-API-KEY';
 var HEALTHY = true;
 var UNHEALTHY = false;
 var ApiCall = /*#__PURE__*/function () {
@@ -516,7 +516,7 @@ var ApiCall = /*#__PURE__*/function () {
             case 0:
               queryParameters = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
               _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal, _ref$responseType = _ref.responseType, responseType = _ref$responseType === void 0 ? undefined : _ref$responseType;
-              return _context.abrupt("return", this.performRequest("get", endpoint, {
+              return _context.abrupt("return", this.performRequest('get', endpoint, {
                 queryParameters: queryParameters,
                 abortSignal: abortSignal,
                 responseType: responseType
@@ -542,7 +542,7 @@ var ApiCall = /*#__PURE__*/function () {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               queryParameters = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
-              return _context2.abrupt("return", this.performRequest("delete", endpoint, {
+              return _context2.abrupt("return", this.performRequest('delete', endpoint, {
                 queryParameters: queryParameters
               }));
             case 2:
@@ -570,7 +570,7 @@ var ApiCall = /*#__PURE__*/function () {
               bodyParameters = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
               queryParameters = _args3.length > 2 && _args3[2] !== undefined ? _args3[2] : {};
               additionalHeaders = _args3.length > 3 && _args3[3] !== undefined ? _args3[3] : {};
-              return _context3.abrupt("return", this.performRequest("post", endpoint, {
+              return _context3.abrupt("return", this.performRequest('post', endpoint, {
                 queryParameters: queryParameters,
                 bodyParameters: bodyParameters,
                 additionalHeaders: additionalHeaders
@@ -598,7 +598,7 @@ var ApiCall = /*#__PURE__*/function () {
             case 0:
               bodyParameters = _args4.length > 1 && _args4[1] !== undefined ? _args4[1] : {};
               queryParameters = _args4.length > 2 && _args4[2] !== undefined ? _args4[2] : {};
-              return _context4.abrupt("return", this.performRequest("put", endpoint, {
+              return _context4.abrupt("return", this.performRequest('put', endpoint, {
                 queryParameters: queryParameters,
                 bodyParameters: bodyParameters
               }));
@@ -625,7 +625,7 @@ var ApiCall = /*#__PURE__*/function () {
             case 0:
               bodyParameters = _args5.length > 1 && _args5[1] !== undefined ? _args5[1] : {};
               queryParameters = _args5.length > 2 && _args5[2] !== undefined ? _args5[2] : {};
-              return _context5.abrupt("return", this.performRequest("patch", endpoint, {
+              return _context5.abrupt("return", this.performRequest('patch', endpoint, {
                 queryParameters: queryParameters,
                 bodyParameters: bodyParameters
               }));
@@ -665,7 +665,7 @@ var ApiCall = /*#__PURE__*/function () {
                         break;
                       }
                       return _context6.abrupt("return", {
-                        v: Promise.reject(new Error("Request aborted by caller."))
+                        v: Promise.reject(new Error('Request aborted by caller.'))
                       });
                     case 4:
                       _context6.prev = 4;
@@ -685,7 +685,7 @@ var ApiCall = /*#__PURE__*/function () {
                         },
                         transformResponse: [function (data, headers) {
                           var transformedData = data;
-                          if (headers !== undefined && typeof data === "string" && headers["content-type"] && headers["content-type"].startsWith("application/json")) {
+                          if (headers !== undefined && typeof data === 'string' && headers['content-type'] && headers['content-type'].startsWith('application/json')) {
                             transformedData = JSON.parse(data);
                           }
                           return transformedData;
@@ -699,7 +699,7 @@ var ApiCall = /*#__PURE__*/function () {
                       }
                       if (_this.sendApiKeyAsQueryParam) {
                         requestOptions.params = requestOptions.params || {};
-                        requestOptions.params["x-typesense-api-key"] = _this.apiKey;
+                        requestOptions.params['x-typesense-api-key'] = _this.apiKey;
                       }
                       if (_this.configuration.httpAgent) {
                         _this.logger.debug("Request #".concat(requestNumber, ": Using custom httpAgent"));
@@ -723,7 +723,7 @@ var ApiCall = /*#__PURE__*/function () {
                         _this.logger.debug("Request #".concat(requestNumber, ": Using custom paramsSerializer"));
                         requestOptions.paramsSerializer = _this.configuration.paramsSerializer;
                       }
-                      if (bodyParameters && (typeof bodyParameters === "string" && bodyParameters.length !== 0 || (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(bodyParameters) === "object" && Object.keys(bodyParameters).length !== 0)) {
+                      if (bodyParameters && (typeof bodyParameters === 'string' && bodyParameters.length !== 0 || (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(bodyParameters) === 'object' && Object.keys(bodyParameters).length !== 0)) {
                         requestOptions.data = bodyParameters;
                       }
 
@@ -734,7 +734,7 @@ var ApiCall = /*#__PURE__*/function () {
                         abortListener = function abortListener() {
                           return source.cancel();
                         };
-                        abortSignal.addEventListener("abort", abortListener);
+                        abortSignal.addEventListener('abort', abortListener);
                         requestOptions.cancelToken = source.token;
                       }
                       _context6.next = 16;
@@ -773,7 +773,7 @@ var ApiCall = /*#__PURE__*/function () {
                       // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
                       _this.setNodeHealthcheck(node, UNHEALTHY);
                       lastException = _context6.t0;
-                      _this.logger.warn("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " failed due to \"").concat(_context6.t0.code, " ").concat(_context6.t0.message).concat(_context6.t0.response == null ? "" : " - " + JSON.stringify((_error$response = _context6.t0.response) === null || _error$response === void 0 ? void 0 : _error$response.data), "\""));
+                      _this.logger.warn("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " failed due to \"").concat(_context6.t0.code, " ").concat(_context6.t0.message).concat(_context6.t0.response == null ? '' : ' - ' + JSON.stringify((_error$response = _context6.t0.response) === null || _error$response === void 0 ? void 0 : _error$response.data), "\""));
                       // this.logger.debug(error.stack)
                       _this.logger.warn("Request #".concat(requestNumber, ": Sleeping for ").concat(_this.retryIntervalSeconds, "s and then retrying request..."));
                       _context6.next = 38;
@@ -781,7 +781,7 @@ var ApiCall = /*#__PURE__*/function () {
                     case 38:
                       _context6.prev = 38;
                       if (abortSignal && abortListener) {
-                        abortSignal.removeEventListener("abort", abortListener);
+                        abortSignal.removeEventListener('abort', abortListener);
                       }
                       return _context6.finish(38);
                     case 41:
@@ -830,7 +830,7 @@ var ApiCall = /*#__PURE__*/function () {
       var requestNumber = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       // Check if nearestNode is set and is healthy, if so return it
       if (this.nearestNode != null) {
-        this.logger.debug("Request #".concat(requestNumber, ": Nodes Health: Node ").concat(this.nearestNode.index, " is ").concat(this.nearestNode.isHealthy === true ? "Healthy" : "Unhealthy"));
+        this.logger.debug("Request #".concat(requestNumber, ": Nodes Health: Node ").concat(this.nearestNode.index, " is ").concat(this.nearestNode.isHealthy === true ? 'Healthy' : 'Unhealthy'));
         if (this.nearestNode.isHealthy === true || this.nodeDueForHealthcheck(this.nearestNode, requestNumber)) {
           this.logger.debug("Request #".concat(requestNumber, ": Updated current node to Node ").concat(this.nearestNode.index));
           return this.nearestNode;
@@ -840,8 +840,8 @@ var ApiCall = /*#__PURE__*/function () {
 
       // Fallback to nodes as usual
       this.logger.debug("Request #".concat(requestNumber, ": Nodes Health: ").concat(this.nodes.map(function (node) {
-        return "Node ".concat(node.index, " is ").concat(node.isHealthy === true ? "Healthy" : "Unhealthy");
-      }).join(" || ")));
+        return "Node ".concat(node.index, " is ").concat(node.isHealthy === true ? 'Healthy' : 'Unhealthy');
+      }).join(' || ')));
       var candidateNode = this.nodes[0];
       for (var i = 0; i <= this.nodes.length; i++) {
         this.currentNodeIndex = (this.currentNodeIndex + 1) % this.nodes.length;
@@ -872,7 +872,7 @@ var ApiCall = /*#__PURE__*/function () {
     value: function initializeMetadataForNodes() {
       var _this2 = this;
       if (this.nearestNode != null) {
-        this.nearestNode.index = "nearestNode";
+        this.nearestNode.index = 'nearestNode';
         this.setNodeHealthcheck(this.nearestNode, HEALTHY);
       }
       this.nodes.forEach(function (node, i) {
@@ -901,7 +901,7 @@ var ApiCall = /*#__PURE__*/function () {
       if (!this.sendApiKeyAsQueryParam) {
         defaultHeaders[APIKEYHEADERNAME] = this.apiKey;
       }
-      defaultHeaders["Content-Type"] = "application/json";
+      defaultHeaders['Content-Type'] = 'application/json';
       return defaultHeaders;
     }
   }, {
@@ -929,7 +929,7 @@ var ApiCall = /*#__PURE__*/function () {
     key: "customErrorForResponse",
     value: function customErrorForResponse(response, messageFromServer) {
       var errorMessage = "Request failed with HTTP code ".concat(response.status);
-      if (typeof messageFromServer === "string" && messageFromServer.trim() !== "") {
+      if (typeof messageFromServer === 'string' && messageFromServer.trim() !== '') {
         errorMessage += " | Server said: ".concat(messageFromServer);
       }
       var error = new _Errors_TypesenseError__WEBPACK_IMPORTED_MODULE_6__["default"](errorMessage);
@@ -1335,7 +1335,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/collections";
+var RESOURCEPATH = '/collections';
 var Collections = /*#__PURE__*/function () {
   function Collections(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Collections);
@@ -1450,7 +1450,7 @@ var Configuration = /*#__PURE__*/function () {
     this.cacheSearchResultsForSeconds = options.cacheSearchResultsForSeconds || 0; // Disable client-side cache by default
     this.useServerSideSearchCache = options.useServerSideSearchCache || false;
     this.logger = options.logger || loglevel__WEBPACK_IMPORTED_MODULE_3__;
-    this.logLevel = options.logLevel || "warn";
+    this.logLevel = options.logLevel || 'warn';
     this.logger.setLevel(this.logLevel);
     this.additionalHeaders = options.additionalHeaders;
     this.httpAgent = options.httpAgent;
@@ -1463,13 +1463,13 @@ var Configuration = /*#__PURE__*/function () {
     key: "validate",
     value: function validate() {
       if (this.nodes == null || this.nodes.length === 0 || this.validateNodes()) {
-        throw new _Errors__WEBPACK_IMPORTED_MODULE_4__.MissingConfigurationError("Ensure that nodes[].protocol, nodes[].host and nodes[].port are set");
+        throw new _Errors__WEBPACK_IMPORTED_MODULE_4__.MissingConfigurationError('Ensure that nodes[].protocol, nodes[].host and nodes[].port are set');
       }
       if (this.nearestNode != null && this.isNodeMissingAnyParameters(this.nearestNode)) {
-        throw new _Errors__WEBPACK_IMPORTED_MODULE_4__.MissingConfigurationError("Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set");
+        throw new _Errors__WEBPACK_IMPORTED_MODULE_4__.MissingConfigurationError('Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set');
       }
       if (this.apiKey == null) {
-        throw new _Errors__WEBPACK_IMPORTED_MODULE_4__.MissingConfigurationError("Ensure that apiKey is set");
+        throw new _Errors__WEBPACK_IMPORTED_MODULE_4__.MissingConfigurationError('Ensure that apiKey is set');
       }
       return true;
     }
@@ -1484,28 +1484,28 @@ var Configuration = /*#__PURE__*/function () {
   }, {
     key: "isNodeMissingAnyParameters",
     value: function isNodeMissingAnyParameters(node) {
-      return !["protocol", "host", "port", "path"].every(function (key) {
+      return !['protocol', 'host', 'port', 'path'].every(function (key) {
         return node.hasOwnProperty(key);
-      }) && node["url"] == null;
+      }) && node['url'] == null;
     }
   }, {
     key: "setDefaultPathInNode",
     value: function setDefaultPathInNode(node) {
-      if (node != null && !node.hasOwnProperty("path")) {
-        node["path"] = "";
+      if (node != null && !node.hasOwnProperty('path')) {
+        node['path'] = '';
       }
       return node;
     }
   }, {
     key: "setDefaultPortInNode",
     value: function setDefaultPortInNode(node) {
-      if (node != null && !node.hasOwnProperty("port") && node.hasOwnProperty("protocol")) {
-        switch (node["protocol"]) {
-          case "https":
-            node["port"] = 443;
+      if (node != null && !node.hasOwnProperty('port') && node.hasOwnProperty('protocol')) {
+        switch (node['protocol']) {
+          case 'https':
+            node['port'] = 443;
             break;
-          case "http":
-            node["port"] = 80;
+          case 'http':
+            node['port'] = 80;
             break;
         }
       }
@@ -1515,13 +1515,13 @@ var Configuration = /*#__PURE__*/function () {
     key: "showDeprecationWarnings",
     value: function showDeprecationWarnings(options) {
       if (options.timeoutSeconds) {
-        this.logger.warn("Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds");
+        this.logger.warn('Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds');
       }
       if (options.masterNode) {
-        this.logger.warn("Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12");
+        this.logger.warn('Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12');
       }
       if (options.readReplicaNodes) {
-        this.logger.warn("Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12");
+        this.logger.warn('Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12');
       }
     }
   }, {
@@ -1755,7 +1755,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/conversations/models";
+var RESOURCEPATH = '/conversations/models';
 var ConversationModels = /*#__PURE__*/function () {
   function ConversationModels(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, ConversationModels);
@@ -1803,7 +1803,7 @@ var ConversationModels = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(ConversationModels.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(ConversationModels.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -1843,7 +1843,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/conversations";
+var RESOURCEPATH = '/conversations';
 var Conversations = /*#__PURE__*/function () {
   function Conversations(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Conversations);
@@ -1915,7 +1915,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/debug";
+var RESOURCEPATH = '/debug';
 var Debug = /*#__PURE__*/function () {
   function Debug(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Debug);
@@ -2105,7 +2105,7 @@ var Documents = /*#__PURE__*/function (_ref) {
                 _context.next = 3;
                 break;
               }
-              throw new Error("No document provided");
+              throw new Error('No document provided');
             case 3:
               return _context.abrupt("return", this.apiCall.post(this.endpointPath(), document, options));
             case 4:
@@ -2133,10 +2133,10 @@ var Documents = /*#__PURE__*/function (_ref) {
                 _context2.next = 3;
                 break;
               }
-              throw new Error("No document provided");
+              throw new Error('No document provided');
             case 3:
               return _context2.abrupt("return", this.apiCall.post(this.endpointPath(), document, Object.assign({}, options, {
-                action: "upsert"
+                action: 'upsert'
               })));
             case 4:
             case "end":
@@ -2163,16 +2163,16 @@ var Documents = /*#__PURE__*/function (_ref) {
                 _context3.next = 3;
                 break;
               }
-              throw new Error("No document provided");
+              throw new Error('No document provided');
             case 3:
-              if (!(options["filter_by"] != null)) {
+              if (!(options['filter_by'] != null)) {
                 _context3.next = 7;
                 break;
               }
               return _context3.abrupt("return", this.apiCall.patch(this.endpointPath(), document, Object.assign({}, options)));
             case 7:
               return _context3.abrupt("return", this.apiCall.post(this.endpointPath(), document, Object.assign({}, options, {
-                action: "update"
+                action: 'update'
               })));
             case 8:
             case "end":
@@ -2217,7 +2217,7 @@ var Documents = /*#__PURE__*/function (_ref) {
           while (1) switch (_context5.prev = _context5.next) {
             case 0:
               options = _args5.length > 1 && _args5[1] !== undefined ? _args5[1] : {};
-              this.configuration.logger.warn("createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents");
+              this.configuration.logger.warn('createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents');
               return _context5.abrupt("return", this.import(documents, options));
             case 3:
             case "end":
@@ -2257,13 +2257,13 @@ var Documents = /*#__PURE__*/function (_ref) {
               _context6.prev = 2;
               documentsInJSONLFormat = documents.map(function (document) {
                 return JSON.stringify(document);
-              }).join("\n");
+              }).join('\n');
               _context6.next = 11;
               break;
             case 6:
               _context6.prev = 6;
               _context6.t0 = _context6["catch"](2);
-              if (!(_context6.t0 instanceof RangeError && _context6.t0.message.includes("Too many properties to enumerate"))) {
+              if (!(_context6.t0 instanceof RangeError && _context6.t0.message.includes('Too many properties to enumerate'))) {
                 _context6.next = 10;
                 break;
               }
@@ -2277,11 +2277,11 @@ var Documents = /*#__PURE__*/function (_ref) {
               documentsInJSONLFormat = documents;
             case 14:
               _context6.next = 16;
-              return this.apiCall.performRequest("post", this.endpointPath("import"), {
+              return this.apiCall.performRequest('post', this.endpointPath('import'), {
                 queryParameters: options,
                 bodyParameters: documentsInJSONLFormat,
                 additionalHeaders: {
-                  "Content-Type": "text/plain"
+                  'Content-Type': 'text/plain'
                 },
                 skipConnectionTimeout: true,
                 // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
@@ -2293,7 +2293,7 @@ var Documents = /*#__PURE__*/function (_ref) {
                 _context6.next = 27;
                 break;
               }
-              resultsInJSONFormat = resultsInJSONLFormat.split("\n").map(function (r) {
+              resultsInJSONFormat = resultsInJSONLFormat.split('\n').map(function (r) {
                 return JSON.parse(r);
               });
               failedItems = resultsInJSONFormat.filter(function (r) {
@@ -2335,7 +2335,7 @@ var Documents = /*#__PURE__*/function (_ref) {
           while (1) switch (_context7.prev = _context7.next) {
             case 0:
               options = _args7.length > 0 && _args7[0] !== undefined ? _args7[0] : {};
-              return _context7.abrupt("return", this.apiCall.get(this.endpointPath("export"), options));
+              return _context7.abrupt("return", this.apiCall.get(this.endpointPath('export'), options));
             case 2:
             case "end":
               return _context7.stop();
@@ -2361,8 +2361,8 @@ var Documents = /*#__PURE__*/function (_ref) {
           while (1) switch (_context8.prev = _context8.next) {
             case 0:
               options = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {};
-              return _context8.abrupt("return", this.apiCall.get(this.endpointPath("export"), options, {
-                responseType: "stream"
+              return _context8.abrupt("return", this.apiCall.get(this.endpointPath('export'), options, {
+                responseType: 'stream'
               }));
             case 2:
             case "end":
@@ -2826,7 +2826,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/health";
+var RESOURCEPATH = '/health';
 var Health = /*#__PURE__*/function () {
   function Health(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Health);
@@ -2959,7 +2959,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/keys";
+var RESOURCEPATH = '/keys';
 var Keys = /*#__PURE__*/function () {
   function Keys(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Keys);
@@ -3010,10 +3010,10 @@ var Keys = /*#__PURE__*/function () {
       // Note: only a key generated with the `documents:search` action will be
       // accepted by the server, when usined with the search endpoint.
       var paramsJSON = JSON.stringify(parameters);
-      var digest = Buffer.from((0,crypto__WEBPACK_IMPORTED_MODULE_4__.createHmac)("sha256", searchKey).update(paramsJSON).digest("base64"));
+      var digest = Buffer.from((0,crypto__WEBPACK_IMPORTED_MODULE_4__.createHmac)('sha256', searchKey).update(paramsJSON).digest('base64'));
       var keyPrefix = searchKey.substr(0, 4);
       var rawScopedKey = "".concat(digest).concat(keyPrefix).concat(paramsJSON);
-      return Buffer.from(rawScopedKey).toString("base64");
+      return Buffer.from(rawScopedKey).toString('base64');
     }
   }], [{
     key: "RESOURCEPATH",
@@ -3047,7 +3047,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/metrics.json";
+var RESOURCEPATH = '/metrics.json';
 var Metrics = /*#__PURE__*/function () {
   function Metrics(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Metrics);
@@ -3101,7 +3101,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/multi_search";
+var RESOURCEPATH = '/multi_search';
 var MultiSearch = /*#__PURE__*/function () {
   function MultiSearch(apiCall, configuration) {
     var useTextContentType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -3135,11 +3135,11 @@ var MultiSearch = /*#__PURE__*/function () {
               _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$cacheSearchResul = _ref.cacheSearchResultsForSeconds, cacheSearchResultsForSeconds = _ref$cacheSearchResul === void 0 ? this.configuration.cacheSearchResultsForSeconds : _ref$cacheSearchResul;
               additionalHeaders = {};
               if (this.useTextContentType) {
-                additionalHeaders["content-type"] = "text/plain";
+                additionalHeaders['content-type'] = 'text/plain';
               }
               additionalQueryParams = {};
               if (this.configuration.useServerSideSearchCache === true) {
-                additionalQueryParams["use_cache"] = true;
+                additionalQueryParams['use_cache'] = true;
               }
               queryParams = Object.assign({}, commonParams, additionalQueryParams);
               return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.post, [RESOURCEPATH, searchRequests, queryParams, additionalHeaders], {
@@ -3183,7 +3183,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/operations";
+var RESOURCEPATH = '/operations';
 var Operations = /*#__PURE__*/function () {
   function Operations(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Operations);
@@ -3321,7 +3321,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/overrides";
+var RESOURCEPATH = '/overrides';
 var Overrides = /*#__PURE__*/function () {
   function Overrides(collectionName, apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Overrides);
@@ -3369,7 +3369,7 @@ var Overrides = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Overrides.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Overrides.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -3481,7 +3481,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/presets";
+var RESOURCEPATH = '/presets';
 var Presets = /*#__PURE__*/function () {
   function Presets(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Presets);
@@ -3528,7 +3528,7 @@ var Presets = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(Presets.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(Presets.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -3704,8 +3704,8 @@ var SearchClient = /*#__PURE__*/function () {
     var _options$sendApiKeyAs;
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, SearchClient);
     options.sendApiKeyAsQueryParam = (_options$sendApiKeyAs = options.sendApiKeyAsQueryParam) !== null && _options$sendApiKeyAs !== void 0 ? _options$sendApiKeyAs : true;
-    if (options.sendApiKeyAsQueryParam === true && (options.apiKey || "").length > 2000) {
-      console.warn("[typesense] API Key is longer than 2000 characters which is over the allowed limit, so disabling sending it as a query parameter.");
+    if (options.sendApiKeyAsQueryParam === true && (options.apiKey || '').length > 2000) {
+      console.warn('[typesense] API Key is longer than 2000 characters which is over the allowed limit, so disabling sending it as a query parameter.');
       options.sendApiKeyAsQueryParam = false;
     }
     this.configuration = new _Configuration__WEBPACK_IMPORTED_MODULE_3__["default"](options);
@@ -3730,7 +3730,7 @@ var SearchClient = /*#__PURE__*/function () {
     key: "collections",
     value: function collections(collectionName) {
       if (!collectionName) {
-        throw new Error("Typesense.SearchClient only supports search operations, so the collectionName that needs to " + "be searched must be specified. Use Typesense.Client if you need to access the collection object.");
+        throw new Error('Typesense.SearchClient only supports search operations, so the collectionName that needs to ' + 'be searched must be specified. Use Typesense.Client if you need to access the collection object.');
       } else {
         if (this.individualCollections[collectionName] === undefined) {
           this.individualCollections[collectionName] = new _SearchOnlyCollection__WEBPACK_IMPORTED_MODULE_6__.SearchOnlyCollection(collectionName, this.apiCall, this.configuration);
@@ -3807,7 +3807,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/documents";
+var RESOURCEPATH = '/documents';
 var SearchOnlyDocuments = /*#__PURE__*/function () {
   function SearchOnlyDocuments(collectionName, apiCall, configuration) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, SearchOnlyDocuments);
@@ -3840,15 +3840,15 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
               _ref = _args.length > 1 && _args[1] !== undefined ? _args[1] : {}, _ref$cacheSearchResul = _ref.cacheSearchResultsForSeconds, cacheSearchResultsForSeconds = _ref$cacheSearchResul === void 0 ? this.configuration.cacheSearchResultsForSeconds : _ref$cacheSearchResul, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal;
               additionalQueryParams = {};
               if (this.configuration.useServerSideSearchCache === true) {
-                additionalQueryParams["use_cache"] = true;
+                additionalQueryParams['use_cache'] = true;
               }
               for (key in searchParameters) {
                 if (Array.isArray(searchParameters[key])) {
-                  additionalQueryParams[key] = searchParameters[key].join(",");
+                  additionalQueryParams[key] = searchParameters[key].join(',');
                 }
               }
               queryParams = Object.assign({}, searchParameters, additionalQueryParams);
-              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.get, [this.endpointPath("search"), queryParams, {
+              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.get, [this.endpointPath('search'), queryParams, {
                 abortSignal: abortSignal
               }], {
                 cacheResponseForSeconds: cacheSearchResultsForSeconds
@@ -3867,7 +3867,7 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_6__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_6__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -3900,7 +3900,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/stats.json";
+var RESOURCEPATH = '/stats.json';
 var Metrics = /*#__PURE__*/function () {
   function Metrics(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Metrics);
@@ -4030,7 +4030,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/stopwords";
+var RESOURCEPATH = '/stopwords';
 var Stopwords = /*#__PURE__*/function () {
   function Stopwords(apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Stopwords);
@@ -4077,7 +4077,7 @@ var Stopwords = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(Stopwords.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(Stopwords.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -4194,7 +4194,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var RESOURCEPATH = "/synonyms";
+var RESOURCEPATH = '/synonyms';
 var Synonyms = /*#__PURE__*/function () {
   function Synonyms(collectionName, apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Synonyms);
@@ -4242,7 +4242,7 @@ var Synonyms = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? '' : '/' + operation);
     }
   }], [{
     key: "RESOURCEPATH",

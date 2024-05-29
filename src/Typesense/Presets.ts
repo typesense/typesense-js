@@ -1,9 +1,9 @@
-import ApiCall from "./ApiCall";
-import { PresetSchema } from "./Preset";
-import { SearchParams } from "./Documents";
-import { MultiSearchRequestsSchema } from "./MultiSearch";
+import ApiCall from './ApiCall';
+import { PresetSchema } from './Preset';
+import { SearchParams } from './Documents';
+import { MultiSearchRequestsSchema } from './MultiSearch';
 
-const RESOURCEPATH = "/presets";
+const RESOURCEPATH = '/presets';
 
 export interface PresetCreateSchema {
   value: SearchParams | MultiSearchRequestsSchema;
@@ -18,7 +18,7 @@ export default class Presets {
 
   async upsert(
     presetId: string,
-    params: PresetCreateSchema
+    params: PresetCreateSchema,
   ): Promise<PresetSchema> {
     return this.apiCall.put<PresetSchema>(this.endpointPath(presetId), params);
   }
@@ -29,7 +29,7 @@ export default class Presets {
 
   private endpointPath(operation?: string): string {
     return `${Presets.RESOURCEPATH}${
-      operation === undefined ? "" : "/" + operation
+      operation === undefined ? '' : '/' + operation
     }`;
   }
 
