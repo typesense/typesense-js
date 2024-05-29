@@ -1,24 +1,24 @@
-import ApiCall from "./ApiCall";
-import Configuration from "./Configuration";
-import RequestWithCache from "./RequestWithCache";
+import ApiCall from './ApiCall';
+import Configuration from './Configuration';
+import RequestWithCache from './RequestWithCache';
 import {
   DocumentSchema,
   SearchParams,
   SearchParamsWithPreset,
   SearchResponse,
-} from "./Documents";
+} from './Documents';
 
-const RESOURCEPATH = "/multi_search";
+const RESOURCEPATH = '/multi_search';
 
 export interface MultiSearchRequestSchema extends SearchParams {
   collection?: string;
-  "x-typesense-api-key"?: string;
+  'x-typesense-api-key'?: string;
 }
 
 export interface MultiSearchRequestWithPresetSchema
   extends SearchParamsWithPreset {
   collection?: string;
-  "x-typesense-api-key"?: string;
+  'x-typesense-api-key'?: string;
 }
 
 export interface MultiSearchRequestsSchema {
@@ -27,7 +27,7 @@ export interface MultiSearchRequestsSchema {
 
 export interface MultiSearchResponse<T extends DocumentSchema[] = []> {
   results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
-    length: T["length"];
+    length: T['length'];
   };
 }
 
@@ -37,7 +37,7 @@ export default class MultiSearch {
   constructor(
     private apiCall: ApiCall,
     private configuration: Configuration,
-    private useTextContentType: boolean = false
+    private useTextContentType: boolean = false,
   ) {
     this.requestWithCache = new RequestWithCache();
   }
@@ -52,16 +52,16 @@ export default class MultiSearch {
     {
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
-    }: { cacheSearchResultsForSeconds?: number } = {}
+    }: { cacheSearchResultsForSeconds?: number } = {},
   ): Promise<MultiSearchResponse<T>> {
     const additionalHeaders = {};
     if (this.useTextContentType) {
-      additionalHeaders["content-type"] = "text/plain";
+      additionalHeaders['content-type'] = 'text/plain';
     }
 
     const additionalQueryParams = {};
     if (this.configuration.useServerSideSearchCache === true) {
-      additionalQueryParams["use_cache"] = true;
+      additionalQueryParams['use_cache'] = true;
     }
     const queryParams = Object.assign({}, commonParams, additionalQueryParams);
 
@@ -69,7 +69,7 @@ export default class MultiSearch {
       this.apiCall,
       this.apiCall.post,
       [RESOURCEPATH, searchRequests, queryParams, additionalHeaders],
-      { cacheResponseForSeconds: cacheSearchResultsForSeconds }
+      { cacheResponseForSeconds: cacheSearchResultsForSeconds },
     ) as Promise<MultiSearchResponse<T>>;
   }
 }

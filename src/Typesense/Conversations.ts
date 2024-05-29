@@ -1,9 +1,9 @@
-import ApiCall from "./ApiCall";
-import ConversationModels from "./ConversationModels";
-import ConversationModel from "./ConversationModel";
-import { ConversationSchema } from "./Conversation";
+import ApiCall from './ApiCall';
+import ConversationModels from './ConversationModels';
+import ConversationModel from './ConversationModel';
+import { ConversationSchema } from './Conversation';
 
-const RESOURCEPATH = "/conversations";
+const RESOURCEPATH = '/conversations';
 
 export interface ConversationsRetrieveSchema {
   conversations: ConversationSchema[];

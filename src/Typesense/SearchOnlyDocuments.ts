@@ -1,7 +1,7 @@
-import RequestWithCache from "./RequestWithCache";
-import ApiCall from "./ApiCall";
-import Configuration from "./Configuration";
-import Collections from "./Collections";
+import RequestWithCache from './RequestWithCache';
+import ApiCall from './ApiCall';
+import Configuration from './Configuration';
+import Collections from './Collections';
 import type {
   DocumentSchema,
   SearchableDocuments,
@@ -9,9 +9,9 @@ import type {
   SearchParams,
   SearchParamsWithPreset,
   SearchResponse,
-} from "./Documents";
+} from './Documents';
 
-const RESOURCEPATH = "/documents";
+const RESOURCEPATH = '/documents';
 
 export class SearchOnlyDocuments<T extends DocumentSchema>
   implements SearchableDocuments<T>
@@ -21,7 +21,7 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
   constructor(
     protected collectionName: string,
     protected apiCall: ApiCall,
-    protected configuration: Configuration
+    protected configuration: Configuration,
   ) {}
 
   clearCache() {
@@ -34,36 +34,36 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
       abortSignal = null,
-    }: SearchOptions = {}
+    }: SearchOptions = {},
   ): Promise<SearchResponse<T>> {
     const additionalQueryParams = {};
     if (this.configuration.useServerSideSearchCache === true) {
-      additionalQueryParams["use_cache"] = true;
+      additionalQueryParams['use_cache'] = true;
     }
     for (const key in searchParameters) {
       if (Array.isArray(searchParameters[key])) {
-        additionalQueryParams[key] = searchParameters[key].join(",");
+        additionalQueryParams[key] = searchParameters[key].join(',');
       }
     }
     const queryParams = Object.assign(
       {},
       searchParameters,
-      additionalQueryParams
+      additionalQueryParams,
     );
 
     return this.requestWithCache.perform(
       this.apiCall,
       this.apiCall.get,
-      [this.endpointPath("search"), queryParams, { abortSignal }],
+      [this.endpointPath('search'), queryParams, { abortSignal }],
       {
         cacheResponseForSeconds: cacheSearchResultsForSeconds,
-      }
+      },
     ) as Promise<SearchResponse<T>>;
   }
 
   protected endpointPath(operation?: string) {
     return `${Collections.RESOURCEPATH}/${this.collectionName}${RESOURCEPATH}${
-      operation === undefined ? "" : "/" + operation
+      operation === undefined ? '' : '/' + operation
     }`;
   }
 

@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import ConversationModels from "./ConversationModels";
+import ApiCall from './ApiCall';
+import ConversationModels from './ConversationModels';
 
 export interface ConversationModelCreateSchema {
   model_name: string;

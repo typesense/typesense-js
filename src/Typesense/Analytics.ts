@@ -1,9 +1,9 @@
-import ApiCall from "./ApiCall";
-import AnalyticsRules from "./AnalyticsRules";
-import AnalyticsRule from "./AnalyticsRule";
-import AnalyticsEvents from "./AnalyticsEvents";
+import ApiCall from './ApiCall';
+import AnalyticsRules from './AnalyticsRules';
+import AnalyticsRule from './AnalyticsRule';
+import AnalyticsEvents from './AnalyticsEvents';
 
-const RESOURCEPATH = "/analytics";
+const RESOURCEPATH = '/analytics';
 
 export default class Analytics {
   private readonly _analyticsRules: AnalyticsRules;

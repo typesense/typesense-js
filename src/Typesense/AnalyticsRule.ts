@@ -1,8 +1,8 @@
-import ApiCall from "./ApiCall";
-import AnalyticsRules from "./AnalyticsRules";
+import ApiCall from './ApiCall';
+import AnalyticsRules from './AnalyticsRules';
 
 export interface AnalyticsRuleCreateSchema {
-  type: "popular_queries" | "nohits_queries" | "counter";
+  type: 'popular_queries' | 'nohits_queries' | 'counter';
   params: {
     source: {
       collections: string[];

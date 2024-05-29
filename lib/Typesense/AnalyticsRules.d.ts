@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import { AnalyticsRuleCreateSchema, AnalyticsRuleSchema } from "./AnalyticsRule";
+import ApiCall from './ApiCall';
+import { AnalyticsRuleCreateSchema, AnalyticsRuleSchema } from './AnalyticsRule';
 export interface AnalyticsRulesRetrieveSchema {
     rules: AnalyticsRuleSchema[];
 }

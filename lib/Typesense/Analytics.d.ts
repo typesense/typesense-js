@@ -1,7 +1,7 @@
-import ApiCall from "./ApiCall";
-import AnalyticsRules from "./AnalyticsRules";
-import AnalyticsRule from "./AnalyticsRule";
-import AnalyticsEvents from "./AnalyticsEvents";
+import ApiCall from './ApiCall';
+import AnalyticsRules from './AnalyticsRules';
+import AnalyticsRule from './AnalyticsRule';
+import AnalyticsEvents from './AnalyticsEvents';
 export default class Analytics {
     private readonly apiCall;
     private readonly _analyticsRules;

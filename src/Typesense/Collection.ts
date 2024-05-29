@@ -1,31 +1,31 @@
-import ApiCall from "./ApiCall";
-import Collections, { CollectionCreateSchema } from "./Collections";
-import Documents, { DocumentSchema } from "./Documents";
-import { ObjectNotFound } from "./Errors";
-import Overrides from "./Overrides";
-import Override from "./Override";
-import Synonyms from "./Synonyms";
-import Synonym from "./Synonym";
-import { Document } from "./Document";
+import ApiCall from './ApiCall';
+import Collections, { CollectionCreateSchema } from './Collections';
+import Documents, { DocumentSchema } from './Documents';
+import { ObjectNotFound } from './Errors';
+import Overrides from './Overrides';
+import Override from './Override';
+import Synonyms from './Synonyms';
+import Synonym from './Synonym';
+import { Document } from './Document';
 
 export type FieldType =
-  | "string"
-  | "int32"
-  | "int64"
-  | "float"
-  | "bool"
-  | "geopoint"
-  | "geopoint[]"
-  | "string[]"
-  | "int32[]"
-  | "int64[]"
-  | "float[]"
-  | "bool[]"
-  | "object"
-  | "object[]"
-  | "auto"
-  | "string*"
-  | "image";
+  | 'string'
+  | 'int32'
+  | 'int64'
+  | 'float'
+  | 'bool'
+  | 'geopoint'
+  | 'geopoint[]'
+  | 'string[]'
+  | 'int32[]'
+  | 'int64[]'
+  | 'float[]'
+  | 'bool[]'
+  | 'object'
+  | 'object[]'
+  | 'auto'
+  | 'string*'
+  | 'image';
 
 export interface CollectionFieldSchema {
   name: string;
@@ -54,7 +54,7 @@ export interface CollectionDropFieldSchema {
 }
 
 export interface CollectionUpdateSchema
-  extends Partial<Omit<CollectionCreateSchema, "name" | "fields">> {
+  extends Partial<Omit<CollectionCreateSchema, 'name' | 'fields'>> {
   fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
 }
 

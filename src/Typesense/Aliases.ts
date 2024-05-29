@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 
-const RESOURCEPATH = "/aliases";
+const RESOURCEPATH = '/aliases';
 
 export interface CollectionAliasCreateSchema {
   collection_name: string;
@@ -19,11 +19,11 @@ export default class Aliases {
 
   async upsert(
     name: string,
-    mapping: CollectionAliasCreateSchema
+    mapping: CollectionAliasCreateSchema,
   ): Promise<CollectionAliasSchema> {
     return this.apiCall.put<CollectionAliasSchema>(
       this.endpointPath(name),
-      mapping
+      mapping,
     );
   }
 

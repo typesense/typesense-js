@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import { CollectionFieldSchema, CollectionSchema } from "./Collection";
+import ApiCall from './ApiCall';
+import { CollectionFieldSchema, CollectionSchema } from './Collection';
 
 export interface CollectionCreateSchema {
   name: string;
@@ -18,7 +18,7 @@ export interface CollectionCreateOptions {
   src_name?: string;
 }
 
-const RESOURCEPATH = "/collections";
+const RESOURCEPATH = '/collections';
 
 export default class Collections {
   constructor(private apiCall: ApiCall) {}

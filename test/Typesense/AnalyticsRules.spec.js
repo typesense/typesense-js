@@ -1,14 +1,14 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
-import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import { Client as TypesenseClient } from '../../src/Typesense';
+import ApiCall from '../../src/Typesense/ApiCall';
+import axios from 'axios';
+import MockAxiosAdapter from 'axios-mock-adapter';
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-describe("AnalyticsRules", function () {
+describe('AnalyticsRules', function () {
   let typesense;
   let analyticsRules;
   let apiCall;
@@ -17,12 +17,12 @@ describe("AnalyticsRules", function () {
     typesense = new TypesenseClient({
       nodes: [
         {
-          host: "node0",
-          port: "8108",
-          protocol: "http",
+          host: 'node0',
+          port: '8108',
+          protocol: 'http',
         },
       ],
-      apiKey: "abcd",
+      apiKey: 'abcd',
       randomizeNodes: false,
     });
     analyticsRules = typesense.analytics.rules();
@@ -30,36 +30,36 @@ describe("AnalyticsRules", function () {
     mockAxios = new MockAxiosAdapter(axios);
   });
 
-  describe(".upsert", function () {
-    it("upserts an analytics rule", function (done) {
+  describe('.upsert', function () {
+    it('upserts an analytics rule', function (done) {
       mockAxios
         .onPut(
           apiCall.uriFor(
-            "/analytics/rules/search_suggestions",
+            '/analytics/rules/search_suggestions',
             typesense.configuration.nodes[0],
           ),
           {
-            type: "popular_queries",
+            type: 'popular_queries',
             params: {
-              source: { collections: ["products"] },
-              destination: { collection: "products_top_queries" },
+              source: { collections: ['products'] },
+              destination: { collection: 'products_top_queries' },
               expand_query: true,
               limit: 100,
             },
           },
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
           },
         )
-        .reply(201, "{}", { "content-type": "application/json" });
+        .reply(201, '{}', { 'content-type': 'application/json' });
 
-      let returnData = analyticsRules.upsert("search_suggestions", {
-        type: "popular_queries",
+      let returnData = analyticsRules.upsert('search_suggestions', {
+        type: 'popular_queries',
         params: {
-          source: { collections: ["products"] },
-          destination: { collection: "products_top_queries" },
+          source: { collections: ['products'] },
+          destination: { collection: 'products_top_queries' },
           expand_query: true,
           limit: 100,
         },
@@ -69,19 +69,19 @@ describe("AnalyticsRules", function () {
     });
   });
 
-  describe(".retrieve", function () {
-    it("retrieves all analytics rules", function (done) {
+  describe('.retrieve', function () {
+    it('retrieves all analytics rules', function (done) {
       mockAxios
         .onGet(
-          apiCall.uriFor("/analytics/rules", typesense.configuration.nodes[0]),
+          apiCall.uriFor('/analytics/rules', typesense.configuration.nodes[0]),
           undefined,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
           },
         )
-        .reply(200, "[]", { "content-type": "application/json" });
+        .reply(200, '[]', { 'content-type': 'application/json' });
 
       let returnData = analyticsRules.retrieve();
 

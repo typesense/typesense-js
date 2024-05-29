@@ -1,15 +1,15 @@
-import ApiCall from "./ApiCall";
-import Collections from "./Collections";
+import ApiCall from './ApiCall';
+import Collections from './Collections';
 import Documents, {
   DocumentSchema,
   DocumentWriteParameters,
-} from "./Documents";
+} from './Documents';
 
 export class Document<T extends DocumentSchema = object> {
   constructor(
     private collectionName: string,
     private documentId: string,
-    private apiCall: ApiCall
+    private apiCall: ApiCall,
   ) {}
 
   async retrieve(): Promise<T> {
@@ -22,7 +22,7 @@ export class Document<T extends DocumentSchema = object> {
 
   async update(
     partialDocument: Partial<T>,
-    options: DocumentWriteParameters = {}
+    options: DocumentWriteParameters = {},
   ): Promise<T> {
     return this.apiCall.patch<T>(this.endpointPath(), partialDocument, options);
   }

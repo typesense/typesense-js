@@ -1,14 +1,14 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
-import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import { Client as TypesenseClient } from '../../src/Typesense';
+import ApiCall from '../../src/Typesense/ApiCall';
+import axios from 'axios';
+import MockAxiosAdapter from 'axios-mock-adapter';
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-describe("Overrides", function () {
+describe('Overrides', function () {
   let typesense;
   let overrides;
   let override;
@@ -19,71 +19,71 @@ describe("Overrides", function () {
     typesense = new TypesenseClient({
       nodes: [
         {
-          host: "node0",
-          port: "8108",
-          protocol: "http",
+          host: 'node0',
+          port: '8108',
+          protocol: 'http',
         },
       ],
-      apiKey: "abcd",
+      apiKey: 'abcd',
       randomizeNodes: false,
     });
 
     override = {
-      id: "lex-exact",
+      id: 'lex-exact',
       rule: {
-        query: "lex luthor",
-        match: "exact",
+        query: 'lex luthor',
+        match: 'exact',
       },
-      includes: [{ id: "125", position: 1 }],
-      excludes: [{ id: "124" }],
+      includes: [{ id: '125', position: 1 }],
+      excludes: [{ id: '124' }],
     };
 
-    overrides = typesense.collections("companies").overrides();
+    overrides = typesense.collections('companies').overrides();
     apiCall = new ApiCall(typesense.configuration);
     mockAxios = new MockAxiosAdapter(axios);
   });
 
-  describe(".create", function () {
-    it("creates the override in the collection", function (done) {
+  describe('.create', function () {
+    it('creates the override in the collection', function (done) {
       mockAxios
         .onPut(
           apiCall.uriFor(
-            "/collections/companies/overrides/lex-exact",
-            typesense.configuration.nodes[0]
+            '/collections/companies/overrides/lex-exact',
+            typesense.configuration.nodes[0],
           ),
           override,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
+          },
         )
         .reply(201, JSON.stringify(override), {
-          "content-type": "application/json",
+          'content-type': 'application/json',
         });
 
-      let returnData = overrides.upsert("lex-exact", override);
+      let returnData = overrides.upsert('lex-exact', override);
       expect(returnData).to.eventually.deep.equal(override).notify(done);
     });
   });
 
-  describe(".retrieve", function () {
-    it("retrieves all overrides", function (done) {
+  describe('.retrieve', function () {
+    it('retrieves all overrides', function (done) {
       mockAxios
         .onGet(
           apiCall.uriFor(
-            "/collections/companies/overrides",
-            typesense.configuration.nodes[0]
+            '/collections/companies/overrides',
+            typesense.configuration.nodes[0],
           ),
           undefined,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
+          },
         )
         .reply(200, JSON.stringify([override]), {
-          "content-type": "application/json",
+          'content-type': 'application/json',
         });
 
       let returnData = overrides.retrieve();

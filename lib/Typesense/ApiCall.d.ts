@@ -1,6 +1,6 @@
-import { AxiosRequestConfig, AxiosResponse, Method } from "axios";
-import TypesenseError from "./Errors/TypesenseError";
-import Configuration, { NodeConfiguration } from "./Configuration";
+import { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
+import TypesenseError from './Errors/TypesenseError';
+import Configuration, { NodeConfiguration } from './Configuration';
 interface Node extends NodeConfiguration {
     isHealthy: boolean;
     index: string | number;
@@ -21,7 +21,7 @@ export default class ApiCall {
     constructor(configuration: Configuration);
     get<T>(endpoint: string, queryParameters?: any, { abortSignal, responseType, }?: {
         abortSignal?: any;
-        responseType?: AxiosRequestConfig["responseType"] | undefined;
+        responseType?: AxiosRequestConfig['responseType'] | undefined;
     }): Promise<T>;
     delete<T>(endpoint: string, queryParameters?: any): Promise<T>;
     post<T>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any): Promise<T>;
@@ -32,7 +32,7 @@ export default class ApiCall {
         bodyParameters?: any;
         additionalHeaders?: any;
         abortSignal?: any;
-        responseType?: AxiosRequestConfig["responseType"] | undefined;
+        responseType?: AxiosRequestConfig['responseType'] | undefined;
         skipConnectionTimeout?: boolean;
         enableKeepAlive?: boolean | undefined;
     }): Promise<T>;

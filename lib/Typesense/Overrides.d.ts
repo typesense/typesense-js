@@ -1,8 +1,8 @@
-import ApiCall from "./ApiCall";
-import { OverrideSchema } from "./Override";
+import ApiCall from './ApiCall';
+import { OverrideSchema } from './Override';
 export interface OverrideRuleQuerySchema {
     query?: string;
-    match?: "exact" | "contains";
+    match?: 'exact' | 'contains';
 }
 export interface OverrideRuleFilterSchema {
     filter_by?: string;

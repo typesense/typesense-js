@@ -1,12 +1,12 @@
-import ApiCall from "./ApiCall";
-import { CollectionCreateSchema } from "./Collections";
-import Documents, { DocumentSchema } from "./Documents";
-import Overrides from "./Overrides";
-import Override from "./Override";
-import Synonyms from "./Synonyms";
-import Synonym from "./Synonym";
-import { Document } from "./Document";
-export type FieldType = "string" | "int32" | "int64" | "float" | "bool" | "geopoint" | "geopoint[]" | "string[]" | "int32[]" | "int64[]" | "float[]" | "bool[]" | "object" | "object[]" | "auto" | "string*" | "image";
+import ApiCall from './ApiCall';
+import { CollectionCreateSchema } from './Collections';
+import Documents, { DocumentSchema } from './Documents';
+import Overrides from './Overrides';
+import Override from './Override';
+import Synonyms from './Synonyms';
+import Synonym from './Synonym';
+import { Document } from './Document';
+export type FieldType = 'string' | 'int32' | 'int64' | 'float' | 'bool' | 'geopoint' | 'geopoint[]' | 'string[]' | 'int32[]' | 'int64[]' | 'float[]' | 'bool[]' | 'object' | 'object[]' | 'auto' | 'string*' | 'image';
 export interface CollectionFieldSchema {
     name: string;
     type: FieldType;
@@ -30,7 +30,7 @@ export interface CollectionDropFieldSchema {
     name: string;
     drop: true;
 }
-export interface CollectionUpdateSchema extends Partial<Omit<CollectionCreateSchema, "name" | "fields">> {
+export interface CollectionUpdateSchema extends Partial<Omit<CollectionCreateSchema, 'name' | 'fields'>> {
     fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
 }
 export default class Collection<T extends DocumentSchema = object> {

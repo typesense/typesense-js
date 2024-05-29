@@ -1,14 +1,14 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
-import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import { Client as TypesenseClient } from '../../src/Typesense';
+import ApiCall from '../../src/Typesense/ApiCall';
+import axios from 'axios';
+import MockAxiosAdapter from 'axios-mock-adapter';
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
-describe("Alias", function () {
+describe('Alias', function () {
   let typesense;
   let alias;
   let apiCall;
@@ -17,36 +17,36 @@ describe("Alias", function () {
     typesense = new TypesenseClient({
       nodes: [
         {
-          host: "node0",
-          port: "8108",
-          protocol: "http",
+          host: 'node0',
+          port: '8108',
+          protocol: 'http',
         },
       ],
-      apiKey: "abcd",
+      apiKey: 'abcd',
       randomizeNodes: false,
     });
-    alias = typesense.aliases("companies");
+    alias = typesense.aliases('companies');
     apiCall = new ApiCall(typesense.configuration);
     mockAxios = new MockAxiosAdapter(axios);
   });
 
-  describe(".retrieve", function () {
-    it("retrieves the alias", function (done) {
+  describe('.retrieve', function () {
+    it('retrieves the alias', function (done) {
       mockAxios
         .onGet(
           apiCall.uriFor(
-            "/aliases/companies",
-            typesense.configuration.nodes[0]
+            '/aliases/companies',
+            typesense.configuration.nodes[0],
           ),
           null,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
+          },
         )
-        .reply(200, "{}", {
-          "content-type": "application/json; charset=utf-8",
+        .reply(200, '{}', {
+          'content-type': 'application/json; charset=utf-8',
         });
 
       // console.log(mockAxios.handlers)
@@ -57,23 +57,23 @@ describe("Alias", function () {
     });
   });
 
-  describe(".delete", function () {
-    it("deletes an alias", function (done) {
+  describe('.delete', function () {
+    it('deletes an alias', function (done) {
       mockAxios
         .onDelete(
           apiCall.uriFor(
-            "/aliases/companies",
-            typesense.configuration.nodes[0]
+            '/aliases/companies',
+            typesense.configuration.nodes[0],
           ),
           null,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            'X-TYPESENSE-API-KEY': typesense.configuration.apiKey,
+          },
         )
-        .reply(200, "{}", {
-          "content-type": "application/json; charset=utf-8",
+        .reply(200, '{}', {
+          'content-type': 'application/json; charset=utf-8',
         });
 
       let returnData = alias.delete();

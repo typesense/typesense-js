@@ -1,6 +1,6 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 
-const RESOURCEPATH = "/debug";
+const RESOURCEPATH = '/debug';
 
 export interface DebugResponseSchema {
   state: number;

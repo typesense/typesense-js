@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import Keys from "./Keys";
+import ApiCall from './ApiCall';
+import Keys from './Keys';
 
 export interface KeyCreateSchema {
   actions: string[];
@@ -19,7 +19,10 @@ export interface KeySchema extends KeyCreateSchema {
 }
 
 export default class Key {
-  constructor(private id: number, private apiCall: ApiCall) {}
+  constructor(
+    private id: number,
+    private apiCall: ApiCall,
+  ) {}
 
   async retrieve(): Promise<KeySchema> {
     return this.apiCall.get<KeySchema>(this.endpointPath());

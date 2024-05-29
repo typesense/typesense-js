@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import Presets, { PresetCreateSchema } from "./Presets";
+import ApiCall from './ApiCall';
+import Presets, { PresetCreateSchema } from './Presets';
 
 export interface PresetSchema extends PresetCreateSchema {
   name: string;
@@ -10,7 +10,10 @@ export interface PresetDeleteSchema {
 }
 
 export default class Preset {
-  constructor(private presetId: string, private apiCall: ApiCall) {}
+  constructor(
+    private presetId: string,
+    private apiCall: ApiCall,
+  ) {}
 
   async retrieve(): Promise<PresetSchema> {
     return this.apiCall.get<PresetSchema>(this.endpointPath());

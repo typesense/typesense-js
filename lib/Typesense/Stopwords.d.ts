@@ -1,5 +1,5 @@
-import ApiCall from "./ApiCall";
-import { StopwordSchema } from "./Stopword";
+import ApiCall from './ApiCall';
+import { StopwordSchema } from './Stopword';
 export interface StopwordCreateSchema {
     stopwords: string[];
     locale?: string;

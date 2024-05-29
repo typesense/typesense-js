@@ -1,14 +1,14 @@
-import ApiCall from "./ApiCall";
+import ApiCall from './ApiCall';
 import {
   AnalyticsRuleCreateSchema,
   AnalyticsRuleSchema,
-} from "./AnalyticsRule";
+} from './AnalyticsRule';
 
 export interface AnalyticsRulesRetrieveSchema {
   rules: AnalyticsRuleSchema[];
 }
 
-const RESOURCEPATH = "/analytics/rules";
+const RESOURCEPATH = '/analytics/rules';
 
 export default class AnalyticsRules {
   constructor(private readonly apiCall: ApiCall) {
@@ -17,11 +17,11 @@ export default class AnalyticsRules {
 
   async upsert(
     name: string,
-    params: AnalyticsRuleCreateSchema
+    params: AnalyticsRuleCreateSchema,
   ): Promise<AnalyticsRuleCreateSchema> {
     return this.apiCall.put<AnalyticsRuleCreateSchema>(
       this.endpointPath(name),
-      params
+      params,
     );
   }
 
@@ -31,7 +31,7 @@ export default class AnalyticsRules {
 
   private endpointPath(operation?: string): string {
     return `${AnalyticsRules.RESOURCEPATH}${
-      operation === undefined ? "" : "/" + operation
+      operation === undefined ? '' : '/' + operation
     }`;
   }
 

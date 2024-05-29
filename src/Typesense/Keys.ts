@@ -1,9 +1,9 @@
-import { createHmac } from "crypto";
-import ApiCall from "./ApiCall";
-import { KeyCreateSchema, KeySchema } from "./Key";
-import { SearchParams } from "./Documents";
+import { createHmac } from 'crypto';
+import ApiCall from './ApiCall';
+import { KeyCreateSchema, KeySchema } from './Key';
+import { SearchParams } from './Documents';
 
-const RESOURCEPATH = "/keys";
+const RESOURCEPATH = '/keys';
 
 export interface KeysRetrieveSchema {
   keys: KeySchema[];
@@ -30,18 +30,18 @@ export default class Keys {
 
   generateScopedSearchKey(
     searchKey: string,
-    parameters: GenerateScopedSearchKeyParams
+    parameters: GenerateScopedSearchKeyParams,
   ): string {
     // Note: only a key generated with the `documents:search` action will be
     // accepted by the server, when usined with the search endpoint.
     const paramsJSON = JSON.stringify(parameters);
     const digest = Buffer.from(
-      createHmac("sha256", searchKey).update(paramsJSON).digest("base64")
+      createHmac('sha256', searchKey).update(paramsJSON).digest('base64'),
     );
     const keyPrefix = searchKey.substr(0, 4);
     const rawScopedKey = `${digest}${keyPrefix}${paramsJSON}`;
 
-    return Buffer.from(rawScopedKey).toString("base64");
+    return Buffer.from(rawScopedKey).toString('base64');
   }
 
   static get RESOURCEPATH() {

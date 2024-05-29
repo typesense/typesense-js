@@ -1,8 +1,8 @@
-import type { ReadStream } from "fs";
-import ApiCall from "./ApiCall";
-import Configuration from "./Configuration";
-import { ImportError } from "./Errors";
-import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
+import type { ReadStream } from 'fs';
+import ApiCall from './ApiCall';
+import Configuration from './Configuration';
+import { ImportError } from './Errors';
+import { SearchOnlyDocuments } from './SearchOnlyDocuments';
 
 // Todo: use generic to extract filter_by values
 export interface DeleteQuery {
@@ -34,7 +34,7 @@ export interface SearchParamsWithPreset extends Partial<SearchParams> {
   preset: string;
 }
 
-type OperationMode = "off" | "always" | "fallback";
+type OperationMode = 'off' | 'always' | 'fallback';
 export interface SearchParams {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
   q?: string;
@@ -85,10 +85,10 @@ export interface SearchParams {
   max_candidates?: number;
   infix?: OperationMode | OperationMode[];
   preset?: string;
-  text_match_type?: "max_score" | "max_weight";
+  text_match_type?: 'max_score' | 'max_weight';
   vector_query?: string;
-  "x-typesense-api-key"?: string;
-  "x-typesense-user-id"?: string;
+  'x-typesense-api-key'?: string;
+  'x-typesense-user-id'?: string;
   offset?: number;
   limit?: number;
   stopwords?: string;
@@ -190,8 +190,8 @@ export interface SearchResponse<T extends DocumentSchema> {
 }
 
 export interface DocumentWriteParameters {
-  dirty_values?: "coerce_or_reject" | "coerce_or_drop" | "drop" | "reject";
-  action?: "create" | "update" | "upsert" | "emplace";
+  dirty_values?: 'coerce_or_reject' | 'coerce_or_drop' | 'drop' | 'reject';
+  action?: 'create' | 'update' | 'upsert' | 'emplace';
 }
 
 export interface UpdateByFilterParameters {
@@ -252,16 +252,16 @@ export default class Documents<T extends DocumentSchema = object>
   }
 
   async create(document: T, options: DocumentWriteParameters = {}): Promise<T> {
-    if (!document) throw new Error("No document provided");
+    if (!document) throw new Error('No document provided');
     return this.apiCall.post<T>(this.endpointPath(), document, options);
   }
 
   async upsert(document: T, options: DocumentWriteParameters = {}): Promise<T> {
-    if (!document) throw new Error("No document provided");
+    if (!document) throw new Error('No document provided');
     return this.apiCall.post<T>(
       this.endpointPath(),
       document,
-      Object.assign({}, options, { action: "upsert" }),
+      Object.assign({}, options, { action: 'upsert' }),
     );
   }
 
@@ -274,9 +274,9 @@ export default class Documents<T extends DocumentSchema = object>
     document: T,
     options: DocumentWriteParameters | UpdateByFilterParameters = {},
   ): Promise<UpdateByFilterResponse | T> {
-    if (!document) throw new Error("No document provided");
+    if (!document) throw new Error('No document provided');
 
-    if (options["filter_by"] != null) {
+    if (options['filter_by'] != null) {
       return this.apiCall.patch<T>(
         this.endpointPath(),
         document,
@@ -286,7 +286,7 @@ export default class Documents<T extends DocumentSchema = object>
       return this.apiCall.post<T>(
         this.endpointPath(),
         document,
-        Object.assign({}, options, { action: "update" }),
+        Object.assign({}, options, { action: 'update' }),
       );
     }
   }
@@ -299,7 +299,7 @@ export default class Documents<T extends DocumentSchema = object>
 
   async createMany(documents: T[], options: DocumentImportParameters = {}) {
     this.configuration.logger.warn(
-      "createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents",
+      'createMany is deprecated and will be removed in a future version. Use import instead, which now takes both an array of documents or a JSONL string of documents',
     );
     return this.import(documents, options);
   }
@@ -327,12 +327,12 @@ export default class Documents<T extends DocumentSchema = object>
       try {
         documentsInJSONLFormat = documents
           .map((document) => JSON.stringify(document))
-          .join("\n");
+          .join('\n');
       } catch (error: any) {
         // if rangeerror, throw custom error message
         if (
           error instanceof RangeError &&
-          error.message.includes("Too many properties to enumerate")
+          error.message.includes('Too many properties to enumerate')
         ) {
           throw new Error(`${error}
           It looks like you have reached a Node.js limit that restricts the number of keys in an Object: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object
@@ -349,12 +349,12 @@ export default class Documents<T extends DocumentSchema = object>
     }
 
     const resultsInJSONLFormat = await this.apiCall.performRequest<string>(
-      "post",
-      this.endpointPath("import"),
+      'post',
+      this.endpointPath('import'),
       {
         queryParameters: options,
         bodyParameters: documentsInJSONLFormat,
-        additionalHeaders: { "Content-Type": "text/plain" },
+        additionalHeaders: { 'Content-Type': 'text/plain' },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
         enableKeepAlive: true, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },
@@ -362,7 +362,7 @@ export default class Documents<T extends DocumentSchema = object>
 
     if (Array.isArray(documents)) {
       const resultsInJSONFormat = resultsInJSONLFormat
-        .split("\n")
+        .split('\n')
         .map((r) => JSON.parse(r)) as ImportResponse[];
       const failedItems = resultsInJSONFormat.filter(
         (r) => r.success === false,
@@ -388,7 +388,7 @@ export default class Documents<T extends DocumentSchema = object>
    * Returns a JSONL string for all the documents in this collection
    */
   async export(options: DocumentsExportParameters = {}): Promise<string> {
-    return this.apiCall.get<string>(this.endpointPath("export"), options);
+    return this.apiCall.get<string>(this.endpointPath('export'), options);
   }
 
   /**
@@ -397,8 +397,8 @@ export default class Documents<T extends DocumentSchema = object>
   async exportStream(
     options: DocumentsExportParameters = {},
   ): Promise<ReadStream> {
-    return this.apiCall.get<ReadStream>(this.endpointPath("export"), options, {
-      responseType: "stream",
+    return this.apiCall.get<ReadStream>(this.endpointPath('export'), options, {
+      responseType: 'stream',
     });
   }
 }
