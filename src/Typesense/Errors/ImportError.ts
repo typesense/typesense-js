@@ -1,8 +1,8 @@
 import TypesenseError from "./TypesenseError";
-import { ImportResponseFail } from "../Documents";
+import { ImportResponse } from "../Documents";
 
 export default class ImportError extends TypesenseError {
-  importResults: ImportResponseFail;
+  importResults: ImportResponse[];
   constructor(message, importResults) {
     super(message);
     this.importResults = importResults;
