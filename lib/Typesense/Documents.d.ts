@@ -102,6 +102,7 @@ export interface SearchResponseHit<T extends DocumentSchema> {
             field: keyof T;
             snippet?: string;
             value?: string;
+            values?: string[];
             snippets?: string[];
             indices?: number[];
             matched_tokens: string[][] | string[];
