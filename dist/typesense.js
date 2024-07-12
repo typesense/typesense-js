@@ -2323,24 +2323,78 @@ var Documents = /*#__PURE__*/function (_ref) {
       return _import;
     }()
     /**
-     * Returns a JSONL string for all the documents in this collection
+     * Imports documents from a NodeJS readable stream of JSONL.
      */
   }, {
-    key: "export",
+    key: "importStream",
     value: (function () {
-      var _export2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee7() {
+      var _importStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee7(readableStream) {
         var options,
+          resultsInJSONLFormat,
+          resultsInJSONFormat,
+          failedItems,
           _args7 = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee7$(_context7) {
           while (1) switch (_context7.prev = _context7.next) {
             case 0:
-              options = _args7.length > 0 && _args7[0] !== undefined ? _args7[0] : {};
-              return _context7.abrupt("return", this.apiCall.get(this.endpointPath("export"), options));
-            case 2:
+              options = _args7.length > 1 && _args7[1] !== undefined ? _args7[1] : {};
+              _context7.next = 3;
+              return this.apiCall.performRequest("post", this.endpointPath("import"), {
+                queryParameters: options,
+                bodyParameters: readableStream,
+                additionalHeaders: {
+                  "Content-Type": "text/plain"
+                },
+                skipConnectionTimeout: true,
+                // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
+                enableKeepAlive: true // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+              });
+            case 3:
+              resultsInJSONLFormat = _context7.sent;
+              resultsInJSONFormat = resultsInJSONLFormat.split("\n").map(function (r) {
+                return JSON.parse(r);
+              });
+              failedItems = resultsInJSONFormat.filter(function (r) {
+                return r.success === false;
+              });
+              if (!(failedItems.length > 0)) {
+                _context7.next = 10;
+                break;
+              }
+              throw new _Errors__WEBPACK_IMPORTED_MODULE_7__.ImportError("".concat(resultsInJSONFormat.length - failedItems.length, " documents imported successfully, ").concat(failedItems.length, " documents failed during import. Use `error.importResults` from the raised exception to get a detailed error reason for each document."), resultsInJSONFormat);
+            case 10:
+              return _context7.abrupt("return", resultsInJSONFormat);
+            case 11:
             case "end":
               return _context7.stop();
           }
         }, _callee7, this);
+      }));
+      function importStream(_x6) {
+        return _importStream.apply(this, arguments);
+      }
+      return importStream;
+    }()
+    /**
+     * Returns a JSONL string for all the documents in this collection
+     */
+    )
+  }, {
+    key: "export",
+    value: (function () {
+      var _export2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee8() {
+        var options,
+          _args8 = arguments;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee8$(_context8) {
+          while (1) switch (_context8.prev = _context8.next) {
+            case 0:
+              options = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {};
+              return _context8.abrupt("return", this.apiCall.get(this.endpointPath("export"), options));
+            case 2:
+            case "end":
+              return _context8.stop();
+          }
+        }, _callee8, this);
       }));
       function _export() {
         return _export2.apply(this, arguments);
@@ -2354,21 +2408,21 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "exportStream",
     value: (function () {
-      var _exportStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee8() {
+      var _exportStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee9() {
         var options,
-          _args8 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee8$(_context8) {
-          while (1) switch (_context8.prev = _context8.next) {
+          _args9 = arguments;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee9$(_context9) {
+          while (1) switch (_context9.prev = _context9.next) {
             case 0:
-              options = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {};
-              return _context8.abrupt("return", this.apiCall.get(this.endpointPath("export"), options, {
+              options = _args9.length > 0 && _args9[0] !== undefined ? _args9[0] : {};
+              return _context9.abrupt("return", this.apiCall.get(this.endpointPath("export"), options, {
                 responseType: "stream"
               }));
             case 2:
             case "end":
-              return _context8.stop();
+              return _context9.stop();
           }
-        }, _callee8, this);
+        }, _callee9, this);
       }));
       function exportStream() {
         return _exportStream.apply(this, arguments);

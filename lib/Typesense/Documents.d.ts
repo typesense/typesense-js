@@ -102,7 +102,6 @@ export interface SearchResponseHit<T extends DocumentSchema> {
             field: keyof T;
             snippet?: string;
             value?: string;
-            values?: string[];
             snippets?: string[];
             indices?: number[];
             matched_tokens: string[][] | string[];
@@ -222,6 +221,10 @@ export default class Documents<T extends DocumentSchema = object> extends Search
      */
     import(documents: string, options?: DocumentImportParameters): Promise<string>;
     import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
+    /**
+     * Imports documents from a NodeJS readable stream of JSONL.
+     */
+    importStream(readableStream: ReadStream, options?: DocumentImportParameters): Promise<ImportResponse[]>;
     /**
      * Returns a JSONL string for all the documents in this collection
      */
