@@ -121,4 +121,32 @@ describe("Document", function () {
       expect(returnData).to.eventually.deep.equal(documentResult).notify(done);
     });
   });
+  it("passes query params to delete", function (done) {
+    const queryParams = { ignore_not_found: true };
+    mockAxios
+      .onDelete(
+        apiCall.uriFor(
+          "/collections/companies/documents/124",
+          typesense.configuration.nodes[0],
+        ),
+        null,
+        {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+        },
+      )
+      .reply((config) => {
+        expect(config.params).to.deep.equal(queryParams);
+        return [
+          200,
+          JSON.stringify(documentResult),
+          { "content-type": "application/json" },
+        ];
+      });
+
+    let returnData = document.delete(queryParams);
+
+    expect(returnData).to.eventually.deep.equal(documentResult).notify(done);
+  });
 });
