@@ -4,7 +4,7 @@ import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
 import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
 export interface DeleteQuery {
-    filter_by: string;
+    filter_by?: string;
     batch_size?: number;
     ignore_not_found?: boolean;
 }

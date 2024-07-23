@@ -2000,18 +2000,18 @@ var Document = /*#__PURE__*/function () {
   }, {
     key: "delete",
     value: function () {
-      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2() {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2(options) {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
-              return _context2.abrupt("return", this.apiCall.delete(this.endpointPath()));
+              return _context2.abrupt("return", this.apiCall.delete(this.endpointPath(), options));
             case 1:
             case "end":
               return _context2.stop();
           }
         }, _callee2, this);
       }));
-      function _delete() {
+      function _delete(_x) {
         return _delete2.apply(this, arguments);
       }
       return _delete;
@@ -2033,7 +2033,7 @@ var Document = /*#__PURE__*/function () {
           }
         }, _callee3, this);
       }));
-      function update(_x) {
+      function update(_x2) {
         return _update.apply(this, arguments);
       }
       return update;
