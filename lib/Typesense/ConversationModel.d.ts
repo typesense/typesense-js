@@ -1,9 +1,11 @@
 import ApiCall from "./ApiCall";
 export interface ConversationModelCreateSchema {
+    id?: string;
     model_name: string;
-    api_key: string;
+    api_key?: string;
     system_prompt?: string;
     max_bytes: number;
+    history_collection?: string;
 }
 export interface ConversationModelDeleteSchema {
     id: string;
