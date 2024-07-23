@@ -80,7 +80,7 @@ describe("Documents", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies/documents/search",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           {
             params: searchParameters,
@@ -89,7 +89,7 @@ describe("Documents", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify(stubbedSearchResult), {
           "content-type": "application/json",
@@ -158,7 +158,7 @@ describe("Documents", function () {
           .onGet(
             apiCall.uriFor(
               "/collections/companies/documents/search",
-              typesense.configuration.nodes[0]
+              typesense.configuration.nodes[0],
             ),
             {
               params: searchParameters[i],
@@ -167,7 +167,7 @@ describe("Documents", function () {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "application/json",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
+            },
           )
           .reply(200, JSON.stringify(stubbedSearchResults[i]), {
             "content-type": "application/json",
@@ -247,7 +247,7 @@ describe("Documents", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies/documents/search",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           {
             params: searchParameters[i],
@@ -256,7 +256,7 @@ describe("Documents", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify(stubbedSearchResults[i]), {
           "content-type": "application/json",
@@ -295,14 +295,14 @@ describe("Documents", function () {
         .onPost(
           apiCall.uriFor(
             "/collections/companies/documents",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           document,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(201, document);
 
@@ -318,14 +318,14 @@ describe("Documents", function () {
         .onPost(
           apiCall.uriFor(
             "/collections/companies/documents",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           document,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply((config) => {
           expect(config.params.action).to.equal("upsert");
@@ -349,14 +349,14 @@ describe("Documents", function () {
         .onPost(
           apiCall.uriFor(
             "/collections/companies/documents",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           document,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply((config) => {
           expect(config.params.action).to.equal("update");
@@ -380,14 +380,14 @@ describe("Documents", function () {
         .onPost(
           apiCall.uriFor(
             "/collections/companies/documents/import",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "text/plain",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify({ success: true }), {
           "content-type": "text/plain",
@@ -406,14 +406,14 @@ describe("Documents", function () {
           .onPost(
             apiCall.uriFor(
               "/collections/companies/documents/import",
-              typesense.configuration.nodes[0]
+              typesense.configuration.nodes[0],
             ),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "text/plain",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
+            },
           )
           .reply((config) => {
             expect(config.params.upsert).to.equal(true);
@@ -442,14 +442,14 @@ describe("Documents", function () {
           .onPost(
             apiCall.uriFor(
               "/collections/companies/documents/import",
-              typesense.configuration.nodes[0]
+              typesense.configuration.nodes[0],
             ),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "text/plain",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
+            },
           )
           .reply((config) => {
             expect(config.params.action).to.equal("upsert");
@@ -477,14 +477,14 @@ describe("Documents", function () {
           .onPost(
             apiCall.uriFor(
               "/collections/companies/documents/import",
-              typesense.configuration.nodes[0]
+              typesense.configuration.nodes[0],
             ),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "text/plain",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
+            },
           )
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .reply((config) => {
@@ -501,14 +501,14 @@ describe("Documents", function () {
             .onPost(
               apiCall.uriFor(
                 "/collections/companies/documents/import",
-                typesense.configuration.nodes[0]
+                typesense.configuration.nodes[0],
               ),
               `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
               {
                 Accept: "application/json, text/plain, */*",
                 "Content-Type": "text/plain",
                 "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-              }
+              },
             )
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .reply((config) => {
@@ -536,14 +536,14 @@ describe("Documents", function () {
           .onPost(
             apiCall.uriFor(
               "/collections/companies/documents/import",
-              typesense.configuration.nodes[0]
+              typesense.configuration.nodes[0],
             ),
             `${JSON.stringify(document)}\n${JSON.stringify(anotherDocument)}`,
             {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "text/plain",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
+            },
           )
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .reply((config) => {
@@ -558,6 +558,65 @@ describe("Documents", function () {
         expect(returnData).to.eventually.deep.equal("{}\n{}").notify(done);
       });
     });
+    describe(".importStream", function () {
+      const tempDirectory = "test-files";
+      const tempFile = `${tempDirectory}/importStreamData.jsonl`;
+      const directoryExists = (dir) =>
+        fs.promises
+          .access(dir)
+          .then(() => true)
+          .catch(() => false);
+
+      beforeEach(async function () {
+        if (!(await directoryExists(tempDirectory))) {
+          await fs.promises.mkdir(tempDirectory);
+        }
+      });
+
+      afterEach(async function () {
+        if (await directoryExists(tempFile)) {
+          await fs.promises.unlink(tempFile);
+        }
+      });
+
+      it("imports documents from a readable stream", async function () {
+        const jsonlData = [document, anotherDocument]
+          .map((doc) => JSON.stringify(doc))
+          .join("\n");
+
+        await fs.promises.writeFile(tempFile, jsonlData);
+
+        const readableStream = fs.createReadStream(tempFile);
+
+        mockAxios
+          .onPost(
+            apiCall.uriFor(
+              "/collections/companies/documents/import",
+              typesense.configuration.nodes[0],
+            ),
+            readableStream,
+            {
+              Accept: "application/json, text/plain, */*",
+              "Content-Type": "text/plain",
+              "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            },
+          )
+          .reply(() => {
+            return [
+              200,
+              '{"success": true}\n{"success": true}',
+              { "content-type": "text/plain" },
+            ];
+          });
+
+        const returnData = await documents.importStream(readableStream);
+
+        expect(returnData).to.deep.equal([
+          { success: true },
+          { success: true },
+        ]);
+      });
+    });
   });
 
   describe(".export", function () {
@@ -566,21 +625,21 @@ describe("Documents", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies/documents/export",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           undefined,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply((config) => {
           expect(config.params.include_fields).to.equal("field1");
           return [
             200,
             [JSON.stringify(document), JSON.stringify(anotherDocument)].join(
-              "\n"
+              "\n",
             ),
             {
               "content-type": "text/plain",
@@ -592,7 +651,9 @@ describe("Documents", function () {
 
       expect(returnData)
         .to.eventually.deep.equal(
-          [JSON.stringify(document), JSON.stringify(anotherDocument)].join("\n")
+          [JSON.stringify(document), JSON.stringify(anotherDocument)].join(
+            "\n",
+          ),
         )
         .notify(done);
     });
@@ -613,7 +674,7 @@ describe("Documents", function () {
       }
       await fs.promises.writeFile(
         tempFile,
-        [JSON.stringify(document), JSON.stringify(anotherDocument)].join("\n")
+        [JSON.stringify(document), JSON.stringify(anotherDocument)].join("\n"),
       );
     });
 
@@ -628,14 +689,14 @@ describe("Documents", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies/documents/export",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           undefined,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply((config) => {
           expect(config.params.include_fields).to.equal("field1");
@@ -654,7 +715,7 @@ describe("Documents", function () {
         });
       const data = await getDataFromStream();
       expect(data).to.deep.equal(
-        [JSON.stringify(document), JSON.stringify(anotherDocument)].join("\n")
+        [JSON.stringify(document), JSON.stringify(anotherDocument)].join("\n"),
       );
     });
   });
@@ -665,7 +726,7 @@ describe("Documents", function () {
         .onDelete(
           apiCall.uriFor(
             "/collections/companies/documents",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           {
             params: { filter_by: "field:=value" },
@@ -674,7 +735,7 @@ describe("Documents", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, "{}", { "content-type": "application/json" });
 

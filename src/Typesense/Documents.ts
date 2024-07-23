@@ -383,6 +383,42 @@ export default class Documents<T extends DocumentSchema = object>
       return resultsInJSONLFormat as string;
     }
   }
+  /**
+   * Imports documents from a NodeJS readable stream of JSONL.
+   */
+  async importStream(
+    readableStream: ReadStream,
+    options: DocumentImportParameters = {},
+  ): Promise<ImportResponse[]> {
+    const resultsInJSONLFormat = await this.apiCall.performRequest<string>(
+      "post",
+      this.endpointPath("import"),
+      {
+        queryParameters: options,
+        bodyParameters: readableStream,
+        additionalHeaders: { "Content-Type": "text/plain" },
+        skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
+        enableKeepAlive: true, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+      },
+    );
+
+    const resultsInJSONFormat = resultsInJSONLFormat
+      .split("\n")
+      .map((r) => JSON.parse(r)) as ImportResponse[];
+    const failedItems = resultsInJSONFormat.filter(
+      (r) => r.success === false,
+    );
+    if (failedItems.length > 0) {
+      throw new ImportError(
+        `${resultsInJSONFormat.length - failedItems.length
+        } documents imported successfully, ${failedItems.length
+        } documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`,
+        resultsInJSONFormat,
+      );
+    } else {
+      return resultsInJSONFormat;
+    }
+  }
 
   /**
    * Returns a JSONL string for all the documents in this collection
