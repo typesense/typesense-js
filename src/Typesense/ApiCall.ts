@@ -23,6 +23,11 @@ interface Node extends NodeConfiguration {
   index: string | number;
 }
 
+const isNodeJSEnvironment =
+  typeof process !== "undefined" &&
+  process.versions != null &&
+  process.versions.node != null;
+
 export default class ApiCall {
   private readonly apiKey: string;
   private readonly nodes: Node[];
@@ -219,8 +224,14 @@ export default class ApiCall {
           );
           requestOptions.httpAgent = this.configuration.httpAgent;
         } else if (enableKeepAlive === true) {
-          this.logger.debug(`Request #${requestNumber}: Enabling KeepAlive`);
-          requestOptions.httpAgent = new HTTPAgent({ keepAlive: true });
+          if (!isNodeJSEnvironment) {
+            this.logger.warn(
+              `Request #${requestNumber}: Cannot use custom httpAgent in a browser environment to enable keepAlive`,
+            );
+          } else {
+            this.logger.debug(`Request #${requestNumber}: Enabling KeepAlive`);
+            requestOptions.httpAgent = new HTTPAgent({ keepAlive: true });
+          }
         }
 
         if (this.configuration.httpsAgent) {
@@ -229,8 +240,14 @@ export default class ApiCall {
           );
           requestOptions.httpsAgent = this.configuration.httpsAgent;
         } else if (enableKeepAlive === true) {
-          this.logger.debug(`Request #${requestNumber}: Enabling keepAlive`);
-          requestOptions.httpsAgent = new HTTPSAgent({ keepAlive: true });
+          if (!isNodeJSEnvironment) {
+            this.logger.warn(
+              `Request #${requestNumber}: Cannot use custom httpAgent in a browser environment to enable keepAlive`,
+            );
+          } else {
+            this.logger.debug(`Request #${requestNumber}: Enabling keepAlive`);
+            requestOptions.httpsAgent = new HTTPSAgent({ keepAlive: true });
+          }
         }
 
         if (this.configuration.paramsSerializer) {

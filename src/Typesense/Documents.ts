@@ -239,6 +239,11 @@ export interface SearchOptions {
   abortSignal?: AbortSignal | null;
 }
 
+const isNodeJSEnvironment =
+  typeof process !== "undefined" &&
+  process.versions != null &&
+  process.versions.node != null;
+
 export default class Documents<T extends DocumentSchema = object>
   extends SearchOnlyDocuments<T>
   implements WriteableDocuments<T>
@@ -356,7 +361,7 @@ export default class Documents<T extends DocumentSchema = object>
         bodyParameters: documentsInJSONLFormat,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: true, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },
     );
 
@@ -398,20 +403,20 @@ export default class Documents<T extends DocumentSchema = object>
         bodyParameters: readableStream,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: true, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },
     );
 
     const resultsInJSONFormat = resultsInJSONLFormat
       .split("\n")
       .map((r) => JSON.parse(r)) as ImportResponse[];
-    const failedItems = resultsInJSONFormat.filter(
-      (r) => r.success === false,
-    );
+    const failedItems = resultsInJSONFormat.filter((r) => r.success === false);
     if (failedItems.length > 0) {
       throw new ImportError(
-        `${resultsInJSONFormat.length - failedItems.length
-        } documents imported successfully, ${failedItems.length
+        `${
+          resultsInJSONFormat.length - failedItems.length
+        } documents imported successfully, ${
+          failedItems.length
         } documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`,
         resultsInJSONFormat,
       );

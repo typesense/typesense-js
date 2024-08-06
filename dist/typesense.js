@@ -483,6 +483,7 @@ __webpack_require__.r(__webpack_exports__);
 var APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 var HEALTHY = true;
 var UNHEALTHY = false;
+var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
 var ApiCall = /*#__PURE__*/function () {
   function ApiCall(configuration) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__["default"])(this, ApiCall);
@@ -705,19 +706,27 @@ var ApiCall = /*#__PURE__*/function () {
                         _this.logger.debug("Request #".concat(requestNumber, ": Using custom httpAgent"));
                         requestOptions.httpAgent = _this.configuration.httpAgent;
                       } else if (enableKeepAlive === true) {
-                        _this.logger.debug("Request #".concat(requestNumber, ": Enabling KeepAlive"));
-                        requestOptions.httpAgent = new http__WEBPACK_IMPORTED_MODULE_7__.Agent({
-                          keepAlive: true
-                        });
+                        if (!isNodeJSEnvironment) {
+                          _this.logger.warn("Request #".concat(requestNumber, ": Cannot use custom httpAgent in a browser environment to enable keepAlive"));
+                        } else {
+                          _this.logger.debug("Request #".concat(requestNumber, ": Enabling KeepAlive"));
+                          requestOptions.httpAgent = new http__WEBPACK_IMPORTED_MODULE_7__.Agent({
+                            keepAlive: true
+                          });
+                        }
                       }
                       if (_this.configuration.httpsAgent) {
                         _this.logger.debug("Request #".concat(requestNumber, ": Using custom httpsAgent"));
                         requestOptions.httpsAgent = _this.configuration.httpsAgent;
                       } else if (enableKeepAlive === true) {
-                        _this.logger.debug("Request #".concat(requestNumber, ": Enabling keepAlive"));
-                        requestOptions.httpsAgent = new https__WEBPACK_IMPORTED_MODULE_8__.Agent({
-                          keepAlive: true
-                        });
+                        if (!isNodeJSEnvironment) {
+                          _this.logger.warn("Request #".concat(requestNumber, ": Cannot use custom httpAgent in a browser environment to enable keepAlive"));
+                        } else {
+                          _this.logger.debug("Request #".concat(requestNumber, ": Enabling keepAlive"));
+                          requestOptions.httpsAgent = new https__WEBPACK_IMPORTED_MODULE_8__.Agent({
+                            keepAlive: true
+                          });
+                        }
                       }
                       if (_this.configuration.paramsSerializer) {
                         _this.logger.debug("Request #".concat(requestNumber, ": Using custom paramsSerializer"));
@@ -2088,6 +2097,8 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 // Todo: use generic to extract filter_by values
 
 // Todo: we could infer whether this is a grouped response by adding the search params as a generic
+
+var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
 var Documents = /*#__PURE__*/function (_ref) {
   (0,_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__["default"])(Documents, _ref);
   function Documents(collectionName, apiCall, configuration) {
@@ -2288,7 +2299,7 @@ var Documents = /*#__PURE__*/function (_ref) {
                 },
                 skipConnectionTimeout: true,
                 // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-                enableKeepAlive: true // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+                enableKeepAlive: isNodeJSEnvironment ? true : false // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
               });
             case 16:
               resultsInJSONLFormat = _context6.sent;
@@ -2350,7 +2361,7 @@ var Documents = /*#__PURE__*/function (_ref) {
                 },
                 skipConnectionTimeout: true,
                 // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-                enableKeepAlive: true // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+                enableKeepAlive: isNodeJSEnvironment ? true : false // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
               });
             case 3:
               resultsInJSONLFormat = _context7.sent;
