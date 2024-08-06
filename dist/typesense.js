@@ -1367,11 +1367,14 @@ var Collections = /*#__PURE__*/function () {
     key: "retrieve",
     value: function () {
       var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2() {
+        var options,
+          _args2 = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
-              return _context2.abrupt("return", this.apiCall.get(RESOURCEPATH));
-            case 1:
+              options = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : {};
+              return _context2.abrupt("return", this.apiCall.get(RESOURCEPATH, options));
+            case 2:
             case "end":
               return _context2.stop();
           }

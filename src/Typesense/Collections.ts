@@ -18,6 +18,10 @@ export interface CollectionCreateOptions {
   src_name?: string;
 }
 
+export interface CollectionsRetrieveOptions {
+  exclude_fields?: string;
+}
+
 const RESOURCEPATH = "/collections";
 
 export default class Collections {
@@ -30,8 +34,10 @@ export default class Collections {
     return this.apiCall.post<CollectionSchema>(RESOURCEPATH, schema, options);
   }
 
-  async retrieve(): Promise<CollectionSchema[]> {
-    return this.apiCall.get<CollectionSchema[]>(RESOURCEPATH);
+  async retrieve(
+    options: CollectionsRetrieveOptions = {},
+  ): Promise<CollectionSchema[]> {
+    return this.apiCall.get<CollectionSchema[]>(RESOURCEPATH, options);
   }
 
   static get RESOURCEPATH() {

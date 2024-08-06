@@ -15,10 +15,13 @@ export interface CollectionCreateSchema {
 export interface CollectionCreateOptions {
     src_name?: string;
 }
+export interface CollectionsRetrieveOptions {
+    exclude_fields?: string;
+}
 export default class Collections {
     private apiCall;
     constructor(apiCall: ApiCall);
     create(schema: CollectionCreateSchema, options?: CollectionCreateOptions): Promise<CollectionSchema>;
-    retrieve(): Promise<CollectionSchema[]>;
+    retrieve(options?: CollectionsRetrieveOptions): Promise<CollectionSchema[]>;
     static get RESOURCEPATH(): string;
 }
