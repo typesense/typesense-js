@@ -205,6 +205,14 @@ export default class ApiCall {
           ],
         };
 
+        // credential field is set by default (https://github.com/axios/axios/pull/6505)
+        // which is causing issue when running cloudflare worker (// https://github.com/cloudflare/workers-sdk/issues/2514)
+        // We explicitly set "credentials" as undefined if it's not supported
+        const isCredentialsSupported = "credentials" in Request.prototype; 
+        if (!isCredentialsSupported) {
+          requestOptions.credentials = undefined;
+        }
+
         if (skipConnectionTimeout !== true) {
           requestOptions.timeout = this.connectionTimeoutSeconds * 1000;
         }
