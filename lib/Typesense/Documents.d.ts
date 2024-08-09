@@ -168,6 +168,8 @@ export interface SearchResponse<T extends DocumentSchema> {
         conversation_id: string;
         query: string;
     };
+    error?: string;
+    code?: number;
 }
 export interface DocumentWriteParameters {
     dirty_values?: "coerce_or_reject" | "coerce_or_drop" | "drop" | "reject";
