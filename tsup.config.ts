@@ -3,6 +3,7 @@ import type { Options } from "tsup";
 import browserList from "browserslist-to-esbuild";
 import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
 import { builtinModules } from "module";
+import { commonjs } from "@hyrious/esbuild-plugin-commonjs";
 
 export default defineConfig([
   {
@@ -26,6 +27,7 @@ export default defineConfig([
       nodeModulesPolyfillPlugin({
         fallback: "empty",
       }),
+      commonjs(),
     ],
   },
   {
@@ -37,12 +39,12 @@ export default defineConfig([
     sourcemap: true,
     outDir: "lib",
     minify: true,
-    platform: "node",
     outExtension({ format }) {
       return {
         js: `.min.${format === "cjs" ? "js" : "mjs"}`,
       };
     },
     splitting: true,
+    esbuildPlugins: [commonjs()],
   },
 ]);
