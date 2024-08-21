@@ -30,9 +30,9 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/Typesense.d.mts",
+      "types": "./lib/Typesense.d.ts",
       "import": "./lib/Typesense.min.mjs",
-      "require": "./lib/Typesense.min.mjs"
+      "require": "./lib/Typesense.min.js"
     },
     "./dist": {
       "types": "./dist/Typesense.d.ts",
