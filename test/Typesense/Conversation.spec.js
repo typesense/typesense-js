@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,7 @@ describe("Conversation", function () {
   let typesense;
   let conversation;
   let apiCall;
-  let mockAxios;
+
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,27 +26,26 @@ describe("Conversation", function () {
     });
     conversation = typesense.conversations("123");
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+
+    // Reset fetchMock before each test to ensure a clean state
+    fetchMock.reset();
+  });
+
+  afterEach(function () {
+    // Restore fetchMock after each test
+    fetchMock.restore();
   });
 
   describe(".retrieve", function () {
     it("retrieves the conversation", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor(
-            "/conversations/123",
-            typesense.configuration.nodes[0],
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
-        )
-        .reply(200, "{}", { "content-type": "application/json" });
-
-      // console.log(mockAxios.handlers)
+      fetchMock.getOnce(
+        apiCall.uriFor("/conversations/123", typesense.configuration.nodes[0]),
+        {
+          status: 200,
+          body: {},
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = conversation.retrieve();
 
@@ -57,20 +55,14 @@ describe("Conversation", function () {
 
   describe(".delete", function () {
     it("deletes the conversation", function (done) {
-      mockAxios
-        .onDelete(
-          apiCall.uriFor(
-            "/conversations/123",
-            typesense.configuration.nodes[0],
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
-        )
-        .reply(200, {});
+      fetchMock.deleteOnce(
+        apiCall.uriFor("/conversations/123", typesense.configuration.nodes[0]),
+        {
+          status: 200,
+          body: {},
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = conversation.delete();
 
@@ -80,22 +72,14 @@ describe("Conversation", function () {
 
   describe(".update", function () {
     it("updates the conversation", function (done) {
-      mockAxios
-        .onPut(
-          apiCall.uriFor(
-            "/conversations/123",
-            typesense.configuration.nodes[0],
-          ),
-          {
-            ttl: 10,
-          },
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
-        )
-        .reply(200, {});
+      fetchMock.putOnce(
+        apiCall.uriFor("/conversations/123", typesense.configuration.nodes[0]),
+        {
+          status: 200,
+          body: {},
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = conversation.update({ ttl: 10 });
 
