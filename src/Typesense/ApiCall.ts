@@ -374,7 +374,7 @@ export default class ApiCall {
 
   customErrorForResponse(
     response: Response,
-    messageFromServer: string, // Already parsed message should be passed here
+    messageFromServer: string,
   ): TypesenseError {
     let errorMessage = `Request failed with HTTP code ${response.status}`;
 
