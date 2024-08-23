@@ -184,8 +184,11 @@ export default class ApiCall {
           signal: abortSignal,
         };
 
+        let queryParams = "";
+
         if (queryParameters && Object.keys(queryParameters).length !== 0) {
-          //const queryParams = new URLSearchParams(queryParameters).toString();
+          queryParams = new URLSearchParams(queryParameters).toString();
+
           fetchOptions = {
             ...fetchOptions,
             method: requestType,
@@ -217,9 +220,10 @@ export default class ApiCall {
               ? new HTTPSAgent({ keepAlive: true })
               : new HTTPAgent({ keepAlive: true });
         }
+        const fullUrl = queryParams ? `${url}?${queryParams}` : url;
 
         const response = await fetchWithTimeout(
-          url,
+          fullUrl,
           fetchOptions,
           skipConnectionTimeout
             ? this.connectionTimeoutSeconds * 1000
