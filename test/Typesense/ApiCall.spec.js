@@ -2,9 +2,11 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import { ObjectUnprocessable } from "../../src/Typesense/Errors";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import {
+  ObjectUnprocessable,
+  TypesenseError,
+} from "../../src/Typesense/Errors";
+import fetchMock from "fetch-mock";
 import timekeeper from "timekeeper";
 
 let expect = chai.expect;
@@ -12,139 +14,141 @@ chai.use(chaiAsPromised);
 
 let sharedNodeSelectionBehavior = (method) => {
   it("does not retry when HTTPStatus >= 300 and HTTPStatus < 500", async function () {
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
-      .reply(409, JSON.stringify({ message: "Already exists" }), {
-        "content-type": "application/json",
-      });
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
-      .reply(422, JSON.stringify({ message: "Unprocessable" }), {
-        "content-type": "application/json",
-      });
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]))
-      .reply(500, JSON.stringify({ message: "Error message" }), {
-        "content-type": "application/json",
+    fetchMock
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]), {
+        status: 409,
+        body: JSON.stringify({ message: "Already exists" }),
+        headers: { "content-type": "application/json" },
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]), {
+        status: 422,
+        body: JSON.stringify({ message: "Unprocessable" }),
+        headers: { "content-type": "application/json" },
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]), {
+        status: 500,
+        body: JSON.stringify({ message: "Error message" }),
+        headers: { "content-type": "application/json" },
       });
 
     await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-      "Request failed with HTTP code 409 | Server said: Already exists"
+      "Request failed with HTTP code 409 | Server said: Already exists",
     );
     await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-      ObjectUnprocessable
+      ObjectUnprocessable,
     );
-    let requestHistory = this.mockAxios.history[method];
-    expect(requestHistory.length).to.equal(2);
-    expect(requestHistory[0].url).to.equal("http://node0:8108/");
-    expect(requestHistory[1].url).to.equal("http://node1:7108/");
+
+    expect(fetchMock.calls().length).to.equal(2);
+    expect(fetchMock.calls()[0][0]).to.equal("http://node0:8108/");
+    expect(fetchMock.calls()[1][0]).to.equal("http://node1:7108/");
   });
 
   it("raises an error when no nodes are healthy", async function () {
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
-      .reply(500, JSON.stringify({ message: "Error message" }), {
-        "content-type": "application/json",
-      });
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
-      .reply(500, JSON.stringify({ message: "Error message" }), {
-        "content-type": "application/json",
-      });
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]))
-      .reply(500, JSON.stringify({ message: "Error message" }), {
-        "content-type": "application/json",
+    fetchMock
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]), {
+        status: 500,
+        body: JSON.stringify({ message: "Error message" }),
+        headers: { "content-type": "application/json" },
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]), {
+        status: 500,
+        body: JSON.stringify({ message: "Error message" }),
+        headers: { "content-type": "application/json" },
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]), {
+        status: 500,
+        body: JSON.stringify({ message: "Error message" }),
+        headers: { "content-type": "application/json" },
       });
 
     await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-      "Request failed with HTTP code 500 | Server said: Error message"
+      "Request failed with HTTP code 500 | Server said: Error message",
     );
-    let requestHistory = this.mockAxios.history[method];
-    expect(requestHistory.length).to.equal(4);
-    expect(requestHistory[0].url).to.equal("http://node0:8108/");
-    expect(requestHistory[1].url).to.equal("http://node1:7108/");
-    expect(requestHistory[2].url).to.equal("http://node2:9108/");
-    expect(requestHistory[3].url).to.equal("http://node0:8108/");
+
+    expect(fetchMock.calls().length).to.equal(4);
+    expect(fetchMock.calls()[0][0]).to.equal("http://node0:8108/");
+    expect(fetchMock.calls()[1][0]).to.equal("http://node1:7108/");
+    expect(fetchMock.calls()[2][0]).to.equal("http://node2:9108/");
+    expect(fetchMock.calls()[3][0]).to.equal("http://node0:8108/");
   });
 
   it("selects the next available node when there is a connection timeout", async function () {
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
-      .timeout();
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
-      .timeout();
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]))
-      .reply(200, JSON.stringify({ message: "Success" }), {
-        "content-type": "application/json",
+    fetchMock
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]), {
+        throws: new TypesenseError("Network request failed"),
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]), {
+        throws: new TypesenseError("Network request failed"),
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]), {
+        status: 200,
+        body: JSON.stringify({ message: "Success" }),
+        headers: { "content-type": "application/json" },
       });
 
     await expect(this.apiCall[method]("/")).to.eventually.deep.equal({
       message: "Success",
     });
-    let requestHistory = this.mockAxios.history[method];
-    expect(requestHistory.length).to.equal(3);
-    expect(requestHistory[0].url).to.equal("http://node0:8108/");
-    expect(requestHistory[1].url).to.equal("http://node1:7108/");
-    expect(requestHistory[2].url).to.equal("http://node2:9108/");
+
+    expect(fetchMock.calls().length).to.equal(3);
+    expect(fetchMock.calls()[0][0]).to.equal("http://node0:8108/");
+    expect(fetchMock.calls()[1][0]).to.equal("http://node1:7108/");
+    expect(fetchMock.calls()[2][0]).to.equal("http://node2:9108/");
   });
 
   it("removes unhealthy nodes out of rotation, until threshold", async function () {
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
-      .timeout();
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
-      .timeout();
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]))
-      .reply(200, JSON.stringify({ message: "Success" }), {
-        "content-type": "application/json",
+    fetchMock
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]), {
+        throws: new TypesenseError("Network request failed"),
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]), {
+        throws: new TypesenseError("Network request failed"),
+      })
+      .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]), {
+        status: 200,
+        body: JSON.stringify({ message: "Success" }),
+        headers: { "content-type": "application/json" },
       });
 
     let currentTime = Date.now();
     timekeeper.freeze(currentTime);
-    await this.apiCall[method]("/"); // Node 0 and Node 1 are marked as unhealthy after this, request should have been made to Node 2
-    await this.apiCall[method]("/"); // Request should have been made to Node 2
-    await this.apiCall[method]("/"); // Request should have been made to Node 2
+    await this.apiCall[method]("/");
+    await this.apiCall[method]("/");
+    await this.apiCall[method]("/");
 
     timekeeper.freeze(currentTime + 5 * 1000);
-    await this.apiCall[method]("/"); // Request should have been made to Node 2
+    await this.apiCall[method]("/");
 
     timekeeper.freeze(currentTime + 65 * 1000);
-    await this.apiCall[method]("/"); // Request should have been made to Node 2, since Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold
+    await this.apiCall[method]("/");
 
-    // Remove first mock, to let request to node 0 succeed
-    this.mockAxios.handlers[method].shift();
-    this.mockAxios
-      .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
-      .reply(200, JSON.stringify({ message: "Success" }), {
-        "content-type": "application/json",
-      });
+    fetchMock.mock(
+      this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]),
+      {
+        status: 200,
+        body: JSON.stringify({ message: "Success" }),
+        headers: { "content-type": "application/json" },
+      },
+      { overwriteRoutes: true },
+    );
 
     timekeeper.freeze(currentTime + 185 * 1000);
-    await this.apiCall[method]("/"); // Request should have been made to Node 0, since it is now healthy and the unhealthy threshold was exceeded
+    await this.apiCall[method]("/");
 
-    let requestHistory = this.mockAxios.history[method];
-    expect(requestHistory.length).to.equal(10);
+    expect(fetchMock.calls().length).to.equal(10);
 
-    expect(requestHistory[0].url).to.equal("http://node0:8108/");
-    expect(requestHistory[1].url).to.equal("http://node1:7108/");
-    expect(requestHistory[2].url).to.equal("http://node2:9108/");
+    expect(fetchMock.calls()[0][0]).to.equal("http://node0:8108/");
+    expect(fetchMock.calls()[1][0]).to.equal("http://node1:7108/");
+    expect(fetchMock.calls()[2][0]).to.equal("http://node2:9108/");
 
-    expect(requestHistory[3].url).to.equal("http://node2:9108/");
+    expect(fetchMock.calls()[3][0]).to.equal("http://node2:9108/");
+    expect(fetchMock.calls()[4][0]).to.equal("http://node2:9108/");
+    expect(fetchMock.calls()[5][0]).to.equal("http://node2:9108/");
 
-    expect(requestHistory[4].url).to.equal("http://node2:9108/");
-
-    expect(requestHistory[5].url).to.equal("http://node2:9108/");
-
-    expect(requestHistory[6].url).to.equal("http://node0:8108/");
-    expect(requestHistory[7].url).to.equal("http://node1:7108/");
-    expect(requestHistory[8].url).to.equal("http://node2:9108/");
-
-    expect(requestHistory[9].url).to.equal("http://node0:8108/");
+    expect(fetchMock.calls()[6][0]).to.equal("http://node0:8108/");
+    expect(fetchMock.calls()[7][0]).to.equal("http://node1:7108/");
+    expect(fetchMock.calls()[8][0]).to.equal("http://node2:9108/");
+    expect(fetchMock.calls()[9][0]).to.equal("http://node0:8108/");
 
     timekeeper.reset();
   });
@@ -177,119 +181,118 @@ let sharedNodeSelectionBehavior = (method) => {
         apiKey: "abcd",
         randomizeNodes: false,
         logLevel: "error",
-        retryIntervalSeconds: 0.001, // To keep tests fast
+        retryIntervalSeconds: 0.001,
       });
-      this.mockAxios = new MockAxiosAdapter(axios);
+      fetchMock.reset();
       this.apiCall = new ApiCall(this.typesense.configuration);
     });
 
-    it("uses the nearestNode if it is present and healthy, otherwise fallsback to regular nodes", async function () {
-      this.mockAxios
-        .onAny(
-          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode)
+    it("uses the nearestNode if it is present and healthy, otherwise falls back to regular nodes", async function () {
+      fetchMock
+        .mock(
+          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode),
+          { throws: new TypesenseError("Network request failed") },
+          { overwriteRoutes: true },
         )
-        .timeout();
-      this.mockAxios
-        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
-        .timeout();
-      this.mockAxios
-        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
-        .timeout();
-      this.mockAxios
-        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]))
-        .reply(200, JSON.stringify({ message: "Success" }), {
-          "content-type": "application/json",
-        });
+        .mock(
+          this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]),
+          {
+            throws: new TypesenseError("Network request failed"),
+          },
+          { overwriteRoutes: true },
+        )
+        .mock(
+          this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]),
+          {
+            throws: new TypesenseError("Network request failed"),
+          },
+          { overwriteRoutes: true },
+        )
+        .mock(
+          this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]),
+          {
+            status: 200,
+            body: JSON.stringify({ message: "Success" }),
+            headers: { "content-type": "application/json" },
+          },
+          { overwriteRoutes: true },
+        );
 
       let currentTime = Date.now();
       timekeeper.freeze(currentTime);
-      await this.apiCall[method]("/"); // Node nearestNode, Node 0 and Node 1 are marked as unhealthy after this, request should have been made to Node 2
-      await this.apiCall[method]("/"); // Request should have been made to Node 2
-      await this.apiCall[method]("/"); // Request should have been made to Node 2
+      await this.apiCall[method]("/");
+      await this.apiCall[method]("/");
+      await this.apiCall[method]("/");
 
       timekeeper.freeze(currentTime + 5 * 1000);
-      await this.apiCall[method]("/"); // Request should have been made to Node 2
+      await this.apiCall[method]("/");
 
       timekeeper.freeze(currentTime + 65 * 1000);
-      await this.apiCall[method]("/"); // Request should have been attempted to nearestNode, Node 0 and Node 1, but finally made to Node 2 (since disributedSearchNode, Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold)
+      await this.apiCall[method]("/");
 
-      // Remove first mock, to let request to nearestNode succeed
-      this.mockAxios.handlers[method].shift();
-      this.mockAxios
-        .onAny(
-          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode)
-        )
-        .reply(200, JSON.stringify({ message: "Success" }), {
-          "content-type": "application/json",
-        });
+      fetchMock.mock(
+        this.apiCall.uriFor("/", this.typesense.configuration.nearestNode),
+        { status: 200, body: JSON.stringify({ message: "Success" }) },
+        { overwriteRoutes: true },
+      );
 
       timekeeper.freeze(currentTime + 185 * 1000);
-      await this.apiCall[method]("/"); // Request should have been made to nearestNode, since it is now healthy and the unhealthy threshold was exceeded
-      await this.apiCall[method]("/"); // Request should have been made to nearestNode, since no roundrobin if it is present and healthy
-      await this.apiCall[method]("/"); // Request should have been made to nearestNode, since no roundrobin if it is present and healthy
+      await this.apiCall[method]("/");
+      await this.apiCall[method]("/");
+      await this.apiCall[method]("/");
 
-      let requestHistory = this.mockAxios.history[method];
-      expect(requestHistory.length).to.equal(14);
+      expect(fetchMock.calls().length).to.equal(14);
 
-      expect(requestHistory[0].url).to.equal("http://nearestNode:6108/");
-      expect(requestHistory[1].url).to.equal("http://node0:8108/");
-      expect(requestHistory[2].url).to.equal("http://node1:7108/");
-      expect(requestHistory[3].url).to.equal("http://node2:9108/");
-
-      expect(requestHistory[4].url).to.equal("http://node2:9108/");
-
-      expect(requestHistory[5].url).to.equal("http://node2:9108/");
-
-      expect(requestHistory[6].url).to.equal("http://node2:9108/");
-
-      expect(requestHistory[7].url).to.equal("http://nearestNode:6108/");
-      expect(requestHistory[8].url).to.equal("http://node0:8108/");
-      expect(requestHistory[9].url).to.equal("http://node1:7108/");
-      expect(requestHistory[10].url).to.equal("http://node2:9108/");
-
-      expect(requestHistory[11].url).to.equal("http://nearestNode:6108/");
-
-      expect(requestHistory[12].url).to.equal("http://nearestNode:6108/");
-
-      expect(requestHistory[13].url).to.equal("http://nearestNode:6108/");
+      expect(fetchMock.calls()[0][0]).to.equal("http://nearestnode:6108/");
+      expect(fetchMock.calls()[1][0]).to.equal("http://node0:8108/");
+      expect(fetchMock.calls()[2][0]).to.equal("http://node1:7108/");
+      expect(fetchMock.calls()[3][0]).to.equal("http://node2:9108/");
+      expect(fetchMock.calls()[4][0]).to.equal("http://node2:9108/");
+      expect(fetchMock.calls()[5][0]).to.equal("http://node2:9108/");
+      expect(fetchMock.calls()[6][0]).to.equal("http://node2:9108/");
+      expect(fetchMock.calls()[7][0]).to.equal("http://nearestnode:6108/");
+      expect(fetchMock.calls()[8][0]).to.equal("http://node0:8108/");
+      expect(fetchMock.calls()[9][0]).to.equal("http://node1:7108/");
+      expect(fetchMock.calls()[10][0]).to.equal("http://node2:9108/");
+      expect(fetchMock.calls()[11][0]).to.equal("http://nearestnode:6108/");
+      expect(fetchMock.calls()[12][0]).to.equal("http://nearestnode:6108/");
+      expect(fetchMock.calls()[13][0]).to.equal("http://nearestnode:6108/");
 
       timekeeper.reset();
     });
 
     it("raises an error when no nodes are healthy", async function () {
-      this.mockAxios
-        .onAny(
-          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode)
+      fetchMock
+        .mock(
+          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode),
+          { status: 500, body: JSON.stringify({ message: "Error message" }) },
         )
-        .reply(500, JSON.stringify({ message: "Error message" }), {
-          "content-type": "application/json",
-        });
-      this.mockAxios
-        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
-        .reply(500, JSON.stringify({ message: "Error message" }), {
-          "content-type": "application/json",
-        });
-      this.mockAxios
-        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
-        .reply(500, JSON.stringify({ message: "Error message" }), {
-          "content-type": "application/json",
-        });
-      this.mockAxios
-        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]))
-        .reply(500, JSON.stringify({ message: "Error message" }), {
-          "content-type": "application/json",
+        .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]), {
+          status: 500,
+          body: JSON.stringify({ message: "Error message" }),
+          headers: { "content-type": "application/json" },
+        })
+        .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]), {
+          status: 500,
+          body: JSON.stringify({ message: "Error message" }),
+          headers: { "content-type": "application/json" },
+        })
+        .mock(this.apiCall.uriFor("/", this.typesense.configuration.nodes[2]), {
+          status: 500,
+          body: JSON.stringify({ message: "Error message" }),
+          headers: { "content-type": "application/json" },
         });
 
       await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-        "Request failed with HTTP code 500 | Server said: Error message"
+        "Request failed with HTTP code 500 | Server said: Error message",
       );
-      let requestHistory = this.mockAxios.history[method];
-      expect(requestHistory.length).to.equal(5);
-      expect(requestHistory[0].url).to.equal("http://nearestNode:6108/");
-      expect(requestHistory[1].url).to.equal("http://node0:8108/");
-      expect(requestHistory[2].url).to.equal("http://node1:7108/");
-      expect(requestHistory[3].url).to.equal("http://node2:9108/");
-      expect(requestHistory[4].url).to.equal("http://node0:8108/");
+
+      expect(fetchMock.calls().length).to.equal(5);
+      expect(fetchMock.calls()[0][0]).to.equal("http://nearestnode:6108/");
+      expect(fetchMock.calls()[1][0]).to.equal("http://node0:8108/");
+      expect(fetchMock.calls()[2][0]).to.equal("http://node1:7108/");
+      expect(fetchMock.calls()[3][0]).to.equal("http://node2:9108/");
+      expect(fetchMock.calls()[4][0]).to.equal("http://node0:8108/");
     });
   });
 };
@@ -320,7 +323,7 @@ describe("ApiCall", function () {
         logLevel: "error",
         retryIntervalSeconds: 0.001, // To keep tests fast
       });
-      this.mockAxios = new MockAxiosAdapter(axios);
+      fetchMock.reset();
       this.apiCall = new ApiCall(this.typesense.configuration);
     });
 
@@ -329,15 +332,15 @@ describe("ApiCall", function () {
     });
 
     describe(".put", function () {
-      sharedNodeSelectionBehavior("post");
+      sharedNodeSelectionBehavior("put");
     });
 
     describe(".get", function () {
-      sharedNodeSelectionBehavior("post");
+      sharedNodeSelectionBehavior("get");
     });
 
     describe(".delete", function () {
-      sharedNodeSelectionBehavior("post");
+      sharedNodeSelectionBehavior("delete");
     });
   });
 
@@ -356,7 +359,7 @@ describe("ApiCall", function () {
       const apiCall = new ApiCall(client.configuration);
 
       expect(
-        apiCall.uriFor("/collections", client.configuration.nodes[0])
+        apiCall.uriFor("/collections", client.configuration.nodes[0]),
       ).to.equal("https://node0/path/collections");
 
       done();
@@ -378,20 +381,26 @@ describe("ApiCall", function () {
         },
       });
 
-      this.mockAxios = new MockAxiosAdapter(axios);
+      fetchMock.reset();
       const apiCall = new ApiCall(client.configuration);
 
-      this.mockAxios
-        .onGet("https://node0/path/collections", null, {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
-          "X-TYPESENSE-API-KEY": client.configuration.apiKey,
-          "x-header-name": "value",
-        })
-        .reply(200, JSON.stringify({}), { "content-type": "application/json" });
+      fetchMock.getOnce("https://node0/path/collections", {
+        status: 200,
+        body: JSON.stringify({}),
+        headers: { "content-type": "application/json" },
+      });
 
       // Will error out if request doesn't match the stub
-      return apiCall.get("/collections", {});
+      await apiCall.get("/collections", {});
+
+      const lastCall = fetchMock.lastCall();
+      expect(lastCall[0]).to.equal("https://node0/path/collections");
+      expect(lastCall[1].headers).to.deep.include({
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "X-TYPESENSE-API-KEY": client.configuration.apiKey,
+        "x-header-name": "value",
+      });
     });
   });
 });

@@ -1,4 +1,3 @@
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from "axios";
 import { Logger } from "loglevel";
 import {
   HTTPError,
@@ -13,6 +12,7 @@ import TypesenseError from "./Errors/TypesenseError";
 import Configuration, { NodeConfiguration } from "./Configuration";
 import { Agent as HTTPAgent } from "http";
 import { Agent as HTTPSAgent } from "https";
+import { fetchWithTimeout } from "../Shared/FetchWithTimeout";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 const HEALTHY = true;
@@ -32,12 +32,12 @@ export default class ApiCall {
   private readonly apiKey: string;
   private readonly nodes: Node[];
   private readonly nearestNode: Node;
-  private readonly connectionTimeoutSeconds: number;
   private readonly healthcheckIntervalSeconds: number;
   private readonly retryIntervalSeconds: number;
   private readonly sendApiKeyAsQueryParam?: boolean;
   private readonly numRetriesPerRequest: number;
   private readonly additionalUserHeaders?: Record<string, string>;
+  private readonly connectionTimeoutSeconds: number;
 
   private readonly logger: Logger;
   private currentNodeIndex: number;
@@ -53,6 +53,7 @@ export default class ApiCall {
         ? this.configuration.nearestNode
         : JSON.parse(JSON.stringify(this.configuration.nearestNode));
     this.connectionTimeoutSeconds = this.configuration.connectionTimeoutSeconds;
+
     this.healthcheckIntervalSeconds =
       this.configuration.healthcheckIntervalSeconds;
     this.numRetriesPerRequest = this.configuration.numRetries;
@@ -74,10 +75,10 @@ export default class ApiCall {
       responseType = undefined,
     }: {
       abortSignal?: any;
-      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      responseType?: ResponseType | undefined;
     } = {},
   ): Promise<T> {
-    return this.performRequest<T>("get", endpoint, {
+    return this.performRequest<T>("GET", endpoint, {
       queryParameters,
       abortSignal,
       responseType,
@@ -85,7 +86,7 @@ export default class ApiCall {
   }
 
   async delete<T>(endpoint: string, queryParameters: any = {}): Promise<T> {
-    return this.performRequest<T>("delete", endpoint, { queryParameters });
+    return this.performRequest<T>("DELETE", endpoint, { queryParameters });
   }
 
   async post<T>(
@@ -94,7 +95,7 @@ export default class ApiCall {
     queryParameters: any = {},
     additionalHeaders: any = {},
   ): Promise<T> {
-    return this.performRequest<T>("post", endpoint, {
+    return this.performRequest<T>("POST", endpoint, {
       queryParameters,
       bodyParameters,
       additionalHeaders,
@@ -106,7 +107,7 @@ export default class ApiCall {
     bodyParameters: any = {},
     queryParameters: any = {},
   ): Promise<T> {
-    return this.performRequest<T>("put", endpoint, {
+    return this.performRequest<T>("PUT", endpoint, {
       queryParameters,
       bodyParameters,
     });
@@ -117,29 +118,28 @@ export default class ApiCall {
     bodyParameters: any = {},
     queryParameters: any = {},
   ): Promise<T> {
-    return this.performRequest<T>("patch", endpoint, {
+    return this.performRequest<T>("PATCH", endpoint, {
       queryParameters,
       bodyParameters,
     });
   }
 
   async performRequest<T>(
-    requestType: Method,
+    requestType: string,
     endpoint: string,
     {
       queryParameters = null,
       bodyParameters = null,
       additionalHeaders = {},
       abortSignal = null,
-      responseType = undefined,
-      skipConnectionTimeout = false,
       enableKeepAlive = undefined,
+      skipConnectionTimeout = false,
     }: {
       queryParameters?: any;
       bodyParameters?: any;
       additionalHeaders?: any;
       abortSignal?: any;
-      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      responseType?: ResponseType | undefined;
       skipConnectionTimeout?: boolean;
       enableKeepAlive?: boolean | undefined;
     },
@@ -170,91 +170,32 @@ export default class ApiCall {
       let abortListener;
 
       try {
-        const requestOptions: AxiosRequestConfig = {
+        const url = this.uriFor(endpoint, node);
+        const headers = Object.assign(
+          {},
+          this.defaultHeaders(),
+          additionalHeaders,
+          this.additionalUserHeaders,
+        );
+
+        let fetchOptions: RequestInit = {
           method: requestType,
-          url: this.uriFor(endpoint, node),
-          headers: Object.assign(
-            {},
-            this.defaultHeaders(),
-            additionalHeaders,
-            this.additionalUserHeaders,
-          ),
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity,
-          responseType,
-          validateStatus: (status) => {
-            /* Override default validateStatus, which only considers 2xx a success.
-                In our case, if the server returns any HTTP code, we will handle it below.
-                We do this to be able to raise custom errors based on response code.
-             */
-            return status > 0;
-          },
-          transformResponse: [
-            (data, headers) => {
-              let transformedData = data;
-              if (
-                headers !== undefined &&
-                typeof data === "string" &&
-                headers["content-type"] &&
-                headers["content-type"].startsWith("application/json")
-              ) {
-                transformedData = JSON.parse(data);
-              }
-              return transformedData;
-            },
-          ],
+          headers,
+          signal: abortSignal,
         };
 
-        if (skipConnectionTimeout !== true) {
-          requestOptions.timeout = this.connectionTimeoutSeconds * 1000;
-        }
-
         if (queryParameters && Object.keys(queryParameters).length !== 0) {
-          requestOptions.params = queryParameters;
-        }
-
-        if (this.sendApiKeyAsQueryParam) {
-          requestOptions.params = requestOptions.params || {};
-          requestOptions.params["x-typesense-api-key"] = this.apiKey;
-        }
-
-        if (this.configuration.httpAgent) {
-          this.logger.debug(
-            `Request #${requestNumber}: Using custom httpAgent`,
-          );
-          requestOptions.httpAgent = this.configuration.httpAgent;
-        } else if (enableKeepAlive === true) {
-          if (!isNodeJSEnvironment) {
-            this.logger.warn(
-              `Request #${requestNumber}: Cannot use custom httpAgent in a browser environment to enable keepAlive`,
-            );
-          } else {
-            this.logger.debug(`Request #${requestNumber}: Enabling KeepAlive`);
-            requestOptions.httpAgent = new HTTPAgent({ keepAlive: true });
+          //const queryParams = new URLSearchParams(queryParameters).toString();
+          fetchOptions = {
+            ...fetchOptions,
+            method: requestType,
+          };
+          if (this.sendApiKeyAsQueryParam) {
+            fetchOptions.headers = {
+              ...headers,
+              "x-typesense-api-key": this.apiKey,
+            };
           }
-        }
-
-        if (this.configuration.httpsAgent) {
-          this.logger.debug(
-            `Request #${requestNumber}: Using custom httpsAgent`,
-          );
-          requestOptions.httpsAgent = this.configuration.httpsAgent;
-        } else if (enableKeepAlive === true) {
-          if (!isNodeJSEnvironment) {
-            this.logger.warn(
-              `Request #${requestNumber}: Cannot use custom httpAgent in a browser environment to enable keepAlive`,
-            );
-          } else {
-            this.logger.debug(`Request #${requestNumber}: Enabling keepAlive`);
-            requestOptions.httpsAgent = new HTTPSAgent({ keepAlive: true });
-          }
-        }
-
-        if (this.configuration.paramsSerializer) {
-          this.logger.debug(
-            `Request #${requestNumber}: Using custom paramsSerializer`,
-          );
-          requestOptions.paramsSerializer = this.configuration.paramsSerializer;
         }
 
         if (
@@ -264,55 +205,55 @@ export default class ApiCall {
             (typeof bodyParameters === "object" &&
               Object.keys(bodyParameters).length !== 0))
         ) {
-          requestOptions.data = bodyParameters;
+          fetchOptions.body = JSON.stringify(bodyParameters);
         }
 
-        // Translate from user-provided AbortController to the Axios request cancel mechanism.
-        if (abortSignal) {
-          const cancelToken = axios.CancelToken;
-          const source = cancelToken.source();
-          abortListener = () => source.cancel();
-          abortSignal.addEventListener("abort", abortListener);
-          requestOptions.cancelToken = source.token;
+        /**
+         * RequestInit type is being used in a Node.js environment. Since fetch doesn't natively support the agent option in the browser, this approach ensures it's only applied in environments where it's supported (like Node.js).
+         */
+        if (enableKeepAlive === true && isNodeJSEnvironment) {
+          (fetchOptions as any).agent =
+            node.protocol === "https:"
+              ? new HTTPSAgent({ keepAlive: true })
+              : new HTTPAgent({ keepAlive: true });
         }
 
-        const response = await axios(requestOptions);
-        if (response.status >= 1 && response.status <= 499) {
-          // Treat any status code > 0 and < 500 to be an indication that node is healthy
-          // We exclude 0 since some clients return 0 when request fails
-          this.setNodeHealthcheck(node, HEALTHY);
-        }
-        this.logger.debug(
-          `Request #${requestNumber}: Request to Node ${node.index} was made. Response Code was ${response.status}.`,
+        const response = await fetchWithTimeout(
+          url,
+          fetchOptions,
+          skipConnectionTimeout
+            ? this.connectionTimeoutSeconds * 1000
+            : undefined,
         );
 
-        if (response.status >= 200 && response.status < 300) {
-          // If response is 2xx return a resolved promise
-          return Promise.resolve(response.data);
+        if (response.ok) {
+          this.setNodeHealthcheck(node, HEALTHY);
+          const data = await response.json();
+          return data;
         } else if (response.status < 500) {
-          // Next, if response is anything but 5xx, don't retry, return a custom error
+          const errorData = await response.json();
+
           return Promise.reject(
-            this.customErrorForResponse(response, response.data?.message),
+            this.customErrorForResponse(response, errorData.message),
           );
         } else {
-          // Retry all other HTTP errors (HTTPStatus > 500)
-          // This will get caught by the catch block below
-          throw this.customErrorForResponse(response, response.data?.message);
+          const responseText = await response.text();
+          try {
+            const errorResponse = JSON.parse(responseText);
+            throw this.customErrorForResponse(
+              response,
+              await errorResponse.message,
+            );
+          } catch (ex) {
+            throw this.customErrorForResponse(response, "Error message");
+          }
         }
       } catch (error: any) {
-        // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
         this.setNodeHealthcheck(node, UNHEALTHY);
         lastException = error;
         this.logger.warn(
-          `Request #${requestNumber}: Request to Node ${
-            node.index
-          } failed due to "${error.code} ${error.message}${
-            error.response == null
-              ? ""
-              : " - " + JSON.stringify(error.response?.data)
-          }"`,
+          `Request #${requestNumber}: Request to Node ${node.index} failed due to "${error.message}"`,
         );
-        // this.logger.debug(error.stack)
         this.logger.warn(
           `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`,
         );
@@ -329,11 +270,7 @@ export default class ApiCall {
     return Promise.reject(lastException);
   }
 
-  // Attempts to find the next healthy node, looping through the list of nodes once.
-  //   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
-  //     so we can try the request for good measure, in case that node has become healthy since
   getNextNode(requestNumber = 0): Node {
-    // Check if nearestNode is set and is healthy, if so return it
     if (this.nearestNode != null) {
       this.logger.debug(
         `Request #${requestNumber}: Nodes Health: Node ${
@@ -354,7 +291,6 @@ export default class ApiCall {
       );
     }
 
-    // Fallback to nodes as usual
     this.logger.debug(
       `Request #${requestNumber}: Nodes Health: ${this.nodes
         .map(
@@ -380,8 +316,6 @@ export default class ApiCall {
       }
     }
 
-    // None of the nodes are marked healthy, but some of them could have become healthy since last health check.
-    //  So we will just return the next node.
     this.logger.debug(
       `Request #${requestNumber}: No healthy nodes were found. Returning the next node, Node ${candidateNode.index}`,
     );
@@ -430,18 +364,20 @@ export default class ApiCall {
       defaultHeaders[APIKEYHEADERNAME] = this.apiKey;
     }
     defaultHeaders["Content-Type"] = "application/json";
+    defaultHeaders["Accept"] = "application/json, text/plain, */*";
     return defaultHeaders;
   }
 
-  async timer(seconds): Promise<void> {
+  async timer(seconds: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
   }
 
   customErrorForResponse(
-    response: AxiosResponse,
-    messageFromServer: string,
+    response: Response,
+    messageFromServer: string, // Already parsed message should be passed here
   ): TypesenseError {
     let errorMessage = `Request failed with HTTP code ${response.status}`;
+
     if (
       typeof messageFromServer === "string" &&
       messageFromServer.trim() !== ""
