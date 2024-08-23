@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,7 @@ describe("AnalyticsRule", function () {
   let typesense;
   let analyticsRule;
   let apiCall;
-  let mockAxios;
+
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,27 +26,24 @@ describe("AnalyticsRule", function () {
     });
     analyticsRule = typesense.analytics.rules("123");
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+
+    // Reset fetchMock before each test to ensure a clean state
+    fetchMock.reset();
   });
 
   describe(".retrieve", function () {
     it("retrieves the rule", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor(
-            "/analytics/rules/123",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, "{}", { "content-type": "application/json" });
-
-      // console.log(mockAxios.handlers)
+      fetchMock.get(
+        apiCall.uriFor(
+          "/analytics/rules/123",
+          typesense.configuration.nodes[0],
+        ),
+        {
+          status: 200,
+          body: JSON.stringify({}),
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = analyticsRule.retrieve();
 
@@ -56,21 +52,18 @@ describe("AnalyticsRule", function () {
   });
 
   describe(".delete", function () {
-    it("deletes a key", function (done) {
-      mockAxios
-        .onDelete(
-          apiCall.uriFor(
-            "/analytics/rules/123",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, {});
+    it("deletes a rule", function (done) {
+      fetchMock.delete(
+        apiCall.uriFor(
+          "/analytics/rules/123",
+          typesense.configuration.nodes[0],
+        ),
+        {
+          status: 200,
+          body: JSON.stringify({}),
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = analyticsRule.delete();
 
