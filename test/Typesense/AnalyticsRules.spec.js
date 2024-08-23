@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,7 @@ describe("AnalyticsRules", function () {
   let typesense;
   let analyticsRules;
   let apiCall;
-  let mockAxios;
+
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,33 +26,24 @@ describe("AnalyticsRules", function () {
     });
     analyticsRules = typesense.analytics.rules();
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+
+    // Reset fetchMock before each test to ensure a clean state
+    fetchMock.reset();
   });
 
   describe(".upsert", function () {
     it("upserts an analytics rule", function (done) {
-      mockAxios
-        .onPut(
-          apiCall.uriFor(
-            "/analytics/rules/search_suggestions",
-            typesense.configuration.nodes[0],
-          ),
-          {
-            type: "popular_queries",
-            params: {
-              source: { collections: ["products"] },
-              destination: { collection: "products_top_queries" },
-              expand_query: true,
-              limit: 100,
-            },
-          },
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
-        )
-        .reply(201, "{}", { "content-type": "application/json" });
+      fetchMock.put(
+        apiCall.uriFor(
+          "/analytics/rules/search_suggestions",
+          typesense.configuration.nodes[0],
+        ),
+        {
+          status: 201,
+          body: JSON.stringify({}),
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = analyticsRules.upsert("search_suggestions", {
         type: "popular_queries",
@@ -71,17 +61,14 @@ describe("AnalyticsRules", function () {
 
   describe(".retrieve", function () {
     it("retrieves all analytics rules", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor("/analytics/rules", typesense.configuration.nodes[0]),
-          undefined,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
-        )
-        .reply(200, "[]", { "content-type": "application/json" });
+      fetchMock.get(
+        apiCall.uriFor("/analytics/rules", typesense.configuration.nodes[0]),
+        {
+          status: 200,
+          body: JSON.stringify([]),
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = analyticsRules.retrieve();
 
