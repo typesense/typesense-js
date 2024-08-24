@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,6 @@ describe("Presets", function () {
   let typesense;
   let presets;
   let apiCall;
-  let mockAxios;
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,26 +25,35 @@ describe("Presets", function () {
     });
     presets = typesense.presets();
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+    fetchMock.reset();
+  });
+
+  afterEach(function () {
+    fetchMock.restore();
   });
 
   describe(".upsert", function () {
     it("upserts a preset", function (done) {
-      mockAxios
-        .onPut(
-          apiCall.uriFor("/presets/preset-1", typesense.configuration.nodes[0]),
-          {
+      fetchMock.putOnce(
+        apiCall.uriFor("/presets/preset-1", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify({}),
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          body: {
             value: {
               query_by: "field1",
             },
           },
-          {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(201, "{}", { "content-type": "application/json" });
+          },
+        }
+      );
 
       let returnData = presets.upsert("preset-1", {
         value: {
@@ -60,17 +67,21 @@ describe("Presets", function () {
 
   describe(".retrieve", function () {
     it("retrieves all presets", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor("/presets", typesense.configuration.nodes[0]),
-          undefined,
-          {
+      fetchMock.getOnce(
+        apiCall.uriFor("/presets", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify([]),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, "[]", { "content-type": "application/json" });
+          },
+        }
+      );
 
       let returnData = presets.retrieve();
 

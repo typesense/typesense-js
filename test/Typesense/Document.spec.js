@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -18,7 +17,6 @@ describe("Document", function () {
     country: "USA",
   };
   let apiCall;
-  let mockAxios;
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -33,27 +31,29 @@ describe("Document", function () {
     });
     document = typesense.collections("companies").documents("124");
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+    fetchMock.reset();
   });
 
   describe(".retrieve", function () {
     it("retrieves a document", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor(
-            "/collections/companies/documents/124",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
+      fetchMock.get(
+        apiCall.uriFor(
+          "/collections/companies/documents/124",
+          typesense.configuration.nodes[0]
+        ),
+        {
+          body: JSON.stringify(documentResult),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, JSON.stringify(documentResult), {
-          "content-type": "application/json",
-        });
+          },
+        }
+      );
 
       let returnData = document.retrieve();
 
@@ -67,54 +67,48 @@ describe("Document", function () {
         id: 124,
         company_name: "Stark Industries Inc",
       };
-      mockAxios
-        .onPatch(
-          apiCall.uriFor(
-            "/collections/companies/documents/124",
-            typesense.configuration.nodes[0]
-          ),
-          partialDocument,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply((config) => {
-          expect(config.params.dirty_values).to.equal("coerce_or_reject");
-          return [
-            200,
-            JSON.stringify(partialDocument),
-            { "content-type": "application/json" },
-          ];
-        });
-
+      
+      // Correcting the fetchMock setup
+      fetchMock.patch(
+        apiCall.uriFor(
+          "/collections/companies/documents/124",
+          typesense.configuration.nodes[0]
+        ) + "?dirty_values=coerce_or_reject", // Append query params directly to the URL string
+        {
+          body: JSON.stringify(partialDocument),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+  
       let returnData = document.update(partialDocument, {
         dirty_values: "coerce_or_reject",
       });
-
+  
       expect(returnData).to.eventually.deep.equal(partialDocument).notify(done);
     });
   });
-
+  
   describe(".delete", function () {
     it("deletes a document", function (done) {
-      mockAxios
-        .onDelete(
-          apiCall.uriFor(
-            "/collections/companies/documents/124",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
+      fetchMock.delete(
+        apiCall.uriFor(
+          "/collections/companies/documents/124",
+          typesense.configuration.nodes[0]
+        ),
+        {
+          body: JSON.stringify(documentResult),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, JSON.stringify(documentResult), {
-          "content-type": "application/json",
-        });
+          },
+        }
+      );
 
       let returnData = document.delete();
 
@@ -123,27 +117,25 @@ describe("Document", function () {
   });
   it("passes query params to delete", function (done) {
     const queryParams = { ignore_not_found: true };
-    mockAxios
-      .onDelete(
-        apiCall.uriFor(
-          "/collections/companies/documents/124",
-          typesense.configuration.nodes[0],
-        ),
-        null,
-        {
+    fetchMock.delete(
+      apiCall.uriFor(
+        "/collections/companies/documents/124",
+        typesense.configuration.nodes[0]
+      ),
+      {
+        body: JSON.stringify(documentResult),
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+      {
+        query: queryParams,
+        headers: {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json",
           "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
         },
-      )
-      .reply((config) => {
-        expect(config.params).to.deep.equal(queryParams);
-        return [
-          200,
-          JSON.stringify(documentResult),
-          { "content-type": "application/json" },
-        ];
-      });
+      }
+    );
 
     let returnData = document.delete(queryParams);
 
