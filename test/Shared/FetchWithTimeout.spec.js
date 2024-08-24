@@ -1,7 +1,7 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fetchMock from "fetch-mock";
-import { fetchWithTimeout } from "../../src/Shared/FetchWithTimeout"; // Adjust the import path as necessary
+import { fetchWithTimeout } from "../../src/Shared/FetchWithTimeout";
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);
