@@ -2,19 +2,16 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 import timekeeper from "timekeeper";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
 describe("MultiSearch", function () {
-  let mockAxios;
   let typesense;
   let apiCall;
   beforeEach(function () {
-    mockAxios = new MockAxiosAdapter(axios);
     typesense = new TypesenseClient({
       nodes: [
         {
@@ -28,6 +25,11 @@ describe("MultiSearch", function () {
       cacheSearchResultsForSeconds: 2 * 60,
     });
     apiCall = new ApiCall(typesense.configuration);
+    fetchMock.reset();
+  });
+
+  afterEach(function () {
+    fetchMock.restore();
   });
 
   describe(".perform", function () {
@@ -40,20 +42,23 @@ describe("MultiSearch", function () {
         query_by: "field",
       };
 
-      mockAxios
-        .onPost(
-          apiCall.uriFor("/multi_search", typesense.configuration.nodes[0]),
-          searches,
-          {
+      fetchMock.postOnce(
+        `${apiCall.uriFor("/multi_search", typesense.configuration.nodes[0])}?collection=docs&query_by=field`,
+        {
+          body: JSON.stringify({}),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          body: searches,
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply((config) => {
-          expect(config.params).to.deep.equal(commonParams);
-          return [200, "{}", { "content-type": "application/json" }];
-        });
+          },
+          overwriteRoutes: true
+        }
+      );
 
       let returnData = typesense.multiSearch.perform(searches, commonParams);
 
@@ -81,25 +86,24 @@ describe("MultiSearch", function () {
       ];
       let stubbedSearchResults = [{ results1: [] }, { results2: [] }];
 
-      searchRequests.forEach((_, i) => {
-        mockAxios
-          .onPost(
-            apiCall.uriFor("/multi_search", typesense.configuration.nodes[0]),
-            searchRequests[i],
-            {
+      searchRequests.forEach((request, i) => {
+        fetchMock.post(
+          `${apiCall.uriFor(`/multi_search?collection=${commonParams[i].collection}&query_by=${commonParams[i].query_by}`, typesense.configuration.nodes[0])}`,
+          {
+            body: JSON.stringify(stubbedSearchResults[i]),
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+          {
+            body: request,
+            headers: {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "application/json",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
-          )
-          .reply((config) => {
-            expect(config.params).to.deep.equal(commonParams[i]);
-            return [
-              200,
-              JSON.stringify(stubbedSearchResults[i]),
-              { "content-type": "application/json" },
-            ];
-          });
+            },
+            overwriteRoutes: true
+          }
+        );
       });
 
       let currentTime = Date.now();
@@ -112,7 +116,7 @@ describe("MultiSearch", function () {
       ];
 
       // Only two requests should be made, since one of them was cached
-      expect(mockAxios.history["post"].length).to.equal(2);
+      expect(fetchMock.calls().length).to.equal(2);
 
       expect(returnData[0]).to.deep.equal(stubbedSearchResults[0]);
       expect(returnData[1]).to.deep.equal(stubbedSearchResults[0]); // Same response should be returned
@@ -126,7 +130,7 @@ describe("MultiSearch", function () {
       expect(returnData[3]).to.deep.equal(stubbedSearchResults[1]);
 
       // No new requests should have been made
-      expect(mockAxios.history["post"].length).to.equal(2);
+      expect(fetchMock.calls().length).to.equal(2);
 
       // Now wait 2 minutes and then retry the request, it should now make an actual request, since cache is stale
       timekeeper.freeze(currentTime + 121 * 1000);
@@ -136,7 +140,7 @@ describe("MultiSearch", function () {
       expect(returnData[4]).to.deep.equal(stubbedSearchResults[1]);
 
       // One new request should have been made
-      expect(mockAxios.history["post"].length).to.equal(3);
+      expect(fetchMock.calls().length).to.equal(3);
       timekeeper.reset();
     });
   });

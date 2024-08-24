@@ -2,18 +2,15 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
 
 describe("Health", function () {
-  let mockAxios;
   let typesense;
   let apiCall;
   beforeEach(function () {
-    mockAxios = new MockAxiosAdapter(axios);
     typesense = new TypesenseClient({
       nodes: [
         {
@@ -26,23 +23,26 @@ describe("Health", function () {
       randomizeNodes: false,
     });
     apiCall = new ApiCall(typesense.configuration);
+    fetchMock.reset();
   });
 
   describe(".retrieve", function () {
     it("retrieves health information", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor("/health", typesense.configuration.nodes[0]),
-          undefined,
-          {
+      fetchMock.get(
+        apiCall.uriFor("/health", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify({ ok: true }),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, JSON.stringify({ ok: true }), {
-          "content-type": "application/json",
-        });
+          },
+        }
+      );
 
       let returnData = typesense.health.retrieve();
 

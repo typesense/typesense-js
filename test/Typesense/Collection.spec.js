@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,6 @@ describe("Collection", function () {
   let typesense;
   let collection;
   let apiCall;
-  let mockAxios;
   let companySchema = {
     name: "companies",
     num_documents: 0,
@@ -41,6 +39,7 @@ describe("Collection", function () {
     ],
     default_sorting_field: "num_employees",
   };
+
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -55,27 +54,24 @@ describe("Collection", function () {
     });
     collection = typesense.collections("companies");
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+
+    // Reset fetchMock before each test to ensure a clean state
+    fetchMock.reset();
   });
 
   describe(".retrieve", function () {
     it("retrieves a collection", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor(
-            "/collections/companies",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, JSON.stringify(companySchema), {
-          "content-type": "application/json",
-        });
+      fetchMock.get(
+        apiCall.uriFor(
+          "/collections/companies",
+          typesense.configuration.nodes[0],
+        ),
+        {
+          status: 200,
+          body: JSON.stringify(companySchema),
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = collection.retrieve();
 
@@ -88,22 +84,18 @@ describe("Collection", function () {
       const updateSchema = {
         fields: [{ name: "fieldX", drop: true }],
       };
-      mockAxios
-        .onPatch(
-          apiCall.uriFor(
-            "/collections/companies",
-            typesense.configuration.nodes[0]
-          ),
-          updateSchema,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, JSON.stringify(updateSchema), {
-          "content-type": "application/json",
-        });
+
+      fetchMock.patch(
+        apiCall.uriFor(
+          "/collections/companies",
+          typesense.configuration.nodes[0],
+        ),
+        {
+          status: 200,
+          body: JSON.stringify(updateSchema),
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = collection.update(updateSchema);
 
@@ -113,22 +105,17 @@ describe("Collection", function () {
 
   describe(".delete", function () {
     it("deletes a collection", function (done) {
-      mockAxios
-        .onDelete(
-          apiCall.uriFor(
-            "/collections/companies",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, JSON.stringify(companySchema), {
-          "content-type": "application/json",
-        });
+      fetchMock.delete(
+        apiCall.uriFor(
+          "/collections/companies",
+          typesense.configuration.nodes[0],
+        ),
+        {
+          status: 200,
+          body: JSON.stringify(companySchema),
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = collection.delete();
 

@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,6 @@ describe("ConversationModels", function () {
   let typesense;
   let conversationModels;
   let apiCall;
-  let mockAxios;
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,27 +25,30 @@ describe("ConversationModels", function () {
     });
     conversationModels = typesense.conversations().models();
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+    fetchMock.reset();
   });
 
   describe(".create", function () {
     it("creates a conversation model", function (done) {
-      mockAxios
-        .onPost(
-          apiCall.uriFor(
-            "/conversations/models",
-            typesense.configuration.nodes[0],
-          ),
-          {
-            model_name: "test",
-          },
-          {
+      fetchMock.post(
+        apiCall.uriFor(
+          "/conversations/models",
+          typesense.configuration.nodes[0]
+        ),
+        {
+          body: JSON.stringify({}),
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          body: { model_name: "test" },
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
           },
-        )
-        .reply(201, "{}", { "content-type": "application/json" });
+        }
+      );
 
       let returnData = conversationModels.create({ model_name: "test" });
 
@@ -57,20 +58,24 @@ describe("ConversationModels", function () {
 
   describe(".retrieve", function () {
     it("retrieves all conversations models", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor(
-            "/conversations/models",
-            typesense.configuration.nodes[0],
-          ),
-          undefined,
-          {
+      fetchMock.get(
+        apiCall.uriFor(
+          "/conversations/models",
+          typesense.configuration.nodes[0]
+        ),
+        {
+          body: JSON.stringify([]),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
           },
-        )
-        .reply(200, "[]", { "content-type": "application/json" });
+        }
+      );
 
       let returnData = conversationModels.retrieve();
 

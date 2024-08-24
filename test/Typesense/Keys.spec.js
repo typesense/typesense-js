@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,6 @@ describe("Keys", function () {
   let typesense;
   let keys;
   let apiCall;
-  let mockAxios;
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,26 +25,35 @@ describe("Keys", function () {
     });
     keys = typesense.keys();
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+    fetchMock.reset();
+  });
+
+  afterEach(function () {
+    fetchMock.restore();
   });
 
   describe(".create", function () {
     it("creates a key", function (done) {
-      mockAxios
-        .onPost(
-          apiCall.uriFor("/keys", typesense.configuration.nodes[0]),
-          {
+      fetchMock.postOnce(
+        apiCall.uriFor("/keys", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify({}),
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          body: {
             description: "Search-only key.",
             actions: ["documents:search"],
             collections: ["*"],
           },
-          {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(201, "{}", { "content-type": "application/json" });
+          },
+        }
+      );
 
       let returnData = keys.create({
         description: "Search-only key.",
@@ -60,17 +67,21 @@ describe("Keys", function () {
 
   describe(".retrieve", function () {
     it("retrieves all keys", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor("/keys", typesense.configuration.nodes[0]),
-          undefined,
-          {
+      fetchMock.getOnce(
+        apiCall.uriFor("/keys", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify([]),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, "[]", { "content-type": "application/json" });
+          },
+        }
+      );
 
       let returnData = keys.retrieve();
 

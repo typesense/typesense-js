@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,6 @@ describe("Stopword", function () {
   let typesense;
   let stopword;
   let apiCall;
-  let mockAxios;
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,24 +25,30 @@ describe("Stopword", function () {
     });
     stopword = typesense.stopwords("123");
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+    fetchMock.reset();
+  });
+
+  afterEach(function () {
+    fetchMock.restore();
   });
 
   describe(".retrieve", function () {
     it("retrieves the stopword", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor("/stopwords/123", typesense.configuration.nodes[0]),
-          null,
-          {
+      fetchMock.getOnce(
+        apiCall.uriFor("/stopwords/123", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify({}),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
           },
-        )
-        .reply(200, "{}", { "content-type": "application/json" });
-
-      // console.log(mockAxios.handlers)
+        }
+      );
 
       let returnData = stopword.retrieve();
 
@@ -54,17 +58,21 @@ describe("Stopword", function () {
 
   describe(".delete", function () {
     it("deletes a stopword", function (done) {
-      mockAxios
-        .onDelete(
-          apiCall.uriFor("/stopwords/123", typesense.configuration.nodes[0]),
-          null,
-          {
+      fetchMock.deleteOnce(
+        apiCall.uriFor("/stopwords/123", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify({}),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
           },
-        )
-        .reply(200, {});
+        }
+      );
 
       let returnData = stopword.delete();
 

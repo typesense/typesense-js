@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,6 @@ describe("Collections", function () {
   let typesense;
   let collections;
   let apiCall;
-  let mockAxios;
   let companySchema = {
     name: "companies",
     num_documents: 0,
@@ -55,26 +53,29 @@ describe("Collections", function () {
     });
     collections = typesense.collections();
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+    fetchMock.reset();
   });
 
   describe(".create", function () {
     it("creates a collection", function (done) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       let { num_documents: numDocuments, ...schemaForCreation } = companySchema;
-      mockAxios
-        .onPost(
-          apiCall.uriFor("/collections", typesense.configuration.nodes[0]),
-          schemaForCreation,
-          {
+      fetchMock.post(
+        apiCall.uriFor("/collections", typesense.configuration.nodes[0]),
+        {
+          body: JSON.stringify(companySchema),
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          body: schemaForCreation,
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
           },
-        )
-        .reply(201, JSON.stringify(companySchema), {
-          "content-type": "application/json",
-        });
+        },
+      );
 
       let returnData = collections.create(schemaForCreation);
 
@@ -86,24 +87,29 @@ describe("Collections", function () {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         let { num_documents: numDocuments, ...schemaForCreation } =
           companySchema;
-        mockAxios
-          .onPost(
-            apiCall.uriFor("/collections", typesense.configuration.nodes[0]),
-            schemaForCreation,
-            {
+        fetchMock.post(
+          apiCall.uriFor(
+            "/collections?src_name=collection_x",
+            typesense.configuration.nodes[0],
+          ),
+
+          (url) => {
+            expect(url).to.include("src_name=collection_x");
+            return {
+              body: JSON.stringify(companySchema),
+              status: 201,
+              headers: { "Content-Type": "application/json" },
+            };
+          },
+          {
+            body: schemaForCreation,
+            headers: {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "application/json",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
             },
-          )
-          .reply((config) => {
-            expect(config.params.src_name).to.equal("collection_x");
-            return [
-              201,
-              JSON.stringify(companySchema),
-              { "content-type": "application/json" },
-            ];
-          });
+          },
+        );
 
         let returnData = collections.create(schemaForCreation, {
           src_name: "collection_x",
@@ -116,24 +122,21 @@ describe("Collections", function () {
 
   describe(".retrieve", function () {
     it("retrieves all collections", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor("/collections", typesense.configuration.nodes[0]),
-          undefined,
-          {
+      fetchMock.get(
+        "http://node0:8108/collections?exclude_fields=fields",
+        {
+          body: JSON.stringify([companySchema]),
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+        {
+          headers: {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
           },
-        )
-        .reply((config) => {
-          expect(config.params.exclude_fields).to.equal("fields");
-          return [
-            200,
-            JSON.stringify([companySchema]),
-            { "content-type": "application/json" },
-          ];
-        });
+        },
+      );
 
       let returnData = collections.retrieve({ exclude_fields: "fields" });
 

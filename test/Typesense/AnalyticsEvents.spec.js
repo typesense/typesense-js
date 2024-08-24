@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,7 @@ describe("AnalyticsEvents", function () {
   let typesense;
   let analyticsEvents;
   let apiCall;
-  let mockAxios;
+
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,29 +26,27 @@ describe("AnalyticsEvents", function () {
     });
     analyticsEvents = typesense.analytics.events();
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+
+    // Set up fetch-mock before each test
+    fetchMock.restore(); // Reset any previous mocks
+  });
+
+  afterEach(function () {
+    // Ensure fetch-mock is reset after each test
+    fetchMock.restore();
   });
 
   describe(".create", function () {
     it("creates an analytics rule", function (done) {
-      mockAxios
-        .onPost(
-          apiCall.uriFor("/analytics/events", typesense.configuration.nodes[0]),
-          {
-            type: "conversion",
-            name: "products_purchase_event",
-            data: {
-              doc_id: "1022",
-              user_id: "111117",
-            },
-          },
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
-        )
-        .reply(201, "{}", { "content-type": "application/json" });
+      // Mock the POST request using fetch-mock
+      fetchMock.post(
+        apiCall.uriFor("/analytics/events", typesense.configuration.nodes[0]),
+        {
+          status: 201,
+          body: {},
+          headers: { "content-type": "application/json" },
+        },
+      );
 
       let returnData = analyticsEvents.create({
         type: "conversion",

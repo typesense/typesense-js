@@ -2,8 +2,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import fetchMock from "fetch-mock";
 
 let expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -12,7 +11,7 @@ describe("Alias", function () {
   let typesense;
   let alias;
   let apiCall;
-  let mockAxios;
+
   beforeEach(function () {
     typesense = new TypesenseClient({
       nodes: [
@@ -27,29 +26,18 @@ describe("Alias", function () {
     });
     alias = typesense.aliases("companies");
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
   });
 
   describe(".retrieve", function () {
     it("retrieves the alias", function (done) {
-      mockAxios
-        .onGet(
-          apiCall.uriFor(
-            "/aliases/companies",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, "{}", {
-          "content-type": "application/json; charset=utf-8",
-        });
-
-      // console.log(mockAxios.handlers)
+      fetchMock.get(
+        apiCall.uriFor("/aliases/companies", typesense.configuration.nodes[0]),
+        {
+          status: 200,
+          body: JSON.stringify({}),
+          headers: { "content-type": "application/json; charset=utf-8" },
+        },
+      );
 
       let returnData = alias.retrieve();
 
@@ -59,22 +47,14 @@ describe("Alias", function () {
 
   describe(".delete", function () {
     it("deletes an alias", function (done) {
-      mockAxios
-        .onDelete(
-          apiCall.uriFor(
-            "/aliases/companies",
-            typesense.configuration.nodes[0]
-          ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
-        )
-        .reply(200, "{}", {
-          "content-type": "application/json; charset=utf-8",
-        });
+      fetchMock.delete(
+        apiCall.uriFor("/aliases/companies", typesense.configuration.nodes[0]),
+        {
+          status: 200,
+          body: JSON.stringify({}),
+          headers: { "content-type": "application/json; charset=utf-8" },
+        },
+      );
 
       let returnData = alias.delete();
 
