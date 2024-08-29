@@ -71,7 +71,7 @@ var Alias = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Aliases__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.name);
+      return "".concat(_Aliases__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.name));
     }
   }]);
   return Alias;
@@ -147,7 +147,7 @@ var Aliases = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(aliasName) {
-      return "".concat(Aliases.RESOURCEPATH, "/").concat(aliasName);
+      return "".concat(Aliases.RESOURCEPATH, "/").concat(encodeURIComponent(aliasName));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -272,7 +272,7 @@ var AnalyticsEvents = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(AnalyticsEvents.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(AnalyticsEvents.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -355,7 +355,7 @@ var AnalyticsRule = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_AnalyticsRules__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.name);
+      return "".concat(_AnalyticsRules__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.name));
     }
   }]);
   return AnalyticsRule;
@@ -432,7 +432,7 @@ var AnalyticsRules = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(AnalyticsRules.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(AnalyticsRules.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -1315,7 +1315,7 @@ var Collection = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(this.name);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.name));
     }
   }]);
   return Collection;
@@ -1641,7 +1641,7 @@ var Conversation = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Conversations__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.id);
+      return "".concat(_Conversations__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.id));
     }
   }]);
   return Conversation;
@@ -1738,7 +1738,7 @@ var ConversationModel = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_ConversationModels__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.id);
+      return "".concat(_ConversationModels__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.id));
     }
   }]);
   return ConversationModel;
@@ -1815,7 +1815,7 @@ var ConversationModels = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(ConversationModels.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(ConversationModels.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -2053,7 +2053,7 @@ var Document = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(_Documents__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(this.documentId);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(_Documents__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.documentId));
     }
   }]);
   return Document;
@@ -2995,7 +2995,7 @@ var Key = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Keys__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.id);
+      return "".concat(_Keys__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.id));
     }
   }]);
   return Key;
@@ -3358,7 +3358,7 @@ var Override = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(_Overrides__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(this.overrideId);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(_Overrides__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.overrideId));
     }
   }]);
   return Override;
@@ -3437,7 +3437,7 @@ var Overrides = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Overrides.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Overrides.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -3520,7 +3520,7 @@ var Preset = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Presets__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.presetId);
+      return "".concat(_Presets__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.presetId));
     }
   }]);
   return Preset;
@@ -3596,7 +3596,7 @@ var Presets = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(Presets.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(Presets.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -4069,7 +4069,7 @@ var Stopword = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Stopwords__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.stopwordId);
+      return "".concat(_Stopwords__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.stopwordId));
     }
   }]);
   return Stopword;
@@ -4145,7 +4145,7 @@ var Stopwords = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(Stopwords.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(Stopwords.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -4231,7 +4231,7 @@ var Synonym = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(_Synonyms__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(this.synonymId);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(_Synonyms__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.synonymId));
     }
   }]);
   return Synonym;
@@ -4310,7 +4310,7 @@ var Synonyms = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
