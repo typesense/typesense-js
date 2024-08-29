@@ -25,6 +25,7 @@ export type DocumentSchema = Record<string, any>;
 export interface SearchParamsWithPreset extends Partial<SearchParams> {
     preset: string;
 }
+type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 type OperationMode = "off" | "always" | "fallback";
 export interface SearchParams {
     q?: string;
@@ -61,6 +62,7 @@ export interface SearchParams {
     split_join_tokens?: OperationMode;
     exhaustive_search?: boolean;
     drop_tokens_threshold?: number;
+    drop_tokens_mode?: DropTokensMode;
     typo_tokens_threshold?: number;
     pinned_hits?: string | string[];
     hidden_hits?: string | string[];
