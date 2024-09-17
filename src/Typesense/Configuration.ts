@@ -144,9 +144,9 @@ export default class Configuration {
       options.connectionTimeoutSeconds || options.timeoutSeconds || 5;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60;
     this.numRetries =
-      options.numRetries ||
-      this.nodes.length + (this.nearestNode == null ? 0 : 1) ||
-      3;
+      (options.numRetries !== undefined && options.numRetries >= 0
+        ? options.numRetries
+        : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
 
     this.apiKey = options.apiKey;
