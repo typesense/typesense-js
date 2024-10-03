@@ -784,7 +784,9 @@ var ApiCall = /*#__PURE__*/function () {
                       lastException = _context6.t0;
                       _this.logger.warn("Request #".concat(requestNumber, ": Request to Node ").concat(node.index, " failed due to \"").concat(_context6.t0.code, " ").concat(_context6.t0.message).concat(_context6.t0.response == null ? "" : " - " + JSON.stringify((_error$response = _context6.t0.response) === null || _error$response === void 0 ? void 0 : _error$response.data), "\""));
                       // this.logger.debug(error.stack)
-                      _this.logger.warn("Request #".concat(requestNumber, ": Sleeping for ").concat(_this.retryIntervalSeconds, "s and then retrying request..."));
+                      if (numTries < _this.numRetriesPerRequest + 1) {
+                        _this.logger.warn("Request #".concat(requestNumber, ": Sleeping for ").concat(_this.retryIntervalSeconds, "s and then retrying request..."));
+                      }
                       _context6.next = 38;
                       return _this.timer(_this.retryIntervalSeconds);
                     case 38:
@@ -1454,7 +1456,7 @@ var Configuration = /*#__PURE__*/function () {
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode);
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 5;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60;
-    this.numRetries = options.numRetries || this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3;
+    this.numRetries = (options.numRetries !== undefined && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
     this.apiKey = options.apiKey;
     this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam; // We will set a default for this in Client and SearchClient

@@ -6,6 +6,7 @@ export interface KeyCreateSchema {
     value?: string;
     value_prefix?: string;
     expires_at?: number;
+    autodelete?: boolean;
 }
 export interface KeyDeleteSchema {
     id: number;
