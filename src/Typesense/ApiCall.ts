@@ -313,9 +313,11 @@ export default class ApiCall {
           }"`,
         );
         // this.logger.debug(error.stack)
-        this.logger.warn(
-          `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`,
-        );
+        if (numTries < this.numRetriesPerRequest + 1) {
+          this.logger.warn(
+            `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`,
+          );
+        }
         await this.timer(this.retryIntervalSeconds);
       } finally {
         if (abortSignal && abortListener) {
