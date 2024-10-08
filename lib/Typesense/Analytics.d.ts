@@ -8,7 +8,8 @@ export default class Analytics {
     private readonly individualAnalyticsRules;
     private readonly _analyticsEvents;
     constructor(apiCall: ApiCall);
-    rules(id?: string): AnalyticsRules | AnalyticsRule;
+    rules(): AnalyticsRules;
+    rules(id: string): AnalyticsRule;
     events(): AnalyticsEvents;
     static get RESOURCEPATH(): string;
 }
