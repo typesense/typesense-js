@@ -16,6 +16,8 @@ export default class Analytics {
     this._analyticsEvents = new AnalyticsEvents(this.apiCall);
   }
 
+  rules(): AnalyticsRules;
+  rules(id: string): AnalyticsRule;
   rules(id?: string): AnalyticsRules | AnalyticsRule {
     if (id === undefined) {
       return this._analyticsRules;
