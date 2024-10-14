@@ -68,6 +68,7 @@ export interface SearchParams {
     hidden_hits?: string | string[];
     limit_hits?: number;
     pre_segmented_query?: boolean;
+    enable_analytics?: boolean;
     enable_overrides?: boolean;
     override_tags?: string | string[];
     prioritize_exact_match?: boolean;
