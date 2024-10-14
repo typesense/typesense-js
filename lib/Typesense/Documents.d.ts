@@ -33,6 +33,9 @@ export interface SearchParams {
     query_by_weights?: string | number[];
     prefix?: string | boolean | boolean[];
     filter_by?: string;
+    enable_synonyms?: boolean;
+    enable_analytics?: boolean;
+    filter_curated_hits?: boolean;
     enable_lazy_filter?: boolean;
     sort_by?: string | string[];
     facet_by?: string | string[];
