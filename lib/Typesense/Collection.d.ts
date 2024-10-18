@@ -33,6 +33,9 @@ export interface CollectionDropFieldSchema {
 export interface CollectionUpdateSchema extends Partial<Omit<CollectionCreateSchema, "name" | "fields">> {
     fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
 }
+export interface CollectionDeleteOptions {
+    compact_store?: boolean;
+}
 export default class Collection<T extends DocumentSchema = object> {
     private readonly name;
     private readonly apiCall;
@@ -46,7 +49,7 @@ export default class Collection<T extends DocumentSchema = object> {
     constructor(name: string, apiCall: ApiCall, configuration: any);
     retrieve(): Promise<CollectionSchema>;
     update(schema: CollectionUpdateSchema): Promise<CollectionSchema>;
-    delete(): Promise<CollectionSchema>;
+    delete(options?: CollectionDeleteOptions): Promise<CollectionSchema>;
     exists(): Promise<boolean>;
     documents(): Documents<T>;
     documents(documentId: string): Document<T>;

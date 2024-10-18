@@ -58,6 +58,10 @@ export interface CollectionUpdateSchema
   fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
 }
 
+export interface CollectionDeleteOptions {
+  compact_store?: boolean;
+}
+
 export default class Collection<T extends DocumentSchema = object> {
   private readonly _documents: Documents<T>;
   private individualDocuments: Record<string, Document<T>> = {};
@@ -92,8 +96,10 @@ export default class Collection<T extends DocumentSchema = object> {
     return this.apiCall.patch<CollectionSchema>(this.endpointPath(), schema);
   }
 
-  async delete(): Promise<CollectionSchema> {
-    return this.apiCall.delete<CollectionSchema>(this.endpointPath());
+  async delete(
+    options: CollectionDeleteOptions = {},
+  ): Promise<CollectionSchema> {
+    return this.apiCall.delete<CollectionSchema>(this.endpointPath(), options);
   }
 
   async exists(): Promise<boolean> {

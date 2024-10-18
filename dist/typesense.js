@@ -1230,11 +1230,14 @@ var Collection = /*#__PURE__*/function () {
     key: "delete",
     value: function () {
       var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee3() {
+        var options,
+          _args3 = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
-              return _context3.abrupt("return", this.apiCall.delete(this.endpointPath()));
-            case 1:
+              options = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : {};
+              return _context3.abrupt("return", this.apiCall.delete(this.endpointPath(), options));
+            case 2:
             case "end":
               return _context3.stop();
           }
