@@ -1,5 +1,5 @@
 export interface AnalyticsEventCreateSchema {
   type: string;
   name: string;
-  data?: object;
+  data?: Record<string, unknown>;
 }
