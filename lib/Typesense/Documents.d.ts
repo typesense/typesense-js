@@ -45,7 +45,6 @@ export interface SearchParams {
     facet_query?: string;
     facet_query_num_typos?: number;
     facet_return_parent?: string;
-    facet_strategy?: 'exhaustive' | 'top_values' | 'automatic';
     page?: number;
     per_page?: number;
     group_by?: string | string[];
