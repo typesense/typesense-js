@@ -10,6 +10,7 @@ import type {
   SearchParamsWithPreset,
   SearchResponse,
 } from "./Documents";
+import { normalizeArrayableParams } from "./Utils";
 
 const RESOURCEPATH = "/documents";
 
@@ -40,15 +41,11 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams["use_cache"] = true;
     }
-    for (const key in searchParameters) {
-      if (Array.isArray(searchParameters[key])) {
-        additionalQueryParams[key] = searchParameters[key].join(",");
-      }
-    }
+    const normalizedParams = normalizeArrayableParams(searchParameters);
     const queryParams = Object.assign(
       {},
-      searchParameters,
-      additionalQueryParams
+      additionalQueryParams,
+      normalizedParams,
     );
 
     return this.requestWithCache.perform(
