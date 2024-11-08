@@ -2,6 +2,7 @@ import { createHmac } from "crypto";
 import ApiCall from "./ApiCall";
 import { KeyCreateSchema, KeySchema } from "./Key";
 import { SearchParams } from "./Documents";
+import { normalizeArrayableParams } from "./Utils";
 
 const RESOURCEPATH = "/keys";
 
@@ -34,7 +35,8 @@ export default class Keys {
   ): string {
     // Note: only a key generated with the `documents:search` action will be
     // accepted by the server, when usined with the search endpoint.
-    const paramsJSON = JSON.stringify(parameters);
+    const normalizedParams = normalizeArrayableParams(parameters);
+    const paramsJSON = JSON.stringify(normalizedParams);
     const digest = Buffer.from(
       createHmac("sha256", searchKey).update(paramsJSON).digest("base64")
     );
