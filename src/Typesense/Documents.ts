@@ -41,7 +41,7 @@ type DropTokensMode =
 
 type OperationMode = "off" | "always" | "fallback";
 
-type UnionArrayKeys<T> = {
+export type UnionArrayKeys<T> = {
   [K in keyof T]: T[K] extends undefined
     ? never
     : NonNullable<T[K]> extends infer R
@@ -58,7 +58,7 @@ type UnionArrayKeys<T> = {
 
 export type UnionArraySearchParams = UnionArrayKeys<SearchParams>;
 
-type ArraybleParams = {
+export type ArraybleParams = {
   readonly [K in UnionArraySearchParams]: string;
 };
 
