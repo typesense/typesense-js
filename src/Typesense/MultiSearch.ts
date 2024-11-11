@@ -7,6 +7,7 @@ import {
   SearchParamsWithPreset,
   SearchResponse,
 } from "./Documents";
+import { normalizeArrayableParams } from "./Utils";
 
 const RESOURCEPATH = "/multi_search";
 
@@ -63,13 +64,25 @@ export default class MultiSearch {
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams["use_cache"] = true;
     }
-    const queryParams = Object.assign({}, commonParams, additionalQueryParams);
+
+    const queryParams = { ...commonParams, ...additionalQueryParams };
+
+    const normalizedSearchRequests = {
+      searches: searchRequests.searches.map(normalizeArrayableParams),
+    };
+
+    const normalizedQueryParams = normalizeArrayableParams(queryParams);
 
     return this.requestWithCache.perform(
       this.apiCall,
       this.apiCall.post,
-      [RESOURCEPATH, searchRequests, queryParams, additionalHeaders],
-      { cacheResponseForSeconds: cacheSearchResultsForSeconds }
+      [
+        RESOURCEPATH,
+        normalizedSearchRequests,
+        normalizedQueryParams,
+        additionalHeaders,
+      ],
+      { cacheResponseForSeconds: cacheSearchResultsForSeconds },
     ) as Promise<MultiSearchResponse<T>>;
   }
 }

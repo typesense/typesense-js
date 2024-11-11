@@ -40,6 +40,54 @@ type DropTokensMode =
   | "both_sides:3";
 
 type OperationMode = "off" | "always" | "fallback";
+
+export type UnionArrayKeys<T> = {
+  [K in keyof T]: T[K] extends undefined
+    ? never
+    : NonNullable<T[K]> extends infer R
+      ? R extends R[]
+        ? never
+        : R extends (infer U)[] | infer U
+          ? U[] extends R
+            ? K
+            : never
+          : never
+      : never;
+}[keyof T] &
+  keyof T;
+
+export type UnionArraySearchParams = UnionArrayKeys<SearchParams>;
+
+export type ArraybleParams = {
+  readonly [K in UnionArraySearchParams]: string;
+};
+
+export type ExtractBaseTypes<T> = {
+  [K in keyof T]: K extends UnionArrayKeys<T>
+    ? T[K] extends (infer U)[] | infer U
+      ? U
+      : T[K]
+    : T[K];
+};
+
+export const arrayableParams: ArraybleParams = {
+  query_by: "query_by",
+  query_by_weights: "query_by_weights",
+  facet_by: "facet_by",
+  group_by: "group_by",
+  include_fields: "include_fields",
+  exclude_fields: "exclude_fields",
+  highlight_fields: "highlight_fields",
+  highlight_full_fields: "highlight_full_fields",
+  pinned_hits: "pinned_hits",
+  hidden_hits: "hidden_hits",
+  infix: "infix",
+  override_tags: "override_tags",
+  num_typos: "num_typos",
+  prefix: "prefix",
+  sort_by: "sort_by",
+};
+
 export interface SearchParams {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
   q?: string;

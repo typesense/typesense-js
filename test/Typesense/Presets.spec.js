@@ -31,29 +31,83 @@ describe("Presets", function () {
   });
 
   describe(".upsert", function () {
-    it("upserts a preset", function (done) {
+    it("normalizes arrayable parameters in preset values", function (done) {
+      const presetData = {
+        value: {
+          query_by: ["field1", "field2"],
+          facet_by: ["category", "brand"],
+          group_by: ["department"],
+        },
+      };
+
+      let capturedBody;
       mockAxios
         .onPut(
-          apiCall.uriFor("/presets/preset-1", typesense.configuration.nodes[0]),
-          {
-            value: {
-              query_by: "field1",
-            },
-          },
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          apiCall.uriFor(
+            "/presets/preset-normalize",
+            typesense.configuration.nodes[0],
+          ),
         )
-        .reply(201, "{}", { "content-type": "application/json" });
+        .reply((config) => {
+          capturedBody = JSON.parse(config.data);
+          expect(capturedBody).to.deep.equal({
+            value: {
+              query_by: "field1,field2",
+              facet_by: "category,brand",
+              group_by: "department",
+            },
+          });
+          return [201, "{}", { "content-type": "application/json" }];
+        });
 
-      let returnData = presets.upsert("preset-1", {
+      let returnData = presets.upsert("preset-normalize", presetData);
+      expect(returnData).to.eventually.deep.equal({}).notify(done);
+    });
+
+    it("normalizes arrayable parameters in preset searches", function (done) {
+      const presetData = {
         value: {
-          query_by: "field1",
+          searches: [
+            {
+              query_by: ["title", "description"],
+              facet_by: ["tags", "type"],
+            },
+            {
+              query_by: "name",
+              facet_by: ["color"],
+            },
+          ],
         },
-      });
+      };
 
+      let capturedBody;
+      mockAxios
+        .onPut(
+          apiCall.uriFor(
+            "/presets/preset-normalize-searches",
+            typesense.configuration.nodes[0],
+          ),
+        )
+        .reply((config) => {
+          capturedBody = JSON.parse(config.data);
+          expect(capturedBody).to.deep.equal({
+            value: {
+              searches: [
+                {
+                  query_by: "title,description",
+                  facet_by: "tags,type",
+                },
+                {
+                  query_by: "name",
+                  facet_by: "color",
+                },
+              ],
+            },
+          });
+          return [201, "{}", { "content-type": "application/json" }];
+        });
+
+      let returnData = presets.upsert("preset-normalize-searches", presetData);
       expect(returnData).to.eventually.deep.equal({}).notify(done);
     });
   });
@@ -68,7 +122,7 @@ describe("Presets", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, "[]", { "content-type": "application/json" });
 
