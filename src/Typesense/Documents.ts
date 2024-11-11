@@ -62,6 +62,14 @@ export type ArraybleParams = {
   readonly [K in UnionArraySearchParams]: string;
 };
 
+export type ExtractBaseTypes<T> = {
+  [K in keyof T]: K extends UnionArrayKeys<T>
+    ? T[K] extends (infer U)[] | infer U
+      ? U
+      : T[K]
+    : T[K];
+};
+
 export const arrayableParams: ArraybleParams = {
   query_by: "query_by",
   query_by_weights: "query_by_weights",
