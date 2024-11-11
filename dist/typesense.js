@@ -2075,6 +2075,7 @@ var Document = /*#__PURE__*/function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   arrayableParams: () => (/* binding */ arrayableParams),
 /* harmony export */   "default": () => (/* binding */ Documents)
 /* harmony export */ });
 /* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
@@ -2100,6 +2101,24 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 
 
 // Todo: use generic to extract filter_by values
+
+var arrayableParams = {
+  query_by: "query_by",
+  query_by_weights: "query_by_weights",
+  facet_by: "facet_by",
+  group_by: "group_by",
+  include_fields: "include_fields",
+  exclude_fields: "exclude_fields",
+  highlight_fields: "highlight_fields",
+  highlight_full_fields: "highlight_full_fields",
+  pinned_hits: "pinned_hits",
+  hidden_hits: "hidden_hits",
+  infix: "infix",
+  override_tags: "override_tags",
+  num_typos: "num_typos",
+  prefix: "prefix",
+  sort_by: "sort_by"
+};
 
 // Todo: we could infer whether this is a grouped response by adding the search params as a generic
 
@@ -3027,6 +3046,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! crypto */ "?4bf0");
 /* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
+
 
 
 
@@ -3082,7 +3103,8 @@ var Keys = /*#__PURE__*/function () {
     value: function generateScopedSearchKey(searchKey, parameters) {
       // Note: only a key generated with the `documents:search` action will be
       // accepted by the server, when usined with the search endpoint.
-      var paramsJSON = JSON.stringify(parameters);
+      var normalizedParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_5__.normalizeArrayableParams)(parameters);
+      var paramsJSON = JSON.stringify(normalizedParams);
       var digest = Buffer.from((0,crypto__WEBPACK_IMPORTED_MODULE_4__.createHmac)("sha256", searchKey).update(paramsJSON).digest("base64"));
       var keyPrefix = searchKey.substr(0, 4);
       var rawScopedKey = "".concat(digest).concat(keyPrefix).concat(paramsJSON);
@@ -3163,28 +3185,34 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ MultiSearch)
 /* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _RequestWithCache__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./RequestWithCache */ "./src/Typesense/RequestWithCache.ts");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _RequestWithCache__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./RequestWithCache */ "./src/Typesense/RequestWithCache.ts");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
 
 
 
+
+
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 
 
 var RESOURCEPATH = "/multi_search";
 var MultiSearch = /*#__PURE__*/function () {
   function MultiSearch(apiCall, configuration) {
     var useTextContentType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, MultiSearch);
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__["default"])(this, MultiSearch);
     this.apiCall = apiCall;
     this.configuration = configuration;
     this.useTextContentType = useTextContentType;
-    this.requestWithCache = new _RequestWithCache__WEBPACK_IMPORTED_MODULE_4__["default"]();
+    this.requestWithCache = new _RequestWithCache__WEBPACK_IMPORTED_MODULE_5__["default"]();
   }
-  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(MultiSearch, [{
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__["default"])(MultiSearch, [{
     key: "clearCache",
     value: function clearCache() {
       this.requestWithCache.clearCache();
@@ -3192,7 +3220,7 @@ var MultiSearch = /*#__PURE__*/function () {
   }, {
     key: "perform",
     value: function () {
-      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(searchRequests) {
+      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(searchRequests) {
         var commonParams,
           _ref,
           _ref$cacheSearchResul,
@@ -3200,8 +3228,10 @@ var MultiSearch = /*#__PURE__*/function () {
           additionalHeaders,
           additionalQueryParams,
           queryParams,
+          normalizedSearchRequests,
+          normalizedQueryParams,
           _args = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               commonParams = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
@@ -3214,11 +3244,15 @@ var MultiSearch = /*#__PURE__*/function () {
               if (this.configuration.useServerSideSearchCache === true) {
                 additionalQueryParams["use_cache"] = true;
               }
-              queryParams = Object.assign({}, commonParams, additionalQueryParams);
-              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.post, [RESOURCEPATH, searchRequests, queryParams, additionalHeaders], {
+              queryParams = _objectSpread(_objectSpread({}, commonParams), additionalQueryParams);
+              normalizedSearchRequests = {
+                searches: searchRequests.searches.map(_Utils__WEBPACK_IMPORTED_MODULE_6__.normalizeArrayableParams)
+              };
+              normalizedQueryParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_6__.normalizeArrayableParams)(queryParams);
+              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.post, [RESOURCEPATH, normalizedSearchRequests, normalizedQueryParams, additionalHeaders], {
                 cacheResponseForSeconds: cacheSearchResultsForSeconds
               }));
-            case 8:
+            case 10:
             case "end":
               return _context.stop();
           }
@@ -3545,11 +3579,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Presets)
 /* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "./node_modules/@babel/runtime/helpers/esm/typeof.js");
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
+
+
 
 
 
@@ -3557,18 +3595,35 @@ __webpack_require__.r(__webpack_exports__);
 var RESOURCEPATH = "/presets";
 var Presets = /*#__PURE__*/function () {
   function Presets(apiCall) {
-    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Presets);
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__["default"])(this, Presets);
     this.apiCall = apiCall;
   }
-  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(Presets, [{
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__["default"])(Presets, [{
     key: "upsert",
     value: function () {
-      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(presetId, params) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(presetId, params) {
+        var _normalizedParams, normalizedParams;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              return _context.abrupt("return", this.apiCall.put(this.endpointPath(presetId), params));
-            case 1:
+              if (!((0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(params.value) === "object" && "searches" in params.value)) {
+                _context.next = 3;
+                break;
+              }
+              _normalizedParams = params.value.searches.map(function (search) {
+                return (0,_Utils__WEBPACK_IMPORTED_MODULE_5__.normalizeArrayableParams)(search);
+              });
+              return _context.abrupt("return", this.apiCall.put(this.endpointPath(presetId), {
+                value: {
+                  searches: _normalizedParams
+                }
+              }));
+            case 3:
+              normalizedParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_5__.normalizeArrayableParams)(params.value);
+              return _context.abrupt("return", this.apiCall.put(this.endpointPath(presetId), {
+                value: normalizedParams
+              }));
+            case 5:
             case "end":
               return _context.stop();
           }
@@ -3582,8 +3637,8 @@ var Presets = /*#__PURE__*/function () {
   }, {
     key: "retrieve",
     value: function () {
-      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               return _context2.abrupt("return", this.apiCall.get(this.endpointPath()));
@@ -3873,6 +3928,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _RequestWithCache__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./RequestWithCache */ "./src/Typesense/RequestWithCache.ts");
 /* harmony import */ var _Collections__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Collections */ "./src/Typesense/Collections.ts");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
+
 
 
 
@@ -3904,7 +3961,7 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
           _ref$abortSignal,
           abortSignal,
           additionalQueryParams,
-          key,
+          normalizedParams,
           queryParams,
           _args = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
@@ -3915,12 +3972,8 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
               if (this.configuration.useServerSideSearchCache === true) {
                 additionalQueryParams["use_cache"] = true;
               }
-              for (key in searchParameters) {
-                if (Array.isArray(searchParameters[key])) {
-                  additionalQueryParams[key] = searchParameters[key].join(",");
-                }
-              }
-              queryParams = Object.assign({}, searchParameters, additionalQueryParams);
+              normalizedParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_7__.normalizeArrayableParams)(searchParameters);
+              queryParams = Object.assign({}, additionalQueryParams, normalizedParams);
               return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.get, [this.endpointPath("search"), queryParams, {
                 abortSignal: abortSignal
               }], {
@@ -4326,6 +4379,52 @@ var Synonyms = /*#__PURE__*/function () {
   return Synonyms;
 }();
 
+
+/***/ }),
+
+/***/ "./src/Typesense/Utils.ts":
+/*!********************************!*\
+  !*** ./src/Typesense/Utils.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   normalizeArrayableParams: () => (/* binding */ normalizeArrayableParams)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _Documents__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Documents */ "./src/Typesense/Documents.ts");
+
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+
+function hasNoArrayValues(params) {
+  return Object.keys(_Documents__WEBPACK_IMPORTED_MODULE_1__.arrayableParams).filter(function (key) {
+    return params[key] !== undefined;
+  }).every(function (key) {
+    return isNonArrayValue(params[key]);
+  });
+}
+function normalizeArrayableParams(params) {
+  var result = _objectSpread({}, params);
+  var transformedValues = Object.keys(_Documents__WEBPACK_IMPORTED_MODULE_1__.arrayableParams).filter(function (key) {
+    return Array.isArray(result[key]);
+  }).map(function (key) {
+    result[key] = result[key].join(",");
+    return key;
+  });
+  if (!transformedValues.length && hasNoArrayValues(result)) {
+    return result;
+  }
+  if (!hasNoArrayValues(result)) {
+    throw new Error("Failed to normalize arrayable params: ".concat(JSON.stringify(result)));
+  }
+  return result;
+}
+function isNonArrayValue(value) {
+  return !Array.isArray(value);
+}
 
 /***/ }),
 

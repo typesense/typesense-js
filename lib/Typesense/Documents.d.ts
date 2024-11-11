@@ -27,6 +27,17 @@ export interface SearchParamsWithPreset extends Partial<SearchParams> {
 }
 type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 type OperationMode = "off" | "always" | "fallback";
+export type UnionArrayKeys<T> = {
+    [K in keyof T]: T[K] extends undefined ? never : NonNullable<T[K]> extends infer R ? R extends R[] ? never : R extends (infer U)[] | infer U ? U[] extends R ? K : never : never : never;
+}[keyof T] & keyof T;
+export type UnionArraySearchParams = UnionArrayKeys<SearchParams>;
+export type ArraybleParams = {
+    readonly [K in UnionArraySearchParams]: string;
+};
+export type ExtractBaseTypes<T> = {
+    [K in keyof T]: K extends UnionArrayKeys<T> ? T[K] extends (infer U)[] | infer U ? U : T[K] : T[K];
+};
+export declare const arrayableParams: ArraybleParams;
 export interface SearchParams {
     q?: string;
     query_by?: string | string[];
