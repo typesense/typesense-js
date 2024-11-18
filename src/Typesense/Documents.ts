@@ -34,12 +34,9 @@ export interface SearchParamsWithPreset extends Partial<SearchParams> {
   preset: string;
 }
 
-type DropTokensMode =
-  | "right_to_left"
-  | "left_to_right"
-  | "both_sides:3";
+export type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 
-type OperationMode = "off" | "always" | "fallback";
+export type OperationMode = "off" | "always" | "fallback";
 
 export type UnionArrayKeys<T> = {
   [K in keyof T]: T[K] extends undefined
