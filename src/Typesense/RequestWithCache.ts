@@ -83,13 +83,17 @@ export default class RequestWithCache {
     const isCacheOverMaxSize = this.responseCache.size > maxSize;
     if (isCacheOverMaxSize) {
       const oldestEntry = this.responseCache.keys().next().value;
-      this.responseCache.delete(oldestEntry);
+      if (oldestEntry) {
+        this.responseCache.delete(oldestEntry);
+      }
     }
     const isResponsePromiseCacheOverMaxSize =
       this.responsePromiseCache.size > maxSize;
     if (isResponsePromiseCacheOverMaxSize) {
       const oldestEntry = this.responsePromiseCache.keys().next().value;
-      this.responsePromiseCache.delete(oldestEntry);
+      if (oldestEntry) {
+        this.responsePromiseCache.delete(oldestEntry);
+      }
     }
     return response as T;
   }
