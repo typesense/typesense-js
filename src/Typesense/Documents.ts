@@ -107,6 +107,7 @@ export interface SearchParams {
   facet_query?: string;
   facet_query_num_typos?: number;
   facet_return_parent?: string;
+  facet_strategy?: "exhaustive" | "top_values" | "automatic";
   page?: number; // default: 1
   per_page?: number; // default: 10, max 250
   group_by?: string | string[];
