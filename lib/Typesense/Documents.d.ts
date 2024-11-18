@@ -25,8 +25,8 @@ export type DocumentSchema = Record<string, any>;
 export interface SearchParamsWithPreset extends Partial<SearchParams> {
     preset: string;
 }
-type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
-type OperationMode = "off" | "always" | "fallback";
+export type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
+export type OperationMode = "off" | "always" | "fallback";
 export type UnionArrayKeys<T> = {
     [K in keyof T]: T[K] extends undefined ? never : NonNullable<T[K]> extends infer R ? R extends R[] ? never : R extends (infer U)[] | infer U ? U[] extends R ? K : never : never : never;
 }[keyof T] & keyof T;
@@ -56,6 +56,7 @@ export interface SearchParams {
     facet_query?: string;
     facet_query_num_typos?: number;
     facet_return_parent?: string;
+    facet_strategy?: "exhaustive" | "top_values" | "automatic";
     page?: number;
     per_page?: number;
     group_by?: string | string[];

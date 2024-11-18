@@ -3776,12 +3776,16 @@ var RequestWithCache = /*#__PURE__*/function () {
               isCacheOverMaxSize = this.responseCache.size > maxSize;
               if (isCacheOverMaxSize) {
                 oldestEntry = this.responseCache.keys().next().value;
-                this.responseCache.delete(oldestEntry);
+                if (oldestEntry) {
+                  this.responseCache.delete(oldestEntry);
+                }
               }
               isResponsePromiseCacheOverMaxSize = this.responsePromiseCache.size > maxSize;
               if (isResponsePromiseCacheOverMaxSize) {
                 _oldestEntry = this.responsePromiseCache.keys().next().value;
-                this.responsePromiseCache.delete(_oldestEntry);
+                if (_oldestEntry) {
+                  this.responsePromiseCache.delete(_oldestEntry);
+                }
               }
               return _context.abrupt("return", response);
             case 37:
