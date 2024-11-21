@@ -182,10 +182,10 @@ export interface SearchResponseHit<T extends DocumentSchema> {
   document: T;
   text_match: number;
   text_match_info?: {
-    best_field_score: string; // To prevent scores from being truncated by JSON spec
+    best_field_score: `${number}`; // To prevent scores from being truncated by JSON spec
     best_field_weight: number;
     fields_matched: number;
-    score: string; // To prevent scores from being truncated by JSON spec
+    score: `${number}`; // To prevent scores from being truncated by JSON spec
     tokens_matched: number;
   };
 }
