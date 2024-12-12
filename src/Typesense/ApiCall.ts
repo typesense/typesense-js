@@ -306,7 +306,7 @@ export default class ApiCall {
         this.logger.warn(
           `Request #${requestNumber}: Request to Node ${
             node.index
-          } failed due to "${error.code} ${error.message}${
+          } failed due to "${error?.code ?? ""} ${error.message}${
             error.response == null
               ? ""
               : " - " + JSON.stringify(error.response?.data)
