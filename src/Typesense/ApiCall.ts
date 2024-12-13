@@ -130,7 +130,7 @@ export default class ApiCall {
       queryParameters = null,
       bodyParameters = null,
       additionalHeaders = {},
-      abortSignal = null,
+      abortSignal,
       responseType = undefined,
       skipConnectionTimeout = false,
       enableKeepAlive = undefined,
@@ -138,7 +138,7 @@ export default class ApiCall {
       queryParameters?: any;
       bodyParameters?: any;
       additionalHeaders?: any;
-      abortSignal?: any;
+      abortSignal?: AbortSignal;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       skipConnectionTimeout?: boolean;
       enableKeepAlive?: boolean | undefined;
@@ -148,6 +148,7 @@ export default class ApiCall {
 
     const requestNumber = Date.now();
     let lastException;
+    let wasAborted = false;
     this.logger.debug(
       `Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`,
     );
@@ -167,7 +168,7 @@ export default class ApiCall {
         return Promise.reject(new Error("Request aborted by caller."));
       }
 
-      let abortListener;
+      let abortListener: ((event: Event) => void) | undefined;
 
       try {
         const requestOptions: AxiosRequestConfig = {
@@ -271,7 +272,10 @@ export default class ApiCall {
         if (abortSignal) {
           const cancelToken = axios.CancelToken;
           const source = cancelToken.source();
-          abortListener = () => source.cancel();
+          abortListener = () => {
+            wasAborted = true;
+            source.cancel();
+          };
           abortSignal.addEventListener("abort", abortListener);
           requestOptions.cancelToken = source.token;
         }
@@ -301,7 +305,9 @@ export default class ApiCall {
         }
       } catch (error: any) {
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
-        this.setNodeHealthcheck(node, UNHEALTHY);
+        if (!wasAborted) {
+          this.setNodeHealthcheck(node, UNHEALTHY);
+        }
         lastException = error;
         this.logger.warn(
           `Request #${requestNumber}: Request to Node ${
@@ -313,6 +319,9 @@ export default class ApiCall {
           }"`,
         );
         // this.logger.debug(error.stack)
+        if (wasAborted) {
+          return Promise.reject(new Error("Request aborted by caller."));
+        }
         if (numTries < this.numRetriesPerRequest + 1) {
           this.logger.warn(
             `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`,
