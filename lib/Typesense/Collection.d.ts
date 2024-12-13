@@ -19,6 +19,7 @@ export interface CollectionFieldSchema {
     stem?: boolean;
     num_dim?: number;
     store?: boolean;
+    range_index?: boolean;
     [t: string]: unknown;
 }
 export interface CollectionSchema extends CollectionCreateSchema {
