@@ -31,7 +31,7 @@ export default class ApiCall {
         queryParameters?: any;
         bodyParameters?: any;
         additionalHeaders?: any;
-        abortSignal?: AbortSignal;
+        abortSignal?: any;
         responseType?: AxiosRequestConfig["responseType"] | undefined;
         skipConnectionTimeout?: boolean;
         enableKeepAlive?: boolean | undefined;
