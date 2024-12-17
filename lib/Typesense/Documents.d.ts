@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import type { ReadStream } from "fs";
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
@@ -129,10 +128,10 @@ export interface SearchResponseHit<T extends DocumentSchema> {
     document: T;
     text_match: number;
     text_match_info?: {
-        best_field_score: string;
+        best_field_score: `${number}`;
         best_field_weight: number;
         fields_matched: number;
-        score: string;
+        score: `${number}`;
         tokens_matched: number;
     };
 }
