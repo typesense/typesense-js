@@ -1,8 +1,7 @@
-/// <reference types="node" />
-/// <reference types="node" />
 import { Logger, LogLevelDesc } from "loglevel";
 import type { Agent as HTTPAgent } from "http";
 import type { Agent as HTTPSAgent } from "https";
+import type { AxiosRequestConfig } from "axios";
 export interface NodeConfiguration {
     host: string;
     port: number;
@@ -75,6 +74,17 @@ export interface ConfigurationOptions {
      * @type {any}
      */
     paramsSerializer?: any;
+    /**
+     * Set a custom axios adapter
+     *
+     * Useful for customizing the underlying HTTP client library used by Typesense.
+     *
+     * For example, you can use this to use a custom HTTP client library like `fetch`, in order for the library to work on the edge.
+     * Related GiHub issue: https://github.com/typesense/typesense-js/issues/161
+     *
+     * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
+     */
+    axiosAdapter?: AxiosRequestConfig["adapter"];
 }
 export default class Configuration {
     readonly nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
@@ -93,6 +103,7 @@ export default class Configuration {
     readonly httpAgent?: HTTPAgent;
     readonly httpsAgent?: HTTPSAgent;
     readonly paramsSerializer?: any;
+    readonly axiosAdapter?: AxiosRequestConfig["adapter"];
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;

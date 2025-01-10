@@ -1,6 +1,6 @@
-import { AxiosRequestConfig, AxiosResponse, Method } from "axios";
-import TypesenseError from "./Errors/TypesenseError";
+import type { AxiosRequestConfig, AxiosResponse, Method } from "axios";
 import Configuration, { NodeConfiguration } from "./Configuration";
+import TypesenseError from "./Errors/TypesenseError";
 interface Node extends NodeConfiguration {
     isHealthy: boolean;
     index: string | number;
