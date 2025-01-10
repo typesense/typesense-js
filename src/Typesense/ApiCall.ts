@@ -1,5 +1,9 @@
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import type { AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import axios from "axios";
+import { Agent as HTTPAgent } from "http";
+import { Agent as HTTPSAgent } from "https";
 import { Logger } from "loglevel";
+import Configuration, { NodeConfiguration } from "./Configuration";
 import {
   HTTPError,
   ObjectAlreadyExists,
@@ -10,9 +14,6 @@ import {
   ServerError,
 } from "./Errors";
 import TypesenseError from "./Errors/TypesenseError";
-import Configuration, { NodeConfiguration } from "./Configuration";
-import { Agent as HTTPAgent } from "http";
-import { Agent as HTTPSAgent } from "https";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 const HEALTHY = true;
