@@ -173,6 +173,7 @@ export default class ApiCall {
 
       try {
         const requestOptions: AxiosRequestConfig = {
+          adapter: this.configuration.axiosAdapter,
           method: requestType,
           url: this.uriFor(endpoint, node),
           headers: Object.assign(

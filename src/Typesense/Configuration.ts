@@ -3,6 +3,7 @@ import { Logger, LogLevelDesc } from "loglevel";
 import { MissingConfigurationError } from "./Errors";
 import type { Agent as HTTPAgent } from "http";
 import type { Agent as HTTPSAgent } from "https";
+import type { AxiosRequestConfig } from "axios";
 
 export interface NodeConfiguration {
   host: string;
@@ -95,6 +96,13 @@ export interface ConfigurationOptions {
    * @type {any}
    */
   paramsSerializer?: any;
+
+  /**
+   * Set a custom axios adapter
+   *
+   * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
+   */
+  axiosAdapter?: AxiosRequestConfig["adapter"];
 }
 
 export default class Configuration {
@@ -120,6 +128,7 @@ export default class Configuration {
   readonly httpAgent?: HTTPAgent;
   readonly httpsAgent?: HTTPSAgent;
   readonly paramsSerializer?: any;
+  readonly axiosAdapter?: AxiosRequestConfig["adapter"];
 
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || [];
@@ -156,6 +165,7 @@ export default class Configuration {
       options.cacheSearchResultsForSeconds || 0; // Disable client-side cache by default
     this.useServerSideSearchCache = options.useServerSideSearchCache || false;
 
+    this.axiosAdapter = options.axiosAdapter;
     this.logger = options.logger || logger;
     this.logLevel = options.logLevel || "warn";
     this.logger.setLevel(this.logLevel);
