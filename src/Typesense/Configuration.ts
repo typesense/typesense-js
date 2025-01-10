@@ -100,6 +100,11 @@ export interface ConfigurationOptions {
   /**
    * Set a custom axios adapter
    *
+   * Useful for customizing the underlying HTTP client library used by Typesense.
+   *
+   * For example, you can use this to use a custom HTTP client library like `fetch`, in order for the library to work on the edge.
+   * Related GiHub issue: https://github.com/typesense/typesense-js/issues/161
+   *
    * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
    */
   axiosAdapter?: AxiosRequestConfig["adapter"];
