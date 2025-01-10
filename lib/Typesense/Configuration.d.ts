@@ -1,3 +1,5 @@
+/// <reference types="node" />
+/// <reference types="node" />
 import { Logger, LogLevelDesc } from "loglevel";
 import type { Agent as HTTPAgent } from "http";
 import type { Agent as HTTPSAgent } from "https";
