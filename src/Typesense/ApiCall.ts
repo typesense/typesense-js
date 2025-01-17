@@ -1,4 +1,9 @@
-import type { AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import type {
+  AxiosAdapter,
+  AxiosRequestConfig,
+  AxiosResponse,
+  Method,
+} from "axios";
 import axios from "axios";
 import { Agent as HTTPAgent } from "http";
 import { Agent as HTTPSAgent } from "https";
@@ -124,6 +129,21 @@ export default class ApiCall {
     });
   }
 
+  private getAdapter(): AxiosAdapter | undefined {
+    if (!this.configuration.axiosAdapter) return undefined;
+
+    if (typeof this.configuration.axiosAdapter === "function")
+      return this.configuration.axiosAdapter;
+
+    const isCloudflareWorkers =
+      typeof navigator !== "undefined" &&
+      navigator.userAgent === "Cloudflare-Workers";
+
+    return isCloudflareWorkers
+      ? axios.getAdapter(this.configuration.axiosAdapter).bind(globalThis)
+      : axios.getAdapter(this.configuration.axiosAdapter);
+  }
+
   async performRequest<T>(
     requestType: Method,
     endpoint: string,
@@ -173,7 +193,7 @@ export default class ApiCall {
 
       try {
         const requestOptions: AxiosRequestConfig = {
-          adapter: this.configuration.axiosAdapter,
+          adapter: this.getAdapter(),
           method: requestType,
           url: this.uriFor(endpoint, node),
           headers: Object.assign(
