@@ -87,7 +87,8 @@ export const arrayableParams: ArraybleParams = {
 
 export interface SearchParams {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
-  q?: string;
+  // eslint-disable-next-line @typescript-eslint/ban-types -- Can't use `object` here, it needs to intersect with `{}`
+  q?: "*" | (string & {});
   query_by?: string | string[];
   query_by_weights?: string | number[];
   prefix?: string | boolean | boolean[]; // default: true
