@@ -401,7 +401,7 @@ export default class Documents<T extends DocumentSchema = object>
           throw new Error(`${error}
           It looks like you have reached a Node.js limit that restricts the number of keys in an Object: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object
 
-          Please try reducing the number of keys in your document, or using CURL to import your data.
+         Please try reducing the number of keys in your document, or using CURL to import your data.
           `);
         }
 
@@ -439,6 +439,12 @@ export default class Documents<T extends DocumentSchema = object>
             failedItems.length
           } documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`,
           resultsInJSONFormat,
+          {
+            documentsInJSONLFormat,
+            options,
+            failedItems,
+            successCount: resultsInJSONFormat.length - failedItems.length,
+          },
         );
       } else {
         return resultsInJSONFormat;
@@ -478,6 +484,12 @@ export default class Documents<T extends DocumentSchema = object>
           failedItems.length
         } documents failed during import. Use \`error.importResults\` from the raised exception to get a detailed error reason for each document.`,
         resultsInJSONFormat,
+        {
+          documentsInJSONLFormat: readableStream,
+          options,
+          failedItems,
+          successCount: resultsInJSONFormat.length - failedItems.length,
+        },
       );
     } else {
       return resultsInJSONFormat;

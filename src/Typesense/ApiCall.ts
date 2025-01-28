@@ -192,7 +192,7 @@ export default class ApiCall {
       let abortListener: ((event: Event) => void) | undefined;
 
       try {
-        const requestOptions: AxiosRequestConfig = {
+        const requestOptions: AxiosRequestConfig<string> = {
           adapter: this.getAdapter(),
           method: requestType,
           url: this.uriFor(endpoint, node),
@@ -318,12 +318,20 @@ export default class ApiCall {
         } else if (response.status < 500) {
           // Next, if response is anything but 5xx, don't retry, return a custom error
           return Promise.reject(
-            this.customErrorForResponse(response, response.data?.message),
+            this.customErrorForResponse(
+              response,
+              response.data?.message,
+              requestOptions.data,
+            ),
           );
         } else {
           // Retry all other HTTP errors (HTTPStatus > 500)
           // This will get caught by the catch block below
-          throw this.customErrorForResponse(response, response.data?.message);
+          throw this.customErrorForResponse(
+            response,
+            response.data?.message,
+            requestOptions.data,
+          );
         }
       } catch (error: any) {
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
@@ -473,6 +481,7 @@ export default class ApiCall {
   customErrorForResponse(
     response: AxiosResponse,
     messageFromServer: string,
+    httpBody?: string,
   ): TypesenseError {
     let errorMessage = `Request failed with HTTP code ${response.status}`;
     if (
@@ -482,7 +491,7 @@ export default class ApiCall {
       errorMessage += ` | Server said: ${messageFromServer}`;
     }
 
-    let error = new TypesenseError(errorMessage);
+    let error = new TypesenseError(errorMessage, httpBody, response.status);
 
     if (response.status === 400) {
       error = new RequestMalformed(errorMessage);
@@ -499,8 +508,6 @@ export default class ApiCall {
     } else {
       error = new HTTPError(errorMessage);
     }
-
-    error.httpStatus = response.status;
 
     return error;
   }
