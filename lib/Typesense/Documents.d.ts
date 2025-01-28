@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import type { ReadStream } from "fs";
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
@@ -39,7 +38,7 @@ export type ExtractBaseTypes<T> = {
 };
 export declare const arrayableParams: ArraybleParams;
 export interface SearchParams {
-    q?: string;
+    q?: "*" | (string & {});
     query_by?: string | string[];
     query_by_weights?: string | number[];
     prefix?: string | boolean | boolean[];

@@ -1,6 +1,15 @@
 import TypesenseError from "./TypesenseError";
-import { ImportResponse } from "../Documents";
-export default class ImportError extends TypesenseError {
-    importResults: ImportResponse[];
-    constructor(message: string, importResults: ImportResponse[]);
+import type { DocumentImportParameters, ImportResponse } from "../Documents";
+import { ReadStream } from "node:fs";
+interface ImportErrorPayload {
+    documentsInJSONLFormat: string | ReadStream;
+    options: DocumentImportParameters;
+    failedItems: ImportResponse[];
+    successCount: number;
 }
+export default class ImportError extends TypesenseError {
+    payload: ImportErrorPayload;
+    importResults: ImportResponse[];
+    constructor(message: string, importResults: ImportResponse[], payload: ImportErrorPayload);
+}
+export {};
