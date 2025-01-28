@@ -1,4 +1,5 @@
 export default class TypesenseError extends Error {
     httpStatus?: number;
-    constructor(message?: string);
+    httpBody?: string;
+    constructor(message?: string, httpBody?: string, httpStatus?: number);
 }

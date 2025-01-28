@@ -27,6 +27,7 @@ export default class ApiCall {
     post<T>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any): Promise<T>;
     put<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
     patch<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
+    private getAdapter;
     performRequest<T>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, skipConnectionTimeout, enableKeepAlive, }: {
         queryParameters?: any;
         bodyParameters?: any;
@@ -43,6 +44,6 @@ export default class ApiCall {
     uriFor(endpoint: string, node: any): string;
     defaultHeaders(): any;
     timer(seconds: any): Promise<void>;
-    customErrorForResponse(response: AxiosResponse, messageFromServer: string): TypesenseError;
+    customErrorForResponse(response: AxiosResponse, messageFromServer: string, httpBody?: string): TypesenseError;
 }
 export {};
