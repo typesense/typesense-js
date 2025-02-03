@@ -98,6 +98,7 @@ export interface SearchParams {
   query_by_weights?: string | number[];
   prefix?: string | boolean | boolean[]; // default: true
   filter_by?: string;
+  max_filter_by_candidates?: number; // default: 4
   enable_synonyms?: boolean; // default: true
   enable_analytics?: boolean; // default: true
   filter_curated_hits?: boolean; // default: false
