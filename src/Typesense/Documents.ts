@@ -5,11 +5,16 @@ import { ImportError } from "./Errors";
 import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
 
 // Todo: use generic to extract filter_by values
-export interface DeleteQuery {
-  filter_by?: string;
-  batch_size?: number;
-  ignore_not_found?: boolean;
-}
+export type DeleteQuery =
+  | {
+      truncate?: true;
+    }
+  | {
+      truncate?: never;
+      filter_by?: string;
+      batch_size?: number;
+      ignore_not_found?: boolean;
+    };
 
 export interface DeleteResponse {
   num_deleted: number;
