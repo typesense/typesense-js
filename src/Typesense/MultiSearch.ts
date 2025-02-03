@@ -23,6 +23,7 @@ export interface MultiSearchRequestWithPresetSchema
 }
 
 export interface MultiSearchRequestsSchema {
+  union?: true;
   searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
 
