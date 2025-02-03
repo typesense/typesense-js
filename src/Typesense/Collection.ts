@@ -27,7 +27,11 @@ export type FieldType =
   | "string*"
   | "image";
 
-export interface CollectionFieldSchema {
+export interface CollectionFieldSchema
+  extends Pick<
+    CollectionCreateSchema,
+    "token_separators" | "symbols_to_index"
+  > {
   name: string;
   type: FieldType;
   optional?: boolean;
