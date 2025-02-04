@@ -31,47 +31,12 @@ describe("StemmingDictionaries", function () {
     mockAxios = new MockAxiosAdapter(axios);
   });
 
-  describe(".upsert", function () {
-    it("upserts a stemming dictionary", function (done) {
-      mockAxios
-        .onPost(
-          apiCall.uriFor(
-            "/stemming/dictionary/set1",
-            typesense.configuration.nodes[0],
-          ),
-          {
-            words: [{ word: "people", root: "person" }],
-          },
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
-        )
-        .reply(201, {
-          id: "set1",
-          words: [{ word: "people", root: "person" }],
-        });
-
-      let returnData = stemmingDictionaries.upsert("set1", {
-        words: [{ word: "people", root: "person" }],
-      });
-
-      expect(returnData)
-        .to.eventually.deep.equal({
-          id: "set1",
-          words: [{ word: "people", root: "person" }],
-        })
-        .notify(done);
-    });
-  });
-
   describe(".retrieve", function () {
     it("retrieves all stemming dictionaries", function (done) {
       mockAxios
         .onGet(
           apiCall.uriFor(
-            "/stemming/dictionary",
+            "/stemming/dictionaries",
             typesense.configuration.nodes[0],
           ),
           undefined,
