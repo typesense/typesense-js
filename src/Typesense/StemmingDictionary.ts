@@ -2,15 +2,16 @@ import ApiCall from "./ApiCall";
 import StemmingDictionaries from "./StemmingDictionaries";
 
 export interface StemmingDictionaryCreateSchema {
-  words: { root: string; word: string }[];
+  root: string;
+  word: string;
 }
 
-export interface StemmingDictionarySchema
-  extends StemmingDictionaryCreateSchema {
+export interface StemmingDictionarySchema {
   id: string;
+  words: StemmingDictionaryCreateSchema;
 }
 
-export default class StemmingDicitonary {
+export default class StemmingDictionary {
   constructor(
     private id: string,
     private apiCall: ApiCall,
