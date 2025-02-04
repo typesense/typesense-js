@@ -8,7 +8,7 @@ export interface StemmingDictionaryCreateSchema {
 
 export interface StemmingDictionarySchema {
   id: string;
-  words: StemmingDictionaryCreateSchema;
+  words: StemmingDictionaryCreateSchema[];
 }
 
 export default class StemmingDictionary {
