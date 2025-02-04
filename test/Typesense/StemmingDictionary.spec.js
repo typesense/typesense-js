@@ -36,7 +36,7 @@ describe("StemmingDictionary", function () {
       mockAxios
         .onGet(
           apiCall.uriFor(
-            "/stemming-dictionaries/set1",
+            "/stemming/dictionary/set1",
             typesense.configuration.nodes[0],
           ),
           null,

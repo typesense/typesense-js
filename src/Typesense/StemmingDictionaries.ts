@@ -4,7 +4,7 @@ import type {
   StemmingDictionarySchema,
 } from "./StemmingDictionary";
 
-const RESOURCEPATH = "/stemming-dictionaries";
+const RESOURCEPATH = "/stemming/dictionary";
 
 export interface StemmingDictionariesRetrieveSchema {
   dictionaries: string[];
