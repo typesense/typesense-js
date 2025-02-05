@@ -2,9 +2,38 @@ import { defineConfig } from "tsup";
 import type { Options } from "tsup";
 import browserList from "browserslist-to-esbuild";
 import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
-import { builtinModules } from "module";
 
 export default defineConfig([
+  {
+    target: browserList(["defaults"]) as Options["target"],
+    entry: ["src/Typesense.ts"],
+    sourcemap: true,
+    clean: true,
+    format: ["cjs", "esm"],
+    dts: true,
+    outDir: "lib",
+    minify: true,
+    outExtension({ format }) {
+      return {
+        js: `.min.${format === "cjs" ? "js" : "mjs"}`,
+      };
+    },
+    splitting: true,
+    platform: "browser",
+    esbuildOptions(options) {
+      options.mainFields = ["browser", "module", "main"];
+      options.treeShaking = true;
+    },
+    esbuildPlugins: [
+      nodeModulesPolyfillPlugin({
+        modules: {
+          crypto: "empty",
+          http: "empty",
+          https: "empty",
+        },
+      }),
+    ],
+  },
   {
     target: browserList(["defaults"]) as Options["target"],
     entry: ["src/Typesense.ts"],
@@ -21,33 +50,18 @@ export default defineConfig([
     },
     splitting: true,
     platform: "browser",
-    external: [...builtinModules],
     esbuildOptions(options) {
-      options.mainFields = ["module", "main", "browser"];
+      options.mainFields = ["browser", "module", "main"];
+      options.treeShaking = true;
     },
     esbuildPlugins: [
       nodeModulesPolyfillPlugin({
-        fallback: "empty",
+        modules: {
+          crypto: "empty",
+          http: "empty",
+          https: "empty",
+        },
       }),
     ],
-  },
-  {
-    target: browserList(["defaults"]) as Options["target"],
-    entry: ["src/Typesense.ts"],
-    clean: true,
-    format: ["esm", "cjs"],
-    dts: true,
-    sourcemap: true,
-    outDir: "lib",
-    minify: true,
-    outExtension({ format }) {
-      return {
-        js: `.min.${format === "cjs" ? "js" : "mjs"}`,
-      };
-    },
-    splitting: true,
-    esbuildOptions(options) {
-      options.mainFields = ["module", "main"];
-    },
   },
 ]);
