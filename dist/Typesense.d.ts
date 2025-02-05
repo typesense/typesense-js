@@ -3,6 +3,7 @@ import { Agent } from 'http';
 import { Agent as Agent$1 } from 'https';
 import { AxiosRequestConfig, Method, AxiosResponse } from 'axios';
 import { ReadStream } from 'fs';
+import { ReadStream as ReadStream$1 } from 'node:fs';
 
 interface NodeConfiguration {
     host: string;
@@ -76,6 +77,17 @@ interface ConfigurationOptions {
      * @type {any}
      */
     paramsSerializer?: any;
+    /**
+     * Set a custom axios adapter
+     *
+     * Useful for customizing the underlying HTTP client library used by Typesense.
+     *
+     * For example, you can use this to use a custom HTTP client library like `fetch`, in order for the library to work on the edge.
+     * Related GiHub issue: https://github.com/typesense/typesense-js/issues/161
+     *
+     * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
+     */
+    axiosAdapter?: AxiosRequestConfig["adapter"];
 }
 declare class Configuration {
     readonly nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
@@ -94,6 +106,7 @@ declare class Configuration {
     readonly httpAgent?: Agent;
     readonly httpsAgent?: Agent$1;
     readonly paramsSerializer?: any;
+    readonly axiosAdapter?: AxiosRequestConfig["adapter"];
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;
@@ -106,7 +119,8 @@ declare class Configuration {
 
 declare class TypesenseError extends Error {
     httpStatus?: number;
-    constructor(message?: string);
+    httpBody?: string;
+    constructor(message?: string, httpBody?: string, httpStatus?: number);
 }
 
 interface Node extends NodeConfiguration {
@@ -135,6 +149,7 @@ declare class ApiCall {
     post<T>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any): Promise<T>;
     put<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
     patch<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
+    private getAdapter;
     performRequest<T>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, skipConnectionTimeout, enableKeepAlive, }: {
         queryParameters?: any;
         bodyParameters?: any;
@@ -151,7 +166,7 @@ declare class ApiCall {
     uriFor(endpoint: string, node: any): string;
     defaultHeaders(): any;
     timer(seconds: any): Promise<void>;
-    customErrorForResponse(response: AxiosResponse, messageFromServer: string): TypesenseError;
+    customErrorForResponse(response: AxiosResponse, messageFromServer: string, httpBody?: string): TypesenseError;
 }
 
 declare class RequestWithCache {
@@ -199,13 +214,28 @@ type DocumentSchema = Record<string, any>;
 interface SearchParamsWithPreset extends Partial<SearchParams> {
     preset: string;
 }
+type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 type OperationMode = "off" | "always" | "fallback";
+type UnionArrayKeys<T> = {
+    [K in keyof T]: T[K] extends undefined ? never : NonNullable<T[K]> extends infer R ? R extends R[] ? never : R extends (infer U)[] | infer U ? U[] extends R ? K : never : never : never;
+}[keyof T] & keyof T;
+type UnionArraySearchParams = UnionArrayKeys<SearchParams>;
+type ArraybleParams = {
+    readonly [K in UnionArraySearchParams]: string;
+};
+type ExtractBaseTypes<T> = {
+    [K in keyof T]: K extends UnionArrayKeys<T> ? T[K] extends (infer U)[] | infer U ? U : T[K] : T[K];
+};
+declare const arrayableParams: ArraybleParams;
 interface SearchParams {
-    q?: string;
+    q?: "*" | (string & {});
     query_by?: string | string[];
     query_by_weights?: string | number[];
     prefix?: string | boolean | boolean[];
     filter_by?: string;
+    enable_synonyms?: boolean;
+    enable_analytics?: boolean;
+    filter_curated_hits?: boolean;
     enable_lazy_filter?: boolean;
     sort_by?: string | string[];
     facet_by?: string | string[];
@@ -215,6 +245,7 @@ interface SearchParams {
     facet_query?: string;
     facet_query_num_typos?: number;
     facet_return_parent?: string;
+    facet_strategy?: "exhaustive" | "top_values" | "automatic";
     page?: number;
     per_page?: number;
     group_by?: string | string[];
@@ -235,12 +266,14 @@ interface SearchParams {
     split_join_tokens?: OperationMode;
     exhaustive_search?: boolean;
     drop_tokens_threshold?: number;
+    drop_tokens_mode?: DropTokensMode;
     typo_tokens_threshold?: number;
     pinned_hits?: string | string[];
     hidden_hits?: string | string[];
     limit_hits?: number;
     pre_segmented_query?: boolean;
     enable_overrides?: boolean;
+    override_tags?: string | string[];
     prioritize_exact_match?: boolean;
     prioritize_token_position?: boolean;
     prioritize_num_matching_fields?: boolean;
@@ -285,10 +318,10 @@ interface SearchResponseHit<T extends DocumentSchema> {
     document: T;
     text_match: number;
     text_match_info?: {
-        best_field_score: string;
+        best_field_score: `${number}`;
         best_field_weight: number;
         fields_matched: number;
-        score: string;
+        score: `${number}`;
         tokens_matched: number;
     };
 }
@@ -411,6 +444,55 @@ declare class Documents<T extends DocumentSchema = object> extends SearchOnlyDoc
     exportStream(options?: DocumentsExportParameters): Promise<ReadStream>;
 }
 
+interface MultiSearchRequestSchema extends SearchParams {
+    collection?: string;
+    "x-typesense-api-key"?: string;
+}
+interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPreset {
+    collection?: string;
+    "x-typesense-api-key"?: string;
+}
+interface MultiSearchRequestsSchema {
+    searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
+}
+interface MultiSearchResponse<T extends DocumentSchema[] = []> {
+    results: {
+        [Index in keyof T]: SearchResponse<T[Index]>;
+    } & {
+        length: T["length"];
+    };
+}
+declare class MultiSearch {
+    private apiCall;
+    private configuration;
+    private useTextContentType;
+    private requestWithCache;
+    constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
+    clearCache(): void;
+    perform<T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsSchema, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds, }?: {
+        cacheSearchResultsForSeconds?: number;
+    }): Promise<MultiSearchResponse<T>>;
+}
+
+declare class SearchOnlyCollection<T extends DocumentSchema = object> {
+    private readonly name;
+    private readonly apiCall;
+    private readonly configuration;
+    private readonly _documents;
+    constructor(name: string, apiCall: ApiCall, configuration: any);
+    documents(): SearchableDocuments<T>;
+}
+
+declare class SearchClient {
+    readonly multiSearch: MultiSearch;
+    private readonly configuration;
+    private readonly apiCall;
+    private readonly individualCollections;
+    constructor(options: ConfigurationOptions);
+    clearCache(): void;
+    collections<TDocumentSchema extends DocumentSchema = object>(collectionName: string): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection;
+}
+
 interface OverrideSchema extends OverrideCreateSchema {
     id: string;
 }
@@ -528,6 +610,7 @@ interface CollectionFieldSchema {
     stem?: boolean;
     num_dim?: number;
     store?: boolean;
+    range_index?: boolean;
     [t: string]: unknown;
 }
 interface CollectionSchema extends CollectionCreateSchema {
@@ -542,6 +625,9 @@ interface CollectionDropFieldSchema {
 interface CollectionUpdateSchema extends Partial<Omit<CollectionCreateSchema, "name" | "fields">> {
     fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
 }
+interface CollectionDeleteOptions {
+    compact_store?: boolean;
+}
 declare class Collection<T extends DocumentSchema = object> {
     private readonly name;
     private readonly apiCall;
@@ -555,7 +641,7 @@ declare class Collection<T extends DocumentSchema = object> {
     constructor(name: string, apiCall: ApiCall, configuration: any);
     retrieve(): Promise<CollectionSchema>;
     update(schema: CollectionUpdateSchema): Promise<CollectionSchema>;
-    delete(): Promise<CollectionSchema>;
+    delete(options?: CollectionDeleteOptions): Promise<CollectionSchema>;
     exists(): Promise<boolean>;
     documents(): Documents<T>;
     documents(documentId: string): Document<T>;
@@ -626,6 +712,7 @@ interface KeyCreateSchema {
     value?: string;
     value_prefix?: string;
     expires_at?: number;
+    autodelete?: boolean;
 }
 interface KeyDeleteSchema {
     id: number;
@@ -730,37 +817,7 @@ declare class Health {
 declare class Operations {
     private apiCall;
     constructor(apiCall: ApiCall);
-    perform(operationName: "vote" | "snapshot" | "cache/clear" | string, queryParameters?: Record<string, any>): Promise<any>;
-}
-
-interface MultiSearchRequestSchema extends SearchParams {
-    collection?: string;
-    "x-typesense-api-key"?: string;
-}
-interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPreset {
-    collection?: string;
-    "x-typesense-api-key"?: string;
-}
-interface MultiSearchRequestsSchema {
-    searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
-}
-interface MultiSearchResponse<T extends DocumentSchema[] = []> {
-    results: {
-        [Index in keyof T]: SearchResponse<T[Index]>;
-    } & {
-        length: T["length"];
-    };
-}
-declare class MultiSearch {
-    private apiCall;
-    private configuration;
-    private useTextContentType;
-    private requestWithCache;
-    constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
-    clearCache(): void;
-    perform<T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsSchema, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds, }?: {
-        cacheSearchResultsForSeconds?: number;
-    }): Promise<MultiSearchResponse<T>>;
+    perform(operationName: "vote" | "snapshot" | "cache/clear" | (string & {}), queryParameters?: Record<string, any>): Promise<any>;
 }
 
 interface PresetSchema extends PresetCreateSchema {
@@ -796,6 +853,7 @@ declare class Presets {
 interface AnalyticsRuleCreateSchema {
     type: "popular_queries" | "nohits_queries" | "counter";
     params: {
+        enable_auto_aggregation?: boolean;
         source: {
             collections: string[];
             events?: Array<{
@@ -842,7 +900,7 @@ declare class AnalyticsRules {
 interface AnalyticsEventCreateSchema {
     type: string;
     name: string;
-    data?: object;
+    data: Record<string, unknown>;
 }
 
 declare class AnalyticsEvents {
@@ -859,7 +917,8 @@ declare class Analytics {
     private readonly individualAnalyticsRules;
     private readonly _analyticsEvents;
     constructor(apiCall: ApiCall);
-    rules(id?: string): AnalyticsRules | AnalyticsRule;
+    rules(): AnalyticsRules;
+    rules(id: string): AnalyticsRule;
     events(): AnalyticsEvents;
     static get RESOURCEPATH(): string;
 }
@@ -1003,25 +1062,6 @@ declare class Client {
     conversations(id: string): Conversation;
 }
 
-declare class SearchOnlyCollection<T extends DocumentSchema = object> {
-    private readonly name;
-    private readonly apiCall;
-    private readonly configuration;
-    private readonly _documents;
-    constructor(name: string, apiCall: ApiCall, configuration: any);
-    documents(): SearchableDocuments<T>;
-}
-
-declare class SearchClient {
-    readonly multiSearch: MultiSearch;
-    private readonly configuration;
-    private readonly apiCall;
-    private readonly individualCollections;
-    constructor(options: ConfigurationOptions);
-    clearCache(): void;
-    collections<TDocumentSchema extends DocumentSchema = object>(collectionName: string): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection;
-}
-
 declare class HTTPError extends TypesenseError {
 }
 
@@ -1046,39 +1086,40 @@ declare class RequestUnauthorized extends TypesenseError {
 declare class ServerError extends TypesenseError {
 }
 
+interface ImportErrorPayload {
+    documentsInJSONLFormat: string | ReadStream$1;
+    options: DocumentImportParameters;
+    failedItems: ImportResponse[];
+    successCount: number;
+}
 declare class ImportError extends TypesenseError {
+    payload: ImportErrorPayload;
     importResults: ImportResponse[];
-    constructor(message: string, importResults: ImportResponse[]);
+    constructor(message: string, importResults: ImportResponse[], payload: ImportErrorPayload);
 }
 
-type Errors_HTTPError = HTTPError;
-declare const Errors_HTTPError: typeof HTTPError;
-type Errors_ImportError = ImportError;
-declare const Errors_ImportError: typeof ImportError;
-type Errors_MissingConfigurationError = MissingConfigurationError;
-declare const Errors_MissingConfigurationError: typeof MissingConfigurationError;
-type Errors_ObjectAlreadyExists = ObjectAlreadyExists;
-declare const Errors_ObjectAlreadyExists: typeof ObjectAlreadyExists;
-type Errors_ObjectNotFound = ObjectNotFound;
-declare const Errors_ObjectNotFound: typeof ObjectNotFound;
-type Errors_ObjectUnprocessable = ObjectUnprocessable;
-declare const Errors_ObjectUnprocessable: typeof ObjectUnprocessable;
-type Errors_RequestMalformed = RequestMalformed;
-declare const Errors_RequestMalformed: typeof RequestMalformed;
-type Errors_RequestUnauthorized = RequestUnauthorized;
-declare const Errors_RequestUnauthorized: typeof RequestUnauthorized;
-type Errors_ServerError = ServerError;
-declare const Errors_ServerError: typeof ServerError;
-type Errors_TypesenseError = TypesenseError;
-declare const Errors_TypesenseError: typeof TypesenseError;
-declare namespace Errors {
-  export { Errors_HTTPError as HTTPError, Errors_ImportError as ImportError, Errors_MissingConfigurationError as MissingConfigurationError, Errors_ObjectAlreadyExists as ObjectAlreadyExists, Errors_ObjectNotFound as ObjectNotFound, Errors_ObjectUnprocessable as ObjectUnprocessable, Errors_RequestMalformed as RequestMalformed, Errors_RequestUnauthorized as RequestUnauthorized, Errors_ServerError as ServerError, Errors_TypesenseError as TypesenseError };
+type index_HTTPError = HTTPError;
+declare const index_HTTPError: typeof HTTPError;
+type index_ImportError = ImportError;
+declare const index_ImportError: typeof ImportError;
+type index_MissingConfigurationError = MissingConfigurationError;
+declare const index_MissingConfigurationError: typeof MissingConfigurationError;
+type index_ObjectAlreadyExists = ObjectAlreadyExists;
+declare const index_ObjectAlreadyExists: typeof ObjectAlreadyExists;
+type index_ObjectNotFound = ObjectNotFound;
+declare const index_ObjectNotFound: typeof ObjectNotFound;
+type index_ObjectUnprocessable = ObjectUnprocessable;
+declare const index_ObjectUnprocessable: typeof ObjectUnprocessable;
+type index_RequestMalformed = RequestMalformed;
+declare const index_RequestMalformed: typeof RequestMalformed;
+type index_RequestUnauthorized = RequestUnauthorized;
+declare const index_RequestUnauthorized: typeof RequestUnauthorized;
+type index_ServerError = ServerError;
+declare const index_ServerError: typeof ServerError;
+type index_TypesenseError = TypesenseError;
+declare const index_TypesenseError: typeof TypesenseError;
+declare namespace index {
+  export { index_HTTPError as HTTPError, index_ImportError as ImportError, index_MissingConfigurationError as MissingConfigurationError, index_ObjectAlreadyExists as ObjectAlreadyExists, index_ObjectNotFound as ObjectNotFound, index_ObjectUnprocessable as ObjectUnprocessable, index_RequestMalformed as RequestMalformed, index_RequestUnauthorized as RequestUnauthorized, index_ServerError as ServerError, index_TypesenseError as TypesenseError };
 }
 
-declare const _default: {
-    Client: typeof Client;
-    SearchClient: typeof SearchClient;
-    Errors: typeof Errors;
-};
-
-export { Client, Errors, SearchClient, _default as default };
+export { type AnalyticsEventCreateSchema, type AnalyticsRuleCreateSchema, type AnalyticsRuleDeleteSchema, type AnalyticsRuleSchema, type AnalyticsRulesRetrieveSchema, type ArraybleParams, Client, type CollectionAliasCreateSchema, type CollectionAliasSchema, type CollectionAliasesResponseSchema, type CollectionCreateOptions, type CollectionCreateSchema, type CollectionDeleteOptions, type CollectionDropFieldSchema, type CollectionFieldSchema, type CollectionSchema, type CollectionUpdateSchema, type CollectionsRetrieveOptions, type ConfigurationOptions, type ConversationDeleteSchema, type ConversationModelCreateSchema, type ConversationModelDeleteSchema, type ConversationModelSchema, type ConversationSchema, type ConversationUpdateSchema, type ConversationsRetrieveSchema, type DebugResponseSchema, type DeleteQuery, type DeleteResponse, type DocumentImportParameters, type DocumentSchema, type DocumentWriteParameters, type DocumentsExportParameters, type DropTokensMode, type EndpointStats, index as Errors, type ExtractBaseTypes, type FieldType, type GenerateScopedSearchKeyParams, type HealthResponse, type ImportResponse, type ImportResponseFail, type KeyCreateSchema, type KeyDeleteSchema, type KeySchema, type KeysRetrieveSchema, type MetricsResponse, type MultiSearchRequestSchema, type MultiSearchRequestWithPresetSchema, type MultiSearchRequestsSchema, type MultiSearchResponse, type NodeConfiguration, type NodeConfigurationWithHostname, type NodeConfigurationWithUrl, type OperationMode, type OverrideCreateSchema, type OverrideDeleteSchema, type OverrideRuleFilterSchema, type OverrideRuleQuerySchema, type OverrideRuleTagsSchema, type OverrideSchema, type OverridesRetrieveSchema, type PresetCreateSchema, type PresetDeleteSchema, type PresetSchema, type PresetsRetrieveSchema, SearchClient, type SearchOptions, type SearchParams, type SearchParamsWithPreset, type SearchResponse, type SearchResponseFacetCountSchema, type SearchResponseHighlight, type SearchResponseHit, type SearchResponseRequestParams, type SearchableDocuments, type StatsResponse, type StopwordCreateSchema, type StopwordDeleteSchema, type StopwordSchema, type StopwordsRetrieveSchema, type SynonymCreateSchema, type SynonymDeleteSchema, type SynonymSchema, type SynonymsRetrieveSchema, type UnionArrayKeys, type UnionArraySearchParams, type UpdateByFilterParameters, type UpdateByFilterResponse, type WriteableDocuments, arrayableParams };
