@@ -13,6 +13,7 @@ const RESOURCEPATH = "/multi_search";
 
 export interface MultiSearchRequestSchema extends SearchParams {
   collection?: string;
+  rerank_hybrid_matches?: boolean;
   "x-typesense-api-key"?: string;
 }
 
@@ -23,6 +24,7 @@ export interface MultiSearchRequestWithPresetSchema
 }
 
 export interface MultiSearchRequestsSchema {
+  union?: true;
   searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
 

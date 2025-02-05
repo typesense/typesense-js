@@ -21,6 +21,7 @@ import Stopwords from "./Stopwords";
 import Stopword from "./Stopword";
 import Conversations from "./Conversations";
 import Conversation from "./Conversation";
+import Stemming from "./Stemming";
 
 export default class Client {
   configuration: Configuration;
@@ -32,6 +33,7 @@ export default class Client {
   operations: Operations;
   multiSearch: MultiSearch;
   analytics: Analytics;
+  stemming: Stemming;
   private readonly _collections: Collections;
   private readonly individualCollections: Record<string, Collection>;
   private readonly _aliases: Aliases;
@@ -67,6 +69,7 @@ export default class Client {
     this._stopwords = new Stopwords(this.apiCall);
     this.individualStopwords = {};
     this.analytics = new Analytics(this.apiCall);
+    this.stemming = new Stemming(this.apiCall);
     this._conversations = new Conversations(this.apiCall);
     this.individualConversations = {};
   }

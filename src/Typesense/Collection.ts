@@ -15,6 +15,7 @@ export type FieldType =
   | "float"
   | "bool"
   | "geopoint"
+  | "geopolygon"
   | "geopoint[]"
   | "string[]"
   | "int32[]"
@@ -27,7 +28,11 @@ export type FieldType =
   | "string*"
   | "image";
 
-export interface CollectionFieldSchema {
+export interface CollectionFieldSchema
+  extends Pick<
+    CollectionCreateSchema,
+    "token_separators" | "symbols_to_index"
+  > {
   name: string;
   type: FieldType;
   optional?: boolean;
