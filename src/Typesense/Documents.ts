@@ -1,7 +1,7 @@
 import type { ReadStream } from "fs";
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
-import { ImportError } from "./Errors";
+import { ImportError, RequestMalformed } from "./Errors";
 import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
 
 // Todo: use generic to extract filter_by values
@@ -394,6 +394,9 @@ export default class Documents<T extends DocumentSchema = object>
   ): Promise<string | ImportResponse[]> {
     let documentsInJSONLFormat;
     if (Array.isArray(documents)) {
+      if (documents.length === 0) {
+        throw new RequestMalformed("No documents provided");
+      }
       try {
         documentsInJSONLFormat = documents
           .map((document) => JSON.stringify(document))
@@ -416,6 +419,9 @@ export default class Documents<T extends DocumentSchema = object>
       }
     } else {
       documentsInJSONLFormat = documents;
+      if (isEmptyString(documentsInJSONLFormat)) {
+        throw new RequestMalformed("No documents provided");
+      }
     }
 
     const resultsInJSONLFormat = await this.apiCall.performRequest<string>(
@@ -519,4 +525,8 @@ export default class Documents<T extends DocumentSchema = object>
       responseType: "stream",
     });
   }
+}
+
+function isEmptyString(str: string | null | undefined): boolean {
+  return str == null || str === "" || str.length === 0;
 }
