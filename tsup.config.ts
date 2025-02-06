@@ -6,7 +6,9 @@ import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill
 export default defineConfig([
   {
     target: browserList(["defaults"]) as Options["target"],
-    entry: ["src/Typesense.ts"],
+    entry: {
+      typesense: "src/browser.ts",
+    },
     sourcemap: true,
     clean: true,
     format: ["cjs", "esm"],

@@ -20,9 +20,6 @@
       "url": "https://github.com/dcantu476"
     }
   ],
-  "main": "lib/Typesense.min.js",
-  "types": "lib/Typesense.d.ts",
-  "module": "lib/Typesense.min.mjs",
   "browser": {
     "crypto": false,
     "http": false,
@@ -31,20 +28,18 @@
   "exports": {
     ".": {
       "types": "./lib/Typesense.d.ts",
-      "import": "./lib/Typesense.min.mjs",
-      "require": "./lib/Typesense.min.js"
+      "default": "./lib/Typesense.js"
+    },
+    "./lib/Typesense/*": {
+      "types": "./lib/Typesense/*.d.ts",
+      "default": "./lib/Typesense/*.js"
     },
     "./dist": {
-      "types": "./dist/Typesense.d.ts",
-      "import": "./dist/Typesense.min.mjs",
-      "require": "./dist/Typesense.min.js"
+      "types": "./dist/typesense.d.ts",
+      "import": "./dist/typesense.min.mjs",
+      "require": "./dist/typesense.min.js"
     }
   },
-  "files": [
-    "lib/",
-    "dist/",
-    "src/"
-  ],
   "keywords": [
     "typesense",
     "api",
@@ -109,9 +104,8 @@
     "prepare": "npm run build",
     "test": "nyc --reporter=html --reporter=text ts-mocha --require @babel/register --recursive",
     "build": "tsc && tsup",
-    "build:tsc": "tsc",
-    "build:web:dev": "webpack --config webpack.config.js --mode development",
-    "build:web:prod": "webpack --config webpack.config.js --mode production",
+    "prebuild": "rimraf dist lib",
+    "postbuild": "rimraf lib/browser*",
     "build:tsc:watch": "tsc --watch",
     "ci-lint": "eslint .",
     "ci-test": "nyc --reporter=text --reporter=html ts-mocha --require @babel/register --reporter mocha-junit-reporter --recursive --colors",
