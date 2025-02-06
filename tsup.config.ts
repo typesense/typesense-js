@@ -11,36 +11,6 @@ export default defineConfig([
     clean: true,
     format: ["cjs", "esm"],
     dts: true,
-    outDir: "lib",
-    minify: true,
-    outExtension({ format }) {
-      return {
-        js: `.min.${format === "cjs" ? "js" : "mjs"}`,
-      };
-    },
-    splitting: true,
-    platform: "browser",
-    esbuildOptions(options) {
-      options.mainFields = ["browser", "module", "main"];
-      options.treeShaking = true;
-    },
-    esbuildPlugins: [
-      nodeModulesPolyfillPlugin({
-        modules: {
-          crypto: "empty",
-          http: "empty",
-          https: "empty",
-        },
-      }),
-    ],
-  },
-  {
-    target: browserList(["defaults"]) as Options["target"],
-    entry: ["src/Typesense.ts"],
-    sourcemap: true,
-    clean: true,
-    format: ["cjs", "esm"],
-    dts: true,
     outDir: "dist",
     minify: true,
     outExtension({ format }) {
