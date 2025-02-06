@@ -436,6 +436,65 @@ describe("Documents", function () {
   });
 
   describe(".import", function () {
+    context("when an empty array of documents is passed", function () {
+      it("throws RequestMalformed error", function (done) {
+        documents
+          .import([])
+          .then(() => {
+            done(new Error("Expected import to throw RequestMalformed error"));
+          })
+          .catch((error) => {
+            expect(error.constructor.name).to.eq("RequestMalformed");
+            expect(error.message).to.eq("No documents provided");
+            done();
+          });
+      });
+    });
+
+    context("when an empty string is passed", function () {
+      it("throws RequestMalformed error", function (done) {
+        documents
+          .import("")
+          .then(() => {
+            done(new Error("Expected import to throw RequestMalformed error"));
+          })
+          .catch((error) => {
+            expect(error.constructor.name).to.eq("RequestMalformed");
+            expect(error.message).to.eq("No documents provided");
+            done();
+          });
+      });
+    });
+
+    context("when null is passed as JSONL string", function () {
+      it("throws RequestMalformed error", function (done) {
+        documents
+          .import(null)
+          .then(() => {
+            done(new Error("Expected import to throw RequestMalformed error"));
+          })
+          .catch((error) => {
+            expect(error.constructor.name).to.eq("RequestMalformed");
+            expect(error.message).to.eq("No documents provided");
+            done();
+          });
+      });
+    });
+
+    context("when undefined is passed as JSONL string", function () {
+      it("throws RequestMalformed error", function (done) {
+        documents
+          .import(undefined)
+          .then(() => {
+            done(new Error("Expected import to throw RequestMalformed error"));
+          })
+          .catch((error) => {
+            expect(error.constructor.name).to.eq("RequestMalformed");
+            expect(error.message).to.eq("No documents provided");
+            done();
+          });
+      });
+    });
     context("when a query paramater is passed", function () {
       it("passes the query parameter to the API", function (done) {
         mockAxios
