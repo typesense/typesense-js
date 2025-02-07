@@ -40,6 +40,11 @@
       "require": "./dist/typesense.min.js"
     }
   },
+  "files": [
+    "./dist",
+    "./lib",
+    "./src"
+  ],
   "keywords": [
     "typesense",
     "api",
@@ -105,7 +110,6 @@
     "test": "nyc --reporter=html --reporter=text ts-mocha --require @babel/register --recursive",
     "build": "tsc -p ./tsconfig.cjs.json && tsup",
     "prebuild": "rimraf dist lib",
-    "postbuild": "rimraf lib/browser*",
     "build:tsc:watch": "tsc --watch",
     "ci-lint": "eslint .",
     "ci-test": "nyc --reporter=text --reporter=html ts-mocha --require @babel/register --reporter mocha-junit-reporter --recursive --colors",
