@@ -18,10 +18,7 @@ const baseOptions: Options = {
   },
   splitting: true,
   platform: "browser",
-  esbuildOptions(options) {
-    options.mainFields = ["browser", "module", "main"];
-    options.treeShaking = true;
-  },
+  treeshake: true,
   tsconfig: "./tsconfig.esm.json",
   esbuildPlugins: [
     nodeModulesPolyfillPlugin({
