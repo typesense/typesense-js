@@ -35,6 +35,7 @@ export default defineConfig([
   {
     ...baseOptions,
     sourcemap: true,
+    minify: true,
     dts: true,
   },
   {
