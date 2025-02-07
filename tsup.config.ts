@@ -22,6 +22,7 @@ const baseOptions: Options = {
     options.mainFields = ["browser", "module", "main"];
     options.treeShaking = true;
   },
+  tsconfig: "./tsconfig.esm.json",
   esbuildPlugins: [
     nodeModulesPolyfillPlugin({
       modules: {
@@ -36,7 +37,6 @@ const baseOptions: Options = {
 export default defineConfig([
   {
     ...baseOptions,
-    minify: true,
     sourcemap: true,
     dts: true,
   },

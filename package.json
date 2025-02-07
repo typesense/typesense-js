@@ -103,7 +103,7 @@
     "pretest": "eslint .",
     "prepare": "npm run build",
     "test": "nyc --reporter=html --reporter=text ts-mocha --require @babel/register --recursive",
-    "build": "tsc && tsup",
+    "build": "tsc -p ./tsconfig.cjs.json && tsup",
     "prebuild": "rimraf dist lib",
     "postbuild": "rimraf lib/browser*",
     "build:tsc:watch": "tsc --watch",
