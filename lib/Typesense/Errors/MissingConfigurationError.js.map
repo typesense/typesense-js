@@ -1,1 +1,1 @@
-{"version":3,"file":"MissingConfigurationError.js","sourceRoot":"","sources":["../../../src/Typesense/Errors/MissingConfigurationError.ts"],"names":[],"mappings":";;;AAAA,4EAA8C;AAE9C;IAAuD,qDAAc;IAArE;;IAAuE,CAAC;IAAD,gCAAC;AAAD,CAAC,AAAxE,CAAuD,wBAAc,GAAG"}
+{"version":3,"file":"MissingConfigurationError.js","sourceRoot":"","sources":["../../../src/Typesense/Errors/MissingConfigurationError.ts"],"names":[],"mappings":";;;AAAA,8EAA8C;AAE9C,MAAqB,yBAA0B,SAAQ,wBAAc;CAAG;AAAxE,4CAAwE"}

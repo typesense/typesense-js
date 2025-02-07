@@ -1,3 +1,6 @@
+import logger from 'loglevel';
+import axios from 'axios';
+
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -24,14 +27,13 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   // file that has been converted to a CommonJS file using a Babel-
   // compatible transform (i.e. "__esModule" has not been set), then set
   // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
 
 // node-modules-polyfills-empty:http
 var require_http = __commonJS({
   "node-modules-polyfills-empty:http"(exports, module) {
-    "use strict";
     module.exports = {};
   }
 });
@@ -39,7 +41,6 @@ var require_http = __commonJS({
 // node-modules-polyfills-empty:https
 var require_https = __commonJS({
   "node-modules-polyfills-empty:https"(exports, module) {
-    "use strict";
     module.exports = {};
   }
 });
@@ -47,13 +48,9 @@ var require_https = __commonJS({
 // node-modules-polyfills-empty:crypto
 var require_crypto = __commonJS({
   "node-modules-polyfills-empty:crypto"(exports, module) {
-    "use strict";
     module.exports = {};
   }
 });
-
-// src/Typesense/Configuration.ts
-import logger from "loglevel";
 
 // src/Typesense/Errors/index.ts
 var Errors_exports = {};
@@ -139,7 +136,7 @@ var Configuration = class {
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode);
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 5;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60;
-    this.numRetries = (options.numRetries !== void 0 && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
+    this.numRetries = (options.numRetries !== undefined && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
     this.apiKey = options.apiKey;
     this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam;
@@ -229,7 +226,6 @@ var Configuration = class {
 // src/Typesense/ApiCall.ts
 var import_http = __toESM(require_http());
 var import_https = __toESM(require_https());
-import axios from "axios";
 var APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 var HEALTHY = true;
 var UNHEALTHY = false;
@@ -252,7 +248,7 @@ var ApiCall = class {
   }
   async get(endpoint, queryParameters = {}, {
     abortSignal = null,
-    responseType = void 0
+    responseType = undefined
   } = {}) {
     return this.performRequest("get", endpoint, {
       queryParameters,
@@ -283,7 +279,7 @@ var ApiCall = class {
     });
   }
   getAdapter() {
-    if (!this.configuration.axiosAdapter) return void 0;
+    if (!this.configuration.axiosAdapter) return undefined;
     if (typeof this.configuration.axiosAdapter === "function")
       return this.configuration.axiosAdapter;
     const isCloudflareWorkers = typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
@@ -294,9 +290,9 @@ var ApiCall = class {
     bodyParameters = null,
     additionalHeaders = {},
     abortSignal = null,
-    responseType = void 0,
+    responseType = undefined,
     skipConnectionTimeout = false,
-    enableKeepAlive = void 0
+    enableKeepAlive = undefined
   }) {
     this.configuration.validate();
     const requestNumber = Date.now();
@@ -693,7 +689,7 @@ var SearchOnlyDocuments = class {
     );
   }
   endpointPath(operation) {
-    return `${Collections.RESOURCEPATH}/${this.collectionName}${RESOURCEPATH2}${operation === void 0 ? "" : "/" + operation}`;
+    return `${Collections.RESOURCEPATH}/${this.collectionName}${RESOURCEPATH2}${operation === undefined ? "" : "/" + operation}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH2;
@@ -866,7 +862,7 @@ var Documents = class extends SearchOnlyDocuments {
 
 // src/Typesense/Utils.ts
 function hasNoArrayValues(params) {
-  return Object.keys(arrayableParams).filter((key) => params[key] !== void 0).every((key) => isNonArrayValue(params[key]));
+  return Object.keys(arrayableParams).filter((key) => params[key] !== undefined).every((key) => isNonArrayValue(params[key]));
 }
 function normalizeArrayableParams(params) {
   const result = { ...params };
@@ -974,7 +970,7 @@ var SearchClient = class {
         "Typesense.SearchClient only supports search operations, so the collectionName that needs to be searched must be specified. Use Typesense.Client if you need to access the collection object."
       );
     } else {
-      if (this.individualCollections[collectionName] === void 0) {
+      if (this.individualCollections[collectionName] === undefined) {
         this.individualCollections[collectionName] = new SearchOnlyCollection(
           collectionName,
           this.apiCall,
@@ -1003,7 +999,7 @@ var Overrides = class _Overrides {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${Collections.RESOURCEPATH}/${this.collectionName}${_Overrides.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${Collections.RESOURCEPATH}/${this.collectionName}${_Overrides.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH4;
@@ -1045,7 +1041,7 @@ var Synonyms = class _Synonyms {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${_Synonyms.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${_Synonyms.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH5;
@@ -1133,7 +1129,7 @@ var Collection = class {
     if (!documentId) {
       return this._documents;
     } else {
-      if (this.individualDocuments[documentId] === void 0) {
+      if (this.individualDocuments[documentId] === undefined) {
         this.individualDocuments[documentId] = new Document(
           this.name,
           documentId,
@@ -1144,10 +1140,10 @@ var Collection = class {
     }
   }
   overrides(overrideId) {
-    if (overrideId === void 0) {
+    if (overrideId === undefined) {
       return this._overrides;
     } else {
-      if (this.individualOverrides[overrideId] === void 0) {
+      if (this.individualOverrides[overrideId] === undefined) {
         this.individualOverrides[overrideId] = new Override(
           this.name,
           overrideId,
@@ -1158,10 +1154,10 @@ var Collection = class {
     }
   }
   synonyms(synonymId) {
-    if (synonymId === void 0) {
+    if (synonymId === undefined) {
       return this._synonyms;
     } else {
-      if (this.individualSynonyms[synonymId] === void 0) {
+      if (this.individualSynonyms[synonymId] === undefined) {
         this.individualSynonyms[synonymId] = new Synonym(
           this.name,
           synonymId,
@@ -1345,7 +1341,7 @@ var Presets = class _Presets {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${_Presets.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_Presets.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH13;
@@ -1386,7 +1382,7 @@ var AnalyticsRules = class _AnalyticsRules {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${_AnalyticsRules.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_AnalyticsRules.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH14;
@@ -1424,7 +1420,7 @@ var AnalyticsEvents = class _AnalyticsEvents {
     );
   }
   endpointPath(operation) {
-    return `${_AnalyticsEvents.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_AnalyticsEvents.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH15;
@@ -1442,10 +1438,10 @@ var Analytics = class {
     this._analyticsEvents = new AnalyticsEvents(this.apiCall);
   }
   rules(id) {
-    if (id === void 0) {
+    if (id === undefined) {
       return this._analyticsRules;
     } else {
-      if (this.individualAnalyticsRules[id] === void 0) {
+      if (this.individualAnalyticsRules[id] === undefined) {
         this.individualAnalyticsRules[id] = new AnalyticsRule(id, this.apiCall);
       }
       return this.individualAnalyticsRules[id];
@@ -1475,7 +1471,7 @@ var Stopwords = class _Stopwords {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${_Stopwords.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_Stopwords.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH17;
@@ -1518,7 +1514,7 @@ var ConversationModels = class _ConversationModels {
     );
   }
   endpointPath(operation) {
-    return `${_ConversationModels.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_ConversationModels.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH18;
@@ -1563,10 +1559,10 @@ var Conversations = class {
     return this.apiCall.get(RESOURCEPATH19);
   }
   models(id) {
-    if (id === void 0) {
+    if (id === undefined) {
       return this._conversationsModels;
     } else {
-      if (this.individualConversationModels[id] === void 0) {
+      if (this.individualConversationModels[id] === undefined) {
         this.individualConversationModels[id] = new ConversationModel(
           id,
           this.apiCall
@@ -1632,7 +1628,7 @@ var StemmingDictionaries = class _StemmingDictionaries {
     );
   }
   endpointPath(operation) {
-    return operation === void 0 ? `${_StemmingDictionaries.RESOURCEPATH}` : `${_StemmingDictionaries.RESOURCEPATH}/${encodeURIComponent(operation)}`;
+    return operation === undefined ? `${_StemmingDictionaries.RESOURCEPATH}` : `${_StemmingDictionaries.RESOURCEPATH}/${encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH20;
@@ -1663,10 +1659,10 @@ var Stemming = class {
     this._stemmingDictionaries = new StemmingDictionaries(this.apiCall);
   }
   dictionaries(id) {
-    if (id === void 0) {
+    if (id === undefined) {
       return this._stemmingDictionaries;
     } else {
-      if (this.individualStemmingDictionaries[id] === void 0) {
+      if (this.individualStemmingDictionaries[id] === undefined) {
         this.individualStemmingDictionaries[id] = new StemmingDictionary(
           id,
           this.apiCall
@@ -1708,10 +1704,10 @@ var Client = class {
     this.individualConversations = {};
   }
   collections(collectionName) {
-    if (collectionName === void 0) {
+    if (collectionName === undefined) {
       return this._collections;
     } else {
-      if (this.individualCollections[collectionName] === void 0) {
+      if (this.individualCollections[collectionName] === undefined) {
         this.individualCollections[collectionName] = new Collection(
           collectionName,
           this.apiCall,
@@ -1722,58 +1718,55 @@ var Client = class {
     }
   }
   aliases(aliasName) {
-    if (aliasName === void 0) {
+    if (aliasName === undefined) {
       return this._aliases;
     } else {
-      if (this.individualAliases[aliasName] === void 0) {
+      if (this.individualAliases[aliasName] === undefined) {
         this.individualAliases[aliasName] = new Alias(aliasName, this.apiCall);
       }
       return this.individualAliases[aliasName];
     }
   }
   keys(id) {
-    if (id === void 0) {
+    if (id === undefined) {
       return this._keys;
     } else {
-      if (this.individualKeys[id] === void 0) {
+      if (this.individualKeys[id] === undefined) {
         this.individualKeys[id] = new Key(id, this.apiCall);
       }
       return this.individualKeys[id];
     }
   }
   presets(id) {
-    if (id === void 0) {
+    if (id === undefined) {
       return this._presets;
     } else {
-      if (this.individualPresets[id] === void 0) {
+      if (this.individualPresets[id] === undefined) {
         this.individualPresets[id] = new Preset(id, this.apiCall);
       }
       return this.individualPresets[id];
     }
   }
   stopwords(id) {
-    if (id === void 0) {
+    if (id === undefined) {
       return this._stopwords;
     } else {
-      if (this.individualStopwords[id] === void 0) {
+      if (this.individualStopwords[id] === undefined) {
         this.individualStopwords[id] = new Stopword(id, this.apiCall);
       }
       return this.individualStopwords[id];
     }
   }
   conversations(id) {
-    if (id === void 0) {
+    if (id === undefined) {
       return this._conversations;
     } else {
-      if (this.individualConversations[id] === void 0) {
+      if (this.individualConversations[id] === undefined) {
         this.individualConversations[id] = new Conversation(id, this.apiCall);
       }
       return this.individualConversations[id];
     }
   }
 };
-export {
-  Client,
-  Errors_exports as Errors,
-  SearchClient
-};
+
+export { Client, Errors_exports as Errors, SearchClient };
