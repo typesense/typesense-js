@@ -42,8 +42,7 @@
   },
   "files": [
     "./dist",
-    "./lib",
-    "./src"
+    "./lib"
   ],
   "keywords": [
     "typesense",
