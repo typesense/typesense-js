@@ -6,7 +6,7 @@ import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill
 const baseOptions: Options = {
   target: browserList(["defaults"]) as Options["target"],
   entry: {
-    typesense: "src/browser.ts",
+    typesense: "src/Typesense.ts",
   },
   clean: true,
   format: ["cjs", "esm"],

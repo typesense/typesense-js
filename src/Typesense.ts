@@ -1,9 +1,10 @@
-import Client from "./Typesense/Client";
 import SearchClient from "./Typesense/SearchClient";
-import * as Errors from "./Typesense/Errors";
+import Client from "./Typesense/Client";
 
-export { Client, SearchClient, Errors };
-export default { Client, SearchClient, Errors };
+export { SearchClient };
+export { Client };
+export * as Errors from "./Typesense/Errors";
+
 export type * from "./Typesense/Aliases";
 export type * from "./Typesense/AnalyticsEvent";
 export type * from "./Typesense/AnalyticsRule";
