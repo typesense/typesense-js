@@ -5,9 +5,7 @@ import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill
 
 const baseOptions: Options = {
   target: browserList(["defaults"]) as Options["target"],
-  entry: {
-    typesense: "src/Typesense.ts",
-  },
+  entry: ["src/index.ts"],
   clean: true,
   format: ["cjs", "esm"],
   outDir: "dist",
@@ -32,12 +30,14 @@ const baseOptions: Options = {
 };
 
 export default defineConfig([
+  // minified
   {
     ...baseOptions,
     sourcemap: true,
     minify: true,
     dts: true,
   },
+  // un-minified
   {
     ...baseOptions,
     minify: false,

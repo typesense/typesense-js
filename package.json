@@ -27,17 +27,17 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/Typesense.d.ts",
-      "default": "./lib/Typesense.js"
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
     },
     "./lib/Typesense/*": {
       "types": "./lib/Typesense/*.d.ts",
       "default": "./lib/Typesense/*.js"
     },
     "./dist": {
-      "types": "./dist/typesense.d.ts",
-      "import": "./dist/typesense.min.mjs",
-      "require": "./dist/typesense.min.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.min.mjs",
+      "require": "./dist/index.min.js"
     }
   },
   "files": [
