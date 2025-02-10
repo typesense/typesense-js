@@ -13,7 +13,8 @@ interface BaseCollectionCreateSchema {
   };
 }
 
-interface CollectionCreateSchemaWithSrc extends BaseCollectionCreateSchema {
+interface CollectionCreateSchemaWithSrc
+  extends Pick<BaseCollectionCreateSchema, "name"> {
   fields?: CollectionFieldSchema[];
 }
 
