@@ -2,7 +2,7 @@
 
 Javascript client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense).
 
-This library can be used both on the server-side and on the client-side. The library's [source](/src) is in ES6 and during build time, we transpile it to ES5 and generate two artifacts - [one](/lib) that can be used on the server-side and [another](/dist) that uses [Browserify](http://browserify.org/) and can be used on the client side.
+This library can be used both on the server-side and on the client-side. The library's [source](/src) is in ES6 and during build time, we transpile it to ES5 and generate two artifacts - [one](/lib) CommonJS that can be used on Node and [another](/dist) CommonJS / ESM that uses [tsup](https://tsup.egoist.dev/) and can be used on the client side.
 
 ## Installation
 
@@ -40,6 +40,27 @@ Tests are also a good place to know how the library works internally: [test](tes
 **Note: When using this library in a browser, please be sure to use an API Key that only allows search operations instead of the `master` API key.** See [doc/examples/server/keys.js](doc/examples/server/keys.js) for an example of how to generate a search only API key.
 
 See [Configuration.ts](src/Typesense/Configuration.ts) for a list of all client configuration options.
+
+## Search-only Client for Browser
+You can create a search-only client instance for use in the browser by importing the `SearchClient` class from `typesense/dist`.
+
+```typescript
+import { SearchClient } from 'typesense/dist'
+
+const client = new SearchClient({
+  nodes: [
+    {
+      host: 'localhost',
+      port: '8108',
+      protocol: 'http',
+    },
+    ],
+    apiKey: 'xyz',
+    connectionTimeoutSeconds: 2,
+    healthcheckIntervalSeconds: 60,
+
+})
+```
 
 ### Examples
 

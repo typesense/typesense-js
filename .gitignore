@@ -7,3 +7,4 @@ typesense-server-nodes
 .DS_Store
 test-results.xml
 test-files
+typesense-data

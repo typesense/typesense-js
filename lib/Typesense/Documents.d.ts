@@ -2,11 +2,14 @@ import type { ReadStream } from "fs";
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
 import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
-export interface DeleteQuery {
+export type DeleteQuery = {
+    truncate?: true;
+} | {
+    truncate?: never;
     filter_by?: string;
     batch_size?: number;
     ignore_not_found?: boolean;
-}
+};
 export interface DeleteResponse {
     num_deleted: number;
 }
@@ -43,6 +46,7 @@ export interface SearchParams {
     query_by_weights?: string | number[];
     prefix?: string | boolean | boolean[];
     filter_by?: string;
+    max_filter_by_candidates?: number;
     enable_synonyms?: boolean;
     enable_analytics?: boolean;
     filter_curated_hits?: boolean;

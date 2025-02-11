@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
+import { Client as TypesenseClient } from "../../src/index";
 import ApiCall from "../../src/Typesense/ApiCall";
 import axios from "axios";
 import MockAxiosAdapter from "axios-mock-adapter";
@@ -49,14 +49,14 @@ describe("Overrides", function () {
         .onPut(
           apiCall.uriFor(
             "/collections/companies/overrides/lex-exact",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           override,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(201, JSON.stringify(override), {
           "content-type": "application/json",
@@ -73,14 +73,14 @@ describe("Overrides", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies/overrides",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           undefined,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify([override]), {
           "content-type": "application/json",

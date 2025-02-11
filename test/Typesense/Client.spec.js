@@ -1,5 +1,5 @@
 import chai from "chai";
-import { Client as TypesenseClient } from "../../src/Typesense";
+import { Client as TypesenseClient } from "../../src/index";
 
 let expect = chai.expect;
 
@@ -47,7 +47,7 @@ describe("Client", function () {
       },
     });
     expect(
-      typesense.configuration.additionalHeaders["CF-Access-Client-Id"]
+      typesense.configuration.additionalHeaders["CF-Access-Client-Id"],
     ).to.eql("abcd");
     done();
   });

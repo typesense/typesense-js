@@ -3,7 +3,7 @@ import {
   Client as TypesenseClient,
   SearchClient as TypesenseSearchClient,
   Errors,
-} from "../src/Typesense";
+} from "../src/index";
 
 let expect = chai.expect;
 
