@@ -70,6 +70,7 @@ export default class MultiSearch {
     const queryParams = { ...commonParams, ...additionalQueryParams };
 
     const normalizedSearchRequests = {
+      ...searchRequests,
       searches: searchRequests.searches.map(normalizeArrayableParams),
     };
 
