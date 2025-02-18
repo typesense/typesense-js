@@ -6,8 +6,8 @@ import Override from "./Override";
 import Synonyms from "./Synonyms";
 import Synonym from "./Synonym";
 import { Document } from "./Document";
-export type FieldType = "string" | "int32" | "int64" | "float" | "bool" | "geopoint" | "geopoint[]" | "string[]" | "int32[]" | "int64[]" | "float[]" | "bool[]" | "object" | "object[]" | "auto" | "string*" | "image";
-export interface CollectionFieldSchema {
+export type FieldType = "string" | "int32" | "int64" | "float" | "bool" | "geopoint" | "geopolygon" | "geopoint[]" | "string[]" | "int32[]" | "int64[]" | "float[]" | "bool[]" | "object" | "object[]" | "auto" | "string*" | "image";
+export interface CollectionFieldSchema extends Partial<Pick<CollectionCreateSchema, "token_separators" | "symbols_to_index">> {
     name: string;
     type: FieldType;
     optional?: boolean;

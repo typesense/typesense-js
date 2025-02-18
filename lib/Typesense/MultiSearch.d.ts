@@ -3,6 +3,7 @@ import Configuration from "./Configuration";
 import { DocumentSchema, SearchParams, SearchParamsWithPreset, SearchResponse } from "./Documents";
 export interface MultiSearchRequestSchema extends SearchParams {
     collection?: string;
+    rerank_hybrid_matches?: boolean;
     "x-typesense-api-key"?: string;
 }
 export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPreset {
@@ -10,6 +11,7 @@ export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPres
     "x-typesense-api-key"?: string;
 }
 export interface MultiSearchRequestsSchema {
+    union?: true;
     searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
 export interface MultiSearchResponse<T extends DocumentSchema[] = []> {

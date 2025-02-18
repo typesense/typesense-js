@@ -19,6 +19,7 @@ import Stopwords from "./Stopwords";
 import Stopword from "./Stopword";
 import Conversations from "./Conversations";
 import Conversation from "./Conversation";
+import Stemming from "./Stemming";
 export default class Client {
     configuration: Configuration;
     apiCall: ApiCall;
@@ -29,6 +30,7 @@ export default class Client {
     operations: Operations;
     multiSearch: MultiSearch;
     analytics: Analytics;
+    stemming: Stemming;
     private readonly _collections;
     private readonly individualCollections;
     private readonly _aliases;
