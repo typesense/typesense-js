@@ -6,6 +6,7 @@ import {
   SearchParams,
   SearchParamsWithPreset,
   SearchResponse,
+  SearchResponseRequestParams,
 } from "./Documents";
 import { normalizeArrayableParams } from "./Utils";
 
@@ -23,16 +24,28 @@ export interface MultiSearchRequestWithPresetSchema
   "x-typesense-api-key"?: string;
 }
 
-export interface MultiSearchRequestsSchema {
-  union?: true;
+export interface MultiSearchRequestsSchema<
+  U extends boolean | undefined = undefined,
+> {
+  union?: U;
   searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
 
-export interface MultiSearchResponse<T extends DocumentSchema[] = []> {
-  results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
-    length: T["length"];
-  };
+export interface UnionSearchResponse<T extends DocumentSchema>
+  extends Omit<SearchResponse<T>, "request_params"> {
+  union_request_params: SearchResponseRequestParams[];
 }
+
+type MultiSearchResponse<
+  U extends boolean | undefined,
+  T extends DocumentSchema[],
+> = U extends true
+  ? UnionSearchResponse<T[number]>
+  : {
+      results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
+        length: T["length"];
+      };
+    };
 
 export default class MultiSearch {
   private requestWithCache: RequestWithCache;
@@ -40,7 +53,7 @@ export default class MultiSearch {
   constructor(
     private apiCall: ApiCall,
     private configuration: Configuration,
-    private useTextContentType: boolean = false
+    private useTextContentType: boolean = false,
   ) {
     this.requestWithCache = new RequestWithCache();
   }
@@ -49,14 +62,17 @@ export default class MultiSearch {
     this.requestWithCache.clearCache();
   }
 
-  async perform<T extends DocumentSchema[] = []>(
-    searchRequests: MultiSearchRequestsSchema,
+  async perform<
+    T extends DocumentSchema[] = [],
+    const U extends boolean | undefined = undefined,
+  >(
+    searchRequests: MultiSearchRequestsSchema<U>,
     commonParams: Partial<MultiSearchRequestSchema> = {},
     {
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
-    }: { cacheSearchResultsForSeconds?: number } = {}
-  ): Promise<MultiSearchResponse<T>> {
+    }: { cacheSearchResultsForSeconds?: number } = {},
+  ): Promise<MultiSearchResponse<U, T>> {
     const additionalHeaders = {};
     if (this.useTextContentType) {
       additionalHeaders["content-type"] = "text/plain";
@@ -70,6 +86,7 @@ export default class MultiSearch {
     const queryParams = { ...commonParams, ...additionalQueryParams };
 
     const normalizedSearchRequests = {
+      ...searchRequests,
       searches: searchRequests.searches.map(normalizeArrayableParams),
     };
 
@@ -85,6 +102,6 @@ export default class MultiSearch {
         additionalHeaders,
       ],
       { cacheResponseForSeconds: cacheSearchResultsForSeconds },
-    ) as Promise<MultiSearchResponse<T>>;
+    ) as Promise<MultiSearchResponse<U, T>>;
   }
 }
