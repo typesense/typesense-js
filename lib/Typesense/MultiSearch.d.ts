@@ -17,7 +17,7 @@ export interface MultiSearchRequestsSchema<U extends boolean | undefined = undef
 export interface UnionSearchResponse<T extends DocumentSchema> extends Omit<SearchResponse<T>, "request_params"> {
     union_request_params: SearchResponseRequestParams[];
 }
-type MultiSearchResponse<U extends boolean | undefined, T extends DocumentSchema[]> = U extends true ? UnionSearchResponse<T[number]> : {
+export type MultiSearchResponse<U extends boolean | undefined, T extends DocumentSchema[]> = U extends true ? UnionSearchResponse<T[number]> : {
     results: {
         [Index in keyof T]: SearchResponse<T[Index]>;
     } & {
@@ -35,4 +35,3 @@ export default class MultiSearch {
         cacheSearchResultsForSeconds?: number;
     }): Promise<MultiSearchResponse<U, T>>;
 }
-export {};
