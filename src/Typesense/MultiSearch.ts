@@ -36,7 +36,7 @@ export interface UnionSearchResponse<T extends DocumentSchema>
   union_request_params: SearchResponseRequestParams[];
 }
 
-type MultiSearchResponse<
+export type MultiSearchResponse<
   U extends boolean | undefined,
   T extends DocumentSchema[],
 > = U extends true
