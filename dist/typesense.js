@@ -3300,9 +3300,9 @@ var MultiSearch = /*#__PURE__*/function () {
                 additionalQueryParams["use_cache"] = true;
               }
               queryParams = _objectSpread(_objectSpread({}, commonParams), additionalQueryParams);
-              normalizedSearchRequests = {
+              normalizedSearchRequests = _objectSpread(_objectSpread({}, searchRequests), {}, {
                 searches: searchRequests.searches.map(_Utils__WEBPACK_IMPORTED_MODULE_6__.normalizeArrayableParams)
-              };
+              });
               normalizedQueryParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_6__.normalizeArrayableParams)(queryParams);
               return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.post, [RESOURCEPATH, normalizedSearchRequests, normalizedQueryParams, additionalHeaders], {
                 cacheResponseForSeconds: cacheSearchResultsForSeconds

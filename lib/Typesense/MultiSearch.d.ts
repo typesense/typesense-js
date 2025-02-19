@@ -1,6 +1,6 @@
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
-import { DocumentSchema, SearchParams, SearchParamsWithPreset, SearchResponse } from "./Documents";
+import { DocumentSchema, SearchParams, SearchParamsWithPreset, SearchResponse, SearchResponseRequestParams } from "./Documents";
 export interface MultiSearchRequestSchema extends SearchParams {
     collection?: string;
     rerank_hybrid_matches?: boolean;
@@ -10,17 +10,20 @@ export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPres
     collection?: string;
     "x-typesense-api-key"?: string;
 }
-export interface MultiSearchRequestsSchema {
-    union?: true;
+export interface MultiSearchRequestsSchema<U extends boolean | undefined = undefined> {
+    union?: U;
     searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
 }
-export interface MultiSearchResponse<T extends DocumentSchema[] = []> {
+export interface UnionSearchResponse<T extends DocumentSchema> extends Omit<SearchResponse<T>, "request_params"> {
+    union_request_params: SearchResponseRequestParams[];
+}
+type MultiSearchResponse<U extends boolean | undefined, T extends DocumentSchema[]> = U extends true ? UnionSearchResponse<T[number]> : {
     results: {
         [Index in keyof T]: SearchResponse<T[Index]>;
     } & {
         length: T["length"];
     };
-}
+};
 export default class MultiSearch {
     private apiCall;
     private configuration;
@@ -28,7 +31,8 @@ export default class MultiSearch {
     private requestWithCache;
     constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
     clearCache(): void;
-    perform<T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsSchema, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds, }?: {
+    perform<T extends DocumentSchema[] = [], const U extends boolean | undefined = undefined>(searchRequests: MultiSearchRequestsSchema<U>, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds, }?: {
         cacheSearchResultsForSeconds?: number;
-    }): Promise<MultiSearchResponse<T>>;
+    }): Promise<MultiSearchResponse<U, T>>;
 }
+export {};
