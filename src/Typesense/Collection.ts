@@ -1,5 +1,9 @@
 import ApiCall from "./ApiCall";
-import Collections, { CollectionCreateSchema } from "./Collections";
+import Collections from "./Collections";
+import type {
+  BaseCollectionCreateSchema,
+  CollectionCreateSchema,
+} from "./Collections";
 import Documents, { DocumentSchema } from "./Documents";
 import { ObjectNotFound } from "./Errors";
 import Overrides from "./Overrides";
@@ -30,7 +34,7 @@ export type FieldType =
 
 export interface CollectionFieldSchema
   extends Partial<
-    Pick<CollectionCreateSchema, "token_separators" | "symbols_to_index">
+    Pick<BaseCollectionCreateSchema, "token_separators" | "symbols_to_index">
   > {
   name: string;
   type: FieldType;
