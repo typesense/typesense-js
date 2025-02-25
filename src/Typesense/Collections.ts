@@ -1,7 +1,7 @@
 import ApiCall from "./ApiCall";
 import type { CollectionFieldSchema, CollectionSchema } from "./Collection";
 
-interface BaseCollectionCreateSchema {
+export interface BaseCollectionCreateSchema {
   name: string;
   default_sorting_field?: string;
   symbols_to_index?: string[];
