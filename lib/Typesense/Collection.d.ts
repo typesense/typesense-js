@@ -1,5 +1,5 @@
 import ApiCall from "./ApiCall";
-import { CollectionCreateSchema } from "./Collections";
+import type { BaseCollectionCreateSchema, CollectionCreateSchema } from "./Collections";
 import Documents, { DocumentSchema } from "./Documents";
 import Overrides from "./Overrides";
 import Override from "./Override";
@@ -7,7 +7,7 @@ import Synonyms from "./Synonyms";
 import Synonym from "./Synonym";
 import { Document } from "./Document";
 export type FieldType = "string" | "int32" | "int64" | "float" | "bool" | "geopoint" | "geopolygon" | "geopoint[]" | "string[]" | "int32[]" | "int64[]" | "float[]" | "bool[]" | "object" | "object[]" | "auto" | "string*" | "image";
-export interface CollectionFieldSchema extends Partial<Pick<CollectionCreateSchema, "token_separators" | "symbols_to_index">> {
+export interface CollectionFieldSchema extends Partial<Pick<BaseCollectionCreateSchema, "token_separators" | "symbols_to_index">> {
     name: string;
     type: FieldType;
     optional?: boolean;
