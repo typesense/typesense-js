@@ -1,6 +1,7 @@
-import { DocumentSchema, SearchableDocuments } from "./Documents";
+import type { DocumentSchema } from "./Documents";
 import ApiCall from "./ApiCall";
 import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
+import type { SearchableDocuments } from "./Types";
 
 export class SearchOnlyCollection<T extends DocumentSchema = object> {
   private readonly _documents: SearchableDocuments<T>;
