@@ -1,9 +1,5 @@
-import { arrayableParams } from "./Documents";
-import type {
-  UnionArrayKeys,
-  ExtractBaseTypes,
-  SearchParams,
-} from "./Documents";
+import { arrayableParams } from "./Types";
+import type { UnionArrayKeys, ExtractBaseTypes, SearchParams } from "./Types";
 
 function hasNoArrayValues<T extends SearchParams>(
   params: T | ExtractBaseTypes<T>,

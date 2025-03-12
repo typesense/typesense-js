@@ -4,13 +4,12 @@ import Configuration from "./Configuration";
 import Collections from "./Collections";
 import type {
   DocumentSchema,
-  SearchableDocuments,
   SearchOptions,
-  SearchParams,
   SearchParamsWithPreset,
   SearchResponse,
 } from "./Documents";
 import { normalizeArrayableParams } from "./Utils";
+import { SearchableDocuments, SearchParams } from "./Types";
 
 const RESOURCEPATH = "/documents";
 
