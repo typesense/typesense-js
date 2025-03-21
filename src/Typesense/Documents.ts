@@ -81,6 +81,7 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
     count: number;
     highlighted: string;
     value: string;
+    parent?: Record<string, string | number | boolean>;
   }[];
   field_name: keyof T;
   stats: {
