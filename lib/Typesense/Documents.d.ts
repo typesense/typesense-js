@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import type { ReadStream } from "fs";
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
@@ -64,6 +65,7 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
         count: number;
         highlighted: string;
         value: string;
+        parent?: Record<string, string | number | boolean>;
     }[];
     field_name: keyof T;
     stats: {
