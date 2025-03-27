@@ -127,6 +127,7 @@ export interface SearchParams {
   limit?: number;
   stopwords?: string;
   conversation?: boolean;
+  conversation_stream?: boolean;
   conversation_model_id?: string;
   conversation_id?: string;
   voice_query?: string;

@@ -4,6 +4,7 @@ import { Logger, LogLevelDesc } from "loglevel";
 import type { Agent as HTTPAgent } from "http";
 import type { Agent as HTTPSAgent } from "https";
 import type { AxiosRequestConfig } from "axios";
+import { DocumentSchema, SearchResponse } from "./Documents";
 export interface NodeConfiguration {
     host: string;
     port: number;
@@ -87,6 +88,33 @@ export interface ConfigurationOptions {
      * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
      */
     axiosAdapter?: AxiosRequestConfig["adapter"];
+    /**
+     * Streaming related configuration
+     *
+     * @type {StreamConfig}
+     */
+    streamConfig?: StreamConfig<DocumentSchema>;
+}
+/**
+ * Configuration options for streaming responses
+ */
+export interface StreamConfig<T extends DocumentSchema> {
+    /**
+     * Callback function that will be called for each chunk of data received
+     * during streaming
+     */
+    onChunk?: (data: {
+        conversation_id: string;
+        message: string;
+    }) => void;
+    /**
+     * Callback function that will be called when the streaming is complete
+     */
+    onComplete?: (data: SearchResponse<T>) => void;
+    /**
+     * Callback function that will be called if there is an error during streaming
+     */
+    onError?: (error: Error) => void;
 }
 export default class Configuration {
     readonly nodes: NodeConfiguration[] | NodeConfigurationWithHostname[] | NodeConfigurationWithUrl[];
@@ -106,6 +134,7 @@ export default class Configuration {
     readonly httpsAgent?: HTTPSAgent;
     readonly paramsSerializer?: any;
     readonly axiosAdapter?: AxiosRequestConfig["adapter"];
+    readonly streamConfig?: StreamConfig<DocumentSchema>;
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;
