@@ -37,6 +37,24 @@ export default class ApiCall {
         skipConnectionTimeout?: boolean;
         enableKeepAlive?: boolean | undefined;
     }): Promise<T>;
+    private processStreamingLine;
+    private processDataLine;
+    private handleStreamingResponse;
+    private handleNodeStreaming;
+    private handleBrowserStreaming;
+    private handleBrowserReadableStream;
+    private handleBrowserStringResponse;
+    private processStreamLines;
+    private finalizeStreamResult;
+    /**
+     * Combines multiple streaming chunks into a single coherent result
+     * This is critical for ensuring we return the complete data rather than just the last chunk
+     */
+    private combineStreamingChunks;
+    private getMessageChunks;
+    private combineMessageChunks;
+    private isCompleteSearchResponse;
+    private attemptChunksMerge;
     getNextNode(requestNumber?: number): Node;
     nodeDueForHealthcheck(node: any, requestNumber?: number): boolean;
     initializeMetadataForNodes(): void;
@@ -45,5 +63,8 @@ export default class ApiCall {
     defaultHeaders(): any;
     timer(seconds: any): Promise<void>;
     customErrorForResponse(response: AxiosResponse, messageFromServer: string, httpBody?: string): TypesenseError;
+    private invokeOnChunkCallback;
+    private invokeOnCompleteCallback;
+    private invokeOnErrorCallback;
 }
 export {};
