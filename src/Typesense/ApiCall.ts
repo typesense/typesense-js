@@ -8,7 +8,8 @@ import axios from "axios";
 import { Agent as HTTPAgent } from "http";
 import { Agent as HTTPSAgent } from "https";
 import { Logger } from "loglevel";
-import Configuration, { NodeConfiguration } from "./Configuration";
+import Configuration from "./Configuration";
+import type { NodeConfiguration, StreamConfig } from "./Configuration";
 import {
   HTTPError,
   ObjectAlreadyExists,
@@ -19,7 +20,7 @@ import {
   ServerError,
 } from "./Errors";
 import TypesenseError from "./Errors/TypesenseError";
-import type { SearchResponse } from "./Documents";
+import type { DocumentSchema, SearchResponse } from "./Documents";
 import { MessageChunk } from "./Types";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
@@ -36,7 +37,56 @@ const isNodeJSEnvironment =
   process.versions != null &&
   process.versions.node != null;
 
-export default class ApiCall {
+export interface HttpClient {
+  get<T>(
+    endpoint: string,
+    queryParameters: Record<string, unknown>,
+    {
+      abortSignal,
+      responseType,
+      streamConfig,
+    }: {
+      abortSignal?: AbortSignal | null;
+      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+    },
+  ): Promise<T>;
+  delete<T>(
+    endpoint: string,
+    queryParameters: Record<string, unknown>,
+  ): Promise<T>;
+  post<T>(
+    endpoint: string,
+    bodyParameters: unknown,
+    queryParameters: Record<string, unknown>,
+    additionalHeaders: Record<string, string>,
+    {
+      abortSignal,
+      responseType,
+      streamConfig,
+    }: {
+      abortSignal?: AbortSignal | null;
+      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+    },
+  ): Promise<T>;
+  put<T>(
+    endpoint: string,
+    bodyParameters: unknown,
+    queryParameters: Record<string, unknown>,
+  ): Promise<T>;
+  patch<T>(
+    endpoint: string,
+    bodyParameters: unknown,
+    queryParameters: Record<string, unknown>,
+  ): Promise<T>;
+}
+
+export default class ApiCall implements HttpClient {
   private readonly apiKey: string;
   private readonly nodes: Node[];
   private readonly nearestNode: Node;
@@ -80,15 +130,20 @@ export default class ApiCall {
     {
       abortSignal = null,
       responseType = undefined,
+      streamConfig = undefined,
     }: {
       abortSignal?: any;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
     } = {},
   ): Promise<T> {
     return this.performRequest<T>("get", endpoint, {
       queryParameters,
       abortSignal,
       responseType,
+      streamConfig,
     });
   }
 
@@ -101,11 +156,25 @@ export default class ApiCall {
     bodyParameters: any = {},
     queryParameters: any = {},
     additionalHeaders: any = {},
+    {
+      abortSignal = null,
+      responseType = undefined,
+      streamConfig = undefined,
+    }: {
+      abortSignal?: AbortSignal | null;
+      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+    } = {},
   ): Promise<T> {
     return this.performRequest<T>("post", endpoint, {
       queryParameters,
       bodyParameters,
       additionalHeaders,
+      abortSignal,
+      responseType,
+      streamConfig,
     });
   }
 
@@ -157,6 +226,7 @@ export default class ApiCall {
       responseType = undefined,
       skipConnectionTimeout = false,
       enableKeepAlive = undefined,
+      streamConfig = undefined,
     }: {
       queryParameters?: any;
       bodyParameters?: any;
@@ -165,6 +235,9 @@ export default class ApiCall {
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       skipConnectionTimeout?: boolean;
       enableKeepAlive?: boolean | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
     },
   ): Promise<T> {
     this.configuration.validate();
