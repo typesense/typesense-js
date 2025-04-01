@@ -109,13 +109,6 @@ export interface ConfigurationOptions {
    * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
    */
   axiosAdapter?: AxiosRequestConfig["adapter"];
-
-  /**
-   * Streaming related configuration
-   *
-   * @type {StreamConfig}
-   */
-  streamConfig?: StreamConfig<DocumentSchema>;
 }
 
 /**
@@ -161,7 +154,6 @@ export default class Configuration {
   readonly httpsAgent?: HTTPSAgent;
   readonly paramsSerializer?: any;
   readonly axiosAdapter?: AxiosRequestConfig["adapter"];
-  readonly streamConfig?: StreamConfig<DocumentSchema>;
 
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || [];
@@ -209,7 +201,6 @@ export default class Configuration {
     this.httpsAgent = options.httpsAgent;
 
     this.paramsSerializer = options.paramsSerializer;
-    this.streamConfig = options.streamConfig;
 
     this.showDeprecationWarnings(options);
     this.validate();
