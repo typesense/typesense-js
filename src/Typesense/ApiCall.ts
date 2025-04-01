@@ -421,8 +421,9 @@ export default class ApiCall implements HttpClient {
         );
 
         if (response.status >= 200 && response.status < 300) {
-          if (isStreamingRequest)
-            return this.handleStreamingResponse<T>(response);
+          if (isStreamingRequest) {
+            return this.handleStreamingResponse<T>(response, streamConfig);
+          }
           return Promise.resolve(response.data);
         } else if (response.status < 500) {
           // Next, if response is anything but 5xx, don't retry, return a custom error
@@ -463,7 +464,7 @@ export default class ApiCall implements HttpClient {
         }
 
         if (isStreamingRequest) {
-          this.invokeOnErrorCallback(error);
+          this.invokeOnErrorCallback(error, streamConfig);
         }
 
         if (numTries < this.numRetriesPerRequest + 1) {
@@ -577,25 +578,31 @@ export default class ApiCall implements HttpClient {
 
   private async handleStreamingResponse<T>(
     response: AxiosResponse,
+    streamConfig:
+      | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+      | undefined,
   ): Promise<T> {
     this.logger.debug(
       `Handling streaming response. Environment: ${isNodeJSEnvironment ? "Node.js" : "Browser"}`,
     );
 
     if (isNodeJSEnvironment && response.data) {
-      return this.handleNodeStreaming<T>(response);
+      return this.handleNodeStreaming<T>(response, streamConfig);
     }
 
     if (!isNodeJSEnvironment) {
-      return this.handleBrowserStreaming<T>(response);
+      return this.handleBrowserStreaming<T>(response, streamConfig);
     }
 
     this.logger.debug("Processing non-streaming response");
-    this.invokeOnCompleteCallback(response.data);
+    this.invokeOnCompleteCallback(response.data, streamConfig);
     return Promise.resolve(response.data as T);
   }
 
-  private handleNodeStreaming<T>(response: AxiosResponse): Promise<T> {
+  private handleNodeStreaming<T>(
+    response: AxiosResponse,
+    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
+  ): Promise<T> {
     this.logger.debug("Processing Node.js stream");
     return new Promise<T>((resolve, reject) => {
       const stream = response.data;
@@ -615,7 +622,7 @@ export default class ApiCall implements HttpClient {
           const lines = buffer.split("\n");
           buffer = lines.pop() ?? "";
 
-          this.processStreamLines(lines, allChunks);
+          this.processStreamLines(lines, allChunks, streamConfig);
         } catch (error) {
           reject(error);
         }
@@ -624,21 +631,29 @@ export default class ApiCall implements HttpClient {
       stream.on("end", () => {
         if (buffer.trim().length > 0) {
           const lines = buffer.split("\n");
-          this.processStreamLines(lines, allChunks);
+          this.processStreamLines(lines, allChunks, streamConfig);
         }
 
-        this.finalizeStreamResult<T>(allChunks, resolve, response);
+        this.finalizeStreamResult<T>(
+          allChunks,
+          resolve,
+          response,
+          streamConfig,
+        );
       });
 
       stream.on("error", (error: unknown) => {
         this.logger.error(`Stream error: ${error}`);
-        this.invokeOnErrorCallback(error);
+        this.invokeOnErrorCallback(error, streamConfig);
         reject(error);
       });
     });
   }
 
-  private handleBrowserStreaming<T>(response: AxiosResponse): Promise<T> {
+  private handleBrowserStreaming<T>(
+    response: AxiosResponse,
+    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
+  ): Promise<T> {
     this.logger.debug("Processing browser stream");
 
     return new Promise<T>(async (resolve, reject) => {
@@ -649,6 +664,7 @@ export default class ApiCall implements HttpClient {
             resolve,
             reject,
             response,
+            streamConfig,
           );
         }
 
@@ -657,12 +673,13 @@ export default class ApiCall implements HttpClient {
             response.data,
             resolve,
             response,
+            streamConfig,
           );
         }
 
         if (typeof response.data === "object" && response.data !== null) {
           this.logger.debug("No stream found, but data object is available");
-          this.invokeOnCompleteCallback(response.data);
+          this.invokeOnCompleteCallback(response.data, streamConfig);
           return resolve(response.data as T);
         }
 
@@ -670,7 +687,7 @@ export default class ApiCall implements HttpClient {
         return reject(new Error("No usable data found in response"));
       } catch (error) {
         this.logger.error(`Error processing streaming response: ${error}`);
-        this.invokeOnErrorCallback(error);
+        this.invokeOnErrorCallback(error, streamConfig);
         reject(error);
       }
     });
@@ -681,6 +698,9 @@ export default class ApiCall implements HttpClient {
     resolve: (value: T) => void,
     reject: (reason?: any) => void,
     response: AxiosResponse,
+    streamConfig:
+      | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+      | undefined,
   ): Promise<void> {
     this.logger.debug("Found ReadableStream in response.data");
     const reader = stream.getReader();
@@ -700,7 +720,7 @@ export default class ApiCall implements HttpClient {
           this.logger.debug("Stream reading complete");
           if (buffer.trim()) {
             const lines = buffer.split("\n");
-            this.processStreamLines(lines, allChunks);
+            this.processStreamLines(lines, allChunks, streamConfig);
           }
           break;
         }
@@ -712,10 +732,10 @@ export default class ApiCall implements HttpClient {
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
 
-        this.processStreamLines(lines, allChunks);
+        this.processStreamLines(lines, allChunks, streamConfig);
       }
 
-      this.finalizeStreamResult<T>(allChunks, resolve, response);
+      this.finalizeStreamResult<T>(allChunks, resolve, response, streamConfig);
     } catch (error) {
       reject(error);
     }
@@ -725,6 +745,9 @@ export default class ApiCall implements HttpClient {
     data: string,
     resolve: (value: T) => void,
     response: AxiosResponse,
+    streamConfig:
+      | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+      | undefined,
   ): void {
     this.logger.debug("Processing text response as stream data");
     const allChunks:
@@ -735,16 +758,19 @@ export default class ApiCall implements HttpClient {
       | [] = [];
 
     const lines = data.split("\n");
-    this.processStreamLines(lines, allChunks);
+    this.processStreamLines(lines, allChunks, streamConfig);
 
     if (allChunks.length > 0) {
-      const finalResult = this.combineStreamingChunks(allChunks);
-      this.invokeOnCompleteCallback(finalResult);
-      resolve(finalResult as T);
+      const finalResult =
+        this.combineStreamingChunks<
+          T extends DocumentSchema ? T : DocumentSchema
+        >(allChunks);
+      this.invokeOnCompleteCallback(finalResult, streamConfig);
+      resolve(finalResult as unknown as T);
     } else {
       // If no chunks were processed, use the original response
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(response.data);
+      this.invokeOnCompleteCallback(response.data, streamConfig);
       resolve(response.data as T);
     }
   }
@@ -752,13 +778,14 @@ export default class ApiCall implements HttpClient {
   private processStreamLines<T extends DocumentSchema>(
     lines: string[],
     allChunks: [...MessageChunk[], SearchResponse<T>] | [],
+    streamConfig: StreamConfig<T> | undefined,
   ): void {
     for (const line of lines) {
       if (line.trim() && line !== "data: [DONE]") {
         const processed = this.processStreamingLine(line);
         if (processed !== null) {
-          this.invokeOnChunkCallback(processed);
-          allChunks.push(processed);
+          this.invokeOnChunkCallback(processed, streamConfig);
+          (allChunks as MessageChunk[]).push(processed);
         }
       }
     }
@@ -773,15 +800,16 @@ export default class ApiCall implements HttpClient {
       | [],
     resolve: (value: T) => void,
     response: AxiosResponse,
+    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
   ): void {
     if (allChunks.length > 0) {
       const finalResult = this.combineStreamingChunks(allChunks);
       this.logger.debug("Stream processing complete");
-      this.invokeOnCompleteCallback(finalResult);
-      resolve(finalResult as T);
+      this.invokeOnCompleteCallback(finalResult, streamConfig);
+      resolve(finalResult as unknown as T);
     } else {
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(response.data);
+      this.invokeOnCompleteCallback(response.data, streamConfig);
       resolve(response.data as T);
     }
   }
@@ -1013,35 +1041,42 @@ export default class ApiCall implements HttpClient {
     return error;
   }
 
-  private invokeOnChunkCallback(data: {
-    conversation_id: string;
-    message: string;
-  }): void {
-    if (this.configuration.streamConfig?.onChunk) {
+  private invokeOnChunkCallback<T extends DocumentSchema>(
+    data: {
+      conversation_id: string;
+      message: string;
+    },
+    streamConfig: StreamConfig<T> | undefined,
+  ): void {
+    if (streamConfig?.onChunk) {
       try {
-        this.configuration.streamConfig.onChunk(data);
+        streamConfig.onChunk(data);
       } catch (error) {
         this.logger.warn(`Error in onChunk callback: ${error}`);
       }
     }
   }
 
-  private invokeOnCompleteCallback(data: unknown): void {
-    if (this.configuration.streamConfig?.onComplete) {
+  private invokeOnCompleteCallback<T extends DocumentSchema>(
+    data: SearchResponse<T>,
+    streamConfig: StreamConfig<T> | undefined,
+  ): void {
+    if (streamConfig?.onComplete) {
       try {
-        this.configuration.streamConfig.onComplete(data as any);
+        streamConfig.onComplete(data);
       } catch (error) {
         this.logger.warn(`Error in onComplete callback: ${error}`);
       }
     }
   }
 
-  private invokeOnErrorCallback(error: unknown): void {
-    if (this.configuration.streamConfig?.onError) {
-      const errorObj =
-        error instanceof Error ? error : new Error(String(error));
+  private invokeOnErrorCallback<T extends DocumentSchema>(
+    error: unknown,
+    streamConfig: StreamConfig<T> | undefined,
+  ): void {
+    if (streamConfig?.onError) {
       try {
-        this.configuration.streamConfig.onError(errorObj);
+        streamConfig.onError(error);
       } catch (callbackError) {
         this.logger.warn(`Error in onError callback: ${callbackError}`);
       }
