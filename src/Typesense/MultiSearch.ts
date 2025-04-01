@@ -104,7 +104,7 @@ export default class MultiSearch {
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
     }: { cacheSearchResultsForSeconds?: number } = {},
-  ): Promise<any> {
+  ): Promise<MultiSearchResponse<T>> {
     const additionalHeaders = {};
     if (this.useTextContentType) {
       additionalHeaders["content-type"] = "text/plain";
