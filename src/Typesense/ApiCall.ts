@@ -21,6 +21,7 @@ import {
 } from "./Errors";
 import TypesenseError from "./Errors/TypesenseError";
 import type { DocumentSchema, SearchResponse } from "./Documents";
+import { toErrorWithMessage } from "./Utils";
 import { MessageChunk } from "./Types";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
@@ -1075,8 +1076,9 @@ export default class ApiCall implements HttpClient {
     streamConfig: StreamConfig<T> | undefined,
   ): void {
     if (streamConfig?.onError) {
+      const errorObj = toErrorWithMessage(error);
       try {
-        streamConfig.onError(error);
+        streamConfig.onError(errorObj);
       } catch (callbackError) {
         this.logger.warn(`Error in onError callback: ${callbackError}`);
       }
