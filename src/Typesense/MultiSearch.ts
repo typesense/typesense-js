@@ -12,14 +12,15 @@ import { normalizeArrayableParams } from "./Utils";
 
 const RESOURCEPATH = "/multi_search";
 
-export interface MultiSearchRequestSchema extends SearchParams {
+export interface MultiSearchRequestSchema<T extends DocumentSchema>
+  extends SearchParams<T> {
   collection?: string;
   rerank_hybrid_matches?: boolean;
   "x-typesense-api-key"?: string;
 }
 
-export interface MultiSearchRequestWithPresetSchema
-  extends SearchParamsWithPreset {
+export interface MultiSearchRequestWithPresetSchema<T extends DocumentSchema>
+  extends SearchParamsWithPreset<T> {
   collection?: string;
   "x-typesense-api-key"?: string;
 }

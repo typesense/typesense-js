@@ -1,3 +1,4 @@
+import { StreamConfig } from "./Configuration";
 import {
   DocumentSchema,
   SearchParamsWithPreset,
@@ -34,10 +35,11 @@ export type UnionArrayKeys<T> = {
 }[keyof T] &
   keyof T;
 
-export type UnionArraySearchParams = UnionArrayKeys<SearchParams>;
+export type UnionArraySearchParams<T extends DocumentSchema> =
+  UnionArrayKeys<T>;
 
-export type ArraybleParams = {
-  readonly [K in UnionArraySearchParams]: string;
+export type ArraybleParams<T extends DocumentSchema> = {
+  readonly [K in UnionArraySearchParams<T>]: string;
 };
 
 export type ExtractBaseTypes<T> = {
@@ -48,7 +50,7 @@ export type ExtractBaseTypes<T> = {
     : T[K];
 };
 
-export const arrayableParams: ArraybleParams = {
+export const arrayableParams: ArraybleParams<DocumentSchema> = {
   query_by: "query_by",
   query_by_weights: "query_by_weights",
   facet_by: "facet_by",
@@ -66,7 +68,7 @@ export const arrayableParams: ArraybleParams = {
   sort_by: "sort_by",
 };
 
-export interface SearchParams {
+export interface SearchParams<TDoc extends DocumentSchema> {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
   // eslint-disable-next-line @typescript-eslint/ban-types -- Can't use `object` here, it needs to intersect with `{}`
   q?: "*" | (string & {});
@@ -136,10 +138,12 @@ export interface SearchParams {
   conversation_model_id?: string;
   conversation_id?: string;
   voice_query?: string;
+  streamConfig?: StreamConfig<TDoc>;
 }
+
 export interface SearchableDocuments<T extends DocumentSchema> {
   search(
-    searchParameters: SearchParams | SearchParamsWithPreset,
+    searchParameters: SearchParams<T> | SearchParamsWithPreset<T>,
     options: SearchOptions,
   ): Promise<SearchResponse<T>>;
   clearCache(): void;

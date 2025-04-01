@@ -29,7 +29,7 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
   }
 
   async search(
-    searchParameters: SearchParams | SearchParamsWithPreset,
+    searchParameters: SearchParams<T> | SearchParamsWithPreset<T>,
     {
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
