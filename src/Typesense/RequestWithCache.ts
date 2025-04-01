@@ -14,6 +14,7 @@ export interface RequestParams<T extends DocumentSchema> {
   streamConfig?: StreamConfig<T>;
   abortSignal?: AbortSignal | null;
   responseType?: AxiosRequestConfig["responseType"] | undefined;
+  isStreamingRequest: boolean | undefined;
 }
 
 interface CacheEntry<T> {
@@ -61,6 +62,7 @@ export default class RequestWithCache {
       streamConfig,
       abortSignal,
       responseType,
+      isStreamingRequest,
     } = requestParams;
 
     if (isCacheDisabled) {
@@ -71,7 +73,7 @@ export default class RequestWithCache {
         queryParams,
         body,
         headers,
-        { abortSignal, responseType, streamConfig },
+        { abortSignal, responseType, streamConfig, isStreamingRequest },
       );
     }
 
@@ -113,7 +115,7 @@ export default class RequestWithCache {
       queryParams,
       body,
       headers,
-      { abortSignal, responseType, streamConfig },
+      { abortSignal, responseType, streamConfig, isStreamingRequest },
     );
 
     this.responsePromiseCache.set(requestParamsJSON, {
@@ -156,6 +158,7 @@ export default class RequestWithCache {
       abortSignal?: AbortSignal | null;
       responseType?: AxiosRequestConfig["responseType"];
       streamConfig?: any;
+      isStreamingRequest: boolean | undefined;
     },
   ): Promise<TResult> {
     const method = context[methodName];
@@ -166,6 +169,7 @@ export default class RequestWithCache {
           abortSignal: options?.abortSignal,
           responseType: options?.responseType,
           streamConfig: options?.streamConfig,
+          isStreamingRequest: options?.isStreamingRequest,
         }) as Promise<TResult>;
 
       case "delete":
@@ -186,6 +190,7 @@ export default class RequestWithCache {
             abortSignal: options?.abortSignal,
             responseType: options?.responseType,
             streamConfig: options?.streamConfig,
+            isStreamingRequest: options?.isStreamingRequest,
           },
         ) as Promise<TResult>;
 

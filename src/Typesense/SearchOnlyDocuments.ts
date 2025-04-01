@@ -51,6 +51,8 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
       ...rest,
     };
 
+    const isStreamingRequest = queryParams.conversation_stream === true;
+
     return this.requestWithCache.perform<ApiCall, "get", T, SearchResponse<T>>(
       this.apiCall,
       "get",
@@ -59,6 +61,7 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
         queryParams,
         streamConfig,
         abortSignal,
+        isStreamingRequest,
       },
       {
         cacheResponseForSeconds: cacheSearchResultsForSeconds,

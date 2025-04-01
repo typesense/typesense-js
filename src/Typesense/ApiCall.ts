@@ -46,12 +46,14 @@ export interface HttpClient {
       abortSignal,
       responseType,
       streamConfig,
+      isStreamingRequest,
     }: {
       abortSignal?: AbortSignal | null;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
+      isStreamingRequest: boolean | undefined;
     },
   ): Promise<T>;
   delete<T>(
@@ -67,12 +69,14 @@ export interface HttpClient {
       abortSignal,
       responseType,
       streamConfig,
+      isStreamingRequest,
     }: {
       abortSignal?: AbortSignal | null;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
+      isStreamingRequest: boolean | undefined;
     },
   ): Promise<T>;
   put<T>(
@@ -132,12 +136,14 @@ export default class ApiCall implements HttpClient {
       abortSignal = null,
       responseType = undefined,
       streamConfig = undefined,
+      isStreamingRequest,
     }: {
       abortSignal?: any;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
+      isStreamingRequest?: boolean | undefined;
     } = {},
   ): Promise<T> {
     return this.performRequest<T>("get", endpoint, {
@@ -145,11 +151,15 @@ export default class ApiCall implements HttpClient {
       abortSignal,
       responseType,
       streamConfig,
+      isStreamingRequest,
     });
   }
 
   async delete<T>(endpoint: string, queryParameters: any = {}): Promise<T> {
-    return this.performRequest<T>("delete", endpoint, { queryParameters });
+    return this.performRequest<T>("delete", endpoint, {
+      queryParameters,
+      isStreamingRequest: false,
+    });
   }
 
   async post<T>(
@@ -161,12 +171,14 @@ export default class ApiCall implements HttpClient {
       abortSignal = null,
       responseType = undefined,
       streamConfig = undefined,
+      isStreamingRequest,
     }: {
       abortSignal?: AbortSignal | null;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
+      isStreamingRequest?: boolean | undefined;
     } = {},
   ): Promise<T> {
     return this.performRequest<T>("post", endpoint, {
@@ -176,6 +188,7 @@ export default class ApiCall implements HttpClient {
       abortSignal,
       responseType,
       streamConfig,
+      isStreamingRequest,
     });
   }
 
@@ -187,6 +200,7 @@ export default class ApiCall implements HttpClient {
     return this.performRequest<T>("put", endpoint, {
       queryParameters,
       bodyParameters,
+      isStreamingRequest: false,
     });
   }
 
@@ -198,6 +212,7 @@ export default class ApiCall implements HttpClient {
     return this.performRequest<T>("patch", endpoint, {
       queryParameters,
       bodyParameters,
+      isStreamingRequest: false,
     });
   }
 
@@ -228,6 +243,7 @@ export default class ApiCall implements HttpClient {
       skipConnectionTimeout = false,
       enableKeepAlive = undefined,
       streamConfig = undefined,
+      isStreamingRequest,
     }: {
       queryParameters?: any;
       bodyParameters?: any;
@@ -239,14 +255,10 @@ export default class ApiCall implements HttpClient {
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
+      isStreamingRequest?: boolean | undefined;
     },
   ): Promise<T> {
     this.configuration.validate();
-
-    // TODO: Hacky, the search function needs refactoring, currently passing a tuple for types, too much overhead
-    const isStreamingRequest =
-      queryParameters?.conversation_stream === true &&
-      requestType.toLowerCase() === "get";
 
     if (isStreamingRequest) {
       this.logger.debug(`Request: Performing streaming request to ${endpoint}`);

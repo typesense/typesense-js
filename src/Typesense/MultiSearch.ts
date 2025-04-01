@@ -136,8 +136,17 @@ export default class MultiSearch {
         queryParams: normalizedQueryParams,
         headers: additionalHeaders,
         streamConfig: extractedStreamConfig,
+        isStreamingRequest: this.isStreamingRequest(searchRequests),
       },
       { cacheResponseForSeconds: cacheSearchResultsForSeconds },
+    );
+  }
+
+  private isStreamingRequest<T extends DocumentSchema>(
+    searchRequests: MultiSearchRequestsSchema<T>,
+  ) {
+    return searchRequests.searches.some(
+      (search) => search.streamConfig !== undefined,
     );
   }
 
