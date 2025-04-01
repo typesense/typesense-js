@@ -49,3 +49,29 @@ type Prettify<T> = {
   [K in keyof T]: T[K];
   // eslint-disable-next-line @typescript-eslint/ban-types
 } & {};
+
+interface ErrorWithMessage extends Error {
+  message: string;
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as Record<string, unknown>).message === "string"
+  );
+}
+
+export function toErrorWithMessage(couldBeError: unknown): ErrorWithMessage {
+  if (isErrorWithMessage(couldBeError)) return couldBeError;
+
+  try {
+    if (typeof couldBeError === "string") {
+      return new Error(couldBeError);
+    }
+    return new Error(JSON.stringify(couldBeError));
+  } catch {
+    return new Error(String(couldBeError));
+  }
+}
