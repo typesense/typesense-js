@@ -19,6 +19,8 @@ import {
   ServerError,
 } from "./Errors";
 import TypesenseError from "./Errors/TypesenseError";
+import type { SearchResponse } from "./Documents";
+import { MessageChunk } from "./Types";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 const HEALTHY = true;
@@ -524,10 +526,12 @@ export default class ApiCall {
     this.logger.debug("Processing Node.js stream");
     return new Promise<T>((resolve, reject) => {
       const stream = response.data;
-      const allChunks: {
-        message: string;
-        conversation_id: string;
-      }[] = [];
+      const allChunks:
+        | [
+            ...MessageChunk[],
+            SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+          ]
+        | [] = [];
       let buffer = "";
 
       stream.on("data", (chunk) => {
@@ -607,10 +611,12 @@ export default class ApiCall {
   ): Promise<void> {
     this.logger.debug("Found ReadableStream in response.data");
     const reader = stream.getReader();
-    const allChunks: {
-      message: string;
-      conversation_id: string;
-    }[] = [];
+    const allChunks:
+      | [
+          ...MessageChunk[],
+          SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+        ]
+      | [] = [];
     let buffer = "";
 
     try {
@@ -648,7 +654,12 @@ export default class ApiCall {
     response: AxiosResponse,
   ): void {
     this.logger.debug("Processing text response as stream data");
-    const allChunks: unknown[] = [];
+    const allChunks:
+      | [
+          ...MessageChunk[],
+          SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+        ]
+      | [] = [];
 
     const lines = data.split("\n");
     this.processStreamLines(lines, allChunks);
@@ -665,7 +676,10 @@ export default class ApiCall {
     }
   }
 
-  private processStreamLines(lines: string[], allChunks: unknown[]): void {
+  private processStreamLines<T extends DocumentSchema>(
+    lines: string[],
+    allChunks: [...MessageChunk[], SearchResponse<T>] | [],
+  ): void {
     for (const line of lines) {
       if (line.trim() && line !== "data: [DONE]") {
         const processed = this.processStreamingLine(line);
@@ -678,10 +692,12 @@ export default class ApiCall {
   }
 
   private finalizeStreamResult<T>(
-    allChunks: {
-      message: string;
-      conversation_id: string;
-    }[],
+    allChunks:
+      | [
+          ...MessageChunk[],
+          SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+        ]
+      | [],
     resolve: (value: T) => void,
     response: AxiosResponse,
   ): void {
@@ -701,14 +717,21 @@ export default class ApiCall {
    * Combines multiple streaming chunks into a single coherent result
    * This is critical for ensuring we return the complete data rather than just the last chunk
    */
-  private combineStreamingChunks(chunks: unknown[]): unknown {
-    if (chunks.length === 0) return {};
-    if (chunks.length === 1) return chunks[0];
+  private combineStreamingChunks<T extends DocumentSchema>(
+    chunks: [...MessageChunk[], SearchResponse<T>] | [],
+  ): SearchResponse<T> {
+    if (chunks.length === 0) return {} as SearchResponse<T>;
+    if (chunks.length === 1) return chunks[0] as unknown as SearchResponse<T>;
 
     // For conversation streams with message chunks
-    const messagesChunks = this.getMessageChunks(chunks);
+    const messagesChunks = this.getMessageChunks(
+      chunks as [...MessageChunk[], SearchResponse<T>],
+    );
     if (messagesChunks.length > 0) {
-      return this.combineMessageChunks(chunks, messagesChunks);
+      return this.combineMessageChunks(
+        chunks as [...MessageChunk[], SearchResponse<T>],
+        messagesChunks,
+      );
     }
 
     // For regular search responses
@@ -719,19 +742,25 @@ export default class ApiCall {
 
     // Try to merge chunks if last chunk isn't a complete response
     return this.attemptChunksMerge(chunks, lastChunk);
+  private getMessageChunks<T extends DocumentSchema>(
+    chunks: [...MessageChunk[], SearchResponse<T>],
+  ): MessageChunk[] {
+    return chunks.filter(this.isChunkMessage);
   }
 
-  private getMessageChunks(chunks: unknown[]): unknown[] {
-    return chunks.filter(
-      (chunk) =>
-        typeof chunk === "object" && chunk !== null && "message" in chunk,
+  private isChunkMessage(chunk: unknown): chunk is MessageChunk {
+    return (
+      typeof chunk === "object" &&
+      chunk !== null &&
+      "message" in chunk &&
+      "conversation_id" in chunk
     );
   }
 
-  private combineMessageChunks(
-    chunks: unknown[],
-    messagesChunks: unknown[],
-  ): unknown {
+  private combineMessageChunks<T extends DocumentSchema>(
+    chunks: [...MessageChunk[], SearchResponse<T>],
+    messagesChunks: MessageChunk[],
+  ): SearchResponse<T> {
     this.logger.debug(
       `Found ${messagesChunks.length} message chunks to combine`,
     );
@@ -772,7 +801,9 @@ export default class ApiCall {
     return { message: combinedMessage };
   }
 
-  private isCompleteSearchResponse(chunk: unknown): boolean {
+  private isCompleteSearchResponse<T extends DocumentSchema>(
+    chunk: MessageChunk | SearchResponse<T>,
+  ): chunk is SearchResponse<T> {
     if (
       typeof chunk === "object" &&
       chunk !== null &&

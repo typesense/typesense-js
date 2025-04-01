@@ -14,6 +14,11 @@ export type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 
 export type OperationMode = "off" | "always" | "fallback";
 
+export type MessageChunk = {
+  message: string;
+  conversation_id: string;
+};
+
 export type UnionArrayKeys<T> = {
   [K in keyof T]: T[K] extends undefined
     ? never
