@@ -522,17 +522,19 @@ var ApiCall = /*#__PURE__*/function () {
           responseType,
           _ref$streamConfig,
           streamConfig,
+          isStreamingRequest,
           _args = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               queryParameters = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-              _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal, _ref$responseType = _ref.responseType, responseType = _ref$responseType === void 0 ? undefined : _ref$responseType, _ref$streamConfig = _ref.streamConfig, streamConfig = _ref$streamConfig === void 0 ? undefined : _ref$streamConfig;
+              _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal, _ref$responseType = _ref.responseType, responseType = _ref$responseType === void 0 ? undefined : _ref$responseType, _ref$streamConfig = _ref.streamConfig, streamConfig = _ref$streamConfig === void 0 ? undefined : _ref$streamConfig, isStreamingRequest = _ref.isStreamingRequest;
               return _context.abrupt("return", this.performRequest("get", endpoint, {
                 queryParameters: queryParameters,
                 abortSignal: abortSignal,
                 responseType: responseType,
-                streamConfig: streamConfig
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
               }));
             case 3:
             case "end":
@@ -556,7 +558,8 @@ var ApiCall = /*#__PURE__*/function () {
             case 0:
               queryParameters = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
               return _context2.abrupt("return", this.performRequest("delete", endpoint, {
-                queryParameters: queryParameters
+                queryParameters: queryParameters,
+                isStreamingRequest: false
               }));
             case 2:
             case "end":
@@ -583,6 +586,7 @@ var ApiCall = /*#__PURE__*/function () {
           responseType,
           _ref2$streamConfig,
           streamConfig,
+          isStreamingRequest,
           _args3 = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
@@ -590,14 +594,15 @@ var ApiCall = /*#__PURE__*/function () {
               bodyParameters = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
               queryParameters = _args3.length > 2 && _args3[2] !== undefined ? _args3[2] : {};
               additionalHeaders = _args3.length > 3 && _args3[3] !== undefined ? _args3[3] : {};
-              _ref2 = _args3.length > 4 && _args3[4] !== undefined ? _args3[4] : {}, _ref2$abortSignal = _ref2.abortSignal, abortSignal = _ref2$abortSignal === void 0 ? null : _ref2$abortSignal, _ref2$responseType = _ref2.responseType, responseType = _ref2$responseType === void 0 ? undefined : _ref2$responseType, _ref2$streamConfig = _ref2.streamConfig, streamConfig = _ref2$streamConfig === void 0 ? undefined : _ref2$streamConfig;
+              _ref2 = _args3.length > 4 && _args3[4] !== undefined ? _args3[4] : {}, _ref2$abortSignal = _ref2.abortSignal, abortSignal = _ref2$abortSignal === void 0 ? null : _ref2$abortSignal, _ref2$responseType = _ref2.responseType, responseType = _ref2$responseType === void 0 ? undefined : _ref2$responseType, _ref2$streamConfig = _ref2.streamConfig, streamConfig = _ref2$streamConfig === void 0 ? undefined : _ref2$streamConfig, isStreamingRequest = _ref2.isStreamingRequest;
               return _context3.abrupt("return", this.performRequest("post", endpoint, {
                 queryParameters: queryParameters,
                 bodyParameters: bodyParameters,
                 additionalHeaders: additionalHeaders,
                 abortSignal: abortSignal,
                 responseType: responseType,
-                streamConfig: streamConfig
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
               }));
             case 5:
             case "end":
@@ -624,7 +629,8 @@ var ApiCall = /*#__PURE__*/function () {
               queryParameters = _args4.length > 2 && _args4[2] !== undefined ? _args4[2] : {};
               return _context4.abrupt("return", this.performRequest("put", endpoint, {
                 queryParameters: queryParameters,
-                bodyParameters: bodyParameters
+                bodyParameters: bodyParameters,
+                isStreamingRequest: false
               }));
             case 3:
             case "end":
@@ -651,7 +657,8 @@ var ApiCall = /*#__PURE__*/function () {
               queryParameters = _args5.length > 2 && _args5[2] !== undefined ? _args5[2] : {};
               return _context5.abrupt("return", this.performRequest("patch", endpoint, {
                 queryParameters: queryParameters,
-                bodyParameters: bodyParameters
+                bodyParameters: bodyParameters,
+                isStreamingRequest: false
               }));
             case 3:
             case "end":
@@ -681,11 +688,14 @@ var ApiCall = /*#__PURE__*/function () {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee6$(_context7) {
           while (1) switch (_context7.prev = _context7.next) {
             case 0:
-              _ref3$queryParameters = _ref3.queryParameters, queryParameters = _ref3$queryParameters === void 0 ? null : _ref3$queryParameters, _ref3$bodyParameters = _ref3.bodyParameters, bodyParameters = _ref3$bodyParameters === void 0 ? null : _ref3$bodyParameters, _ref3$additionalHeade = _ref3.additionalHeaders, additionalHeaders = _ref3$additionalHeade === void 0 ? {} : _ref3$additionalHeade, _ref3$abortSignal = _ref3.abortSignal, abortSignal = _ref3$abortSignal === void 0 ? null : _ref3$abortSignal, _ref3$responseType = _ref3.responseType, responseType = _ref3$responseType === void 0 ? undefined : _ref3$responseType, _ref3$skipConnectionT = _ref3.skipConnectionTimeout, skipConnectionTimeout = _ref3$skipConnectionT === void 0 ? false : _ref3$skipConnectionT, _ref3$enableKeepAlive = _ref3.enableKeepAlive, enableKeepAlive = _ref3$enableKeepAlive === void 0 ? undefined : _ref3$enableKeepAlive, _ref3$streamConfig = _ref3.streamConfig, streamConfig = _ref3$streamConfig === void 0 ? undefined : _ref3$streamConfig;
+              _ref3$queryParameters = _ref3.queryParameters, queryParameters = _ref3$queryParameters === void 0 ? null : _ref3$queryParameters, _ref3$bodyParameters = _ref3.bodyParameters, bodyParameters = _ref3$bodyParameters === void 0 ? null : _ref3$bodyParameters, _ref3$additionalHeade = _ref3.additionalHeaders, additionalHeaders = _ref3$additionalHeade === void 0 ? {} : _ref3$additionalHeade, _ref3$abortSignal = _ref3.abortSignal, abortSignal = _ref3$abortSignal === void 0 ? null : _ref3$abortSignal, _ref3$responseType = _ref3.responseType, responseType = _ref3$responseType === void 0 ? undefined : _ref3$responseType, _ref3$skipConnectionT = _ref3.skipConnectionTimeout, skipConnectionTimeout = _ref3$skipConnectionT === void 0 ? false : _ref3$skipConnectionT, _ref3$enableKeepAlive = _ref3.enableKeepAlive, enableKeepAlive = _ref3$enableKeepAlive === void 0 ? undefined : _ref3$enableKeepAlive, _ref3$streamConfig = _ref3.streamConfig, streamConfig = _ref3$streamConfig === void 0 ? undefined : _ref3$streamConfig, isStreamingRequest = _ref3.isStreamingRequest;
               this.configuration.validate();
 
-              // TODO: Hacky, the search function needs refactoring, currently passing a tuple for types, too much overhead
-              isStreamingRequest = (queryParameters === null || queryParameters === void 0 ? void 0 : queryParameters.conversation_stream) === true && requestType.toLowerCase() === "get";
+              // // TODO: Hacky, the search function needs refactoring, currently passing a tuple for types, too much overhead
+              // const isStreamingRequest =
+              //   queryParameters?.conversation_stream === true &&
+              //   requestType.toLowerCase() === "get";
+
               if (isStreamingRequest) {
                 this.logger.debug("Request: Performing streaming request to ".concat(endpoint));
 
@@ -887,27 +897,27 @@ var ApiCall = /*#__PURE__*/function () {
                 }, _loop, null, [[4, 34, 50, 53]]);
               });
               numTries = 1;
-            case 9:
+            case 8:
               if (!(numTries <= this.numRetriesPerRequest + 1)) {
-                _context7.next = 17;
+                _context7.next = 16;
                 break;
               }
-              return _context7.delegateYield(_loop(), "t0", 11);
-            case 11:
+              return _context7.delegateYield(_loop(), "t0", 10);
+            case 10:
               _ret = _context7.t0;
               if (!_ret) {
-                _context7.next = 14;
+                _context7.next = 13;
                 break;
               }
               return _context7.abrupt("return", _ret.v);
-            case 14:
+            case 13:
               numTries++;
-              _context7.next = 9;
+              _context7.next = 8;
               break;
-            case 17:
+            case 16:
               this.logger.debug("Request #".concat(requestNumber, ": No retries left. Raising last error"));
               return _context7.abrupt("return", Promise.reject(lastException));
-            case 19:
+            case 18:
             case "end":
               return _context7.stop();
           }
@@ -3772,7 +3782,8 @@ var MultiSearch = /*#__PURE__*/function () {
                 body: normalizedSearchRequests,
                 queryParams: normalizedQueryParams,
                 headers: additionalHeaders,
-                streamConfig: extractedStreamConfig
+                streamConfig: extractedStreamConfig,
+                isStreamingRequest: this.isStreamingRequest(searchRequests)
               }, {
                 cacheResponseForSeconds: cacheSearchResultsForSeconds
               }));
@@ -3787,6 +3798,14 @@ var MultiSearch = /*#__PURE__*/function () {
       }
       return perform;
     }()
+  }, {
+    key: "isStreamingRequest",
+    value: function isStreamingRequest(searchRequests) {
+      return searchRequests.searches.some(function (search) {
+        return search.streamConfig !== undefined;
+      });
+    }
+
     /**
      * Extracts streamConfig from search requests and returns both the config and clean requests
      */
@@ -4255,13 +4274,13 @@ var RequestWithCache = /*#__PURE__*/function () {
     key: "perform",
     value: function () {
       var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(requestContext, methodName, requestParams, cacheOptions) {
-        var _cacheOptions$cacheRe, cacheResponseForSeconds, _cacheOptions$maxSize, maxSize, isCacheDisabled, path, queryParams, body, headers, streamConfig, abortSignal, responseType, requestParamsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry;
+        var _cacheOptions$cacheRe, cacheResponseForSeconds, _cacheOptions$maxSize, maxSize, isCacheDisabled, path, queryParams, body, headers, streamConfig, abortSignal, responseType, isStreamingRequest, requestParamsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _cacheOptions$cacheRe = cacheOptions.cacheResponseForSeconds, cacheResponseForSeconds = _cacheOptions$cacheRe === void 0 ? defaultCacheResponseForSeconds : _cacheOptions$cacheRe, _cacheOptions$maxSize = cacheOptions.maxSize, maxSize = _cacheOptions$maxSize === void 0 ? defaultMaxSize : _cacheOptions$maxSize;
               isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0;
-              path = requestParams.path, queryParams = requestParams.queryParams, body = requestParams.body, headers = requestParams.headers, streamConfig = requestParams.streamConfig, abortSignal = requestParams.abortSignal, responseType = requestParams.responseType;
+              path = requestParams.path, queryParams = requestParams.queryParams, body = requestParams.body, headers = requestParams.headers, streamConfig = requestParams.streamConfig, abortSignal = requestParams.abortSignal, responseType = requestParams.responseType, isStreamingRequest = requestParams.isStreamingRequest;
               if (!isCacheDisabled) {
                 _context.next = 5;
                 break;
@@ -4269,7 +4288,8 @@ var RequestWithCache = /*#__PURE__*/function () {
               return _context.abrupt("return", this.executeRequest(requestContext, methodName, path, queryParams, body, headers, {
                 abortSignal: abortSignal,
                 responseType: responseType,
-                streamConfig: streamConfig
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
               }));
             case 5:
               requestParamsJSON = JSON.stringify(requestParams);
@@ -4309,7 +4329,8 @@ var RequestWithCache = /*#__PURE__*/function () {
               responsePromise = this.executeRequest(requestContext, methodName, path, queryParams, body, headers, {
                 abortSignal: abortSignal,
                 responseType: responseType,
-                streamConfig: streamConfig
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
               });
               this.responsePromiseCache.set(requestParamsJSON, {
                 requestTimestamp: now,
@@ -4362,7 +4383,8 @@ var RequestWithCache = /*#__PURE__*/function () {
           return method.call(context, path, queryParams, {
             abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal,
             responseType: options === null || options === void 0 ? void 0 : options.responseType,
-            streamConfig: options === null || options === void 0 ? void 0 : options.streamConfig
+            streamConfig: options === null || options === void 0 ? void 0 : options.streamConfig,
+            isStreamingRequest: options === null || options === void 0 ? void 0 : options.isStreamingRequest
           });
         case "delete":
           return method.call(context, path, queryParams);
@@ -4370,7 +4392,8 @@ var RequestWithCache = /*#__PURE__*/function () {
           return method.call(context, path, body, queryParams, headers || {}, {
             abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal,
             responseType: options === null || options === void 0 ? void 0 : options.responseType,
-            streamConfig: options === null || options === void 0 ? void 0 : options.streamConfig
+            streamConfig: options === null || options === void 0 ? void 0 : options.streamConfig,
+            isStreamingRequest: options === null || options === void 0 ? void 0 : options.isStreamingRequest
           });
         case "put":
         case "patch":
@@ -4554,6 +4577,7 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
           streamConfig,
           rest,
           queryParams,
+          isStreamingRequest,
           _args = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
@@ -4565,15 +4589,18 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
               }
               _normalizeArrayablePa = (0,_Utils__WEBPACK_IMPORTED_MODULE_8__.normalizeArrayableParams)(searchParameters), streamConfig = _normalizeArrayablePa.streamConfig, rest = (0,_babel_runtime_helpers_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_0__["default"])(_normalizeArrayablePa, _excluded);
               queryParams = _objectSpread(_objectSpread({}, additionalQueryParams), rest);
+              isStreamingRequest = queryParams.conversation_stream === true;
+              console.log("isStreamingRequest", isStreamingRequest);
               return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, "get", {
                 path: this.endpointPath("search"),
                 queryParams: queryParams,
                 streamConfig: streamConfig,
-                abortSignal: abortSignal
+                abortSignal: abortSignal,
+                isStreamingRequest: isStreamingRequest
               }, {
                 cacheResponseForSeconds: cacheSearchResultsForSeconds
               }));
-            case 6:
+            case 8:
             case "end":
               return _context.stop();
           }

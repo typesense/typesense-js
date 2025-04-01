@@ -48,6 +48,7 @@ export default class MultiSearch {
             length: T["length"];
         };
     }>;
+    private isStreamingRequest;
     /**
      * Extracts streamConfig from search requests and returns both the config and clean requests
      */

@@ -8,16 +8,18 @@ interface Node extends NodeConfiguration {
     index: string | number;
 }
 export interface HttpClient {
-    get<T>(endpoint: string, queryParameters: Record<string, unknown>, { abortSignal, responseType, streamConfig, }: {
+    get<T>(endpoint: string, queryParameters: Record<string, unknown>, { abortSignal, responseType, streamConfig, isStreamingRequest, }: {
         abortSignal?: AbortSignal | null;
         responseType?: AxiosRequestConfig["responseType"] | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
+        isStreamingRequest: boolean | undefined;
     }): Promise<T>;
     delete<T>(endpoint: string, queryParameters: Record<string, unknown>): Promise<T>;
-    post<T>(endpoint: string, bodyParameters: unknown, queryParameters: Record<string, unknown>, additionalHeaders: Record<string, string>, { abortSignal, responseType, streamConfig, }: {
+    post<T>(endpoint: string, bodyParameters: unknown, queryParameters: Record<string, unknown>, additionalHeaders: Record<string, string>, { abortSignal, responseType, streamConfig, isStreamingRequest, }: {
         abortSignal?: AbortSignal | null;
         responseType?: AxiosRequestConfig["responseType"] | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
+        isStreamingRequest: boolean | undefined;
     }): Promise<T>;
     put<T>(endpoint: string, bodyParameters: unknown, queryParameters: Record<string, unknown>): Promise<T>;
     patch<T>(endpoint: string, bodyParameters: unknown, queryParameters: Record<string, unknown>): Promise<T>;
@@ -36,21 +38,23 @@ export default class ApiCall implements HttpClient {
     private readonly logger;
     private currentNodeIndex;
     constructor(configuration: Configuration);
-    get<T>(endpoint: string, queryParameters?: any, { abortSignal, responseType, streamConfig, }?: {
+    get<T>(endpoint: string, queryParameters?: any, { abortSignal, responseType, streamConfig, isStreamingRequest, }?: {
         abortSignal?: any;
         responseType?: AxiosRequestConfig["responseType"] | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
+        isStreamingRequest?: boolean | undefined;
     }): Promise<T>;
     delete<T>(endpoint: string, queryParameters?: any): Promise<T>;
-    post<T>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any, { abortSignal, responseType, streamConfig, }?: {
+    post<T>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any, { abortSignal, responseType, streamConfig, isStreamingRequest, }?: {
         abortSignal?: AbortSignal | null;
         responseType?: AxiosRequestConfig["responseType"] | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
+        isStreamingRequest?: boolean | undefined;
     }): Promise<T>;
     put<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
     patch<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
     private getAdapter;
-    performRequest<T>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, skipConnectionTimeout, enableKeepAlive, streamConfig, }: {
+    performRequest<T>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, skipConnectionTimeout, enableKeepAlive, streamConfig, isStreamingRequest, }: {
         queryParameters?: any;
         bodyParameters?: any;
         additionalHeaders?: any;
@@ -59,6 +63,7 @@ export default class ApiCall implements HttpClient {
         skipConnectionTimeout?: boolean;
         enableKeepAlive?: boolean | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
+        isStreamingRequest?: boolean | undefined;
     }): Promise<T>;
     private processStreamingLine;
     private processDataLine;

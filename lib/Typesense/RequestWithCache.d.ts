@@ -10,6 +10,7 @@ export interface RequestParams<T extends DocumentSchema> {
     streamConfig?: StreamConfig<T>;
     abortSignal?: AbortSignal | null;
     responseType?: AxiosRequestConfig["responseType"] | undefined;
+    isStreamingRequest: boolean | undefined;
 }
 export default class RequestWithCache {
     private responseCache;
