@@ -1,83 +1,130 @@
+import { AxiosRequestConfig } from "axios";
+import type { DocumentSchema } from "./Documents";
+import type { StreamConfig } from "./Configuration";
+import { HttpClient } from "./ApiCall";
+
 const defaultCacheResponseForSeconds = 2 * 60;
 const defaultMaxSize = 100;
 
+export interface RequestParams<T extends DocumentSchema> {
+  path: string;
+  queryParams?: Record<string, unknown>;
+  body?: unknown;
+  headers?: Record<string, string>;
+  streamConfig?: StreamConfig<T>;
+  abortSignal?: AbortSignal | null;
+  responseType?: AxiosRequestConfig["responseType"] | undefined;
+}
+
+interface CacheEntry<T> {
+  requestTimestamp: number;
+  response: T;
+}
+
+interface PromiseCacheEntry<T> {
+  requestTimestamp: number;
+  responsePromise: Promise<T>;
+}
+
 export default class RequestWithCache {
-  private responseCache: Map<string, any> = new Map<string, any>();
-  private responsePromiseCache: Map<string, any> = new Map<string, any>();
+  private responseCache: Map<string, CacheEntry<unknown>> = new Map();
+  private responsePromiseCache: Map<string, PromiseCacheEntry<unknown>> =
+    new Map();
 
   clearCache() {
-    this.responseCache = new Map<string, any>();
-    this.responsePromiseCache = new Map<string, any>();
+    this.responseCache = new Map();
+    this.responsePromiseCache = new Map();
   }
 
-  // Todo: should probably be passed a callback instead, or an apiCall instance. Types are messy this way
-  async perform<T>(
-    requestContext: any,
-    requestFunction: (...params: any) => unknown,
-    requestFunctionArguments: any[],
-    cacheOptions: CacheOptions
-  ): Promise<T | unknown> {
+  async perform<
+    const TContext extends HttpClient,
+    const TMethod extends keyof HttpClient,
+    const TDoc extends DocumentSchema,
+    TResult,
+  >(
+    requestContext: TContext,
+    methodName: TMethod,
+    requestParams: RequestParams<TDoc>,
+    cacheOptions: CacheOptions,
+  ): Promise<TResult> {
     const {
       cacheResponseForSeconds = defaultCacheResponseForSeconds,
       maxSize = defaultMaxSize,
     } = cacheOptions;
     const isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0;
 
+    const {
+      path,
+      queryParams,
+      body,
+      headers,
+      streamConfig,
+      abortSignal,
+      responseType,
+    } = requestParams;
+
     if (isCacheDisabled) {
-      return requestFunction.call(requestContext, ...requestFunctionArguments);
+      return this.executeRequest<TResult>(
+        requestContext,
+        methodName,
+        path,
+        queryParams,
+        body,
+        headers,
+        { abortSignal, responseType, streamConfig },
+      );
     }
 
-    const requestFunctionArgumentsJSON = JSON.stringify(
-      requestFunctionArguments
-    );
-    const cacheEntry = this.responseCache.get(requestFunctionArgumentsJSON);
+    const requestParamsJSON = JSON.stringify(requestParams);
+    const cacheEntry = this.responseCache.get(requestParamsJSON);
     const now = Date.now();
 
     if (cacheEntry) {
       const isEntryValid =
         now - cacheEntry.requestTimestamp < cacheResponseForSeconds * 1000;
       if (isEntryValid) {
-        this.responseCache.delete(requestFunctionArgumentsJSON);
-        this.responseCache.set(requestFunctionArgumentsJSON, cacheEntry);
-        return Promise.resolve(cacheEntry.response);
+        this.responseCache.delete(requestParamsJSON);
+        this.responseCache.set(requestParamsJSON, cacheEntry);
+        return cacheEntry.response as TResult;
       } else {
-        this.responseCache.delete(requestFunctionArgumentsJSON);
+        this.responseCache.delete(requestParamsJSON);
       }
     }
 
-    const cachePromiseEntry = this.responsePromiseCache.get(
-      requestFunctionArgumentsJSON
-    );
+    const cachePromiseEntry = this.responsePromiseCache.get(requestParamsJSON);
 
     if (cachePromiseEntry) {
       const isEntryValid =
         now - cachePromiseEntry.requestTimestamp <
         cacheResponseForSeconds * 1000;
       if (isEntryValid) {
-        this.responsePromiseCache.delete(requestFunctionArgumentsJSON);
-        this.responsePromiseCache.set(
-          requestFunctionArgumentsJSON,
-          cachePromiseEntry
-        );
-        return cachePromiseEntry.responsePromise;
+        this.responsePromiseCache.delete(requestParamsJSON);
+        this.responsePromiseCache.set(requestParamsJSON, cachePromiseEntry);
+        return cachePromiseEntry.responsePromise as Promise<TResult>;
       } else {
-        this.responsePromiseCache.delete(requestFunctionArgumentsJSON);
+        this.responsePromiseCache.delete(requestParamsJSON);
       }
     }
 
-    const responsePromise = requestFunction.call(
+    const responsePromise = this.executeRequest<TResult>(
       requestContext,
-      ...requestFunctionArguments
+      methodName,
+      path,
+      queryParams,
+      body,
+      headers,
+      { abortSignal, responseType, streamConfig },
     );
-    this.responsePromiseCache.set(requestFunctionArgumentsJSON, {
+
+    this.responsePromiseCache.set(requestParamsJSON, {
       requestTimestamp: now,
       responsePromise,
     });
 
     const response = await responsePromise;
-    this.responseCache.set(requestFunctionArgumentsJSON, {
+    this.responseCache.set(requestParamsJSON, {
       requestTimestamp: now,
-      response,
+      response: response,
     });
 
     const isCacheOverMaxSize = this.responseCache.size > maxSize;
@@ -95,7 +142,65 @@ export default class RequestWithCache {
         this.responsePromiseCache.delete(oldestEntry);
       }
     }
-    return response as T;
+    return response;
+  }
+
+  private executeRequest<TResult>(
+    context: HttpClient,
+    methodName: keyof HttpClient,
+    path: string,
+    queryParams: Record<string, unknown> = {},
+    body?: unknown,
+    headers?: Record<string, string>,
+    options?: {
+      abortSignal?: AbortSignal | null;
+      responseType?: AxiosRequestConfig["responseType"];
+      streamConfig?: any;
+    },
+  ): Promise<TResult> {
+    const method = context[methodName];
+
+    switch (methodName) {
+      case "get":
+        return (method as HttpClient["get"]).call(context, path, queryParams, {
+          abortSignal: options?.abortSignal,
+          responseType: options?.responseType,
+          streamConfig: options?.streamConfig,
+        }) as Promise<TResult>;
+
+      case "delete":
+        return (method as HttpClient["delete"]).call(
+          context,
+          path,
+          queryParams,
+        ) as Promise<TResult>;
+
+      case "post":
+        return (method as HttpClient["post"]).call(
+          context,
+          path,
+          body,
+          queryParams,
+          headers || {},
+          {
+            abortSignal: options?.abortSignal,
+            responseType: options?.responseType,
+            streamConfig: options?.streamConfig,
+          },
+        ) as Promise<TResult>;
+
+      case "put":
+      case "patch":
+        return (method as HttpClient[typeof methodName]).call(
+          context,
+          path,
+          body,
+          queryParams,
+        ) as Promise<TResult>;
+
+      default:
+        throw new Error(`Unsupported method: ${String(methodName)}`);
+    }
   }
 }
 
