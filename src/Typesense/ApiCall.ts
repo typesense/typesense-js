@@ -736,12 +736,13 @@ export default class ApiCall {
 
     // For regular search responses
     const lastChunk = chunks[chunks.length - 1];
-    if (this.isCompleteSearchResponse(lastChunk)) {
-      return lastChunk;
+    if (!this.isCompleteSearchResponse(lastChunk)) {
+      throw new Error("Last chunk is not a complete search response");
     }
 
-    // Try to merge chunks if last chunk isn't a complete response
-    return this.attemptChunksMerge(chunks, lastChunk);
+    return lastChunk;
+  }
+
   private getMessageChunks<T extends DocumentSchema>(
     chunks: [...MessageChunk[], SearchResponse<T>],
   ): MessageChunk[] {
@@ -765,40 +766,18 @@ export default class ApiCall {
       `Found ${messagesChunks.length} message chunks to combine`,
     );
 
-    // Check if the last chunk contains the complete response
     const lastChunk = chunks[chunks.length - 1];
-    if (
-      typeof lastChunk === "object" &&
-      lastChunk !== null &&
-      ("hits" in lastChunk || "found" in lastChunk)
-    ) {
-      this.logger.debug("Last chunk appears to be a complete search response");
+    if (this.isCompleteSearchResponse(lastChunk)) {
       return lastChunk;
     }
 
-    // Combine all message chunks
-    const combinedMessage = messagesChunks
-      .map((chunk) => (chunk as any).message)
-      .join("");
+    const metadataChunk = chunks.find(this.isCompleteSearchResponse);
 
-    // Look for a chunk with search metadata
-    const metadataChunk = chunks.find(
-      (chunk) =>
-        typeof chunk === "object" &&
-        chunk !== null &&
-        ("hits" in chunk || "found" in chunk || "request_params" in chunk),
-    );
-
-    if (metadataChunk) {
-      // If we found metadata, merge it with the combined message
-      return {
-        ...(metadataChunk as Record<string, any>),
-        message: combinedMessage,
-      };
+    if (!metadataChunk) {
+      throw new Error("No metadata chunk found");
     }
 
-    // Otherwise just return the combined message
-    return { message: combinedMessage };
+    return metadataChunk;
   }
 
   private isCompleteSearchResponse<T extends DocumentSchema>(
@@ -809,7 +788,6 @@ export default class ApiCall {
       chunk !== null &&
       Object.keys(chunk as object).length > 0
     ) {
-      // Check if it has search response properties
       return (
         "found" in (chunk as object) ||
         "hits" in (chunk as object) ||
@@ -818,28 +796,6 @@ export default class ApiCall {
       );
     }
     return false;
-  }
-
-  private attemptChunksMerge(chunks: unknown[], lastChunk: unknown): unknown {
-    try {
-      // Attempt to merge chunks that might be parts of the same structure
-      let mergedResult: Record<string, any> = {};
-
-      for (const chunk of chunks) {
-        if (typeof chunk === "object" && chunk !== null) {
-          mergedResult = { ...mergedResult, ...(chunk as Record<string, any>) };
-        }
-      }
-
-      if (Object.keys(mergedResult).length > 0) {
-        return mergedResult;
-      }
-    } catch (e) {
-      this.logger.warn(`Failed to merge chunks: ${e}`);
-    }
-
-    // Fallback to the last chunk if merging fails
-    return lastChunk;
   }
 
   // Attempts to find the next healthy node, looping through the list of nodes once.
