@@ -114,20 +114,28 @@ export interface ConfigurationOptions {
 /**
  * Configuration options for streaming responses
  */
-export interface StreamConfig<T extends DocumentSchema> {
+export interface BaseStreamConfig {
   /**
    * Callback function that will be called for each chunk of data received
    * during streaming
    */
   onChunk?: (data: { conversation_id: string; message: string }) => void;
   /**
-   * Callback function that will be called when the streaming is complete
-   */
-  onComplete?: (data: SearchResponse<T>) => void;
-  /**
    * Callback function that will be called if there is an error during streaming
    */
   onError?: (error: Error) => void;
+}
+
+/**
+ * Stream configuration for standard search responses
+ * For specialized responses like MultiSearch, extend BaseStreamConfig with the appropriate onComplete signature
+ */
+export interface StreamConfig<T extends DocumentSchema>
+  extends BaseStreamConfig {
+  /**
+   * Callback function that will be called when the streaming is complete
+   */
+  onComplete?: (data: SearchResponse<T>) => void;
 }
 
 export default class Configuration {
