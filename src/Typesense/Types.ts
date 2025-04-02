@@ -35,10 +35,10 @@ export type UnionArrayKeys<T> = {
 }[keyof T] &
   keyof T;
 
-export type UnionArraySearchParams<T extends DocumentSchema> =
+export type UnionArraySearchParams<T extends DocumentSchema = DocumentSchema> =
   UnionArrayKeys<T>;
 
-export type ArraybleParams<T extends DocumentSchema> = {
+export type ArraybleParams<T extends DocumentSchema = DocumentSchema> = {
   readonly [K in UnionArraySearchParams<T>]: string;
 };
 
@@ -50,7 +50,7 @@ export type ExtractBaseTypes<T> = {
     : T[K];
 };
 
-export const arrayableParams: ArraybleParams<DocumentSchema> = {
+export const arrayableParams: ArraybleParams = {
   query_by: "query_by",
   query_by_weights: "query_by_weights",
   facet_by: "facet_by",
@@ -68,7 +68,7 @@ export const arrayableParams: ArraybleParams<DocumentSchema> = {
   sort_by: "sort_by",
 };
 
-export interface SearchParams<TDoc extends DocumentSchema> {
+export interface SearchParams<TDoc extends DocumentSchema = DocumentSchema> {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
   // eslint-disable-next-line @typescript-eslint/ban-types -- Can't use `object` here, it needs to intersect with `{}`
   q?: "*" | (string & {});
@@ -141,7 +141,9 @@ export interface SearchParams<TDoc extends DocumentSchema> {
   streamConfig?: StreamConfig<TDoc>;
 }
 
-export interface SearchableDocuments<T extends DocumentSchema> {
+export interface SearchableDocuments<
+  T extends DocumentSchema = DocumentSchema,
+> {
   search(
     searchParameters: SearchParams<T> | SearchParamsWithPreset<T>,
     options: SearchOptions,
