@@ -1,6 +1,7 @@
 import ApiCall from "./ApiCall";
+import { DocumentSchema } from "./Documents";
 import { PresetCreateSchema } from "./Presets";
-export interface PresetSchema extends PresetCreateSchema {
+export interface PresetSchema<T extends DocumentSchema> extends PresetCreateSchema<T> {
     name: string;
 }
 export interface PresetDeleteSchema {
@@ -10,7 +11,7 @@ export default class Preset {
     private presetId;
     private apiCall;
     constructor(presetId: string, apiCall: ApiCall);
-    retrieve(): Promise<PresetSchema>;
+    retrieve<T extends DocumentSchema>(): Promise<PresetSchema<T>>;
     delete(): Promise<PresetDeleteSchema>;
     private endpointPath;
 }

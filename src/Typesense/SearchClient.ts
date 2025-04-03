@@ -8,7 +8,10 @@ export default class SearchClient {
   public readonly multiSearch: MultiSearch;
   private readonly configuration: Configuration;
   private readonly apiCall: ApiCall;
-  private readonly individualCollections: Record<string, SearchOnlyCollection>;
+  private readonly individualCollections: Record<
+    string,
+    SearchOnlyCollection<DocumentSchema>
+  >;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? true;
@@ -37,9 +40,11 @@ export default class SearchClient {
     });
   }
 
-  collections<TDocumentSchema extends DocumentSchema = object>(
-    collectionName: string
-  ): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection {
+  collections<TDocumentSchema extends DocumentSchema>(
+    collectionName: string,
+  ):
+    | SearchOnlyCollection<TDocumentSchema>
+    | SearchOnlyCollection<TDocumentSchema> {
     if (!collectionName) {
       throw new Error(
         "Typesense.SearchClient only supports search operations, so the collectionName that needs to " +
@@ -53,7 +58,9 @@ export default class SearchClient {
           this.configuration
         );
       }
-      return this.individualCollections[collectionName];
+      return this.individualCollections[
+        collectionName
+      ] as SearchOnlyCollection<TDocumentSchema>;
     }
   }
 }

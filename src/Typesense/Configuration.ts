@@ -109,32 +109,33 @@ export interface ConfigurationOptions {
    * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
    */
   axiosAdapter?: AxiosRequestConfig["adapter"];
-
-  /**
-   * Streaming related configuration
-   *
-   * @type {StreamConfig}
-   */
-  streamConfig?: StreamConfig<DocumentSchema>;
 }
 
 /**
  * Configuration options for streaming responses
  */
-export interface StreamConfig<T extends DocumentSchema> {
+export interface BaseStreamConfig {
   /**
    * Callback function that will be called for each chunk of data received
    * during streaming
    */
   onChunk?: (data: { conversation_id: string; message: string }) => void;
   /**
-   * Callback function that will be called when the streaming is complete
-   */
-  onComplete?: (data: SearchResponse<T>) => void;
-  /**
    * Callback function that will be called if there is an error during streaming
    */
   onError?: (error: Error) => void;
+}
+
+/**
+ * Stream configuration for standard search responses
+ * For specialized responses like MultiSearch, extend BaseStreamConfig with the appropriate onComplete signature
+ */
+export interface StreamConfig<T extends DocumentSchema>
+  extends BaseStreamConfig {
+  /**
+   * Callback function that will be called when the streaming is complete
+   */
+  onComplete?: (data: SearchResponse<T>) => void;
 }
 
 export default class Configuration {
@@ -161,7 +162,6 @@ export default class Configuration {
   readonly httpsAgent?: HTTPSAgent;
   readonly paramsSerializer?: any;
   readonly axiosAdapter?: AxiosRequestConfig["adapter"];
-  readonly streamConfig?: StreamConfig<DocumentSchema>;
 
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || [];
@@ -209,7 +209,6 @@ export default class Configuration {
     this.httpsAgent = options.httpsAgent;
 
     this.paramsSerializer = options.paramsSerializer;
-    this.streamConfig = options.streamConfig;
 
     this.showDeprecationWarnings(options);
     this.validate();

@@ -1,18 +1,23 @@
+import { StreamConfig } from "./Configuration";
 import { DocumentSchema, SearchParamsWithPreset, SearchOptions, SearchResponse, DocumentWriteParameters, DeleteQuery, DeleteResponse, ImportResponse, DocumentsExportParameters } from "./Documents";
 export type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 export type OperationMode = "off" | "always" | "fallback";
+export type MessageChunk = {
+    message: string;
+    conversation_id: string;
+};
 export type UnionArrayKeys<T> = {
     [K in keyof T]: T[K] extends undefined ? never : NonNullable<T[K]> extends infer R ? R extends R[] ? never : R extends (infer U)[] | infer U ? U[] extends R ? K : never : never : never;
 }[keyof T] & keyof T;
-export type UnionArraySearchParams = UnionArrayKeys<SearchParams>;
-export type ArraybleParams = {
-    readonly [K in UnionArraySearchParams]: string;
+export type UnionArraySearchParams<T extends DocumentSchema> = UnionArrayKeys<T>;
+export type ArraybleParams<T extends DocumentSchema> = {
+    readonly [K in UnionArraySearchParams<T>]: string;
 };
 export type ExtractBaseTypes<T> = {
     [K in keyof T]: K extends UnionArrayKeys<T> ? T[K] extends (infer U)[] | infer U ? U : T[K] : T[K];
 };
-export declare const arrayableParams: ArraybleParams;
-export interface SearchParams {
+export declare const arrayableParams: ArraybleParams<DocumentSchema>;
+export interface SearchParams<TDoc extends DocumentSchema> {
     q?: "*" | (string & {});
     query_by?: string | string[];
     query_by_weights?: string | number[];
@@ -80,9 +85,10 @@ export interface SearchParams {
     conversation_model_id?: string;
     conversation_id?: string;
     voice_query?: string;
+    streamConfig?: StreamConfig<TDoc>;
 }
 export interface SearchableDocuments<T extends DocumentSchema> {
-    search(searchParameters: SearchParams | SearchParamsWithPreset, options: SearchOptions): Promise<SearchResponse<T>>;
+    search(searchParameters: SearchParams<T> | SearchParamsWithPreset<T>, options: SearchOptions): Promise<SearchResponse<T>>;
     clearCache(): void;
 }
 export interface WriteableDocuments<T> {
