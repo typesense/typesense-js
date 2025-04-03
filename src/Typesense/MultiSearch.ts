@@ -5,97 +5,20 @@ import {
   DocumentSchema,
   ExtractBaseTypes,
   SearchParams,
-  SearchParamsWithPreset,
   SearchResponse,
-  SearchResponseRequestParams,
 } from "./Documents";
 import { normalizeArrayableParams } from "./Utils";
-import { BaseStreamConfig } from "./Configuration";
+import type {
+  MultiSearchRequestsSchema,
+  MultiSearchRequestsWithUnionSchema,
+  MultiSearchResponse,
+  MultiSearchUnionParameters,
+  MultiSearchResultsParameters,
+  UnionSearchResponse,
+  MultiSearchRequestsWithoutUnionSchema,
+} from "./Types";
 
 const RESOURCEPATH = "/multi_search";
-
-type BaseMultiSearchRequestSchema = {
-  collection?: string;
-  rerank_hybrid_matches?: boolean;
-  "x-typesense-api-key"?: string;
-};
-
-export type MultiSearchRequestSchema<T extends DocumentSchema> =
-  BaseMultiSearchRequestSchema & Omit<SearchParams<T>, "streamConfig">;
-
-export type MultiSearchRequestWithPresetSchema<T extends DocumentSchema> =
-  BaseMultiSearchRequestSchema &
-    Omit<SearchParamsWithPreset<T>, "streamConfig">;
-
-interface SearchesMultiSearchesRequestSchema<T extends DocumentSchema> {
-  searches: (
-    | MultiSearchRequestSchema<T>
-    | MultiSearchRequestWithPresetSchema<T>
-  )[];
-}
-
-export interface MultiSearchRequestsWithUnionSchema<T extends DocumentSchema>
-  extends SearchesMultiSearchesRequestSchema<T> {
-  union: true;
-}
-
-export interface MultiSearchRequestsWithoutUnionSchema<T extends DocumentSchema>
-  extends SearchesMultiSearchesRequestSchema<T> {
-  union?: false | undefined;
-}
-
-export type MultiSearchRequestsSchema<T extends DocumentSchema> =
-  | MultiSearchRequestsWithUnionSchema<T>
-  | MultiSearchRequestsWithoutUnionSchema<T>;
-
-export interface UnionSearchResponse<T extends DocumentSchema>
-  extends Omit<SearchResponse<T>, "request_params"> {
-  union_request_params: SearchResponseRequestParams[];
-}
-
-export type MultiSearchResponse<
-  T extends DocumentSchema[],
-  R extends MultiSearchRequestsSchema<T[number]> = MultiSearchRequestsSchema<
-    T[number]
-  >,
-> =
-  R extends MultiSearchRequestsWithUnionSchema<T[number]>
-    ? UnionSearchResponse<T[number]>
-    : {
-        results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
-          length: T["length"];
-        };
-      };
-
-export interface MultiSearchUnionStreamConfig<T extends DocumentSchema>
-  extends BaseStreamConfig {
-  onComplete?: (data: UnionSearchResponse<T>) => void;
-}
-
-export interface MultiSearchResultsStreamConfig<T extends DocumentSchema[]>
-  extends BaseStreamConfig {
-  onComplete?: (data: {
-    results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
-      length: T["length"];
-    };
-  }) => void;
-}
-
-type CommonMultiSearchParametersBase<T extends DocumentSchema> = Partial<
-  BaseMultiSearchRequestSchema & Omit<SearchParams<T>, "streamConfig">
->;
-
-export type MultiSearchUnionParameters<T extends DocumentSchema> =
-  CommonMultiSearchParametersBase<T> & {
-    streamConfig?: MultiSearchUnionStreamConfig<T>;
-    use_cache?: boolean;
-  };
-
-export type MultiSearchResultsParameters<T extends DocumentSchema[]> =
-  CommonMultiSearchParametersBase<T[number]> & {
-    streamConfig?: MultiSearchResultsStreamConfig<T>;
-    use_cache?: boolean;
-  };
 
 export default class MultiSearch {
   private requestWithCache: RequestWithCache;
@@ -177,3 +100,13 @@ export default class MultiSearch {
     return commonParams.streamConfig !== undefined;
   }
 }
+
+export type {
+  MultiSearchRequestsSchema,
+  MultiSearchRequestsWithUnionSchema,
+  MultiSearchResponse,
+  MultiSearchUnionParameters,
+  MultiSearchResultsParameters,
+  UnionSearchResponse,
+  MultiSearchRequestsWithoutUnionSchema,
+} from "./Types";
