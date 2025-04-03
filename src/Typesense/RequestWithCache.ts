@@ -1,21 +1,10 @@
 import { AxiosRequestConfig } from "axios";
 import type { DocumentSchema } from "./Documents";
-import type { StreamConfig } from "./Configuration";
 import { HttpClient } from "./ApiCall";
+import type { RequestParams } from "./Types";
 
 const defaultCacheResponseForSeconds = 2 * 60;
 const defaultMaxSize = 100;
-
-export interface RequestParams<T extends DocumentSchema> {
-  path: string;
-  queryParams?: Record<string, unknown>;
-  body?: unknown;
-  headers?: Record<string, string>;
-  streamConfig?: StreamConfig<T>;
-  abortSignal?: AbortSignal | null;
-  responseType?: AxiosRequestConfig["responseType"] | undefined;
-  isStreamingRequest: boolean | undefined;
-}
 
 interface CacheEntry<T> {
   requestTimestamp: number;
@@ -213,3 +202,5 @@ interface CacheOptions {
   cacheResponseForSeconds?: number;
   maxSize?: number;
 }
+
+export type { RequestParams } from "./Types";
