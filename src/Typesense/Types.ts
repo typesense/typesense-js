@@ -141,6 +141,17 @@ export interface SearchParams<TDoc extends DocumentSchema = DocumentSchema> {
   streamConfig?: StreamConfig<TDoc>;
 }
 
+export interface SearchResponseRequestParams {
+  collection_name?: string;
+  q?: string;
+  page?: number;
+  per_page?: number;
+  first_q?: string;
+  voice_query?: {
+    transcribed_query?: string;
+  };
+}
+
 export interface SearchableDocuments<
   T extends DocumentSchema = DocumentSchema,
 > {
