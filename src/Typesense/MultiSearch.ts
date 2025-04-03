@@ -138,10 +138,7 @@ export default class MultiSearch {
         .cacheSearchResultsForSeconds,
     }: { cacheSearchResultsForSeconds?: number } = {},
   ): Promise<MultiSearchResponse<T>> {
-    const params = { ...commonParams } as
-      | MultiSearchUnionParameters<T[number]>
-      | MultiSearchResultsParameters<T>
-      | { use_cache?: boolean; streamConfig?: unknown };
+    const params = commonParams ? { ...commonParams } : {};
 
     if (this.configuration.useServerSideSearchCache === true) {
       params.use_cache = true;
