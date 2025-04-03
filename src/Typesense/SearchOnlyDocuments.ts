@@ -53,7 +53,12 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
 
     const isStreamingRequest = queryParams.conversation_stream === true;
 
-    return this.requestWithCache.perform<ApiCall, "get", T, SearchResponse<T>>(
+    return this.requestWithCache.perform<
+      ApiCall,
+      "get",
+      [T],
+      SearchResponse<T>
+    >(
       this.apiCall,
       "get",
       {

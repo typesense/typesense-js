@@ -29,7 +29,7 @@ export default class RequestWithCache {
   async perform<
     const TContext extends HttpClient,
     const TMethod extends keyof HttpClient,
-    const TDoc extends DocumentSchema,
+    const TDoc extends DocumentSchema[],
     TResult,
   >(
     requestContext: TContext,
