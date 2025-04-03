@@ -1,5 +1,6 @@
-import { StreamConfig } from "./Configuration";
-import {
+import type { AxiosRequestConfig } from "axios";
+import type { BaseStreamConfig, StreamConfig } from "./Configuration";
+import type {
   DocumentSchema,
   SearchParamsWithPreset,
   SearchOptions,
