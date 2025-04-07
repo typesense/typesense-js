@@ -75,7 +75,7 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
   }
 
   protected endpointPath(operation?: string) {
-    return `${Collections.RESOURCEPATH}/${this.collectionName}${RESOURCEPATH}${
+    return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${RESOURCEPATH}${
       operation === undefined ? "" : "/" + operation
     }`;
   }
