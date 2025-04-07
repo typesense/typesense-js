@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import TypesenseError from "./TypesenseError";
 import type { DocumentImportParameters, ImportResponse } from "../Documents";
 import { ReadStream } from "node:fs";

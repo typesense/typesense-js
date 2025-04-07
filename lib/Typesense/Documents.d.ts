@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import type { ReadStream } from "fs";
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
