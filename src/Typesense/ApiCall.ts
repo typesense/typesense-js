@@ -36,7 +36,8 @@ interface Node extends NodeConfiguration {
 const isNodeJSEnvironment =
   typeof process !== "undefined" &&
   process.versions != null &&
-  process.versions.node != null;
+  process.versions.node != null &&
+  typeof window === "undefined";
 
 export interface HttpClient {
   get<T>(
