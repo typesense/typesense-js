@@ -95,6 +95,7 @@
     "pretest": "eslint .",
     "test": "nyc --reporter=html --reporter=text ts-mocha --require @babel/register --recursive",
     "build": "npm run build:tsc && npm run build:web:dev && npm run build:web:prod",
+    "test:vitest": "vitest",
     "build:tsc": "tsc",
     "build:web:dev": "webpack --config webpack.config.js --mode development",
     "build:web:prod": "webpack --config webpack.config.js --mode production",
