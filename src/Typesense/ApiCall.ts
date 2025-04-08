@@ -903,6 +903,7 @@ export default class ApiCall implements HttpClient {
       Object.keys(chunk as object).length > 0
     ) {
       return (
+        "results" in (chunk as object) ||
         "found" in (chunk as object) ||
         "hits" in (chunk as object) ||
         "page" in (chunk as object) ||
