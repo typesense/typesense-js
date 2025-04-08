@@ -55,7 +55,9 @@ export const model = {
 
 export async function setup() {
   try {
+    console.log("Creating collection");
     await client.collections().create(collection);
+    console.log("Collection created");
   } catch (error) {
     if (error instanceof ObjectAlreadyExists) {
       console.log("PG essays collection already exists");
@@ -65,6 +67,7 @@ export async function setup() {
   }
 
   try {
+    console.log("Creating conversation store collection");
     await client.collections().create({
       name: "conversation_store",
       fields: [
@@ -92,6 +95,7 @@ export async function setup() {
         },
       ],
     });
+    console.log("Conversation store collection created");
   } catch (error) {
     if (error instanceof ObjectAlreadyExists) {
       console.log("Conversation store collection already exists");
@@ -101,10 +105,14 @@ export async function setup() {
   }
 
   // if it fails, we're failing
+  console.log("Importing essays");
   await client.collections(collection.name).documents().import(essays);
+  console.log("Essays imported");
 
   try {
+    console.log("Creating conversation model");
     await client.conversations().models().create(model);
+    console.log("Conversation model created");
   } catch (error) {
     if (error instanceof ObjectAlreadyExists) {
       console.log("Conversation model already exists");
@@ -115,6 +123,11 @@ export async function setup() {
 }
 
 export async function teardown() {
+  console.log("Deleting collection");
   await client.collections(collection.name).delete();
+  console.log("Collection deleted");
+
+  console.log("Deleting conversation store collection");
   await client.collections("conversation_store").delete();
+  console.log("Conversation store collection deleted");
 }
