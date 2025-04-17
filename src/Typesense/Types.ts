@@ -131,6 +131,8 @@ export interface SearchParams {
   conversation_model_id?: string;
   conversation_id?: string;
   voice_query?: string;
+  remote_embedding_timeout_ms?: number;
+  remote_embedding_num_tries?: number;
 }
 export interface SearchableDocuments<T extends DocumentSchema> {
   search(
