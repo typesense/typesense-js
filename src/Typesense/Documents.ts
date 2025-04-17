@@ -101,6 +101,8 @@ export interface SearchResponseRequestParams {
   voice_query?: {
     transcribed_query?: string;
   };
+  remote_embedding_timeout_ms?: number;
+  remote_embedding_num_tries?: number;
 }
 
 // Todo: we could infer whether this is a grouped response by adding the search params as a generic
