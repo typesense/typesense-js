@@ -4615,6 +4615,7 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
     key: "endpointPath",
     value: function endpointPath(operation) {
       return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_7__["default"].RESOURCEPATH, "/").concat(this.collectionName).concat(RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_6__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
     }
   }], [{
     key: "RESOURCEPATH",

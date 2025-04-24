@@ -143,6 +143,9 @@ export interface UpdateByFilterResponse {
 
 export interface DocumentImportParameters extends DocumentWriteParameters {
   batch_size?: number;
+  remote_embedding_batch_size?: number;
+  remote_embedding_timeout_ms?: number;
+  remote_embedding_num_tries?: number;
   return_doc?: boolean;
   return_id?: boolean;
 }
