@@ -32,7 +32,9 @@ vi.mock("axios", () => {
   };
 });
 
-describe("Streaming responses in Node.js", () => {
+const runIntegrationTests = process.env.RUN_INTEGRATION_TESTS === "true";
+
+describe.skipIf(!runIntegrationTests)("Streaming responses in Node.js", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 

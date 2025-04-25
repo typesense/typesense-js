@@ -4,7 +4,9 @@ import { Essay } from "./essays";
 import { StreamConfig } from "../src/Typesense/Configuration";
 import { client, collection, model } from "./setup";
 
-describe("Streaming responses in Browser", () => {
+const runIntegrationTests = process.env.RUN_INTEGRATION_TESTS === "true";
+
+describe.skipIf(!runIntegrationTests)("Streaming responses in Browser", () => {
   it("should handle streaming responses for search", async () => {
     const onChunk = vi.fn();
     const onComplete = vi.fn();
