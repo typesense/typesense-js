@@ -751,6 +751,8 @@ export default class ApiCall implements HttpClient {
 
       this.finalizeStreamResult<T>(allChunks, resolve, response, streamConfig);
     } catch (error) {
+      this.logger.error(`Stream error: ${error}`);
+      this.invokeOnErrorCallback(error, streamConfig);
       reject(error);
     }
   }
