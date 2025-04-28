@@ -1040,19 +1040,19 @@ export default class ApiCall implements HttpClient {
     let error = new TypesenseError(errorMessage, httpBody, response.status);
 
     if (response.status === 400) {
-      error = new RequestMalformed(errorMessage);
+      error = new RequestMalformed(errorMessage, httpBody, response.status);
     } else if (response.status === 401) {
-      error = new RequestUnauthorized(errorMessage);
+      error = new RequestUnauthorized(errorMessage, httpBody, response.status);
     } else if (response.status === 404) {
-      error = new ObjectNotFound(errorMessage);
+      error = new ObjectNotFound(errorMessage, httpBody, response.status);
     } else if (response.status === 409) {
-      error = new ObjectAlreadyExists(errorMessage);
+      error = new ObjectAlreadyExists(errorMessage, httpBody, response.status);
     } else if (response.status === 422) {
-      error = new ObjectUnprocessable(errorMessage);
+      error = new ObjectUnprocessable(errorMessage, httpBody, response.status);
     } else if (response.status >= 500 && response.status <= 599) {
-      error = new ServerError(errorMessage);
+      error = new ServerError(errorMessage, httpBody, response.status);
     } else {
-      error = new HTTPError(errorMessage);
+      error = new HTTPError(errorMessage, httpBody, response.status);
     }
 
     return error;

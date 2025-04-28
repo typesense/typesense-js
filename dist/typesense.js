@@ -1403,19 +1403,19 @@ var ApiCall = /*#__PURE__*/function () {
       }
       var error = new _Errors_TypesenseError__WEBPACK_IMPORTED_MODULE_9__["default"](errorMessage, httpBody, response.status);
       if (response.status === 400) {
-        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.RequestMalformed(errorMessage);
+        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.RequestMalformed(errorMessage, httpBody, response.status);
       } else if (response.status === 401) {
-        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.RequestUnauthorized(errorMessage);
+        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.RequestUnauthorized(errorMessage, httpBody, response.status);
       } else if (response.status === 404) {
-        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ObjectNotFound(errorMessage);
+        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ObjectNotFound(errorMessage, httpBody, response.status);
       } else if (response.status === 409) {
-        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ObjectAlreadyExists(errorMessage);
+        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ObjectAlreadyExists(errorMessage, httpBody, response.status);
       } else if (response.status === 422) {
-        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ObjectUnprocessable(errorMessage);
+        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ObjectUnprocessable(errorMessage, httpBody, response.status);
       } else if (response.status >= 500 && response.status <= 599) {
-        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ServerError(errorMessage);
+        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.ServerError(errorMessage, httpBody, response.status);
       } else {
-        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.HTTPError(errorMessage);
+        error = new _Errors__WEBPACK_IMPORTED_MODULE_8__.HTTPError(errorMessage, httpBody, response.status);
       }
       return error;
     }
