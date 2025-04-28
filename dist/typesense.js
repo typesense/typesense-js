@@ -1162,13 +1162,15 @@ var ApiCall = /*#__PURE__*/function () {
               break;
             case 23:
               this.finalizeStreamResult(allChunks, resolve, response, streamConfig);
-              _context10.next = 29;
+              _context10.next = 31;
               break;
             case 26:
               _context10.prev = 26;
               _context10.t0 = _context10["catch"](4);
+              this.logger.error("Stream error: ".concat(_context10.t0));
+              this.invokeOnErrorCallback(_context10.t0, streamConfig);
               reject(_context10.t0);
-            case 29:
+            case 31:
             case "end":
               return _context10.stop();
           }
