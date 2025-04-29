@@ -464,13 +464,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
 /* harmony import */ var http__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! http */ "?e89d");
 /* harmony import */ var http__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(http__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var https__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! https */ "?77e4");
 /* harmony import */ var https__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(https__WEBPACK_IMPORTED_MODULE_7__);
 /* harmony import */ var _Errors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Errors */ "./src/Typesense/Errors/index.ts");
 /* harmony import */ var _Errors_TypesenseError__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Errors/TypesenseError */ "./src/Typesense/Errors/TypesenseError.ts");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
 
 
 
@@ -487,10 +488,11 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 
 
 
+
 var APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 var HEALTHY = true;
 var UNHEALTHY = false;
-var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
+var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null && typeof window === "undefined";
 var ApiCall = /*#__PURE__*/function () {
   function ApiCall(configuration) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3__["default"])(this, ApiCall);
@@ -518,16 +520,21 @@ var ApiCall = /*#__PURE__*/function () {
           abortSignal,
           _ref$responseType,
           responseType,
+          _ref$streamConfig,
+          streamConfig,
+          isStreamingRequest,
           _args = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               queryParameters = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-              _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal, _ref$responseType = _ref.responseType, responseType = _ref$responseType === void 0 ? undefined : _ref$responseType;
+              _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal, _ref$responseType = _ref.responseType, responseType = _ref$responseType === void 0 ? undefined : _ref$responseType, _ref$streamConfig = _ref.streamConfig, streamConfig = _ref$streamConfig === void 0 ? undefined : _ref$streamConfig, isStreamingRequest = _ref.isStreamingRequest;
               return _context.abrupt("return", this.performRequest("get", endpoint, {
                 queryParameters: queryParameters,
                 abortSignal: abortSignal,
-                responseType: responseType
+                responseType: responseType,
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
               }));
             case 3:
             case "end":
@@ -551,7 +558,8 @@ var ApiCall = /*#__PURE__*/function () {
             case 0:
               queryParameters = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
               return _context2.abrupt("return", this.performRequest("delete", endpoint, {
-                queryParameters: queryParameters
+                queryParameters: queryParameters,
+                isStreamingRequest: false
               }));
             case 2:
             case "end":
@@ -571,6 +579,14 @@ var ApiCall = /*#__PURE__*/function () {
         var bodyParameters,
           queryParameters,
           additionalHeaders,
+          _ref2,
+          _ref2$abortSignal,
+          abortSignal,
+          _ref2$responseType,
+          responseType,
+          _ref2$streamConfig,
+          streamConfig,
+          isStreamingRequest,
           _args3 = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
@@ -578,12 +594,17 @@ var ApiCall = /*#__PURE__*/function () {
               bodyParameters = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
               queryParameters = _args3.length > 2 && _args3[2] !== undefined ? _args3[2] : {};
               additionalHeaders = _args3.length > 3 && _args3[3] !== undefined ? _args3[3] : {};
+              _ref2 = _args3.length > 4 && _args3[4] !== undefined ? _args3[4] : {}, _ref2$abortSignal = _ref2.abortSignal, abortSignal = _ref2$abortSignal === void 0 ? null : _ref2$abortSignal, _ref2$responseType = _ref2.responseType, responseType = _ref2$responseType === void 0 ? undefined : _ref2$responseType, _ref2$streamConfig = _ref2.streamConfig, streamConfig = _ref2$streamConfig === void 0 ? undefined : _ref2$streamConfig, isStreamingRequest = _ref2.isStreamingRequest;
               return _context3.abrupt("return", this.performRequest("post", endpoint, {
                 queryParameters: queryParameters,
                 bodyParameters: bodyParameters,
-                additionalHeaders: additionalHeaders
+                additionalHeaders: additionalHeaders,
+                abortSignal: abortSignal,
+                responseType: responseType,
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
               }));
-            case 4:
+            case 5:
             case "end":
               return _context3.stop();
           }
@@ -608,7 +629,8 @@ var ApiCall = /*#__PURE__*/function () {
               queryParameters = _args4.length > 2 && _args4[2] !== undefined ? _args4[2] : {};
               return _context4.abrupt("return", this.performRequest("put", endpoint, {
                 queryParameters: queryParameters,
-                bodyParameters: bodyParameters
+                bodyParameters: bodyParameters,
+                isStreamingRequest: false
               }));
             case 3:
             case "end":
@@ -635,7 +657,8 @@ var ApiCall = /*#__PURE__*/function () {
               queryParameters = _args5.length > 2 && _args5[2] !== undefined ? _args5[2] : {};
               return _context5.abrupt("return", this.performRequest("patch", endpoint, {
                 queryParameters: queryParameters,
-                bodyParameters: bodyParameters
+                bodyParameters: bodyParameters,
+                isStreamingRequest: false
               }));
             case 3:
             case "end":
@@ -654,22 +677,19 @@ var ApiCall = /*#__PURE__*/function () {
       if (!this.configuration.axiosAdapter) return undefined;
       if (typeof this.configuration.axiosAdapter === "function") return this.configuration.axiosAdapter;
       var isCloudflareWorkers = typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
-      return isCloudflareWorkers ? axios__WEBPACK_IMPORTED_MODULE_10__["default"].getAdapter(this.configuration.axiosAdapter).bind(globalThis) : axios__WEBPACK_IMPORTED_MODULE_10__["default"].getAdapter(this.configuration.axiosAdapter);
+      return isCloudflareWorkers ? axios__WEBPACK_IMPORTED_MODULE_11__["default"].getAdapter(this.configuration.axiosAdapter).bind(globalThis) : axios__WEBPACK_IMPORTED_MODULE_11__["default"].getAdapter(this.configuration.axiosAdapter);
     }
   }, {
     key: "performRequest",
     value: function () {
-      var _performRequest = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee6(requestType, endpoint, _ref2) {
+      var _performRequest = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee6(requestType, endpoint, _ref3) {
         var _this = this;
-        var _ref2$queryParameters, queryParameters, _ref2$bodyParameters, bodyParameters, _ref2$additionalHeade, additionalHeaders, _ref2$abortSignal, abortSignal, _ref2$responseType, responseType, _ref2$skipConnectionT, skipConnectionTimeout, _ref2$enableKeepAlive, enableKeepAlive, isStreamingRequest, requestNumber, lastException, wasAborted, _loop, _ret, numTries;
+        var _ref3$queryParameters, queryParameters, _ref3$bodyParameters, bodyParameters, _ref3$additionalHeade, additionalHeaders, _ref3$abortSignal, abortSignal, _ref3$responseType, responseType, _ref3$skipConnectionT, skipConnectionTimeout, _ref3$enableKeepAlive, enableKeepAlive, _ref3$streamConfig, streamConfig, isStreamingRequest, requestNumber, lastException, wasAborted, _loop, _ret, numTries;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee6$(_context7) {
           while (1) switch (_context7.prev = _context7.next) {
             case 0:
-              _ref2$queryParameters = _ref2.queryParameters, queryParameters = _ref2$queryParameters === void 0 ? null : _ref2$queryParameters, _ref2$bodyParameters = _ref2.bodyParameters, bodyParameters = _ref2$bodyParameters === void 0 ? null : _ref2$bodyParameters, _ref2$additionalHeade = _ref2.additionalHeaders, additionalHeaders = _ref2$additionalHeade === void 0 ? {} : _ref2$additionalHeade, _ref2$abortSignal = _ref2.abortSignal, abortSignal = _ref2$abortSignal === void 0 ? null : _ref2$abortSignal, _ref2$responseType = _ref2.responseType, responseType = _ref2$responseType === void 0 ? undefined : _ref2$responseType, _ref2$skipConnectionT = _ref2.skipConnectionTimeout, skipConnectionTimeout = _ref2$skipConnectionT === void 0 ? false : _ref2$skipConnectionT, _ref2$enableKeepAlive = _ref2.enableKeepAlive, enableKeepAlive = _ref2$enableKeepAlive === void 0 ? undefined : _ref2$enableKeepAlive;
+              _ref3$queryParameters = _ref3.queryParameters, queryParameters = _ref3$queryParameters === void 0 ? null : _ref3$queryParameters, _ref3$bodyParameters = _ref3.bodyParameters, bodyParameters = _ref3$bodyParameters === void 0 ? null : _ref3$bodyParameters, _ref3$additionalHeade = _ref3.additionalHeaders, additionalHeaders = _ref3$additionalHeade === void 0 ? {} : _ref3$additionalHeade, _ref3$abortSignal = _ref3.abortSignal, abortSignal = _ref3$abortSignal === void 0 ? null : _ref3$abortSignal, _ref3$responseType = _ref3.responseType, responseType = _ref3$responseType === void 0 ? undefined : _ref3$responseType, _ref3$skipConnectionT = _ref3.skipConnectionTimeout, skipConnectionTimeout = _ref3$skipConnectionT === void 0 ? false : _ref3$skipConnectionT, _ref3$enableKeepAlive = _ref3.enableKeepAlive, enableKeepAlive = _ref3$enableKeepAlive === void 0 ? undefined : _ref3$enableKeepAlive, _ref3$streamConfig = _ref3.streamConfig, streamConfig = _ref3$streamConfig === void 0 ? undefined : _ref3$streamConfig, isStreamingRequest = _ref3.isStreamingRequest;
               this.configuration.validate();
-
-              // TODO: Hacky, the search function needs refactoring, currently passing a tuple for types, too much overhead
-              isStreamingRequest = (queryParameters === null || queryParameters === void 0 ? void 0 : queryParameters.conversation_stream) === true && requestType.toLowerCase() === "get";
               if (isStreamingRequest) {
                 this.logger.debug("Request: Performing streaming request to ".concat(endpoint));
 
@@ -766,7 +786,7 @@ var ApiCall = /*#__PURE__*/function () {
 
                       // Translate from user-provided AbortController to the Axios request cancel mechanism.
                       if (abortSignal) {
-                        cancelToken = axios__WEBPACK_IMPORTED_MODULE_10__["default"].CancelToken;
+                        cancelToken = axios__WEBPACK_IMPORTED_MODULE_11__["default"].CancelToken;
                         source = cancelToken.source();
                         abortListener = function abortListener() {
                           wasAborted = true;
@@ -786,7 +806,7 @@ var ApiCall = /*#__PURE__*/function () {
                         requestOptions.responseType = responseType;
                       }
                       _context6.next = 18;
-                      return (0,axios__WEBPACK_IMPORTED_MODULE_10__["default"])(requestOptions);
+                      return (0,axios__WEBPACK_IMPORTED_MODULE_11__["default"])(requestOptions);
                     case 18:
                       response = _context6.sent;
                       if (response.status >= 1 && response.status <= 499) {
@@ -804,7 +824,7 @@ var ApiCall = /*#__PURE__*/function () {
                         break;
                       }
                       return _context6.abrupt("return", {
-                        v: _this.handleStreamingResponse(response)
+                        v: _this.handleStreamingResponse(response, streamConfig)
                       });
                     case 24:
                       return _context6.abrupt("return", {
@@ -841,7 +861,7 @@ var ApiCall = /*#__PURE__*/function () {
                       });
                     case 41:
                       if (isStreamingRequest) {
-                        _this.invokeOnErrorCallback(_context6.t0);
+                        _this.invokeOnErrorCallback(_context6.t0, streamConfig);
                       }
                       if (!(numTries < _this.numRetriesPerRequest + 1)) {
                         _context6.next = 46;
@@ -871,27 +891,27 @@ var ApiCall = /*#__PURE__*/function () {
                 }, _loop, null, [[4, 34, 50, 53]]);
               });
               numTries = 1;
-            case 9:
+            case 8:
               if (!(numTries <= this.numRetriesPerRequest + 1)) {
-                _context7.next = 17;
+                _context7.next = 16;
                 break;
               }
-              return _context7.delegateYield(_loop(), "t0", 11);
-            case 11:
+              return _context7.delegateYield(_loop(), "t0", 10);
+            case 10:
               _ret = _context7.t0;
               if (!_ret) {
-                _context7.next = 14;
+                _context7.next = 13;
                 break;
               }
               return _context7.abrupt("return", _ret.v);
-            case 14:
+            case 13:
               numTries++;
-              _context7.next = 9;
+              _context7.next = 8;
               break;
-            case 17:
+            case 16:
               this.logger.debug("Request #".concat(requestNumber, ": No retries left. Raising last error"));
               return _context7.abrupt("return", Promise.reject(lastException));
-            case 19:
+            case 18:
             case "end":
               return _context7.stop();
           }
@@ -984,7 +1004,7 @@ var ApiCall = /*#__PURE__*/function () {
   }, {
     key: "handleStreamingResponse",
     value: function () {
-      var _handleStreamingResponse = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee7(response) {
+      var _handleStreamingResponse = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee7(response, streamConfig) {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee7$(_context8) {
           while (1) switch (_context8.prev = _context8.next) {
             case 0:
@@ -993,16 +1013,16 @@ var ApiCall = /*#__PURE__*/function () {
                 _context8.next = 3;
                 break;
               }
-              return _context8.abrupt("return", this.handleNodeStreaming(response));
+              return _context8.abrupt("return", this.handleNodeStreaming(response, streamConfig));
             case 3:
               if (isNodeJSEnvironment) {
                 _context8.next = 5;
                 break;
               }
-              return _context8.abrupt("return", this.handleBrowserStreaming(response));
+              return _context8.abrupt("return", this.handleBrowserStreaming(response, streamConfig));
             case 5:
               this.logger.debug("Processing non-streaming response");
-              this.invokeOnCompleteCallback(response.data);
+              this.invokeOnCompleteCallback(response.data, streamConfig);
               return _context8.abrupt("return", Promise.resolve(response.data));
             case 8:
             case "end":
@@ -1010,14 +1030,14 @@ var ApiCall = /*#__PURE__*/function () {
           }
         }, _callee7, this);
       }));
-      function handleStreamingResponse(_x9) {
+      function handleStreamingResponse(_x9, _x10) {
         return _handleStreamingResponse.apply(this, arguments);
       }
       return handleStreamingResponse;
     }()
   }, {
     key: "handleNodeStreaming",
-    value: function handleNodeStreaming(response) {
+    value: function handleNodeStreaming(response, streamConfig) {
       var _this2 = this;
       this.logger.debug("Processing Node.js stream");
       return new Promise(function (resolve, reject) {
@@ -1031,7 +1051,7 @@ var ApiCall = /*#__PURE__*/function () {
             buffer += data;
             var lines = buffer.split("\n");
             buffer = (_lines$pop = lines.pop()) !== null && _lines$pop !== void 0 ? _lines$pop : "";
-            _this2.processStreamLines(lines, allChunks);
+            _this2.processStreamLines(lines, allChunks, streamConfig);
           } catch (error) {
             reject(error);
           }
@@ -1039,24 +1059,24 @@ var ApiCall = /*#__PURE__*/function () {
         stream.on("end", function () {
           if (buffer.trim().length > 0) {
             var lines = buffer.split("\n");
-            _this2.processStreamLines(lines, allChunks);
+            _this2.processStreamLines(lines, allChunks, streamConfig);
           }
-          _this2.finalizeStreamResult(allChunks, resolve, response);
+          _this2.finalizeStreamResult(allChunks, resolve, response, streamConfig);
         });
         stream.on("error", function (error) {
           _this2.logger.error("Stream error: ".concat(error));
-          _this2.invokeOnErrorCallback(error);
+          _this2.invokeOnErrorCallback(error, streamConfig);
           reject(error);
         });
       });
     }
   }, {
     key: "handleBrowserStreaming",
-    value: function handleBrowserStreaming(response) {
+    value: function handleBrowserStreaming(response, streamConfig) {
       var _this3 = this;
       this.logger.debug("Processing browser stream");
       return new Promise( /*#__PURE__*/function () {
-        var _ref3 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee8(resolve, reject) {
+        var _ref4 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee8(resolve, reject) {
           return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee8$(_context9) {
             while (1) switch (_context9.prev = _context9.next) {
               case 0:
@@ -1065,20 +1085,20 @@ var ApiCall = /*#__PURE__*/function () {
                   _context9.next = 3;
                   break;
                 }
-                return _context9.abrupt("return", _this3.handleBrowserReadableStream(response.data, resolve, reject, response));
+                return _context9.abrupt("return", _this3.handleBrowserReadableStream(response.data, resolve, reject, response, streamConfig));
               case 3:
                 if (!(typeof response.data === "string")) {
                   _context9.next = 5;
                   break;
                 }
-                return _context9.abrupt("return", _this3.handleBrowserStringResponse(response.data, resolve, response));
+                return _context9.abrupt("return", _this3.handleBrowserStringResponse(response.data, resolve, response, streamConfig));
               case 5:
                 if (!((0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_1__["default"])(response.data) === "object" && response.data !== null)) {
                   _context9.next = 9;
                   break;
                 }
                 _this3.logger.debug("No stream found, but data object is available");
-                _this3.invokeOnCompleteCallback(response.data);
+                _this3.invokeOnCompleteCallback(response.data, streamConfig);
                 return _context9.abrupt("return", resolve(response.data));
               case 9:
                 _this3.logger.error("No usable data found in response");
@@ -1087,7 +1107,7 @@ var ApiCall = /*#__PURE__*/function () {
                 _context9.prev = 13;
                 _context9.t0 = _context9["catch"](0);
                 _this3.logger.error("Error processing streaming response: ".concat(_context9.t0));
-                _this3.invokeOnErrorCallback(_context9.t0);
+                _this3.invokeOnErrorCallback(_context9.t0, streamConfig);
                 reject(_context9.t0);
               case 18:
               case "end":
@@ -1095,15 +1115,15 @@ var ApiCall = /*#__PURE__*/function () {
             }
           }, _callee8, null, [[0, 13]]);
         }));
-        return function (_x10, _x11) {
-          return _ref3.apply(this, arguments);
+        return function (_x11, _x12) {
+          return _ref4.apply(this, arguments);
         };
       }());
     }
   }, {
     key: "handleBrowserReadableStream",
     value: function () {
-      var _handleBrowserReadableStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee9(stream, resolve, reject, response) {
+      var _handleBrowserReadableStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee9(stream, resolve, reject, response, streamConfig) {
         var reader, allChunks, buffer, _yield$reader$read, done, _value, _lines, chunk, lines;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee9$(_context10) {
           while (1) switch (_context10.prev = _context10.next) {
@@ -1128,7 +1148,7 @@ var ApiCall = /*#__PURE__*/function () {
               this.logger.debug("Stream reading complete");
               if (buffer.trim()) {
                 _lines = buffer.split("\n");
-                this.processStreamLines(_lines, allChunks);
+                this.processStreamLines(_lines, allChunks, streamConfig);
               }
               return _context10.abrupt("break", 23);
             case 15:
@@ -1137,49 +1157,51 @@ var ApiCall = /*#__PURE__*/function () {
               buffer += chunk;
               lines = buffer.split("\n");
               buffer = lines.pop() || "";
-              this.processStreamLines(lines, allChunks);
+              this.processStreamLines(lines, allChunks, streamConfig);
               _context10.next = 5;
               break;
             case 23:
-              this.finalizeStreamResult(allChunks, resolve, response);
-              _context10.next = 29;
+              this.finalizeStreamResult(allChunks, resolve, response, streamConfig);
+              _context10.next = 31;
               break;
             case 26:
               _context10.prev = 26;
               _context10.t0 = _context10["catch"](4);
+              this.logger.error("Stream error: ".concat(_context10.t0));
+              this.invokeOnErrorCallback(_context10.t0, streamConfig);
               reject(_context10.t0);
-            case 29:
+            case 31:
             case "end":
               return _context10.stop();
           }
         }, _callee9, this, [[4, 26]]);
       }));
-      function handleBrowserReadableStream(_x12, _x13, _x14, _x15) {
+      function handleBrowserReadableStream(_x13, _x14, _x15, _x16, _x17) {
         return _handleBrowserReadableStream.apply(this, arguments);
       }
       return handleBrowserReadableStream;
     }()
   }, {
     key: "handleBrowserStringResponse",
-    value: function handleBrowserStringResponse(data, resolve, response) {
+    value: function handleBrowserStringResponse(data, resolve, response, streamConfig) {
       this.logger.debug("Processing text response as stream data");
       var allChunks = [];
       var lines = data.split("\n");
-      this.processStreamLines(lines, allChunks);
+      this.processStreamLines(lines, allChunks, streamConfig);
       if (allChunks.length > 0) {
         var finalResult = this.combineStreamingChunks(allChunks);
-        this.invokeOnCompleteCallback(finalResult);
+        this.invokeOnCompleteCallback(finalResult, streamConfig);
         resolve(finalResult);
       } else {
         // If no chunks were processed, use the original response
         this.logger.debug("No chunks processed, returning original API response");
-        this.invokeOnCompleteCallback(response.data);
+        this.invokeOnCompleteCallback(response.data, streamConfig);
         resolve(response.data);
       }
     }
   }, {
     key: "processStreamLines",
-    value: function processStreamLines(lines, allChunks) {
+    value: function processStreamLines(lines, allChunks, streamConfig) {
       var _iterator = _createForOfIteratorHelper(lines),
         _step;
       try {
@@ -1188,7 +1210,7 @@ var ApiCall = /*#__PURE__*/function () {
           if (line.trim() && line !== "data: [DONE]") {
             var processed = this.processStreamingLine(line);
             if (processed !== null) {
-              this.invokeOnChunkCallback(processed);
+              this.invokeOnChunkCallback(processed, streamConfig);
               allChunks.push(processed);
             }
           }
@@ -1201,15 +1223,15 @@ var ApiCall = /*#__PURE__*/function () {
     }
   }, {
     key: "finalizeStreamResult",
-    value: function finalizeStreamResult(allChunks, resolve, response) {
+    value: function finalizeStreamResult(allChunks, resolve, response, streamConfig) {
       if (allChunks.length > 0) {
         var finalResult = this.combineStreamingChunks(allChunks);
         this.logger.debug("Stream processing complete");
-        this.invokeOnCompleteCallback(finalResult);
+        this.invokeOnCompleteCallback(finalResult, streamConfig);
         resolve(finalResult);
       } else {
         this.logger.debug("No chunks processed, returning original API response");
-        this.invokeOnCompleteCallback(response.data);
+        this.invokeOnCompleteCallback(response.data, streamConfig);
         resolve(response.data);
       }
     }
@@ -1232,91 +1254,42 @@ var ApiCall = /*#__PURE__*/function () {
 
       // For regular search responses
       var lastChunk = chunks[chunks.length - 1];
-      if (this.isCompleteSearchResponse(lastChunk)) {
-        return lastChunk;
+      if (!this.isCompleteSearchResponse(lastChunk)) {
+        throw new Error("Last chunk is not a complete search response");
       }
-
-      // Try to merge chunks if last chunk isn't a complete response
-      return this.attemptChunksMerge(chunks, lastChunk);
+      return lastChunk;
     }
   }, {
     key: "getMessageChunks",
     value: function getMessageChunks(chunks) {
-      return chunks.filter(function (chunk) {
-        return (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_1__["default"])(chunk) === "object" && chunk !== null && "message" in chunk;
-      });
+      return chunks.filter(this.isChunkMessage);
+    }
+  }, {
+    key: "isChunkMessage",
+    value: function isChunkMessage(chunk) {
+      return (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_1__["default"])(chunk) === "object" && chunk !== null && "message" in chunk && "conversation_id" in chunk;
     }
   }, {
     key: "combineMessageChunks",
     value: function combineMessageChunks(chunks, messagesChunks) {
       this.logger.debug("Found ".concat(messagesChunks.length, " message chunks to combine"));
-
-      // Check if the last chunk contains the complete response
       var lastChunk = chunks[chunks.length - 1];
-      if ((0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_1__["default"])(lastChunk) === "object" && lastChunk !== null && ("hits" in lastChunk || "found" in lastChunk)) {
-        this.logger.debug("Last chunk appears to be a complete search response");
+      if (this.isCompleteSearchResponse(lastChunk)) {
         return lastChunk;
       }
-
-      // Combine all message chunks
-      var combinedMessage = messagesChunks.map(function (chunk) {
-        return chunk.message;
-      }).join("");
-
-      // Look for a chunk with search metadata
-      var metadataChunk = chunks.find(function (chunk) {
-        return (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_1__["default"])(chunk) === "object" && chunk !== null && ("hits" in chunk || "found" in chunk || "request_params" in chunk);
-      });
-      if (metadataChunk) {
-        // If we found metadata, merge it with the combined message
-        return _objectSpread(_objectSpread({}, metadataChunk), {}, {
-          message: combinedMessage
-        });
+      var metadataChunk = chunks.find(this.isCompleteSearchResponse);
+      if (!metadataChunk) {
+        throw new Error("No metadata chunk found");
       }
-
-      // Otherwise just return the combined message
-      return {
-        message: combinedMessage
-      };
+      return metadataChunk;
     }
   }, {
     key: "isCompleteSearchResponse",
     value: function isCompleteSearchResponse(chunk) {
       if ((0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_1__["default"])(chunk) === "object" && chunk !== null && Object.keys(chunk).length > 0) {
-        // Check if it has search response properties
-        return "found" in chunk || "hits" in chunk || "page" in chunk || "search_time_ms" in chunk;
+        return "results" in chunk || "found" in chunk || "hits" in chunk || "page" in chunk || "search_time_ms" in chunk;
       }
       return false;
-    }
-  }, {
-    key: "attemptChunksMerge",
-    value: function attemptChunksMerge(chunks, lastChunk) {
-      try {
-        // Attempt to merge chunks that might be parts of the same structure
-        var mergedResult = {};
-        var _iterator2 = _createForOfIteratorHelper(chunks),
-          _step2;
-        try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var chunk = _step2.value;
-            if ((0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_1__["default"])(chunk) === "object" && chunk !== null) {
-              mergedResult = _objectSpread(_objectSpread({}, mergedResult), chunk);
-            }
-          }
-        } catch (err) {
-          _iterator2.e(err);
-        } finally {
-          _iterator2.f();
-        }
-        if (Object.keys(mergedResult).length > 0) {
-          return mergedResult;
-        }
-      } catch (e) {
-        this.logger.warn("Failed to merge chunks: ".concat(e));
-      }
-
-      // Fallback to the last chunk if merging fails
-      return lastChunk;
     }
 
     // Attempts to find the next healthy node, looping through the list of nodes once.
@@ -1418,7 +1391,7 @@ var ApiCall = /*#__PURE__*/function () {
           }
         }, _callee10);
       }));
-      function timer(_x16) {
+      function timer(_x18) {
         return _timer.apply(this, arguments);
       }
       return timer;
@@ -1450,11 +1423,10 @@ var ApiCall = /*#__PURE__*/function () {
     }
   }, {
     key: "invokeOnChunkCallback",
-    value: function invokeOnChunkCallback(data) {
-      var _this$configuration$s;
-      if ((_this$configuration$s = this.configuration.streamConfig) !== null && _this$configuration$s !== void 0 && _this$configuration$s.onChunk) {
+    value: function invokeOnChunkCallback(data, streamConfig) {
+      if (streamConfig !== null && streamConfig !== void 0 && streamConfig.onChunk) {
         try {
-          this.configuration.streamConfig.onChunk(data);
+          streamConfig.onChunk(data);
         } catch (error) {
           this.logger.warn("Error in onChunk callback: ".concat(error));
         }
@@ -1462,11 +1434,10 @@ var ApiCall = /*#__PURE__*/function () {
     }
   }, {
     key: "invokeOnCompleteCallback",
-    value: function invokeOnCompleteCallback(data) {
-      var _this$configuration$s2;
-      if ((_this$configuration$s2 = this.configuration.streamConfig) !== null && _this$configuration$s2 !== void 0 && _this$configuration$s2.onComplete) {
+    value: function invokeOnCompleteCallback(data, streamConfig) {
+      if (streamConfig !== null && streamConfig !== void 0 && streamConfig.onComplete) {
         try {
-          this.configuration.streamConfig.onComplete(data);
+          streamConfig.onComplete(data);
         } catch (error) {
           this.logger.warn("Error in onComplete callback: ".concat(error));
         }
@@ -1474,12 +1445,11 @@ var ApiCall = /*#__PURE__*/function () {
     }
   }, {
     key: "invokeOnErrorCallback",
-    value: function invokeOnErrorCallback(error) {
-      var _this$configuration$s3;
-      if ((_this$configuration$s3 = this.configuration.streamConfig) !== null && _this$configuration$s3 !== void 0 && _this$configuration$s3.onError) {
-        var errorObj = error instanceof Error ? error : new Error(String(error));
+    value: function invokeOnErrorCallback(error, streamConfig) {
+      if (streamConfig !== null && streamConfig !== void 0 && streamConfig.onError) {
+        var errorObj = (0,_Utils__WEBPACK_IMPORTED_MODULE_10__.toErrorWithMessage)(error);
         try {
-          this.configuration.streamConfig.onError(errorObj);
+          streamConfig.onError(errorObj);
         } catch (callbackError) {
           this.logger.warn("Error in onError callback: ".concat(callbackError));
         }
@@ -1969,6 +1939,11 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 /**
  * Configuration options for streaming responses
  */
+
+/**
+ * Stream configuration for standard search responses
+ * For specialized responses like MultiSearch, extend BaseStreamConfig with the appropriate onComplete signature
+ */
 var Configuration = /*#__PURE__*/function () {
   function Configuration(options) {
     var _this = this;
@@ -2008,7 +1983,6 @@ var Configuration = /*#__PURE__*/function () {
     this.httpAgent = options.httpAgent;
     this.httpsAgent = options.httpsAgent;
     this.paramsSerializer = options.paramsSerializer;
-    this.streamConfig = options.streamConfig;
     this.showDeprecationWarnings(options);
     this.validate();
   }
@@ -3733,34 +3707,37 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ MultiSearch)
 /* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _RequestWithCache__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./RequestWithCache */ "./src/Typesense/RequestWithCache.ts");
-/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
+/* harmony import */ var _babel_runtime_helpers_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/objectWithoutProperties */ "./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _RequestWithCache__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./RequestWithCache */ "./src/Typesense/RequestWithCache.ts");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
 
 
 
 
+
+var _excluded = ["streamConfig"];
 
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 
 
 var RESOURCEPATH = "/multi_search";
 var MultiSearch = /*#__PURE__*/function () {
   function MultiSearch(apiCall, configuration) {
     var useTextContentType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__["default"])(this, MultiSearch);
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_3__["default"])(this, MultiSearch);
     this.apiCall = apiCall;
     this.configuration = configuration;
     this.useTextContentType = useTextContentType;
-    this.requestWithCache = new _RequestWithCache__WEBPACK_IMPORTED_MODULE_5__["default"]();
+    this.requestWithCache = new _RequestWithCache__WEBPACK_IMPORTED_MODULE_6__["default"]();
   }
-  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__["default"])(MultiSearch, [{
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4__["default"])(MultiSearch, [{
     key: "clearCache",
     value: function clearCache() {
       this.requestWithCache.clearCache();
@@ -3768,49 +3745,58 @@ var MultiSearch = /*#__PURE__*/function () {
   }, {
     key: "perform",
     value: function () {
-      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(searchRequests) {
-        var commonParams,
-          _ref,
+      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee(searchRequests, commonParams) {
+        var _ref,
           _ref$cacheSearchResul,
           cacheSearchResultsForSeconds,
-          additionalHeaders,
-          additionalQueryParams,
-          queryParams,
+          params,
           normalizedSearchRequests,
+          streamConfig,
+          paramsWithoutStream,
           normalizedQueryParams,
           _args = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              commonParams = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
               _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$cacheSearchResul = _ref.cacheSearchResultsForSeconds, cacheSearchResultsForSeconds = _ref$cacheSearchResul === void 0 ? this.configuration.cacheSearchResultsForSeconds : _ref$cacheSearchResul;
-              additionalHeaders = {};
-              if (this.useTextContentType) {
-                additionalHeaders["content-type"] = "text/plain";
-              }
-              additionalQueryParams = {};
+              params = commonParams ? _objectSpread({}, commonParams) : {};
               if (this.configuration.useServerSideSearchCache === true) {
-                additionalQueryParams["use_cache"] = true;
+                params.use_cache = true;
               }
-              queryParams = _objectSpread(_objectSpread({}, commonParams), additionalQueryParams);
-              normalizedSearchRequests = _objectSpread(_objectSpread({}, searchRequests), {}, {
-                searches: searchRequests.searches.map(_Utils__WEBPACK_IMPORTED_MODULE_6__.normalizeArrayableParams)
-              });
-              normalizedQueryParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_6__.normalizeArrayableParams)(queryParams);
-              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.post, [RESOURCEPATH, normalizedSearchRequests, normalizedQueryParams, additionalHeaders], {
+              normalizedSearchRequests = {
+                union: searchRequests.union,
+                searches: searchRequests.searches.map(_Utils__WEBPACK_IMPORTED_MODULE_7__.normalizeArrayableParams)
+              };
+              streamConfig = params.streamConfig, paramsWithoutStream = (0,_babel_runtime_helpers_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_0__["default"])(params, _excluded);
+              normalizedQueryParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_7__.normalizeArrayableParams)(paramsWithoutStream);
+              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, "post", {
+                path: RESOURCEPATH,
+                body: normalizedSearchRequests,
+                queryParams: normalizedQueryParams,
+                headers: this.useTextContentType ? {
+                  "content-type": "text/plain"
+                } : {},
+                streamConfig: streamConfig,
+                isStreamingRequest: this.isStreamingRequest(params)
+              }, {
                 cacheResponseForSeconds: cacheSearchResultsForSeconds
               }));
-            case 10:
+            case 7:
             case "end":
               return _context.stop();
           }
         }, _callee, this);
       }));
-      function perform(_x) {
+      function perform(_x, _x2) {
         return _perform.apply(this, arguments);
       }
       return perform;
     }()
+  }, {
+    key: "isStreamingRequest",
+    value: function isStreamingRequest(commonParams) {
+      return commonParams.streamConfig !== undefined;
+    }
   }]);
   return MultiSearch;
 }();
@@ -4229,14 +4215,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ RequestWithCache)
 /* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js");
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__);
-
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
 
 
 
@@ -4246,78 +4230,87 @@ var defaultCacheResponseForSeconds = 2 * 60;
 var defaultMaxSize = 100;
 var RequestWithCache = /*#__PURE__*/function () {
   function RequestWithCache() {
-    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__["default"])(this, RequestWithCache);
-    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_4__["default"])(this, "responseCache", new Map());
-    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_4__["default"])(this, "responsePromiseCache", new Map());
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, RequestWithCache);
+    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(this, "responseCache", new Map());
+    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(this, "responsePromiseCache", new Map());
   }
-  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__["default"])(RequestWithCache, [{
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(RequestWithCache, [{
     key: "clearCache",
     value: function clearCache() {
       this.responseCache = new Map();
       this.responsePromiseCache = new Map();
     }
-
-    // Todo: should probably be passed a callback instead, or an apiCall instance. Types are messy this way
   }, {
     key: "perform",
     value: function () {
-      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee(requestContext, requestFunction, requestFunctionArguments, cacheOptions) {
-        var _cacheOptions$cacheRe, cacheResponseForSeconds, _cacheOptions$maxSize, maxSize, isCacheDisabled, requestFunctionArgumentsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
+      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(requestContext, methodName, requestParams, cacheOptions) {
+        var _cacheOptions$cacheRe, cacheResponseForSeconds, _cacheOptions$maxSize, maxSize, isCacheDisabled, path, queryParams, body, headers, streamConfig, abortSignal, responseType, isStreamingRequest, requestParamsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _cacheOptions$cacheRe = cacheOptions.cacheResponseForSeconds, cacheResponseForSeconds = _cacheOptions$cacheRe === void 0 ? defaultCacheResponseForSeconds : _cacheOptions$cacheRe, _cacheOptions$maxSize = cacheOptions.maxSize, maxSize = _cacheOptions$maxSize === void 0 ? defaultMaxSize : _cacheOptions$maxSize;
               isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0;
+              path = requestParams.path, queryParams = requestParams.queryParams, body = requestParams.body, headers = requestParams.headers, streamConfig = requestParams.streamConfig, abortSignal = requestParams.abortSignal, responseType = requestParams.responseType, isStreamingRequest = requestParams.isStreamingRequest;
               if (!isCacheDisabled) {
-                _context.next = 4;
+                _context.next = 5;
                 break;
               }
-              return _context.abrupt("return", requestFunction.call.apply(requestFunction, [requestContext].concat((0,_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__["default"])(requestFunctionArguments))));
-            case 4:
-              requestFunctionArgumentsJSON = JSON.stringify(requestFunctionArguments);
-              cacheEntry = this.responseCache.get(requestFunctionArgumentsJSON);
+              return _context.abrupt("return", this.executeRequest(requestContext, methodName, path, queryParams, body, headers, {
+                abortSignal: abortSignal,
+                responseType: responseType,
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
+              }));
+            case 5:
+              requestParamsJSON = JSON.stringify(requestParams);
+              cacheEntry = this.responseCache.get(requestParamsJSON);
               now = Date.now();
               if (!cacheEntry) {
-                _context.next = 16;
+                _context.next = 17;
                 break;
               }
               isEntryValid = now - cacheEntry.requestTimestamp < cacheResponseForSeconds * 1000;
               if (!isEntryValid) {
-                _context.next = 15;
+                _context.next = 16;
                 break;
               }
-              this.responseCache.delete(requestFunctionArgumentsJSON);
-              this.responseCache.set(requestFunctionArgumentsJSON, cacheEntry);
-              return _context.abrupt("return", Promise.resolve(cacheEntry.response));
-            case 15:
-              this.responseCache.delete(requestFunctionArgumentsJSON);
+              this.responseCache.delete(requestParamsJSON);
+              this.responseCache.set(requestParamsJSON, cacheEntry);
+              return _context.abrupt("return", cacheEntry.response);
             case 16:
-              cachePromiseEntry = this.responsePromiseCache.get(requestFunctionArgumentsJSON);
+              this.responseCache.delete(requestParamsJSON);
+            case 17:
+              cachePromiseEntry = this.responsePromiseCache.get(requestParamsJSON);
               if (!cachePromiseEntry) {
-                _context.next = 26;
+                _context.next = 27;
                 break;
               }
               _isEntryValid = now - cachePromiseEntry.requestTimestamp < cacheResponseForSeconds * 1000;
               if (!_isEntryValid) {
-                _context.next = 25;
+                _context.next = 26;
                 break;
               }
-              this.responsePromiseCache.delete(requestFunctionArgumentsJSON);
-              this.responsePromiseCache.set(requestFunctionArgumentsJSON, cachePromiseEntry);
+              this.responsePromiseCache.delete(requestParamsJSON);
+              this.responsePromiseCache.set(requestParamsJSON, cachePromiseEntry);
               return _context.abrupt("return", cachePromiseEntry.responsePromise);
-            case 25:
-              this.responsePromiseCache.delete(requestFunctionArgumentsJSON);
             case 26:
-              responsePromise = requestFunction.call.apply(requestFunction, [requestContext].concat((0,_babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_0__["default"])(requestFunctionArguments)));
-              this.responsePromiseCache.set(requestFunctionArgumentsJSON, {
+              this.responsePromiseCache.delete(requestParamsJSON);
+            case 27:
+              responsePromise = this.executeRequest(requestContext, methodName, path, queryParams, body, headers, {
+                abortSignal: abortSignal,
+                responseType: responseType,
+                streamConfig: streamConfig,
+                isStreamingRequest: isStreamingRequest
+              });
+              this.responsePromiseCache.set(requestParamsJSON, {
                 requestTimestamp: now,
                 responsePromise: responsePromise
               });
-              _context.next = 30;
+              _context.next = 31;
               return responsePromise;
-            case 30:
+            case 31:
               response = _context.sent;
-              this.responseCache.set(requestFunctionArgumentsJSON, {
+              this.responseCache.set(requestParamsJSON, {
                 requestTimestamp: now,
                 response: response
               });
@@ -4336,7 +4329,7 @@ var RequestWithCache = /*#__PURE__*/function () {
                 }
               }
               return _context.abrupt("return", response);
-            case 37:
+            case 38:
             case "end":
               return _context.stop();
           }
@@ -4347,6 +4340,38 @@ var RequestWithCache = /*#__PURE__*/function () {
       }
       return perform;
     }()
+  }, {
+    key: "executeRequest",
+    value: function executeRequest(context, methodName, path) {
+      var queryParams = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+      var body = arguments.length > 4 ? arguments[4] : undefined;
+      var headers = arguments.length > 5 ? arguments[5] : undefined;
+      var options = arguments.length > 6 ? arguments[6] : undefined;
+      var method = context[methodName];
+      switch (methodName) {
+        case "get":
+          return method.call(context, path, queryParams, {
+            abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal,
+            responseType: options === null || options === void 0 ? void 0 : options.responseType,
+            streamConfig: options === null || options === void 0 ? void 0 : options.streamConfig,
+            isStreamingRequest: options === null || options === void 0 ? void 0 : options.isStreamingRequest
+          });
+        case "delete":
+          return method.call(context, path, queryParams);
+        case "post":
+          return method.call(context, path, body, queryParams, headers || {}, {
+            abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal,
+            responseType: options === null || options === void 0 ? void 0 : options.responseType,
+            streamConfig: options === null || options === void 0 ? void 0 : options.streamConfig,
+            isStreamingRequest: options === null || options === void 0 ? void 0 : options.isStreamingRequest
+          });
+        case "put":
+        case "patch":
+          return method.call(context, path, body, queryParams);
+        default:
+          throw new Error("Unsupported method: ".concat(String(methodName)));
+      }
+    }
   }]);
   return RequestWithCache;
 }();
@@ -4472,33 +4497,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SearchOnlyDocuments: () => (/* binding */ SearchOnlyDocuments)
 /* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _RequestWithCache__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./RequestWithCache */ "./src/Typesense/RequestWithCache.ts");
-/* harmony import */ var _Collections__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Collections */ "./src/Typesense/Collections.ts");
-/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
+/* harmony import */ var _babel_runtime_helpers_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/objectWithoutProperties */ "./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js");
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _RequestWithCache__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./RequestWithCache */ "./src/Typesense/RequestWithCache.ts");
+/* harmony import */ var _Collections__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Collections */ "./src/Typesense/Collections.ts");
+/* harmony import */ var _Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Utils */ "./src/Typesense/Utils.ts");
 
 
 
 
 
+var _excluded = ["streamConfig"];
+
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_4__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 
 
 
 var RESOURCEPATH = "/documents";
 var SearchOnlyDocuments = /*#__PURE__*/function () {
   function SearchOnlyDocuments(collectionName, apiCall, configuration) {
-    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, SearchOnlyDocuments);
-    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(this, "requestWithCache", new _RequestWithCache__WEBPACK_IMPORTED_MODULE_5__["default"]());
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__["default"])(this, SearchOnlyDocuments);
+    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_4__["default"])(this, "requestWithCache", new _RequestWithCache__WEBPACK_IMPORTED_MODULE_6__["default"]());
     this.collectionName = collectionName;
     this.apiCall = apiCall;
     this.configuration = configuration;
   }
-  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(SearchOnlyDocuments, [{
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__["default"])(SearchOnlyDocuments, [{
     key: "clearCache",
     value: function clearCache() {
       this.requestWithCache.clearCache();
@@ -4506,17 +4536,20 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
   }, {
     key: "search",
     value: function () {
-      var _search = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(searchParameters) {
+      var _search = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee(searchParameters) {
         var _ref,
           _ref$cacheSearchResul,
           cacheSearchResultsForSeconds,
           _ref$abortSignal,
           abortSignal,
           additionalQueryParams,
-          normalizedParams,
+          _normalizeArrayablePa,
+          streamConfig,
+          rest,
           queryParams,
+          isStreamingRequest,
           _args = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _ref = _args.length > 1 && _args[1] !== undefined ? _args[1] : {}, _ref$cacheSearchResul = _ref.cacheSearchResultsForSeconds, cacheSearchResultsForSeconds = _ref$cacheSearchResul === void 0 ? this.configuration.cacheSearchResultsForSeconds : _ref$cacheSearchResul, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal;
@@ -4524,14 +4557,19 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
               if (this.configuration.useServerSideSearchCache === true) {
                 additionalQueryParams["use_cache"] = true;
               }
-              normalizedParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_7__.normalizeArrayableParams)(searchParameters);
-              queryParams = Object.assign({}, additionalQueryParams, normalizedParams);
-              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, this.apiCall.get, [this.endpointPath("search"), queryParams, {
-                abortSignal: abortSignal
-              }], {
+              _normalizeArrayablePa = (0,_Utils__WEBPACK_IMPORTED_MODULE_8__.normalizeArrayableParams)(searchParameters), streamConfig = _normalizeArrayablePa.streamConfig, rest = (0,_babel_runtime_helpers_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_0__["default"])(_normalizeArrayablePa, _excluded);
+              queryParams = _objectSpread(_objectSpread({}, additionalQueryParams), rest);
+              isStreamingRequest = queryParams.conversation_stream === true;
+              return _context.abrupt("return", this.requestWithCache.perform(this.apiCall, "get", {
+                path: this.endpointPath("search"),
+                queryParams: queryParams,
+                streamConfig: streamConfig,
+                abortSignal: abortSignal,
+                isStreamingRequest: isStreamingRequest
+              }, {
                 cacheResponseForSeconds: cacheSearchResultsForSeconds
               }));
-            case 6:
+            case 7:
             case "end":
               return _context.stop();
           }
@@ -4545,7 +4583,7 @@ var SearchOnlyDocuments = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_6__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_7__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(RESOURCEPATH).concat(operation === undefined ? "" : "/" + operation);
     }
   }], [{
     key: "RESOURCEPATH",
@@ -5188,16 +5226,19 @@ var arrayableParams = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   normalizeArrayableParams: () => (/* binding */ normalizeArrayableParams)
+/* harmony export */   normalizeArrayableParams: () => (/* binding */ normalizeArrayableParams),
+/* harmony export */   toErrorWithMessage: () => (/* binding */ toErrorWithMessage)
 /* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
-/* harmony import */ var _Types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Types */ "./src/Typesense/Types.ts");
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "./node_modules/@babel/runtime/helpers/esm/typeof.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _Types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Types */ "./src/Typesense/Types.ts");
+
 
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_1__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 
 function hasNoArrayValues(params) {
-  return Object.keys(_Types__WEBPACK_IMPORTED_MODULE_1__.arrayableParams).filter(function (key) {
+  return Object.keys(_Types__WEBPACK_IMPORTED_MODULE_2__.arrayableParams).filter(function (key) {
     return params[key] !== undefined;
   }).every(function (key) {
     return isNonArrayValue(params[key]);
@@ -5205,7 +5246,7 @@ function hasNoArrayValues(params) {
 }
 function normalizeArrayableParams(params) {
   var result = _objectSpread({}, params);
-  var transformedValues = Object.keys(_Types__WEBPACK_IMPORTED_MODULE_1__.arrayableParams).filter(function (key) {
+  var transformedValues = Object.keys(_Types__WEBPACK_IMPORTED_MODULE_2__.arrayableParams).filter(function (key) {
     return Array.isArray(result[key]);
   }).map(function (key) {
     result[key] = result[key].join(",");
@@ -5221,6 +5262,20 @@ function normalizeArrayableParams(params) {
 }
 function isNonArrayValue(value) {
   return !Array.isArray(value);
+}
+function isErrorWithMessage(error) {
+  return (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(error) === "object" && error !== null && "message" in error && typeof error.message === "string";
+}
+function toErrorWithMessage(couldBeError) {
+  if (isErrorWithMessage(couldBeError)) return couldBeError;
+  try {
+    if (typeof couldBeError === "string") {
+      return new Error(couldBeError);
+    }
+    return new Error(JSON.stringify(couldBeError));
+  } catch (_unused) {
+    return new Error(String(couldBeError));
+  }
 }
 
 /***/ }),
@@ -6017,26 +6072,6 @@ function _arrayWithHoles(r) {
 
 /***/ }),
 
-/***/ "./node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js ***!
-  \**********************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ _arrayWithoutHoles)
-/* harmony export */ });
-/* harmony import */ var _arrayLikeToArray_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./arrayLikeToArray.js */ "./node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js");
-
-function _arrayWithoutHoles(r) {
-  if (Array.isArray(r)) return (0,_arrayLikeToArray_js__WEBPACK_IMPORTED_MODULE_0__["default"])(r);
-}
-
-
-/***/ }),
-
 /***/ "./node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js":
 /*!**************************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js ***!
@@ -6287,24 +6322,6 @@ function _isNativeReflectConstruct() {
 
 /***/ }),
 
-/***/ "./node_modules/@babel/runtime/helpers/esm/iterableToArray.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js ***!
-  \********************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ _iterableToArray)
-/* harmony export */ });
-function _iterableToArray(r) {
-  if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
-}
-
-
-/***/ }),
-
 /***/ "./node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js":
 /*!*************************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js ***!
@@ -6365,19 +6382,53 @@ function _nonIterableRest() {
 
 /***/ }),
 
-/***/ "./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js ***!
-  \**********************************************************************/
+/***/ "./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js":
+/*!****************************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js ***!
+  \****************************************************************************/
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ _nonIterableSpread)
+/* harmony export */   "default": () => (/* binding */ _objectWithoutProperties)
 /* harmony export */ });
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+/* harmony import */ var _objectWithoutPropertiesLoose_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./objectWithoutPropertiesLoose.js */ "./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js");
+
+function _objectWithoutProperties(e, t) {
+  if (null == e) return {};
+  var o,
+    r,
+    i = (0,_objectWithoutPropertiesLoose_js__WEBPACK_IMPORTED_MODULE_0__["default"])(e, t);
+  if (Object.getOwnPropertySymbols) {
+    var n = Object.getOwnPropertySymbols(e);
+    for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]);
+  }
+  return i;
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js":
+/*!*********************************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ _objectWithoutPropertiesLoose)
+/* harmony export */ });
+function _objectWithoutPropertiesLoose(r, e) {
+  if (null == r) return {};
+  var t = {};
+  for (var n in r) if ({}.hasOwnProperty.call(r, n)) {
+    if (-1 !== e.indexOf(n)) continue;
+    t[n] = r[n];
+  }
+  return t;
 }
 
 
@@ -6448,32 +6499,6 @@ __webpack_require__.r(__webpack_exports__);
 
 function _slicedToArray(r, e) {
   return (0,_arrayWithHoles_js__WEBPACK_IMPORTED_MODULE_0__["default"])(r) || (0,_iterableToArrayLimit_js__WEBPACK_IMPORTED_MODULE_1__["default"])(r, e) || (0,_unsupportedIterableToArray_js__WEBPACK_IMPORTED_MODULE_2__["default"])(r, e) || (0,_nonIterableRest_js__WEBPACK_IMPORTED_MODULE_3__["default"])();
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js ***!
-  \**********************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ _toConsumableArray)
-/* harmony export */ });
-/* harmony import */ var _arrayWithoutHoles_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./arrayWithoutHoles.js */ "./node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js");
-/* harmony import */ var _iterableToArray_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./iterableToArray.js */ "./node_modules/@babel/runtime/helpers/esm/iterableToArray.js");
-/* harmony import */ var _unsupportedIterableToArray_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./unsupportedIterableToArray.js */ "./node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js");
-/* harmony import */ var _nonIterableSpread_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./nonIterableSpread.js */ "./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js");
-
-
-
-
-function _toConsumableArray(r) {
-  return (0,_arrayWithoutHoles_js__WEBPACK_IMPORTED_MODULE_0__["default"])(r) || (0,_iterableToArray_js__WEBPACK_IMPORTED_MODULE_1__["default"])(r) || (0,_unsupportedIterableToArray_js__WEBPACK_IMPORTED_MODULE_2__["default"])(r) || (0,_nonIterableSpread_js__WEBPACK_IMPORTED_MODULE_3__["default"])();
 }
 
 

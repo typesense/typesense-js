@@ -1,29 +1,7 @@
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
-import { DocumentSchema, SearchParams, SearchParamsWithPreset, SearchResponse, SearchResponseRequestParams } from "./Documents";
-export interface MultiSearchRequestSchema extends SearchParams {
-    collection?: string;
-    rerank_hybrid_matches?: boolean;
-    "x-typesense-api-key"?: string;
-}
-export interface MultiSearchRequestWithPresetSchema extends SearchParamsWithPreset {
-    collection?: string;
-    "x-typesense-api-key"?: string;
-}
-export interface MultiSearchRequestsSchema<U extends boolean | undefined = undefined> {
-    union?: U;
-    searches: (MultiSearchRequestSchema | MultiSearchRequestWithPresetSchema)[];
-}
-export interface UnionSearchResponse<T extends DocumentSchema> extends Omit<SearchResponse<T>, "request_params"> {
-    union_request_params: SearchResponseRequestParams[];
-}
-export type MultiSearchResponse<U extends boolean | undefined, T extends DocumentSchema[]> = U extends true ? UnionSearchResponse<T[number]> : {
-    results: {
-        [Index in keyof T]: SearchResponse<T[Index]>;
-    } & {
-        length: T["length"];
-    };
-};
+import { DocumentSchema, SearchResponse } from "./Documents";
+import type { MultiSearchRequestsWithUnionSchema, MultiSearchUnionParameters, MultiSearchResultsParameters, UnionSearchResponse, MultiSearchRequestsWithoutUnionSchema } from "./Types";
 export default class MultiSearch {
     private apiCall;
     private configuration;
@@ -31,7 +9,18 @@ export default class MultiSearch {
     private requestWithCache;
     constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
     clearCache(): void;
-    perform<T extends DocumentSchema[] = [], const U extends boolean | undefined = undefined>(searchRequests: MultiSearchRequestsSchema<U>, commonParams?: Partial<MultiSearchRequestSchema>, { cacheSearchResultsForSeconds, }?: {
+    perform<const T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsWithUnionSchema<T[number]>, commonParams?: MultiSearchUnionParameters<T[number]>, options?: {
         cacheSearchResultsForSeconds?: number;
-    }): Promise<MultiSearchResponse<U, T>>;
+    }): Promise<UnionSearchResponse<T[number]>>;
+    perform<const T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number]>, commonParams?: MultiSearchResultsParameters<T>, options?: {
+        cacheSearchResultsForSeconds?: number;
+    }): Promise<{
+        results: {
+            [Index in keyof T]: SearchResponse<T[Index]>;
+        } & {
+            length: T["length"];
+        };
+    }>;
+    private isStreamingRequest;
 }
+export type { MultiSearchRequestsSchema, MultiSearchRequestsWithUnionSchema, MultiSearchResponse, MultiSearchUnionParameters, MultiSearchResultsParameters, UnionSearchResponse, MultiSearchRequestsWithoutUnionSchema, } from "./Types";

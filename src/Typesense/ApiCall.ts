@@ -8,7 +8,8 @@ import axios from "axios";
 import { Agent as HTTPAgent } from "http";
 import { Agent as HTTPSAgent } from "https";
 import { Logger } from "loglevel";
-import Configuration, { NodeConfiguration } from "./Configuration";
+import Configuration from "./Configuration";
+import type { NodeConfiguration, StreamConfig } from "./Configuration";
 import {
   HTTPError,
   ObjectAlreadyExists,
@@ -19,6 +20,9 @@ import {
   ServerError,
 } from "./Errors";
 import TypesenseError from "./Errors/TypesenseError";
+import type { DocumentSchema, SearchResponse } from "./Documents";
+import { toErrorWithMessage } from "./Utils";
+import { MessageChunk } from "./Types";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 const HEALTHY = true;
@@ -32,9 +36,63 @@ interface Node extends NodeConfiguration {
 const isNodeJSEnvironment =
   typeof process !== "undefined" &&
   process.versions != null &&
-  process.versions.node != null;
+  process.versions.node != null &&
+  typeof window === "undefined";
 
-export default class ApiCall {
+export interface HttpClient {
+  get<T>(
+    endpoint: string,
+    queryParameters: Record<string, unknown>,
+    {
+      abortSignal,
+      responseType,
+      streamConfig,
+      isStreamingRequest,
+    }: {
+      abortSignal?: AbortSignal | null;
+      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+      isStreamingRequest: boolean | undefined;
+    },
+  ): Promise<T>;
+  delete<T>(
+    endpoint: string,
+    queryParameters: Record<string, unknown>,
+  ): Promise<T>;
+  post<T>(
+    endpoint: string,
+    bodyParameters: unknown,
+    queryParameters: Record<string, unknown>,
+    additionalHeaders: Record<string, string>,
+    {
+      abortSignal,
+      responseType,
+      streamConfig,
+      isStreamingRequest,
+    }: {
+      abortSignal?: AbortSignal | null;
+      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+      isStreamingRequest: boolean | undefined;
+    },
+  ): Promise<T>;
+  put<T>(
+    endpoint: string,
+    bodyParameters: unknown,
+    queryParameters: Record<string, unknown>,
+  ): Promise<T>;
+  patch<T>(
+    endpoint: string,
+    bodyParameters: unknown,
+    queryParameters: Record<string, unknown>,
+  ): Promise<T>;
+}
+
+export default class ApiCall implements HttpClient {
   private readonly apiKey: string;
   private readonly nodes: Node[];
   private readonly nearestNode: Node;
@@ -78,20 +136,31 @@ export default class ApiCall {
     {
       abortSignal = null,
       responseType = undefined,
+      streamConfig = undefined,
+      isStreamingRequest,
     }: {
       abortSignal?: any;
       responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+      isStreamingRequest?: boolean | undefined;
     } = {},
   ): Promise<T> {
     return this.performRequest<T>("get", endpoint, {
       queryParameters,
       abortSignal,
       responseType,
+      streamConfig,
+      isStreamingRequest,
     });
   }
 
   async delete<T>(endpoint: string, queryParameters: any = {}): Promise<T> {
-    return this.performRequest<T>("delete", endpoint, { queryParameters });
+    return this.performRequest<T>("delete", endpoint, {
+      queryParameters,
+      isStreamingRequest: false,
+    });
   }
 
   async post<T>(
@@ -99,11 +168,28 @@ export default class ApiCall {
     bodyParameters: any = {},
     queryParameters: any = {},
     additionalHeaders: any = {},
+    {
+      abortSignal = null,
+      responseType = undefined,
+      streamConfig = undefined,
+      isStreamingRequest,
+    }: {
+      abortSignal?: AbortSignal | null;
+      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+      isStreamingRequest?: boolean | undefined;
+    } = {},
   ): Promise<T> {
     return this.performRequest<T>("post", endpoint, {
       queryParameters,
       bodyParameters,
       additionalHeaders,
+      abortSignal,
+      responseType,
+      streamConfig,
+      isStreamingRequest,
     });
   }
 
@@ -115,6 +201,7 @@ export default class ApiCall {
     return this.performRequest<T>("put", endpoint, {
       queryParameters,
       bodyParameters,
+      isStreamingRequest: false,
     });
   }
 
@@ -126,6 +213,7 @@ export default class ApiCall {
     return this.performRequest<T>("patch", endpoint, {
       queryParameters,
       bodyParameters,
+      isStreamingRequest: false,
     });
   }
 
@@ -155,6 +243,8 @@ export default class ApiCall {
       responseType = undefined,
       skipConnectionTimeout = false,
       enableKeepAlive = undefined,
+      streamConfig = undefined,
+      isStreamingRequest,
     }: {
       queryParameters?: any;
       bodyParameters?: any;
@@ -163,14 +253,13 @@ export default class ApiCall {
       responseType?: AxiosRequestConfig["responseType"] | undefined;
       skipConnectionTimeout?: boolean;
       enableKeepAlive?: boolean | undefined;
+      streamConfig?:
+        | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+        | undefined;
+      isStreamingRequest?: boolean | undefined;
     },
   ): Promise<T> {
     this.configuration.validate();
-
-    // TODO: Hacky, the search function needs refactoring, currently passing a tuple for types, too much overhead
-    const isStreamingRequest =
-      queryParameters?.conversation_stream === true &&
-      requestType.toLowerCase() === "get";
 
     if (isStreamingRequest) {
       this.logger.debug(`Request: Performing streaming request to ${endpoint}`);
@@ -346,8 +435,9 @@ export default class ApiCall {
         );
 
         if (response.status >= 200 && response.status < 300) {
-          if (isStreamingRequest)
-            return this.handleStreamingResponse<T>(response);
+          if (isStreamingRequest) {
+            return this.handleStreamingResponse<T>(response, streamConfig);
+          }
           return Promise.resolve(response.data);
         } else if (response.status < 500) {
           // Next, if response is anything but 5xx, don't retry, return a custom error
@@ -388,7 +478,7 @@ export default class ApiCall {
         }
 
         if (isStreamingRequest) {
-          this.invokeOnErrorCallback(error);
+          this.invokeOnErrorCallback(error, streamConfig);
         }
 
         if (numTries < this.numRetriesPerRequest + 1) {
@@ -502,32 +592,40 @@ export default class ApiCall {
 
   private async handleStreamingResponse<T>(
     response: AxiosResponse,
+    streamConfig:
+      | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+      | undefined,
   ): Promise<T> {
     this.logger.debug(
       `Handling streaming response. Environment: ${isNodeJSEnvironment ? "Node.js" : "Browser"}`,
     );
 
     if (isNodeJSEnvironment && response.data) {
-      return this.handleNodeStreaming<T>(response);
+      return this.handleNodeStreaming<T>(response, streamConfig);
     }
 
     if (!isNodeJSEnvironment) {
-      return this.handleBrowserStreaming<T>(response);
+      return this.handleBrowserStreaming<T>(response, streamConfig);
     }
 
     this.logger.debug("Processing non-streaming response");
-    this.invokeOnCompleteCallback(response.data);
+    this.invokeOnCompleteCallback(response.data, streamConfig);
     return Promise.resolve(response.data as T);
   }
 
-  private handleNodeStreaming<T>(response: AxiosResponse): Promise<T> {
+  private handleNodeStreaming<T>(
+    response: AxiosResponse,
+    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
+  ): Promise<T> {
     this.logger.debug("Processing Node.js stream");
     return new Promise<T>((resolve, reject) => {
       const stream = response.data;
-      const allChunks: {
-        message: string;
-        conversation_id: string;
-      }[] = [];
+      const allChunks:
+        | [
+            ...MessageChunk[],
+            SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+          ]
+        | [] = [];
       let buffer = "";
 
       stream.on("data", (chunk) => {
@@ -538,7 +636,7 @@ export default class ApiCall {
           const lines = buffer.split("\n");
           buffer = lines.pop() ?? "";
 
-          this.processStreamLines(lines, allChunks);
+          this.processStreamLines(lines, allChunks, streamConfig);
         } catch (error) {
           reject(error);
         }
@@ -547,21 +645,29 @@ export default class ApiCall {
       stream.on("end", () => {
         if (buffer.trim().length > 0) {
           const lines = buffer.split("\n");
-          this.processStreamLines(lines, allChunks);
+          this.processStreamLines(lines, allChunks, streamConfig);
         }
 
-        this.finalizeStreamResult<T>(allChunks, resolve, response);
+        this.finalizeStreamResult<T>(
+          allChunks,
+          resolve,
+          response,
+          streamConfig,
+        );
       });
 
       stream.on("error", (error: unknown) => {
         this.logger.error(`Stream error: ${error}`);
-        this.invokeOnErrorCallback(error);
+        this.invokeOnErrorCallback(error, streamConfig);
         reject(error);
       });
     });
   }
 
-  private handleBrowserStreaming<T>(response: AxiosResponse): Promise<T> {
+  private handleBrowserStreaming<T>(
+    response: AxiosResponse,
+    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
+  ): Promise<T> {
     this.logger.debug("Processing browser stream");
 
     return new Promise<T>(async (resolve, reject) => {
@@ -572,6 +678,7 @@ export default class ApiCall {
             resolve,
             reject,
             response,
+            streamConfig,
           );
         }
 
@@ -580,12 +687,13 @@ export default class ApiCall {
             response.data,
             resolve,
             response,
+            streamConfig,
           );
         }
 
         if (typeof response.data === "object" && response.data !== null) {
           this.logger.debug("No stream found, but data object is available");
-          this.invokeOnCompleteCallback(response.data);
+          this.invokeOnCompleteCallback(response.data, streamConfig);
           return resolve(response.data as T);
         }
 
@@ -593,7 +701,7 @@ export default class ApiCall {
         return reject(new Error("No usable data found in response"));
       } catch (error) {
         this.logger.error(`Error processing streaming response: ${error}`);
-        this.invokeOnErrorCallback(error);
+        this.invokeOnErrorCallback(error, streamConfig);
         reject(error);
       }
     });
@@ -604,13 +712,18 @@ export default class ApiCall {
     resolve: (value: T) => void,
     reject: (reason?: any) => void,
     response: AxiosResponse,
+    streamConfig:
+      | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+      | undefined,
   ): Promise<void> {
     this.logger.debug("Found ReadableStream in response.data");
     const reader = stream.getReader();
-    const allChunks: {
-      message: string;
-      conversation_id: string;
-    }[] = [];
+    const allChunks:
+      | [
+          ...MessageChunk[],
+          SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+        ]
+      | [] = [];
     let buffer = "";
 
     try {
@@ -621,7 +734,7 @@ export default class ApiCall {
           this.logger.debug("Stream reading complete");
           if (buffer.trim()) {
             const lines = buffer.split("\n");
-            this.processStreamLines(lines, allChunks);
+            this.processStreamLines(lines, allChunks, streamConfig);
           }
           break;
         }
@@ -633,11 +746,13 @@ export default class ApiCall {
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
 
-        this.processStreamLines(lines, allChunks);
+        this.processStreamLines(lines, allChunks, streamConfig);
       }
 
-      this.finalizeStreamResult<T>(allChunks, resolve, response);
+      this.finalizeStreamResult<T>(allChunks, resolve, response, streamConfig);
     } catch (error) {
+      this.logger.error(`Stream error: ${error}`);
+      this.invokeOnErrorCallback(error, streamConfig);
       reject(error);
     }
   }
@@ -646,53 +761,71 @@ export default class ApiCall {
     data: string,
     resolve: (value: T) => void,
     response: AxiosResponse,
+    streamConfig:
+      | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
+      | undefined,
   ): void {
     this.logger.debug("Processing text response as stream data");
-    const allChunks: unknown[] = [];
+    const allChunks:
+      | [
+          ...MessageChunk[],
+          SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+        ]
+      | [] = [];
 
     const lines = data.split("\n");
-    this.processStreamLines(lines, allChunks);
+    this.processStreamLines(lines, allChunks, streamConfig);
 
     if (allChunks.length > 0) {
-      const finalResult = this.combineStreamingChunks(allChunks);
-      this.invokeOnCompleteCallback(finalResult);
-      resolve(finalResult as T);
+      const finalResult =
+        this.combineStreamingChunks<
+          T extends DocumentSchema ? T : DocumentSchema
+        >(allChunks);
+      this.invokeOnCompleteCallback(finalResult, streamConfig);
+      resolve(finalResult as unknown as T);
     } else {
       // If no chunks were processed, use the original response
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(response.data);
+      this.invokeOnCompleteCallback(response.data, streamConfig);
       resolve(response.data as T);
     }
   }
 
-  private processStreamLines(lines: string[], allChunks: unknown[]): void {
+  private processStreamLines<T extends DocumentSchema>(
+    lines: string[],
+    allChunks: [...MessageChunk[], SearchResponse<T>] | [],
+    streamConfig: StreamConfig<T> | undefined,
+  ): void {
     for (const line of lines) {
       if (line.trim() && line !== "data: [DONE]") {
         const processed = this.processStreamingLine(line);
         if (processed !== null) {
-          this.invokeOnChunkCallback(processed);
-          allChunks.push(processed);
+          this.invokeOnChunkCallback(processed, streamConfig);
+          (allChunks as MessageChunk[]).push(processed);
         }
       }
     }
   }
 
   private finalizeStreamResult<T>(
-    allChunks: {
-      message: string;
-      conversation_id: string;
-    }[],
+    allChunks:
+      | [
+          ...MessageChunk[],
+          SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
+        ]
+      | [],
     resolve: (value: T) => void,
     response: AxiosResponse,
+    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
   ): void {
     if (allChunks.length > 0) {
       const finalResult = this.combineStreamingChunks(allChunks);
       this.logger.debug("Stream processing complete");
-      this.invokeOnCompleteCallback(finalResult);
-      resolve(finalResult as T);
+      this.invokeOnCompleteCallback(finalResult, streamConfig);
+      resolve(finalResult as unknown as T);
     } else {
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(response.data);
+      this.invokeOnCompleteCallback(response.data, streamConfig);
       resolve(response.data as T);
     }
   }
@@ -701,85 +834,79 @@ export default class ApiCall {
    * Combines multiple streaming chunks into a single coherent result
    * This is critical for ensuring we return the complete data rather than just the last chunk
    */
-  private combineStreamingChunks(chunks: unknown[]): unknown {
-    if (chunks.length === 0) return {};
-    if (chunks.length === 1) return chunks[0];
+  private combineStreamingChunks<T extends DocumentSchema>(
+    chunks: [...MessageChunk[], SearchResponse<T>] | [],
+  ): SearchResponse<T> {
+    if (chunks.length === 0) return {} as SearchResponse<T>;
+    if (chunks.length === 1) return chunks[0] as unknown as SearchResponse<T>;
 
     // For conversation streams with message chunks
-    const messagesChunks = this.getMessageChunks(chunks);
+    const messagesChunks = this.getMessageChunks(
+      chunks as [...MessageChunk[], SearchResponse<T>],
+    );
     if (messagesChunks.length > 0) {
-      return this.combineMessageChunks(chunks, messagesChunks);
+      return this.combineMessageChunks(
+        chunks as [...MessageChunk[], SearchResponse<T>],
+        messagesChunks,
+      );
     }
 
     // For regular search responses
+    const lastChunk = chunks[chunks.length - 1];
+    if (!this.isCompleteSearchResponse(lastChunk)) {
+      throw new Error("Last chunk is not a complete search response");
+    }
+
+    return lastChunk;
+  }
+
+  private getMessageChunks<T extends DocumentSchema>(
+    chunks: [...MessageChunk[], SearchResponse<T>],
+  ): MessageChunk[] {
+    return chunks.filter(this.isChunkMessage);
+  }
+
+  private isChunkMessage(chunk: unknown): chunk is MessageChunk {
+    return (
+      typeof chunk === "object" &&
+      chunk !== null &&
+      "message" in chunk &&
+      "conversation_id" in chunk
+    );
+  }
+
+  private combineMessageChunks<T extends DocumentSchema>(
+    chunks: [...MessageChunk[], SearchResponse<T>],
+    messagesChunks: MessageChunk[],
+  ): SearchResponse<T> {
+    this.logger.debug(
+      `Found ${messagesChunks.length} message chunks to combine`,
+    );
+
     const lastChunk = chunks[chunks.length - 1];
     if (this.isCompleteSearchResponse(lastChunk)) {
       return lastChunk;
     }
 
-    // Try to merge chunks if last chunk isn't a complete response
-    return this.attemptChunksMerge(chunks, lastChunk);
-  }
+    const metadataChunk = chunks.find(this.isCompleteSearchResponse);
 
-  private getMessageChunks(chunks: unknown[]): unknown[] {
-    return chunks.filter(
-      (chunk) =>
-        typeof chunk === "object" && chunk !== null && "message" in chunk,
-    );
-  }
-
-  private combineMessageChunks(
-    chunks: unknown[],
-    messagesChunks: unknown[],
-  ): unknown {
-    this.logger.debug(
-      `Found ${messagesChunks.length} message chunks to combine`,
-    );
-
-    // Check if the last chunk contains the complete response
-    const lastChunk = chunks[chunks.length - 1];
-    if (
-      typeof lastChunk === "object" &&
-      lastChunk !== null &&
-      ("hits" in lastChunk || "found" in lastChunk)
-    ) {
-      this.logger.debug("Last chunk appears to be a complete search response");
-      return lastChunk;
+    if (!metadataChunk) {
+      throw new Error("No metadata chunk found");
     }
 
-    // Combine all message chunks
-    const combinedMessage = messagesChunks
-      .map((chunk) => (chunk as any).message)
-      .join("");
-
-    // Look for a chunk with search metadata
-    const metadataChunk = chunks.find(
-      (chunk) =>
-        typeof chunk === "object" &&
-        chunk !== null &&
-        ("hits" in chunk || "found" in chunk || "request_params" in chunk),
-    );
-
-    if (metadataChunk) {
-      // If we found metadata, merge it with the combined message
-      return {
-        ...(metadataChunk as Record<string, any>),
-        message: combinedMessage,
-      };
-    }
-
-    // Otherwise just return the combined message
-    return { message: combinedMessage };
+    return metadataChunk;
   }
 
-  private isCompleteSearchResponse(chunk: unknown): boolean {
+  private isCompleteSearchResponse<T extends DocumentSchema>(
+    chunk: MessageChunk | SearchResponse<T>,
+  ): chunk is SearchResponse<T> {
     if (
       typeof chunk === "object" &&
       chunk !== null &&
       Object.keys(chunk as object).length > 0
     ) {
-      // Check if it has search response properties
       return (
+        "results" in (chunk as object) ||
         "found" in (chunk as object) ||
         "hits" in (chunk as object) ||
         "page" in (chunk as object) ||
@@ -787,28 +914,6 @@ export default class ApiCall {
       );
     }
     return false;
-  }
-
-  private attemptChunksMerge(chunks: unknown[], lastChunk: unknown): unknown {
-    try {
-      // Attempt to merge chunks that might be parts of the same structure
-      let mergedResult: Record<string, any> = {};
-
-      for (const chunk of chunks) {
-        if (typeof chunk === "object" && chunk !== null) {
-          mergedResult = { ...mergedResult, ...(chunk as Record<string, any>) };
-        }
-      }
-
-      if (Object.keys(mergedResult).length > 0) {
-        return mergedResult;
-      }
-    } catch (e) {
-      this.logger.warn(`Failed to merge chunks: ${e}`);
-    }
-
-    // Fallback to the last chunk if merging fails
-    return lastChunk;
   }
 
   // Attempts to find the next healthy node, looping through the list of nodes once.
@@ -953,35 +1058,43 @@ export default class ApiCall {
     return error;
   }
 
-  private invokeOnChunkCallback(data: {
-    conversation_id: string;
-    message: string;
-  }): void {
-    if (this.configuration.streamConfig?.onChunk) {
+  private invokeOnChunkCallback<T extends DocumentSchema>(
+    data: {
+      conversation_id: string;
+      message: string;
+    },
+    streamConfig: StreamConfig<T> | undefined,
+  ): void {
+    if (streamConfig?.onChunk) {
       try {
-        this.configuration.streamConfig.onChunk(data);
+        streamConfig.onChunk(data);
       } catch (error) {
         this.logger.warn(`Error in onChunk callback: ${error}`);
       }
     }
   }
 
-  private invokeOnCompleteCallback(data: unknown): void {
-    if (this.configuration.streamConfig?.onComplete) {
+  private invokeOnCompleteCallback<T extends DocumentSchema>(
+    data: SearchResponse<T>,
+    streamConfig: StreamConfig<T> | undefined,
+  ): void {
+    if (streamConfig?.onComplete) {
       try {
-        this.configuration.streamConfig.onComplete(data as any);
+        streamConfig.onComplete(data);
       } catch (error) {
         this.logger.warn(`Error in onComplete callback: ${error}`);
       }
     }
   }
 
-  private invokeOnErrorCallback(error: unknown): void {
-    if (this.configuration.streamConfig?.onError) {
-      const errorObj =
-        error instanceof Error ? error : new Error(String(error));
+  private invokeOnErrorCallback<T extends DocumentSchema>(
+    error: unknown,
+    streamConfig: StreamConfig<T> | undefined,
+  ): void {
+    if (streamConfig?.onError) {
+      const errorObj = toErrorWithMessage(error);
       try {
-        this.configuration.streamConfig.onError(errorObj);
+        streamConfig.onError(errorObj);
       } catch (callbackError) {
         this.logger.warn(`Error in onError callback: ${callbackError}`);
       }

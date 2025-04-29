@@ -54,6 +54,8 @@
     "@types/node": "^20.8.9",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "@typescript-eslint/parser": "^6.9.1",
+    "@vitest/browser": "^3.1.2",
+    "@vitest/ui": "^3.1.2",
     "axios-curlirize": "^2.0.0",
     "axios-mock-adapter": "^1.22.0",
     "babel-loader": "^9.1.3",
@@ -72,6 +74,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-standard": "^5.0.0",
+    "jsdom": "^24.1.3",
     "mocha": "^10.2.0",
     "mocha-junit-reporter": "^2.2.1",
     "nyc": "^15.1.0",
@@ -83,6 +86,7 @@
     "typescript": "^5.2.2",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
+    "vitest": "^3.1.2",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   },
@@ -91,6 +95,7 @@
     "pretest": "eslint .",
     "test": "nyc --reporter=html --reporter=text ts-mocha --require @babel/register --recursive",
     "build": "npm run build:tsc && npm run build:web:dev && npm run build:web:prod",
+    "test:vitest": "vitest",
     "build:tsc": "tsc",
     "build:web:dev": "webpack --config webpack.config.js --mode development",
     "build:web:prod": "webpack --config webpack.config.js --mode production",
@@ -107,6 +112,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "axios": "^1.8.4",
+    "dotenv": "^16.4.7",
     "loglevel": "^1.8.1",
     "tslib": "^2.6.2"
   },

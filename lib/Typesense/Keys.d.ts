@@ -1,10 +1,10 @@
 import ApiCall from "./ApiCall";
 import { KeyCreateSchema, KeySchema } from "./Key";
-import { SearchParams } from "./Documents";
+import type { DocumentSchema, SearchParams } from "./Documents";
 export interface KeysRetrieveSchema {
     keys: KeySchema[];
 }
-export interface GenerateScopedSearchKeyParams extends Partial<SearchParams> {
+export interface GenerateScopedSearchKeyParams<T extends DocumentSchema> extends Partial<SearchParams<T>> {
     expires_at?: number;
     cache_ttl?: number;
     limit_multi_searches?: number;
@@ -14,6 +14,6 @@ export default class Keys {
     constructor(apiCall: ApiCall);
     create(params: KeyCreateSchema): Promise<KeySchema>;
     retrieve(): Promise<KeysRetrieveSchema>;
-    generateScopedSearchKey(searchKey: string, parameters: GenerateScopedSearchKeyParams): string;
+    generateScopedSearchKey<T extends DocumentSchema>(searchKey: string, parameters: GenerateScopedSearchKeyParams<T>): string;
     static get RESOURCEPATH(): string;
 }

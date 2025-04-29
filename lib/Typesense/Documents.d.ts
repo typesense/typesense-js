@@ -3,7 +3,7 @@ import type { ReadStream } from "fs";
 import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
 import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
-import { SearchParams, WriteableDocuments } from "./Types";
+import { SearchParams, SearchResponseRequestParams, WriteableDocuments } from "./Types";
 export type DeleteQuery = {
     truncate?: true;
 } | {
@@ -26,7 +26,7 @@ export interface ImportResponseFail {
 }
 export type ImportResponse = ImportResponseSuccess | ImportResponseFail;
 export type DocumentSchema = Record<string, any>;
-export interface SearchParamsWithPreset extends Partial<SearchParams> {
+export interface SearchParamsWithPreset<T extends DocumentSchema> extends Partial<SearchParams<T>> {
     preset: string;
 }
 type SearchResponseHighlightObject = {
@@ -73,16 +73,6 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
         max?: number;
         min?: number;
         sum?: number;
-    };
-}
-export interface SearchResponseRequestParams {
-    collection_name?: string;
-    q?: string;
-    page?: number;
-    per_page?: number;
-    first_q?: string;
-    voice_query?: {
-        transcribed_query?: string;
     };
 }
 export interface SearchResponse<T extends DocumentSchema> {
@@ -173,4 +163,4 @@ export default class Documents<T extends DocumentSchema = object> extends Search
 /**
  * @deprecated Import from './Types' instead
  */
-export type { SearchParams, WriteableDocuments, SearchableDocuments, DropTokensMode, OperationMode, UnionArrayKeys, UnionArraySearchParams, ArraybleParams, ExtractBaseTypes, } from "./Types";
+export type { SearchParams, WriteableDocuments, SearchableDocuments, DropTokensMode, OperationMode, UnionArrayKeys, UnionArraySearchParams, ArraybleParams, ExtractBaseTypes, SearchResponseRequestParams, } from "./Types";

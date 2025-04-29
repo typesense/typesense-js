@@ -21,7 +21,7 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
   constructor(
     protected collectionName: string,
     protected apiCall: ApiCall,
-    protected configuration: Configuration
+    protected configuration: Configuration,
   ) {}
 
   clearCache() {
@@ -29,32 +29,49 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
   }
 
   async search(
-    searchParameters: SearchParams | SearchParamsWithPreset,
+    searchParameters: SearchParams<T> | SearchParamsWithPreset<T>,
     {
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
       abortSignal = null,
-    }: SearchOptions = {}
+    }: SearchOptions = {},
   ): Promise<SearchResponse<T>> {
     const additionalQueryParams = {};
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams["use_cache"] = true;
     }
-    const normalizedParams = normalizeArrayableParams(searchParameters);
-    const queryParams = Object.assign(
-      {},
-      additionalQueryParams,
-      normalizedParams,
-    );
 
-    return this.requestWithCache.perform(
+    const { streamConfig, ...rest } = normalizeArrayableParams<
+      T,
+      SearchParams<T>
+    >(searchParameters);
+
+    const queryParams = {
+      ...additionalQueryParams,
+      ...rest,
+    };
+
+    const isStreamingRequest = queryParams.conversation_stream === true;
+
+    return this.requestWithCache.perform<
+      ApiCall,
+      "get",
+      [T],
+      SearchResponse<T>
+    >(
       this.apiCall,
-      this.apiCall.get,
-      [this.endpointPath("search"), queryParams, { abortSignal }],
+      "get",
+      {
+        path: this.endpointPath("search"),
+        queryParams,
+        streamConfig,
+        abortSignal,
+        isStreamingRequest,
+      },
       {
         cacheResponseForSeconds: cacheSearchResultsForSeconds,
-      }
-    ) as Promise<SearchResponse<T>>;
+      },
+    );
   }
 
   protected endpointPath(operation?: string) {

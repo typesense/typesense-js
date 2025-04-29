@@ -3,7 +3,11 @@ import ApiCall from "./ApiCall";
 import Configuration from "./Configuration";
 import { ImportError, RequestMalformed } from "./Errors";
 import { SearchOnlyDocuments } from "./SearchOnlyDocuments";
-import { SearchParams, WriteableDocuments } from "./Types";
+import {
+  SearchParams,
+  SearchResponseRequestParams,
+  WriteableDocuments,
+} from "./Types";
 
 // Todo: use generic to extract filter_by values
 export type DeleteQuery =
@@ -36,7 +40,8 @@ export type ImportResponse = ImportResponseSuccess | ImportResponseFail;
 
 export type DocumentSchema = Record<string, any>;
 
-export interface SearchParamsWithPreset extends Partial<SearchParams> {
+export interface SearchParamsWithPreset<T extends DocumentSchema>
+  extends Partial<SearchParams<T>> {
   preset: string;
 }
 
@@ -89,17 +94,6 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
     max?: number;
     min?: number;
     sum?: number;
-  };
-}
-
-export interface SearchResponseRequestParams {
-  collection_name?: string;
-  q?: string;
-  page?: number;
-  per_page?: number;
-  first_q?: string;
-  voice_query?: {
-    transcribed_query?: string;
   };
 }
 
@@ -407,4 +401,5 @@ export type {
   UnionArraySearchParams,
   ArraybleParams,
   ExtractBaseTypes,
+  SearchResponseRequestParams,
 } from "./Types";

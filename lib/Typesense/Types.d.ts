@@ -1,18 +1,24 @@
-import { DocumentSchema, SearchParamsWithPreset, SearchOptions, SearchResponse, DocumentWriteParameters, DeleteQuery, DeleteResponse, ImportResponse, DocumentsExportParameters } from "./Documents";
+import type { AxiosRequestConfig } from "axios";
+import type { BaseStreamConfig, StreamConfig } from "./Configuration";
+import type { DocumentSchema, SearchParamsWithPreset, SearchOptions, SearchResponse, DocumentWriteParameters, DeleteQuery, DeleteResponse, ImportResponse, DocumentsExportParameters } from "./Documents";
 export type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 export type OperationMode = "off" | "always" | "fallback";
+export type MessageChunk = {
+    message: string;
+    conversation_id: string;
+};
 export type UnionArrayKeys<T> = {
     [K in keyof T]: T[K] extends undefined ? never : NonNullable<T[K]> extends infer R ? R extends R[] ? never : R extends (infer U)[] | infer U ? U[] extends R ? K : never : never : never;
 }[keyof T] & keyof T;
-export type UnionArraySearchParams = UnionArrayKeys<SearchParams>;
-export type ArraybleParams = {
-    readonly [K in UnionArraySearchParams]: string;
+export type UnionArraySearchParams<T extends DocumentSchema = DocumentSchema> = UnionArrayKeys<T>;
+export type ArraybleParams<T extends DocumentSchema = DocumentSchema> = {
+    readonly [K in UnionArraySearchParams<T>]: string;
 };
 export type ExtractBaseTypes<T> = {
     [K in keyof T]: K extends UnionArrayKeys<T> ? T[K] extends (infer U)[] | infer U ? U : T[K] : T[K];
 };
 export declare const arrayableParams: ArraybleParams;
-export interface SearchParams {
+export interface SearchParams<TDoc extends DocumentSchema = DocumentSchema> {
     q?: "*" | (string & {});
     query_by?: string | string[];
     query_by_weights?: string | number[];
@@ -80,11 +86,20 @@ export interface SearchParams {
     conversation_model_id?: string;
     conversation_id?: string;
     voice_query?: string;
-    remote_embedding_timeout_ms?: number;
-    remote_embedding_num_tries?: number;
+    streamConfig?: StreamConfig<TDoc>;
 }
-export interface SearchableDocuments<T extends DocumentSchema> {
-    search(searchParameters: SearchParams | SearchParamsWithPreset, options: SearchOptions): Promise<SearchResponse<T>>;
+export interface SearchResponseRequestParams {
+    collection_name?: string;
+    q?: string;
+    page?: number;
+    per_page?: number;
+    first_q?: string;
+    voice_query?: {
+        transcribed_query?: string;
+    };
+}
+export interface SearchableDocuments<T extends DocumentSchema = DocumentSchema> {
+    search(searchParameters: SearchParams<T> | SearchParamsWithPreset<T>, options: SearchOptions): Promise<SearchResponse<T>>;
     clearCache(): void;
 }
 export interface WriteableDocuments<T> {
@@ -95,3 +110,74 @@ export interface WriteableDocuments<T> {
     import(documents: T[] | string, options: DocumentWriteParameters): Promise<string | ImportResponse[]>;
     export(options: DocumentsExportParameters): Promise<string>;
 }
+export interface MultiSearchUnionStreamConfig<T extends DocumentSchema> extends BaseStreamConfig {
+    onComplete?: (data: UnionSearchResponse<T>) => void;
+}
+export interface MultiSearchResultsStreamConfig<T extends DocumentSchema[]> extends BaseStreamConfig {
+    onComplete?: (data: {
+        results: {
+            [Index in keyof T]: SearchResponse<T[Index]>;
+        } & {
+            length: T["length"];
+        };
+    }) => void;
+}
+export interface RequestParams<T extends DocumentSchema[]> {
+    path: string;
+    queryParams?: Record<string, unknown>;
+    body?: unknown;
+    headers?: Record<string, string>;
+    streamConfig?: StreamConfig<T[number]> | MultiSearchResultsStreamConfig<T> | MultiSearchUnionStreamConfig<T[number]>;
+    abortSignal?: AbortSignal | null;
+    responseType?: AxiosRequestConfig["responseType"] | undefined;
+    isStreamingRequest: boolean | undefined;
+}
+export interface MultiSearchRequestsWithUnionSchema<T extends DocumentSchema> extends SearchesMultiSearchesRequestSchema<T> {
+    union: true;
+}
+export interface MultiSearchRequestsWithoutUnionSchema<T extends DocumentSchema> extends SearchesMultiSearchesRequestSchema<T> {
+    union?: false | undefined;
+}
+export type MultiSearchRequestsSchema<T extends DocumentSchema> = MultiSearchRequestsWithUnionSchema<T> | MultiSearchRequestsWithoutUnionSchema<T>;
+export interface UnionSearchResponse<T extends DocumentSchema> extends Omit<SearchResponse<T>, "request_params"> {
+    union_request_params: SearchResponseRequestParams[];
+}
+export type MultiSearchResponse<T extends DocumentSchema[], R extends MultiSearchRequestsSchema<T[number]> = MultiSearchRequestsSchema<T[number]>> = R extends MultiSearchRequestsWithUnionSchema<T[number]> ? UnionSearchResponse<T[number]> : {
+    results: {
+        [Index in keyof T]: SearchResponse<T[Index]>;
+    } & {
+        length: T["length"];
+    };
+};
+export interface MultiSearchUnionStreamConfig<T extends DocumentSchema> extends BaseStreamConfig {
+    onComplete?: (data: UnionSearchResponse<T>) => void;
+}
+export interface MultiSearchResultsStreamConfig<T extends DocumentSchema[]> extends BaseStreamConfig {
+    onComplete?: (data: {
+        results: {
+            [Index in keyof T]: SearchResponse<T[Index]>;
+        } & {
+            length: T["length"];
+        };
+    }) => void;
+}
+interface SearchesMultiSearchesRequestSchema<T extends DocumentSchema> {
+    searches: (MultiSearchRequestSchema<T> | MultiSearchRequestWithPresetSchema<T>)[];
+}
+interface BaseMultiSearchRequestSchema {
+    collection?: string;
+    rerank_hybrid_matches?: boolean;
+    "x-typesense-api-key"?: string;
+}
+type CommonMultiSearchParametersBase<T extends DocumentSchema> = Partial<BaseMultiSearchRequestSchema & Omit<SearchParams<T>, "streamConfig">>;
+export type MultiSearchRequestSchema<T extends DocumentSchema> = BaseMultiSearchRequestSchema & Omit<SearchParams<T>, "streamConfig">;
+export type MultiSearchRequestWithPresetSchema<T extends DocumentSchema> = BaseMultiSearchRequestSchema & Omit<SearchParamsWithPreset<T>, "streamConfig">;
+export type MultiSearchUnionParameters<T extends DocumentSchema> = CommonMultiSearchParametersBase<T> & {
+    streamConfig?: MultiSearchUnionStreamConfig<T>;
+    use_cache?: boolean;
+};
+export type MultiSearchResultsParameters<T extends DocumentSchema[]> = CommonMultiSearchParametersBase<T[number]> & {
+    streamConfig?: MultiSearchResultsStreamConfig<T>;
+    use_cache?: boolean;
+};
+export {};
