@@ -143,7 +143,7 @@ var Configuration = class {
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode);
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 5;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60;
-    this.numRetries = (options.numRetries !== undefined && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
+    this.numRetries = (options.numRetries !== void 0 && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
     this.apiKey = options.apiKey;
     this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam;
@@ -233,10 +233,69 @@ var Configuration = class {
 // src/Typesense/ApiCall.ts
 var import_http = __toESM(require_http());
 var import_https = __toESM(require_https());
+
+// src/Typesense/Types.ts
+var arrayableParams = {
+  query_by: "query_by",
+  query_by_weights: "query_by_weights",
+  facet_by: "facet_by",
+  group_by: "group_by",
+  include_fields: "include_fields",
+  exclude_fields: "exclude_fields",
+  highlight_fields: "highlight_fields",
+  highlight_full_fields: "highlight_full_fields",
+  pinned_hits: "pinned_hits",
+  hidden_hits: "hidden_hits",
+  infix: "infix",
+  override_tags: "override_tags",
+  num_typos: "num_typos",
+  prefix: "prefix",
+  sort_by: "sort_by"
+};
+
+// src/Typesense/Utils.ts
+function hasNoArrayValues(params) {
+  return Object.keys(arrayableParams).filter((key) => params[key] !== void 0).every((key) => isNonArrayValue(params[key]));
+}
+function normalizeArrayableParams(params) {
+  const result = { ...params };
+  const transformedValues = Object.keys(arrayableParams).filter((key) => Array.isArray(result[key])).map((key) => {
+    result[key] = result[key].join(",");
+    return key;
+  });
+  if (!transformedValues.length && hasNoArrayValues(result)) {
+    return result;
+  }
+  if (!hasNoArrayValues(result)) {
+    throw new Error(
+      `Failed to normalize arrayable params: ${JSON.stringify(result)}`
+    );
+  }
+  return result;
+}
+function isNonArrayValue(value) {
+  return !Array.isArray(value);
+}
+function isErrorWithMessage(error) {
+  return typeof error === "object" && error !== null && "message" in error && typeof error.message === "string";
+}
+function toErrorWithMessage(couldBeError) {
+  if (isErrorWithMessage(couldBeError)) return couldBeError;
+  try {
+    if (typeof couldBeError === "string") {
+      return new Error(couldBeError);
+    }
+    return new Error(JSON.stringify(couldBeError));
+  } catch {
+    return new Error(String(couldBeError));
+  }
+}
+
+// src/Typesense/ApiCall.ts
 var APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 var HEALTHY = true;
 var UNHEALTHY = false;
-var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
+var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null && typeof window === "undefined";
 var ApiCall = class {
   constructor(configuration) {
     this.configuration = configuration;
@@ -255,38 +314,56 @@ var ApiCall = class {
   }
   async get(endpoint, queryParameters = {}, {
     abortSignal = null,
-    responseType = undefined
+    responseType = void 0,
+    streamConfig = void 0,
+    isStreamingRequest
   } = {}) {
     return this.performRequest("get", endpoint, {
       queryParameters,
       abortSignal,
-      responseType
+      responseType,
+      streamConfig,
+      isStreamingRequest
     });
   }
   async delete(endpoint, queryParameters = {}) {
-    return this.performRequest("delete", endpoint, { queryParameters });
+    return this.performRequest("delete", endpoint, {
+      queryParameters,
+      isStreamingRequest: false
+    });
   }
-  async post(endpoint, bodyParameters = {}, queryParameters = {}, additionalHeaders = {}) {
+  async post(endpoint, bodyParameters = {}, queryParameters = {}, additionalHeaders = {}, {
+    abortSignal = null,
+    responseType = void 0,
+    streamConfig = void 0,
+    isStreamingRequest
+  } = {}) {
     return this.performRequest("post", endpoint, {
       queryParameters,
       bodyParameters,
-      additionalHeaders
+      additionalHeaders,
+      abortSignal,
+      responseType,
+      streamConfig,
+      isStreamingRequest
     });
   }
   async put(endpoint, bodyParameters = {}, queryParameters = {}) {
     return this.performRequest("put", endpoint, {
       queryParameters,
-      bodyParameters
+      bodyParameters,
+      isStreamingRequest: false
     });
   }
   async patch(endpoint, bodyParameters = {}, queryParameters = {}) {
     return this.performRequest("patch", endpoint, {
       queryParameters,
-      bodyParameters
+      bodyParameters,
+      isStreamingRequest: false
     });
   }
   getAdapter() {
-    if (!this.configuration.axiosAdapter) return undefined;
+    if (!this.configuration.axiosAdapter) return void 0;
     if (typeof this.configuration.axiosAdapter === "function")
       return this.configuration.axiosAdapter;
     const isCloudflareWorkers = typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
@@ -297,11 +374,20 @@ var ApiCall = class {
     bodyParameters = null,
     additionalHeaders = {},
     abortSignal = null,
-    responseType = undefined,
+    responseType = void 0,
     skipConnectionTimeout = false,
-    enableKeepAlive = undefined
+    enableKeepAlive = void 0,
+    streamConfig = void 0,
+    isStreamingRequest
   }) {
     this.configuration.validate();
+    if (isStreamingRequest) {
+      this.logger.debug(`Request: Performing streaming request to ${endpoint}`);
+      if (!isNodeJSEnvironment && typeof fetch !== "undefined") {
+        this.logger.debug("Using fetch adapter for browser streaming");
+        responseType = "stream";
+      }
+    }
     const requestNumber = Date.now();
     let lastException;
     let wasAborted = false;
@@ -319,7 +405,6 @@ var ApiCall = class {
       let abortListener;
       try {
         const requestOptions = {
-          adapter: this.getAdapter(),
           method: requestType,
           url: this.uriFor(endpoint, node),
           headers: Object.assign(
@@ -330,7 +415,6 @@ var ApiCall = class {
           ),
           maxContentLength: Infinity,
           maxBodyLength: Infinity,
-          responseType,
           validateStatus: (status) => {
             return status > 0;
           },
@@ -344,6 +428,7 @@ var ApiCall = class {
             }
           ]
         };
+        requestOptions.adapter = isStreamingRequest && !isNodeJSEnvironment ? "fetch" : this.getAdapter();
         if (skipConnectionTimeout !== true) {
           requestOptions.timeout = this.connectionTimeoutSeconds * 1e3;
         }
@@ -403,6 +488,17 @@ var ApiCall = class {
           abortSignal.addEventListener("abort", abortListener);
           requestOptions.cancelToken = source.token;
         }
+        if (isStreamingRequest) {
+          requestOptions.responseType = "stream";
+          if (!isNodeJSEnvironment) {
+            requestOptions.headers = {
+              ...requestOptions.headers,
+              Accept: "text/event-stream"
+            };
+          }
+        } else if (responseType) {
+          requestOptions.responseType = responseType;
+        }
         const response = await axios__default.default(requestOptions);
         if (response.status >= 1 && response.status <= 499) {
           this.setNodeHealthcheck(node, HEALTHY);
@@ -411,6 +507,9 @@ var ApiCall = class {
           `Request #${requestNumber}: Request to Node ${node.index} was made. Response Code was ${response.status}.`
         );
         if (response.status >= 200 && response.status < 300) {
+          if (isStreamingRequest) {
+            return this.handleStreamingResponse(response, streamConfig);
+          }
           return Promise.resolve(response.data);
         } else if (response.status < 500) {
           return Promise.reject(
@@ -438,10 +537,18 @@ var ApiCall = class {
         if (wasAborted) {
           return Promise.reject(new Error("Request aborted by caller."));
         }
+        if (isStreamingRequest) {
+          this.invokeOnErrorCallback(error, streamConfig);
+        }
         if (numTries < this.numRetriesPerRequest + 1) {
           this.logger.warn(
             `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`
           );
+        } else {
+          this.logger.debug(
+            `Request #${requestNumber}: No retries left. Raising last error`
+          );
+          return Promise.reject(lastException);
         }
         await this.timer(this.retryIntervalSeconds);
       } finally {
@@ -454,6 +561,274 @@ var ApiCall = class {
       `Request #${requestNumber}: No retries left. Raising last error`
     );
     return Promise.reject(lastException);
+  }
+  processStreamingLine(line) {
+    if (!line.trim() || line === "data: [DONE]") {
+      return null;
+    }
+    if (line.startsWith("data: ")) {
+      return this.processDataLine(line.slice(6).trim());
+    }
+    if (line.trim().startsWith("{")) {
+      try {
+        const jsonData = JSON.parse(line.trim());
+        if (jsonData && typeof jsonData === "object") {
+          if (!jsonData.conversation_id) {
+            jsonData.conversation_id = "unknown";
+          }
+          if (!jsonData.message && jsonData.message !== "") {
+            jsonData.message = "";
+          }
+          return jsonData;
+        }
+        return {
+          conversation_id: "unknown",
+          message: JSON.stringify(jsonData)
+        };
+      } catch (e) {
+        return {
+          conversation_id: "unknown",
+          message: line.trim()
+        };
+      }
+    }
+    return {
+      conversation_id: "unknown",
+      message: line.trim()
+    };
+  }
+  processDataLine(dataContent) {
+    if (!dataContent) {
+      return null;
+    }
+    if (dataContent.startsWith("{")) {
+      try {
+        const jsonData = JSON.parse(dataContent);
+        if (jsonData && typeof jsonData === "object") {
+          if (!jsonData.conversation_id) {
+            jsonData.conversation_id = "unknown";
+          }
+          if (!jsonData.message && jsonData.message !== "") {
+            jsonData.message = "";
+          }
+          return jsonData;
+        }
+        return {
+          conversation_id: "unknown",
+          message: JSON.stringify(jsonData)
+        };
+      } catch (e) {
+        return {
+          conversation_id: "unknown",
+          message: dataContent
+        };
+      }
+    }
+    return {
+      conversation_id: "unknown",
+      message: dataContent
+    };
+  }
+  async handleStreamingResponse(response, streamConfig) {
+    this.logger.debug(
+      `Handling streaming response. Environment: ${isNodeJSEnvironment ? "Node.js" : "Browser"}`
+    );
+    if (isNodeJSEnvironment && response.data) {
+      return this.handleNodeStreaming(response, streamConfig);
+    }
+    if (!isNodeJSEnvironment) {
+      return this.handleBrowserStreaming(response, streamConfig);
+    }
+    this.logger.debug("Processing non-streaming response");
+    this.invokeOnCompleteCallback(response.data, streamConfig);
+    return Promise.resolve(response.data);
+  }
+  handleNodeStreaming(response, streamConfig) {
+    this.logger.debug("Processing Node.js stream");
+    return new Promise((resolve, reject) => {
+      const stream = response.data;
+      const allChunks = [];
+      let buffer = "";
+      stream.on("data", (chunk) => {
+        try {
+          const data = chunk.toString();
+          buffer += data;
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+          this.processStreamLines(lines, allChunks, streamConfig);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      stream.on("end", () => {
+        if (buffer.trim().length > 0) {
+          const lines = buffer.split("\n");
+          this.processStreamLines(lines, allChunks, streamConfig);
+        }
+        this.finalizeStreamResult(
+          allChunks,
+          resolve,
+          response,
+          streamConfig
+        );
+      });
+      stream.on("error", (error) => {
+        this.logger.error(`Stream error: ${error}`);
+        this.invokeOnErrorCallback(error, streamConfig);
+        reject(error);
+      });
+    });
+  }
+  handleBrowserStreaming(response, streamConfig) {
+    this.logger.debug("Processing browser stream");
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (response.data && typeof response.data.getReader === "function") {
+          return this.handleBrowserReadableStream(
+            response.data,
+            resolve,
+            reject,
+            response,
+            streamConfig
+          );
+        }
+        if (typeof response.data === "string") {
+          return this.handleBrowserStringResponse(
+            response.data,
+            resolve,
+            response,
+            streamConfig
+          );
+        }
+        if (typeof response.data === "object" && response.data !== null) {
+          this.logger.debug("No stream found, but data object is available");
+          this.invokeOnCompleteCallback(response.data, streamConfig);
+          return resolve(response.data);
+        }
+        this.logger.error("No usable data found in response");
+        return reject(new Error("No usable data found in response"));
+      } catch (error) {
+        this.logger.error(`Error processing streaming response: ${error}`);
+        this.invokeOnErrorCallback(error, streamConfig);
+        reject(error);
+      }
+    });
+  }
+  async handleBrowserReadableStream(stream, resolve, reject, response, streamConfig) {
+    this.logger.debug("Found ReadableStream in response.data");
+    const reader = stream.getReader();
+    const allChunks = [];
+    let buffer = "";
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          this.logger.debug("Stream reading complete");
+          if (buffer.trim()) {
+            const lines2 = buffer.split("\n");
+            this.processStreamLines(lines2, allChunks, streamConfig);
+          }
+          break;
+        }
+        const chunk = new TextDecoder().decode(value);
+        this.logger.debug(`Received chunk: ${chunk.length} bytes`);
+        buffer += chunk;
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        this.processStreamLines(lines, allChunks, streamConfig);
+      }
+      this.finalizeStreamResult(allChunks, resolve, response, streamConfig);
+    } catch (error) {
+      this.logger.error(`Stream error: ${error}`);
+      this.invokeOnErrorCallback(error, streamConfig);
+      reject(error);
+    }
+  }
+  handleBrowserStringResponse(data, resolve, response, streamConfig) {
+    this.logger.debug("Processing text response as stream data");
+    const allChunks = [];
+    const lines = data.split("\n");
+    this.processStreamLines(lines, allChunks, streamConfig);
+    if (allChunks.length > 0) {
+      const finalResult = this.combineStreamingChunks(allChunks);
+      this.invokeOnCompleteCallback(finalResult, streamConfig);
+      resolve(finalResult);
+    } else {
+      this.logger.debug("No chunks processed, returning original API response");
+      this.invokeOnCompleteCallback(response.data, streamConfig);
+      resolve(response.data);
+    }
+  }
+  processStreamLines(lines, allChunks, streamConfig) {
+    for (const line of lines) {
+      if (line.trim() && line !== "data: [DONE]") {
+        const processed = this.processStreamingLine(line);
+        if (processed !== null) {
+          this.invokeOnChunkCallback(processed, streamConfig);
+          allChunks.push(processed);
+        }
+      }
+    }
+  }
+  finalizeStreamResult(allChunks, resolve, response, streamConfig) {
+    if (allChunks.length > 0) {
+      const finalResult = this.combineStreamingChunks(allChunks);
+      this.logger.debug("Stream processing complete");
+      this.invokeOnCompleteCallback(finalResult, streamConfig);
+      resolve(finalResult);
+    } else {
+      this.logger.debug("No chunks processed, returning original API response");
+      this.invokeOnCompleteCallback(response.data, streamConfig);
+      resolve(response.data);
+    }
+  }
+  /**
+   * Combines multiple streaming chunks into a single coherent result
+   * This is critical for ensuring we return the complete data rather than just the last chunk
+   */
+  combineStreamingChunks(chunks) {
+    if (chunks.length === 0) return {};
+    if (chunks.length === 1) return chunks[0];
+    const messagesChunks = this.getMessageChunks(
+      chunks
+    );
+    if (messagesChunks.length > 0) {
+      return this.combineMessageChunks(
+        chunks,
+        messagesChunks
+      );
+    }
+    const lastChunk = chunks[chunks.length - 1];
+    if (!this.isCompleteSearchResponse(lastChunk)) {
+      throw new Error("Last chunk is not a complete search response");
+    }
+    return lastChunk;
+  }
+  getMessageChunks(chunks) {
+    return chunks.filter(this.isChunkMessage);
+  }
+  isChunkMessage(chunk) {
+    return typeof chunk === "object" && chunk !== null && "message" in chunk && "conversation_id" in chunk;
+  }
+  combineMessageChunks(chunks, messagesChunks) {
+    this.logger.debug(
+      `Found ${messagesChunks.length} message chunks to combine`
+    );
+    const lastChunk = chunks[chunks.length - 1];
+    if (this.isCompleteSearchResponse(lastChunk)) {
+      return lastChunk;
+    }
+    const metadataChunk = chunks.find(this.isCompleteSearchResponse);
+    if (!metadataChunk) {
+      throw new Error("No metadata chunk found");
+    }
+    return metadataChunk;
+  }
+  isCompleteSearchResponse(chunk) {
+    if (typeof chunk === "object" && chunk !== null && Object.keys(chunk).length > 0) {
+      return "results" in chunk || "found" in chunk || "hits" in chunk || "page" in chunk || "search_time_ms" in chunk;
+    }
+    return false;
   }
   // Attempts to find the next healthy node, looping through the list of nodes once.
   //   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
@@ -541,21 +916,49 @@ var ApiCall = class {
     }
     let error = new TypesenseError(errorMessage, httpBody, response.status);
     if (response.status === 400) {
-      error = new RequestMalformed(errorMessage);
+      error = new RequestMalformed(errorMessage, httpBody, response.status);
     } else if (response.status === 401) {
-      error = new RequestUnauthorized(errorMessage);
+      error = new RequestUnauthorized(errorMessage, httpBody, response.status);
     } else if (response.status === 404) {
-      error = new ObjectNotFound(errorMessage);
+      error = new ObjectNotFound(errorMessage, httpBody, response.status);
     } else if (response.status === 409) {
-      error = new ObjectAlreadyExists(errorMessage);
+      error = new ObjectAlreadyExists(errorMessage, httpBody, response.status);
     } else if (response.status === 422) {
-      error = new ObjectUnprocessable(errorMessage);
+      error = new ObjectUnprocessable(errorMessage, httpBody, response.status);
     } else if (response.status >= 500 && response.status <= 599) {
-      error = new ServerError(errorMessage);
+      error = new ServerError(errorMessage, httpBody, response.status);
     } else {
-      error = new HTTPError(errorMessage);
+      error = new HTTPError(errorMessage, httpBody, response.status);
     }
     return error;
+  }
+  invokeOnChunkCallback(data, streamConfig) {
+    if (streamConfig?.onChunk) {
+      try {
+        streamConfig.onChunk(data);
+      } catch (error) {
+        this.logger.warn(`Error in onChunk callback: ${error}`);
+      }
+    }
+  }
+  invokeOnCompleteCallback(data, streamConfig) {
+    if (streamConfig?.onComplete) {
+      try {
+        streamConfig.onComplete(data);
+      } catch (error) {
+        this.logger.warn(`Error in onComplete callback: ${error}`);
+      }
+    }
+  }
+  invokeOnErrorCallback(error, streamConfig) {
+    if (streamConfig?.onError) {
+      const errorObj = toErrorWithMessage(error);
+      try {
+        streamConfig.onError(errorObj);
+      } catch (callbackError) {
+        this.logger.warn(`Error in onError callback: ${callbackError}`);
+      }
+    }
   }
 };
 
@@ -571,57 +974,72 @@ var RequestWithCache = class {
     this.responseCache = /* @__PURE__ */ new Map();
     this.responsePromiseCache = /* @__PURE__ */ new Map();
   }
-  // Todo: should probably be passed a callback instead, or an apiCall instance. Types are messy this way
-  async perform(requestContext, requestFunction, requestFunctionArguments, cacheOptions) {
+  async perform(requestContext, methodName, requestParams, cacheOptions) {
     const {
       cacheResponseForSeconds = defaultCacheResponseForSeconds,
       maxSize = defaultMaxSize
     } = cacheOptions;
     const isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0;
+    const {
+      path,
+      queryParams,
+      body,
+      headers,
+      streamConfig,
+      abortSignal,
+      responseType,
+      isStreamingRequest
+    } = requestParams;
     if (isCacheDisabled) {
-      return requestFunction.call(requestContext, ...requestFunctionArguments);
+      return this.executeRequest(
+        requestContext,
+        methodName,
+        path,
+        queryParams,
+        body,
+        headers,
+        { abortSignal, responseType, streamConfig, isStreamingRequest }
+      );
     }
-    const requestFunctionArgumentsJSON = JSON.stringify(
-      requestFunctionArguments
-    );
-    const cacheEntry = this.responseCache.get(requestFunctionArgumentsJSON);
+    const requestParamsJSON = JSON.stringify(requestParams);
+    const cacheEntry = this.responseCache.get(requestParamsJSON);
     const now = Date.now();
     if (cacheEntry) {
       const isEntryValid = now - cacheEntry.requestTimestamp < cacheResponseForSeconds * 1e3;
       if (isEntryValid) {
-        this.responseCache.delete(requestFunctionArgumentsJSON);
-        this.responseCache.set(requestFunctionArgumentsJSON, cacheEntry);
-        return Promise.resolve(cacheEntry.response);
+        this.responseCache.delete(requestParamsJSON);
+        this.responseCache.set(requestParamsJSON, cacheEntry);
+        return cacheEntry.response;
       } else {
-        this.responseCache.delete(requestFunctionArgumentsJSON);
+        this.responseCache.delete(requestParamsJSON);
       }
     }
-    const cachePromiseEntry = this.responsePromiseCache.get(
-      requestFunctionArgumentsJSON
-    );
+    const cachePromiseEntry = this.responsePromiseCache.get(requestParamsJSON);
     if (cachePromiseEntry) {
       const isEntryValid = now - cachePromiseEntry.requestTimestamp < cacheResponseForSeconds * 1e3;
       if (isEntryValid) {
-        this.responsePromiseCache.delete(requestFunctionArgumentsJSON);
-        this.responsePromiseCache.set(
-          requestFunctionArgumentsJSON,
-          cachePromiseEntry
-        );
+        this.responsePromiseCache.delete(requestParamsJSON);
+        this.responsePromiseCache.set(requestParamsJSON, cachePromiseEntry);
         return cachePromiseEntry.responsePromise;
       } else {
-        this.responsePromiseCache.delete(requestFunctionArgumentsJSON);
+        this.responsePromiseCache.delete(requestParamsJSON);
       }
     }
-    const responsePromise = requestFunction.call(
+    const responsePromise = this.executeRequest(
       requestContext,
-      ...requestFunctionArguments
+      methodName,
+      path,
+      queryParams,
+      body,
+      headers,
+      { abortSignal, responseType, streamConfig, isStreamingRequest }
     );
-    this.responsePromiseCache.set(requestFunctionArgumentsJSON, {
+    this.responsePromiseCache.set(requestParamsJSON, {
       requestTimestamp: now,
       responsePromise
     });
     const response = await responsePromise;
-    this.responseCache.set(requestFunctionArgumentsJSON, {
+    this.responseCache.set(requestParamsJSON, {
       requestTimestamp: now,
       response
     });
@@ -641,27 +1059,115 @@ var RequestWithCache = class {
     }
     return response;
   }
+  executeRequest(context, methodName, path, queryParams = {}, body, headers, options) {
+    const method = context[methodName];
+    switch (methodName) {
+      case "get":
+        return method.call(context, path, queryParams, {
+          abortSignal: options?.abortSignal,
+          responseType: options?.responseType,
+          streamConfig: options?.streamConfig,
+          isStreamingRequest: options?.isStreamingRequest
+        });
+      case "delete":
+        return method.call(
+          context,
+          path,
+          queryParams
+        );
+      case "post":
+        return method.call(
+          context,
+          path,
+          body,
+          queryParams,
+          headers || {},
+          {
+            abortSignal: options?.abortSignal,
+            responseType: options?.responseType,
+            streamConfig: options?.streamConfig,
+            isStreamingRequest: options?.isStreamingRequest
+          }
+        );
+      case "put":
+      case "patch":
+        return method.call(
+          context,
+          path,
+          body,
+          queryParams
+        );
+      default:
+        throw new Error(`Unsupported method: ${String(methodName)}`);
+    }
+  }
+};
+
+// src/Typesense/MultiSearch.ts
+var RESOURCEPATH = "/multi_search";
+var MultiSearch = class {
+  constructor(apiCall, configuration, useTextContentType = false) {
+    this.apiCall = apiCall;
+    this.configuration = configuration;
+    this.useTextContentType = useTextContentType;
+    this.requestWithCache = new RequestWithCache();
+  }
+  clearCache() {
+    this.requestWithCache.clearCache();
+  }
+  async perform(searchRequests, commonParams, {
+    cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds
+  } = {}) {
+    const params = commonParams ? { ...commonParams } : {};
+    if (this.configuration.useServerSideSearchCache === true) {
+      params.use_cache = true;
+    }
+    const normalizedSearchRequests = {
+      union: searchRequests.union,
+      searches: searchRequests.searches.map(normalizeArrayableParams)
+    };
+    const { streamConfig, ...paramsWithoutStream } = params;
+    const normalizedQueryParams = normalizeArrayableParams(
+      paramsWithoutStream
+    );
+    return this.requestWithCache.perform(
+      this.apiCall,
+      "post",
+      {
+        path: RESOURCEPATH,
+        body: normalizedSearchRequests,
+        queryParams: normalizedQueryParams,
+        headers: this.useTextContentType ? { "content-type": "text/plain" } : {},
+        streamConfig,
+        isStreamingRequest: this.isStreamingRequest(params)
+      },
+      { cacheResponseForSeconds: cacheSearchResultsForSeconds }
+    );
+  }
+  isStreamingRequest(commonParams) {
+    return commonParams.streamConfig !== void 0;
+  }
 };
 
 // src/Typesense/Collections.ts
-var RESOURCEPATH = "/collections";
+var RESOURCEPATH2 = "/collections";
 var Collections = class {
   constructor(apiCall) {
     this.apiCall = apiCall;
   }
-  async create(schema, options = {}) {
-    return this.apiCall.post(RESOURCEPATH, schema, options);
+  async create(schema, options) {
+    return this.apiCall.post(RESOURCEPATH2, schema, options);
   }
   async retrieve(options = {}) {
-    return this.apiCall.get(RESOURCEPATH, options);
+    return this.apiCall.get(RESOURCEPATH2, options);
   }
   static get RESOURCEPATH() {
-    return RESOURCEPATH;
+    return RESOURCEPATH2;
   }
 };
 
 // src/Typesense/SearchOnlyDocuments.ts
-var RESOURCEPATH2 = "/documents";
+var RESOURCEPATH3 = "/documents";
 var SearchOnlyDocuments = class {
   constructor(collectionName, apiCall, configuration) {
     this.collectionName = collectionName;
@@ -680,47 +1186,92 @@ var SearchOnlyDocuments = class {
     if (this.configuration.useServerSideSearchCache === true) {
       additionalQueryParams["use_cache"] = true;
     }
-    const normalizedParams = normalizeArrayableParams(searchParameters);
-    const queryParams = Object.assign(
-      {},
-      additionalQueryParams,
-      normalizedParams
-    );
+    const { streamConfig, ...rest } = normalizeArrayableParams(searchParameters);
+    const queryParams = {
+      ...additionalQueryParams,
+      ...rest
+    };
+    const isStreamingRequest = queryParams.conversation_stream === true;
     return this.requestWithCache.perform(
       this.apiCall,
-      this.apiCall.get,
-      [this.endpointPath("search"), queryParams, { abortSignal }],
+      "get",
+      {
+        path: this.endpointPath("search"),
+        queryParams,
+        streamConfig,
+        abortSignal,
+        isStreamingRequest
+      },
       {
         cacheResponseForSeconds: cacheSearchResultsForSeconds
       }
     );
   }
   endpointPath(operation) {
-    return `${Collections.RESOURCEPATH}/${this.collectionName}${RESOURCEPATH2}${operation === undefined ? "" : "/" + operation}`;
+    return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${RESOURCEPATH3}${operation === void 0 ? "" : "/" + operation}`;
   }
   static get RESOURCEPATH() {
-    return RESOURCEPATH2;
+    return RESOURCEPATH3;
+  }
+};
+
+// src/Typesense/SearchOnlyCollection.ts
+var SearchOnlyCollection = class {
+  constructor(name, apiCall, configuration) {
+    this.name = name;
+    this.apiCall = apiCall;
+    this.configuration = configuration;
+    this._documents = new SearchOnlyDocuments(
+      this.name,
+      this.apiCall,
+      this.configuration
+    );
+  }
+  documents() {
+    return this._documents;
+  }
+};
+
+// src/Typesense/SearchClient.ts
+var SearchClient = class {
+  constructor(options) {
+    options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? true;
+    if (options.sendApiKeyAsQueryParam === true && (options.apiKey || "").length > 2e3) {
+      console.warn(
+        "[typesense] API Key is longer than 2000 characters which is over the allowed limit, so disabling sending it as a query parameter."
+      );
+      options.sendApiKeyAsQueryParam = false;
+    }
+    this.configuration = new Configuration(options);
+    this.apiCall = new ApiCall(this.configuration);
+    this.multiSearch = new MultiSearch(this.apiCall, this.configuration, true);
+    this.individualCollections = {};
+  }
+  clearCache() {
+    this.multiSearch.clearCache();
+    Object.entries(this.individualCollections).forEach(([_, collection]) => {
+      collection.documents().clearCache();
+    });
+  }
+  collections(collectionName) {
+    if (!collectionName) {
+      throw new Error(
+        "Typesense.SearchClient only supports search operations, so the collectionName that needs to be searched must be specified. Use Typesense.Client if you need to access the collection object."
+      );
+    } else {
+      if (this.individualCollections[collectionName] === void 0) {
+        this.individualCollections[collectionName] = new SearchOnlyCollection(
+          collectionName,
+          this.apiCall,
+          this.configuration
+        );
+      }
+      return this.individualCollections[collectionName];
+    }
   }
 };
 
 // src/Typesense/Documents.ts
-var arrayableParams = {
-  query_by: "query_by",
-  query_by_weights: "query_by_weights",
-  facet_by: "facet_by",
-  group_by: "group_by",
-  include_fields: "include_fields",
-  exclude_fields: "exclude_fields",
-  highlight_fields: "highlight_fields",
-  highlight_full_fields: "highlight_full_fields",
-  pinned_hits: "pinned_hits",
-  hidden_hits: "hidden_hits",
-  infix: "infix",
-  override_tags: "override_tags",
-  num_typos: "num_typos",
-  prefix: "prefix",
-  sort_by: "sort_by"
-};
 var isNodeJSEnvironment2 = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
 var Documents = class extends SearchOnlyDocuments {
   constructor(collectionName, apiCall, configuration) {
@@ -766,6 +1317,9 @@ var Documents = class extends SearchOnlyDocuments {
   async import(documents, options = {}) {
     let documentsInJSONLFormat;
     if (Array.isArray(documents)) {
+      if (documents.length === 0) {
+        throw new RequestMalformed("No documents provided");
+      }
       try {
         documentsInJSONLFormat = documents.map((document) => JSON.stringify(document)).join("\n");
       } catch (error) {
@@ -780,6 +1334,9 @@ var Documents = class extends SearchOnlyDocuments {
       }
     } else {
       documentsInJSONLFormat = documents;
+      if (isEmptyString(documentsInJSONLFormat)) {
+        throw new RequestMalformed("No documents provided");
+      }
     }
     const resultsInJSONLFormat = await this.apiCall.performRequest(
       "post",
@@ -866,128 +1423,9 @@ var Documents = class extends SearchOnlyDocuments {
     });
   }
 };
-
-// src/Typesense/Utils.ts
-function hasNoArrayValues(params) {
-  return Object.keys(arrayableParams).filter((key) => params[key] !== undefined).every((key) => isNonArrayValue(params[key]));
+function isEmptyString(str) {
+  return str == null || str === "" || str.length === 0;
 }
-function normalizeArrayableParams(params) {
-  const result = { ...params };
-  const transformedValues = Object.keys(arrayableParams).filter((key) => Array.isArray(result[key])).map((key) => {
-    result[key] = result[key].join(",");
-    return key;
-  });
-  if (!transformedValues.length && hasNoArrayValues(result)) {
-    return result;
-  }
-  if (!hasNoArrayValues(result)) {
-    throw new Error(
-      `Failed to normalize arrayable params: ${JSON.stringify(result)}`
-    );
-  }
-  return result;
-}
-function isNonArrayValue(value) {
-  return !Array.isArray(value);
-}
-
-// src/Typesense/MultiSearch.ts
-var RESOURCEPATH3 = "/multi_search";
-var MultiSearch = class {
-  constructor(apiCall, configuration, useTextContentType = false) {
-    this.apiCall = apiCall;
-    this.configuration = configuration;
-    this.useTextContentType = useTextContentType;
-    this.requestWithCache = new RequestWithCache();
-  }
-  clearCache() {
-    this.requestWithCache.clearCache();
-  }
-  async perform(searchRequests, commonParams = {}, {
-    cacheSearchResultsForSeconds = this.configuration.cacheSearchResultsForSeconds
-  } = {}) {
-    const additionalHeaders = {};
-    if (this.useTextContentType) {
-      additionalHeaders["content-type"] = "text/plain";
-    }
-    const additionalQueryParams = {};
-    if (this.configuration.useServerSideSearchCache === true) {
-      additionalQueryParams["use_cache"] = true;
-    }
-    const queryParams = { ...commonParams, ...additionalQueryParams };
-    const normalizedSearchRequests = {
-      searches: searchRequests.searches.map(normalizeArrayableParams)
-    };
-    const normalizedQueryParams = normalizeArrayableParams(queryParams);
-    return this.requestWithCache.perform(
-      this.apiCall,
-      this.apiCall.post,
-      [
-        RESOURCEPATH3,
-        normalizedSearchRequests,
-        normalizedQueryParams,
-        additionalHeaders
-      ],
-      { cacheResponseForSeconds: cacheSearchResultsForSeconds }
-    );
-  }
-};
-
-// src/Typesense/SearchOnlyCollection.ts
-var SearchOnlyCollection = class {
-  constructor(name, apiCall, configuration) {
-    this.name = name;
-    this.apiCall = apiCall;
-    this.configuration = configuration;
-    this._documents = new SearchOnlyDocuments(
-      this.name,
-      this.apiCall,
-      this.configuration
-    );
-  }
-  documents() {
-    return this._documents;
-  }
-};
-
-// src/Typesense/SearchClient.ts
-var SearchClient = class {
-  constructor(options) {
-    options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? true;
-    if (options.sendApiKeyAsQueryParam === true && (options.apiKey || "").length > 2e3) {
-      console.warn(
-        "[typesense] API Key is longer than 2000 characters which is over the allowed limit, so disabling sending it as a query parameter."
-      );
-      options.sendApiKeyAsQueryParam = false;
-    }
-    this.configuration = new Configuration(options);
-    this.apiCall = new ApiCall(this.configuration);
-    this.multiSearch = new MultiSearch(this.apiCall, this.configuration, true);
-    this.individualCollections = {};
-  }
-  clearCache() {
-    this.multiSearch.clearCache();
-    Object.entries(this.individualCollections).forEach(([_, collection]) => {
-      collection.documents().clearCache();
-    });
-  }
-  collections(collectionName) {
-    if (!collectionName) {
-      throw new Error(
-        "Typesense.SearchClient only supports search operations, so the collectionName that needs to be searched must be specified. Use Typesense.Client if you need to access the collection object."
-      );
-    } else {
-      if (this.individualCollections[collectionName] === undefined) {
-        this.individualCollections[collectionName] = new SearchOnlyCollection(
-          collectionName,
-          this.apiCall,
-          this.configuration
-        );
-      }
-      return this.individualCollections[collectionName];
-    }
-  }
-};
 
 // src/Typesense/Overrides.ts
 var RESOURCEPATH4 = "/overrides";
@@ -1006,7 +1444,7 @@ var Overrides = class _Overrides {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${Collections.RESOURCEPATH}/${this.collectionName}${_Overrides.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${Collections.RESOURCEPATH}/${this.collectionName}${_Overrides.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH4;
@@ -1048,7 +1486,7 @@ var Synonyms = class _Synonyms {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${_Synonyms.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${_Synonyms.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH5;
@@ -1136,7 +1574,7 @@ var Collection = class {
     if (!documentId) {
       return this._documents;
     } else {
-      if (this.individualDocuments[documentId] === undefined) {
+      if (this.individualDocuments[documentId] === void 0) {
         this.individualDocuments[documentId] = new Document(
           this.name,
           documentId,
@@ -1147,10 +1585,10 @@ var Collection = class {
     }
   }
   overrides(overrideId) {
-    if (overrideId === undefined) {
+    if (overrideId === void 0) {
       return this._overrides;
     } else {
-      if (this.individualOverrides[overrideId] === undefined) {
+      if (this.individualOverrides[overrideId] === void 0) {
         this.individualOverrides[overrideId] = new Override(
           this.name,
           overrideId,
@@ -1161,10 +1599,10 @@ var Collection = class {
     }
   }
   synonyms(synonymId) {
-    if (synonymId === undefined) {
+    if (synonymId === void 0) {
       return this._synonyms;
     } else {
-      if (this.individualSynonyms[synonymId] === undefined) {
+      if (this.individualSynonyms[synonymId] === void 0) {
         this.individualSynonyms[synonymId] = new Synonym(
           this.name,
           synonymId,
@@ -1234,7 +1672,9 @@ var Keys = class _Keys {
     return this.apiCall.get(RESOURCEPATH7);
   }
   generateScopedSearchKey(searchKey, parameters) {
-    const normalizedParams = normalizeArrayableParams(parameters);
+    const normalizedParams = normalizeArrayableParams(
+      parameters
+    );
     const paramsJSON = JSON.stringify(normalizedParams);
     const digest = Buffer.from(
       (0, import_crypto.createHmac)("sha256", searchKey).update(paramsJSON).digest("base64")
@@ -1339,7 +1779,9 @@ var Presets = class _Presets {
         value: { searches: normalizedParams2 }
       });
     }
-    const normalizedParams = normalizeArrayableParams(params.value);
+    const normalizedParams = normalizeArrayableParams(
+      params.value
+    );
     return this.apiCall.put(this.endpointPath(presetId), {
       value: normalizedParams
     });
@@ -1348,7 +1790,7 @@ var Presets = class _Presets {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${_Presets.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_Presets.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH13;
@@ -1389,7 +1831,7 @@ var AnalyticsRules = class _AnalyticsRules {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${_AnalyticsRules.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_AnalyticsRules.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH14;
@@ -1427,7 +1869,7 @@ var AnalyticsEvents = class _AnalyticsEvents {
     );
   }
   endpointPath(operation) {
-    return `${_AnalyticsEvents.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_AnalyticsEvents.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH15;
@@ -1445,10 +1887,10 @@ var Analytics = class {
     this._analyticsEvents = new AnalyticsEvents(this.apiCall);
   }
   rules(id) {
-    if (id === undefined) {
+    if (id === void 0) {
       return this._analyticsRules;
     } else {
-      if (this.individualAnalyticsRules[id] === undefined) {
+      if (this.individualAnalyticsRules[id] === void 0) {
         this.individualAnalyticsRules[id] = new AnalyticsRule(id, this.apiCall);
       }
       return this.individualAnalyticsRules[id];
@@ -1478,7 +1920,7 @@ var Stopwords = class _Stopwords {
     return this.apiCall.get(this.endpointPath());
   }
   endpointPath(operation) {
-    return `${_Stopwords.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_Stopwords.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH17;
@@ -1521,7 +1963,7 @@ var ConversationModels = class _ConversationModels {
     );
   }
   endpointPath(operation) {
-    return `${_ConversationModels.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;
+    return `${_ConversationModels.RESOURCEPATH}${operation === void 0 ? "" : "/" + encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH18;
@@ -1566,10 +2008,10 @@ var Conversations = class {
     return this.apiCall.get(RESOURCEPATH19);
   }
   models(id) {
-    if (id === undefined) {
+    if (id === void 0) {
       return this._conversationsModels;
     } else {
-      if (this.individualConversationModels[id] === undefined) {
+      if (this.individualConversationModels[id] === void 0) {
         this.individualConversationModels[id] = new ConversationModel(
           id,
           this.apiCall
@@ -1635,7 +2077,7 @@ var StemmingDictionaries = class _StemmingDictionaries {
     );
   }
   endpointPath(operation) {
-    return operation === undefined ? `${_StemmingDictionaries.RESOURCEPATH}` : `${_StemmingDictionaries.RESOURCEPATH}/${encodeURIComponent(operation)}`;
+    return operation === void 0 ? `${_StemmingDictionaries.RESOURCEPATH}` : `${_StemmingDictionaries.RESOURCEPATH}/${encodeURIComponent(operation)}`;
   }
   static get RESOURCEPATH() {
     return RESOURCEPATH20;
@@ -1666,10 +2108,10 @@ var Stemming = class {
     this._stemmingDictionaries = new StemmingDictionaries(this.apiCall);
   }
   dictionaries(id) {
-    if (id === undefined) {
+    if (id === void 0) {
       return this._stemmingDictionaries;
     } else {
-      if (this.individualStemmingDictionaries[id] === undefined) {
+      if (this.individualStemmingDictionaries[id] === void 0) {
         this.individualStemmingDictionaries[id] = new StemmingDictionary(
           id,
           this.apiCall
@@ -1711,10 +2153,10 @@ var Client = class {
     this.individualConversations = {};
   }
   collections(collectionName) {
-    if (collectionName === undefined) {
+    if (collectionName === void 0) {
       return this._collections;
     } else {
-      if (this.individualCollections[collectionName] === undefined) {
+      if (this.individualCollections[collectionName] === void 0) {
         this.individualCollections[collectionName] = new Collection(
           collectionName,
           this.apiCall,
@@ -1725,50 +2167,50 @@ var Client = class {
     }
   }
   aliases(aliasName) {
-    if (aliasName === undefined) {
+    if (aliasName === void 0) {
       return this._aliases;
     } else {
-      if (this.individualAliases[aliasName] === undefined) {
+      if (this.individualAliases[aliasName] === void 0) {
         this.individualAliases[aliasName] = new Alias(aliasName, this.apiCall);
       }
       return this.individualAliases[aliasName];
     }
   }
   keys(id) {
-    if (id === undefined) {
+    if (id === void 0) {
       return this._keys;
     } else {
-      if (this.individualKeys[id] === undefined) {
+      if (this.individualKeys[id] === void 0) {
         this.individualKeys[id] = new Key(id, this.apiCall);
       }
       return this.individualKeys[id];
     }
   }
   presets(id) {
-    if (id === undefined) {
+    if (id === void 0) {
       return this._presets;
     } else {
-      if (this.individualPresets[id] === undefined) {
+      if (this.individualPresets[id] === void 0) {
         this.individualPresets[id] = new Preset(id, this.apiCall);
       }
       return this.individualPresets[id];
     }
   }
   stopwords(id) {
-    if (id === undefined) {
+    if (id === void 0) {
       return this._stopwords;
     } else {
-      if (this.individualStopwords[id] === undefined) {
+      if (this.individualStopwords[id] === void 0) {
         this.individualStopwords[id] = new Stopword(id, this.apiCall);
       }
       return this.individualStopwords[id];
     }
   }
   conversations(id) {
-    if (id === undefined) {
+    if (id === void 0) {
       return this._conversations;
     } else {
-      if (this.individualConversations[id] === undefined) {
+      if (this.individualConversations[id] === void 0) {
         this.individualConversations[id] = new Conversation(id, this.apiCall);
       }
       return this.individualConversations[id];

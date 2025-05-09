@@ -1,18 +1,18 @@
 import ApiCall from "./ApiCall";
 export interface AnalyticsRuleCreateSchema {
-    type: "popular_queries" | "nohits_queries" | "counter";
+    type: "popular_queries" | "nohits_queries" | "counter" | "log";
     params: {
         enable_auto_aggregation?: boolean;
         source: {
             collections: string[];
             events?: Array<{
                 type: string;
-                weight: number;
+                weight?: number;
                 name: string;
             }>;
         };
         expand_query?: boolean;
-        destination: {
+        destination?: {
             collection: string;
             counter_field?: string;
         };

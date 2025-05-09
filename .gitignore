@@ -8,3 +8,4 @@ typesense-server-nodes
 test-results.xml
 test-files
 typesense-data
+.env
