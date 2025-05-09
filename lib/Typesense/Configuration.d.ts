@@ -1,6 +1,6 @@
 /// <reference types="node" />
 /// <reference types="node" />
-import { Logger, LogLevelDesc } from "loglevel";
+import logger from "loglevel";
 import type { Agent as HTTPAgent } from "http";
 import type { Agent as HTTPSAgent } from "https";
 import type { AxiosRequestConfig } from "axios";
@@ -45,8 +45,8 @@ export interface ConfigurationOptions {
     useServerSideSearchCache?: boolean;
     cacheSearchResultsForSeconds?: number;
     additionalHeaders?: Record<string, string>;
-    logLevel?: LogLevelDesc;
-    logger?: Logger;
+    logLevel?: logger.LogLevelDesc;
+    logger?: logger.Logger;
     /**
      * Set a custom HTTP Agent
      *
@@ -127,8 +127,8 @@ export default class Configuration {
     readonly sendApiKeyAsQueryParam?: boolean;
     readonly cacheSearchResultsForSeconds: number;
     readonly useServerSideSearchCache: boolean;
-    readonly logger: Logger;
-    readonly logLevel: LogLevelDesc;
+    readonly logger: logger.Logger;
+    readonly logLevel: logger.LogLevelDesc;
     readonly additionalHeaders?: Record<string, string>;
     readonly httpAgent?: HTTPAgent;
     readonly httpsAgent?: HTTPSAgent;

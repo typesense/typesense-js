@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
+import { Client as TypesenseClient } from "../../src/index";
 import ApiCall from "../../src/Typesense/ApiCall";
 import { ObjectUnprocessable } from "../../src/Typesense/Errors";
 import axios from "axios";

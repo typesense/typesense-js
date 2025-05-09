@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { SearchClient as TypesenseSearchClient } from "../../src/Typesense";
+import { SearchClient as TypesenseSearchClient } from "../../src/index";
 import MockAxiosAdapter from "axios-mock-adapter";
 import axios from "axios";
 import ApiCall from "../../src/Typesense/ApiCall";
@@ -47,7 +47,7 @@ describe("SearchClient", function () {
   });
   it("should only expose the search endpoints", function (done) {
     expect(typesense.collections).to.throw(
-      "Typesense.SearchClient only supports search operations"
+      "Typesense.SearchClient only supports search operations",
     );
     expect(typesense.collections("xyz").documents().search).to.be.a("function");
     expect(typesense.multiSearch.perform).to.be.a("function");
@@ -87,7 +87,7 @@ describe("SearchClient", function () {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "text/plain",
           "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-        }
+        },
       )
       .reply((config) => {
         expect(config.params["x-typesense-api-key"]).to.eq(undefined);
@@ -132,8 +132,8 @@ describe("SearchClient", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies/documents/search",
-            typesense.configuration.nodes[0]
-          )
+            typesense.configuration.nodes[0],
+          ),
         )
         .reply(200, JSON.stringify(stubbedSearchResults[i]), {
           "content-type": "application/json",
@@ -167,7 +167,7 @@ describe("SearchClient", function () {
     searchRequests.forEach((_, i) => {
       mockAxios
         .onPost(
-          apiCall.uriFor("/multi_search", typesense.configuration.nodes[0])
+          apiCall.uriFor("/multi_search", typesense.configuration.nodes[0]),
         )
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .reply((config) => {

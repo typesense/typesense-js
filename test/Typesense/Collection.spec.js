@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
+import { Client as TypesenseClient } from "../../src/index";
 import ApiCall from "../../src/Typesense/ApiCall";
 import axios from "axios";
 import MockAxiosAdapter from "axios-mock-adapter";
@@ -64,14 +64,14 @@ describe("Collection", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           null,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify(companySchema), {
           "content-type": "application/json",
@@ -92,14 +92,14 @@ describe("Collection", function () {
         .onPatch(
           apiCall.uriFor(
             "/collections/companies",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           updateSchema,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify(updateSchema), {
           "content-type": "application/json",
@@ -117,14 +117,14 @@ describe("Collection", function () {
         .onDelete(
           apiCall.uriFor(
             "/collections/companies",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           null,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify(companySchema), {
           "content-type": "application/json",
