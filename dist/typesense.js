@@ -3624,7 +3624,7 @@ var Keys = /*#__PURE__*/function () {
     key: "generateScopedSearchKey",
     value: function generateScopedSearchKey(searchKey, parameters) {
       // Note: only a key generated with the `documents:search` action will be
-      // accepted by the server, when usined with the search endpoint.
+      // accepted by the server, when used with the search endpoint.
       var normalizedParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_5__.normalizeArrayableParams)(parameters);
       var paramsJSON = JSON.stringify(normalizedParams);
       var digest = Buffer.from((0,crypto__WEBPACK_IMPORTED_MODULE_4__.createHmac)("sha256", searchKey).update(paramsJSON).digest("base64"));

@@ -1,7 +1,7 @@
 import ApiCall from "./ApiCall";
 import { DocumentSchema } from "./Documents";
 import { PresetCreateSchema } from "./Presets";
-export interface PresetSchema<T extends DocumentSchema> extends PresetCreateSchema<T> {
+export interface PresetSchema<T extends DocumentSchema> extends PresetCreateSchema<T, string> {
     name: string;
 }
 export interface PresetDeleteSchema {

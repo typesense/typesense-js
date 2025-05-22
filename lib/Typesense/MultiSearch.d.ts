@@ -9,10 +9,10 @@ export default class MultiSearch {
     private requestWithCache;
     constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
     clearCache(): void;
-    perform<const T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsWithUnionSchema<T[number]>, commonParams?: MultiSearchUnionParameters<T[number]>, options?: {
+    perform<const T extends DocumentSchema[] = [], const Infix extends string = string>(searchRequests: MultiSearchRequestsWithUnionSchema<T[number], Infix>, commonParams?: MultiSearchUnionParameters<T[number], Infix>, options?: {
         cacheSearchResultsForSeconds?: number;
     }): Promise<UnionSearchResponse<T[number]>>;
-    perform<const T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number]>, commonParams?: MultiSearchResultsParameters<T>, options?: {
+    perform<const T extends DocumentSchema[] = [], const Infix extends string = string>(searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number], Infix>, commonParams?: MultiSearchResultsParameters<T, Infix>, options?: {
         cacheSearchResultsForSeconds?: number;
     }): Promise<{
         results: {
