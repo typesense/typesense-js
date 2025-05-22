@@ -6,8 +6,11 @@ import { normalizeArrayableParams } from "./Utils";
 
 const RESOURCEPATH = "/presets";
 
-export interface PresetCreateSchema<T extends DocumentSchema> {
-  value: SearchParams<T> | MultiSearchRequestsSchema<T>;
+export interface PresetCreateSchema<
+  T extends DocumentSchema,
+  Infix extends string,
+> {
+  value: SearchParams<T, Infix> | MultiSearchRequestsSchema<T, Infix>;
 }
 
 export interface PresetsRetrieveSchema<T extends DocumentSchema> {
@@ -17,22 +20,24 @@ export interface PresetsRetrieveSchema<T extends DocumentSchema> {
 export default class Presets {
   constructor(private apiCall: ApiCall) {}
 
-  async upsert<T extends DocumentSchema>(
+  async upsert<T extends DocumentSchema, const Infix extends string>(
     presetId: string,
-    params: PresetCreateSchema<T>,
+    params: PresetCreateSchema<T, Infix>,
   ): Promise<PresetSchema<T>> {
     if (typeof params.value === "object" && "searches" in params.value) {
       const normalizedParams = params.value.searches.map((search) =>
-        normalizeArrayableParams<T, SearchParams<T>>(search),
+        normalizeArrayableParams<T, SearchParams<T, Infix>, Infix>(search),
       );
 
       return this.apiCall.put<PresetSchema<T>>(this.endpointPath(presetId), {
         value: { searches: normalizedParams },
       });
     }
-    const normalizedParams = normalizeArrayableParams<T, SearchParams<T>>(
-      params.value,
-    );
+    const normalizedParams = normalizeArrayableParams<
+      T,
+      SearchParams<T, Infix>,
+      Infix
+    >(params.value);
 
     return this.apiCall.put<PresetSchema<T>>(this.endpointPath(presetId), {
       value: normalizedParams,

@@ -35,15 +35,21 @@ export default class MultiSearch {
     this.requestWithCache.clearCache();
   }
 
-  async perform<const T extends DocumentSchema[] = []>(
-    searchRequests: MultiSearchRequestsWithUnionSchema<T[number]>,
-    commonParams?: MultiSearchUnionParameters<T[number]>,
+  async perform<
+    const T extends DocumentSchema[] = [],
+    const Infix extends string = string,
+  >(
+    searchRequests: MultiSearchRequestsWithUnionSchema<T[number], Infix>,
+    commonParams?: MultiSearchUnionParameters<T[number], Infix>,
     options?: { cacheSearchResultsForSeconds?: number },
   ): Promise<UnionSearchResponse<T[number]>>;
 
-  async perform<const T extends DocumentSchema[] = []>(
-    searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number]>,
-    commonParams?: MultiSearchResultsParameters<T>,
+  async perform<
+    const T extends DocumentSchema[] = [],
+    const Infix extends string = string,
+  >(
+    searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number], Infix>,
+    commonParams?: MultiSearchResultsParameters<T, Infix>,
     options?: { cacheSearchResultsForSeconds?: number },
   ): Promise<{
     results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
@@ -51,16 +57,19 @@ export default class MultiSearch {
     };
   }>;
 
-  async perform<const T extends DocumentSchema[] = []>(
-    searchRequests: MultiSearchRequestsSchema<T[number]>,
+  async perform<
+    const T extends DocumentSchema[] = [],
+    const Infix extends string = string,
+  >(
+    searchRequests: MultiSearchRequestsSchema<T[number], Infix>,
     commonParams?:
-      | MultiSearchUnionParameters<T[number]>
-      | MultiSearchResultsParameters<T>,
+      | MultiSearchUnionParameters<T[number], Infix>
+      | MultiSearchResultsParameters<T, Infix>,
     {
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
     }: { cacheSearchResultsForSeconds?: number } = {},
-  ): Promise<MultiSearchResponse<T>> {
+  ): Promise<MultiSearchResponse<T, Infix>> {
     const params = commonParams ? { ...commonParams } : {};
 
     if (this.configuration.useServerSideSearchCache === true) {
@@ -68,15 +77,21 @@ export default class MultiSearch {
     }
 
     const normalizedSearchRequests: Omit<typeof searchRequests, "searches"> & {
-      searches: ExtractBaseTypes<SearchParams<T[number]>>[];
+      searches: ExtractBaseTypes<SearchParams<T[number], Infix>>[];
     } = {
       union: searchRequests.union,
-      searches: searchRequests.searches.map(normalizeArrayableParams),
+      searches: searchRequests.searches.map(
+        normalizeArrayableParams<
+          T[number],
+          SearchParams<T[number], Infix>,
+          Infix
+        >,
+      ),
     };
 
     const { streamConfig, ...paramsWithoutStream } = params;
     const normalizedQueryParams = normalizeArrayableParams(
-      paramsWithoutStream as SearchParams<T[number]>,
+      paramsWithoutStream as SearchParams<T[number], Infix>,
     );
 
     return this.requestWithCache.perform(

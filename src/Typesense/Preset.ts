@@ -3,7 +3,7 @@ import { DocumentSchema } from "./Documents";
 import Presets, { PresetCreateSchema } from "./Presets";
 
 export interface PresetSchema<T extends DocumentSchema>
-  extends PresetCreateSchema<T> {
+  extends PresetCreateSchema<T, string> {
   name: string;
 }
 

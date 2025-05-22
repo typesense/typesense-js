@@ -4,7 +4,8 @@ import type { UnionArrayKeys, ExtractBaseTypes, SearchParams } from "./Types";
 
 function hasNoArrayValues<
   TDoc extends DocumentSchema,
-  T extends SearchParams<TDoc>,
+  T extends SearchParams<TDoc, Infix>,
+  const Infix extends string,
 >(params: T | ExtractBaseTypes<T>): params is ExtractBaseTypes<T> {
   return Object.keys(arrayableParams)
     .filter((key) => params[key] !== undefined)
@@ -13,7 +14,8 @@ function hasNoArrayValues<
 
 export function normalizeArrayableParams<
   TDoc extends DocumentSchema,
-  T extends SearchParams<TDoc>,
+  T extends SearchParams<TDoc, Infix>,
+  const Infix extends string,
 >(params: T): Prettify<ExtractBaseTypes<T>> {
   const result = { ...params };
 
@@ -24,11 +26,11 @@ export function normalizeArrayableParams<
       return key;
     });
 
-  if (!transformedValues.length && hasNoArrayValues<TDoc, T>(result)) {
+  if (!transformedValues.length && hasNoArrayValues<TDoc, T, Infix>(result)) {
     return result;
   }
 
-  if (!hasNoArrayValues<TDoc, T>(result)) {
+  if (!hasNoArrayValues<TDoc, T, Infix>(result)) {
     throw new Error(
       `Failed to normalize arrayable params: ${JSON.stringify(result)}`,
     );
@@ -39,7 +41,8 @@ export function normalizeArrayableParams<
 
 function isNonArrayValue<
   TDoc extends DocumentSchema,
-  T extends SearchParams<TDoc>,
+  T extends SearchParams<TDoc, Infix>,
+  const Infix extends string,
   K extends UnionArrayKeys<T>,
 >(value: T[K] | ExtractBaseTypes<T>[K]): value is ExtractBaseTypes<T>[K] {
   return !Array.isArray(value);
