@@ -98,6 +98,7 @@
     "build": "npm run build:tsc && npm run build:web:dev && npm run build:web:prod",
     "test:vitest": "vitest",
     "build:tsc": "tsc",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "build:web:dev": "webpack --config webpack.config.js --mode development",
     "build:web:prod": "webpack --config webpack.config.js --mode production",
     "build:tsc:watch": "tsc --watch",
