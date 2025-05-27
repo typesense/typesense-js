@@ -10,8 +10,10 @@ export interface KeysRetrieveSchema {
   keys: KeySchema[];
 }
 
-export interface GenerateScopedSearchKeyParams<T extends DocumentSchema>
-  extends Partial<SearchParams<T>> {
+export interface GenerateScopedSearchKeyParams<
+  T extends DocumentSchema,
+  Infix extends string,
+> extends Partial<SearchParams<T, Infix>> {
   expires_at?: number;
   cache_ttl?: number;
   limit_multi_searches?: number;
@@ -30,15 +32,17 @@ export default class Keys {
     return this.apiCall.get<KeysRetrieveSchema>(RESOURCEPATH);
   }
 
-  generateScopedSearchKey<T extends DocumentSchema>(
+  generateScopedSearchKey<T extends DocumentSchema, const Infix extends string>(
     searchKey: string,
-    parameters: GenerateScopedSearchKeyParams<T>,
+    parameters: GenerateScopedSearchKeyParams<T, Infix>,
   ): string {
     // Note: only a key generated with the `documents:search` action will be
-    // accepted by the server, when usined with the search endpoint.
-    const normalizedParams = normalizeArrayableParams<T, SearchParams<T>>(
-      parameters,
-    );
+    // accepted by the server, when used with the search endpoint.
+    const normalizedParams = normalizeArrayableParams<
+      T,
+      SearchParams<T, Infix>,
+      Infix
+    >(parameters);
     const paramsJSON = JSON.stringify(normalizedParams);
     const digest = Buffer.from(
       createHmac("sha256", searchKey).update(paramsJSON).digest("base64"),

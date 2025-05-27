@@ -28,8 +28,8 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
     this.requestWithCache.clearCache();
   }
 
-  async search(
-    searchParameters: SearchParams<T> | SearchParamsWithPreset<T>,
+  async search<const Infix extends string>(
+    searchParameters: SearchParams<T, Infix> | SearchParamsWithPreset<T, Infix>,
     {
       cacheSearchResultsForSeconds = this.configuration
         .cacheSearchResultsForSeconds,
@@ -43,7 +43,8 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
 
     const { streamConfig, ...rest } = normalizeArrayableParams<
       T,
-      SearchParams<T>
+      SearchParams<T, Infix>,
+      Infix
     >(searchParameters);
 
     const queryParams = {

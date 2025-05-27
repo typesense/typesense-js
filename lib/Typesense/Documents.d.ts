@@ -26,7 +26,7 @@ export interface ImportResponseFail {
 }
 export type ImportResponse = ImportResponseSuccess | ImportResponseFail;
 export type DocumentSchema = Record<string, any>;
-export interface SearchParamsWithPreset<T extends DocumentSchema> extends Partial<SearchParams<T>> {
+export interface SearchParamsWithPreset<T extends DocumentSchema, Infix extends string> extends Partial<SearchParams<T, Infix>> {
     preset: string;
 }
 type SearchResponseHighlightObject = {

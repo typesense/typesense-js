@@ -106,6 +106,16 @@ declare class ApiCall implements HttpClient {
 
 type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 type OperationMode = "off" | "always" | "fallback";
+type CommaSeparated<T extends string, ToExtend, OriginalString extends string = T, Previous extends string[] = []> = T extends `${infer Start},${infer Rest}` ? TrimString<Start> extends ToExtend ? CommaSeparated<Rest, ToExtend, OriginalString, [
+    ...Previous,
+    TrimString<Start>
+]> : {
+    error: "Invalid operation mode";
+    value: TrimString<Start>;
+} : TrimString<T> extends ToExtend ? OriginalString : {
+    error: "Invalid operation mode";
+    value: TrimString<T>;
+};
 type UnionArrayKeys<T> = {
     [K in keyof T]: T[K] extends undefined ? never : NonNullable<T[K]> extends infer R ? R extends R[] ? never : R extends (infer U)[] | infer U ? U[] extends R ? K : never : never : never;
 }[keyof T] & keyof T;
@@ -116,7 +126,7 @@ type ArraybleParams<T extends DocumentSchema = DocumentSchema> = {
 type ExtractBaseTypes<T> = {
     [K in keyof T]: K extends UnionArrayKeys<T> ? T[K] extends (infer U)[] | infer U ? U : T[K] : T[K];
 };
-interface SearchParams<TDoc extends DocumentSchema = DocumentSchema> {
+interface SearchParams<TDoc extends DocumentSchema, Infix extends string> {
     q?: "*" | (string & {});
     query_by?: string | string[];
     query_by_weights?: string | number[];
@@ -170,7 +180,7 @@ interface SearchParams<TDoc extends DocumentSchema = DocumentSchema> {
     search_cutoff_ms?: number;
     use_cache?: boolean;
     max_candidates?: number;
-    infix?: OperationMode | OperationMode[];
+    infix?: CommaSeparated<Infix, OperationMode> | OperationMode[] | OperationMode;
     preset?: string;
     text_match_type?: "max_score" | "max_weight";
     vector_query?: string;
@@ -196,8 +206,8 @@ interface SearchResponseRequestParams {
         transcribed_query?: string;
     };
 }
-interface SearchableDocuments<T extends DocumentSchema = DocumentSchema> {
-    search(searchParameters: SearchParams<T> | SearchParamsWithPreset<T>, options: SearchOptions): Promise<SearchResponse<T>>;
+interface SearchableDocuments<T extends DocumentSchema = DocumentSchema, Infix extends string = string> {
+    search(searchParameters: SearchParams<T, Infix> | SearchParamsWithPreset<T, Infix>, options: SearchOptions): Promise<SearchResponse<T>>;
     clearCache(): void;
 }
 interface WriteableDocuments<T> {
@@ -218,17 +228,17 @@ interface RequestParams<T extends DocumentSchema[]> {
     responseType?: AxiosRequestConfig["responseType"] | undefined;
     isStreamingRequest: boolean | undefined;
 }
-interface MultiSearchRequestsWithUnionSchema<T extends DocumentSchema> extends SearchesMultiSearchesRequestSchema<T> {
+interface MultiSearchRequestsWithUnionSchema<T extends DocumentSchema, Infix extends string> extends SearchesMultiSearchesRequestSchema<T, Infix> {
     union: true;
 }
-interface MultiSearchRequestsWithoutUnionSchema<T extends DocumentSchema> extends SearchesMultiSearchesRequestSchema<T> {
+interface MultiSearchRequestsWithoutUnionSchema<T extends DocumentSchema, Infix extends string> extends SearchesMultiSearchesRequestSchema<T, Infix> {
     union?: false | undefined;
 }
-type MultiSearchRequestsSchema<T extends DocumentSchema> = MultiSearchRequestsWithUnionSchema<T> | MultiSearchRequestsWithoutUnionSchema<T>;
+type MultiSearchRequestsSchema<T extends DocumentSchema, Infix extends string> = MultiSearchRequestsWithUnionSchema<T, Infix> | MultiSearchRequestsWithoutUnionSchema<T, Infix>;
 interface UnionSearchResponse<T extends DocumentSchema> extends Omit<SearchResponse<T>, "request_params"> {
     union_request_params: SearchResponseRequestParams[];
 }
-type MultiSearchResponse<T extends DocumentSchema[], R extends MultiSearchRequestsSchema<T[number]> = MultiSearchRequestsSchema<T[number]>> = R extends MultiSearchRequestsWithUnionSchema<T[number]> ? UnionSearchResponse<T[number]> : {
+type MultiSearchResponse<T extends DocumentSchema[], Infix extends string, R extends MultiSearchRequestsSchema<T[number], Infix> = MultiSearchRequestsSchema<T[number], Infix>> = R extends MultiSearchRequestsWithUnionSchema<T[number], Infix> ? UnionSearchResponse<T[number]> : {
     results: {
         [Index in keyof T]: SearchResponse<T[Index]>;
     } & {
@@ -259,25 +269,27 @@ interface MultiSearchResultsStreamConfig<T extends DocumentSchema[]> extends Bas
         };
     }) => void;
 }
-interface SearchesMultiSearchesRequestSchema<T extends DocumentSchema> {
-    searches: (MultiSearchRequestSchema<T> | MultiSearchRequestWithPresetSchema<T>)[];
+interface SearchesMultiSearchesRequestSchema<T extends DocumentSchema, Infix extends string> {
+    searches: (MultiSearchRequestSchema<T, Infix> | MultiSearchRequestWithPresetSchema<T, Infix>)[];
 }
 interface BaseMultiSearchRequestSchema {
     collection?: string;
     rerank_hybrid_matches?: boolean;
     "x-typesense-api-key"?: string;
 }
-type CommonMultiSearchParametersBase<T extends DocumentSchema> = Partial<BaseMultiSearchRequestSchema & Omit<SearchParams<T>, "streamConfig">>;
-type MultiSearchRequestSchema<T extends DocumentSchema> = BaseMultiSearchRequestSchema & Omit<SearchParams<T>, "streamConfig">;
-type MultiSearchRequestWithPresetSchema<T extends DocumentSchema> = BaseMultiSearchRequestSchema & Omit<SearchParamsWithPreset<T>, "streamConfig">;
-type MultiSearchUnionParameters<T extends DocumentSchema> = CommonMultiSearchParametersBase<T> & {
+type CommonMultiSearchParametersBase<T extends DocumentSchema, Infix extends string> = Partial<BaseMultiSearchRequestSchema & Omit<SearchParams<T, Infix>, "streamConfig">>;
+type MultiSearchRequestSchema<T extends DocumentSchema, Infix extends string> = BaseMultiSearchRequestSchema & Omit<SearchParams<T, Infix>, "streamConfig">;
+type MultiSearchRequestWithPresetSchema<T extends DocumentSchema, Infix extends string> = BaseMultiSearchRequestSchema & Omit<SearchParamsWithPreset<T, Infix>, "streamConfig">;
+type MultiSearchUnionParameters<T extends DocumentSchema, Infix extends string> = CommonMultiSearchParametersBase<T, Infix> & {
     streamConfig?: MultiSearchUnionStreamConfig<T>;
     use_cache?: boolean;
 };
-type MultiSearchResultsParameters<T extends DocumentSchema[]> = CommonMultiSearchParametersBase<T[number]> & {
+type MultiSearchResultsParameters<T extends DocumentSchema[], Infix extends string> = CommonMultiSearchParametersBase<T[number], Infix> & {
     streamConfig?: MultiSearchResultsStreamConfig<T>;
     use_cache?: boolean;
 };
+type Whitespace = " " | "\n" | "\t";
+type TrimString<S extends string> = S extends `${Whitespace}${infer S}` ? TrimString<S> : S extends `${infer S}${Whitespace}` ? TrimString<S> : S;
 
 declare class RequestWithCache {
     private responseCache;
@@ -298,7 +310,7 @@ declare class SearchOnlyDocuments<T extends DocumentSchema> implements Searchabl
     protected requestWithCache: RequestWithCache;
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
     clearCache(): void;
-    search(searchParameters: SearchParams<T> | SearchParamsWithPreset<T>, { cacheSearchResultsForSeconds, abortSignal, }?: SearchOptions): Promise<SearchResponse<T>>;
+    search<const Infix extends string>(searchParameters: SearchParams<T, Infix> | SearchParamsWithPreset<T, Infix>, { cacheSearchResultsForSeconds, abortSignal, }?: SearchOptions): Promise<SearchResponse<T>>;
     protected endpointPath(operation?: string): string;
     static get RESOURCEPATH(): string;
 }
@@ -325,7 +337,7 @@ interface ImportResponseFail {
 }
 type ImportResponse = ImportResponseSuccess | ImportResponseFail;
 type DocumentSchema = Record<string, any>;
-interface SearchParamsWithPreset<T extends DocumentSchema> extends Partial<SearchParams<T>> {
+interface SearchParamsWithPreset<T extends DocumentSchema, Infix extends string> extends Partial<SearchParams<T, Infix>> {
     preset: string;
 }
 type SearchResponseHighlightObject = {
@@ -606,10 +618,10 @@ declare class MultiSearch {
     private requestWithCache;
     constructor(apiCall: ApiCall, configuration: Configuration, useTextContentType?: boolean);
     clearCache(): void;
-    perform<const T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsWithUnionSchema<T[number]>, commonParams?: MultiSearchUnionParameters<T[number]>, options?: {
+    perform<const T extends DocumentSchema[] = [], const Infix extends string = string>(searchRequests: MultiSearchRequestsWithUnionSchema<T[number], Infix>, commonParams?: MultiSearchUnionParameters<T[number], Infix>, options?: {
         cacheSearchResultsForSeconds?: number;
     }): Promise<UnionSearchResponse<T[number]>>;
-    perform<const T extends DocumentSchema[] = []>(searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number]>, commonParams?: MultiSearchResultsParameters<T>, options?: {
+    perform<const T extends DocumentSchema[] = [], const Infix extends string = string>(searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number], Infix>, commonParams?: MultiSearchResultsParameters<T, Infix>, options?: {
         cacheSearchResultsForSeconds?: number;
     }): Promise<{
         results: {
@@ -891,7 +903,7 @@ declare class Key {
 interface KeysRetrieveSchema {
     keys: KeySchema[];
 }
-interface GenerateScopedSearchKeyParams<T extends DocumentSchema> extends Partial<SearchParams<T>> {
+interface GenerateScopedSearchKeyParams<T extends DocumentSchema, Infix extends string> extends Partial<SearchParams<T, Infix>> {
     expires_at?: number;
     cache_ttl?: number;
     limit_multi_searches?: number;
@@ -901,7 +913,7 @@ declare class Keys {
     constructor(apiCall: ApiCall);
     create(params: KeyCreateSchema): Promise<KeySchema>;
     retrieve(): Promise<KeysRetrieveSchema>;
-    generateScopedSearchKey<T extends DocumentSchema>(searchKey: string, parameters: GenerateScopedSearchKeyParams<T>): string;
+    generateScopedSearchKey<T extends DocumentSchema, const Infix extends string>(searchKey: string, parameters: GenerateScopedSearchKeyParams<T, Infix>): string;
     static get RESOURCEPATH(): string;
 }
 
@@ -979,7 +991,7 @@ declare class Operations {
     perform(operationName: "vote" | "snapshot" | "cache/clear" | "schema_changes" | (string & {}), queryParameters?: Record<string, any>): Promise<any>;
 }
 
-interface PresetSchema<T extends DocumentSchema> extends PresetCreateSchema<T> {
+interface PresetSchema<T extends DocumentSchema> extends PresetCreateSchema<T, string> {
     name: string;
 }
 interface PresetDeleteSchema {
@@ -994,8 +1006,8 @@ declare class Preset {
     private endpointPath;
 }
 
-interface PresetCreateSchema<T extends DocumentSchema> {
-    value: SearchParams<T> | MultiSearchRequestsSchema<T>;
+interface PresetCreateSchema<T extends DocumentSchema, Infix extends string> {
+    value: SearchParams<T, Infix> | MultiSearchRequestsSchema<T, Infix>;
 }
 interface PresetsRetrieveSchema<T extends DocumentSchema> {
     presets: PresetSchema<T>[];
@@ -1003,7 +1015,7 @@ interface PresetsRetrieveSchema<T extends DocumentSchema> {
 declare class Presets {
     private apiCall;
     constructor(apiCall: ApiCall);
-    upsert<T extends DocumentSchema>(presetId: string, params: PresetCreateSchema<T>): Promise<PresetSchema<T>>;
+    upsert<T extends DocumentSchema, const Infix extends string>(presetId: string, params: PresetCreateSchema<T, Infix>): Promise<PresetSchema<T>>;
     retrieve<T extends DocumentSchema>(): Promise<PresetsRetrieveSchema<T>>;
     private endpointPath;
     static get RESOURCEPATH(): string;

@@ -1117,7 +1117,9 @@ var MultiSearch = class {
     }
     const normalizedSearchRequests = {
       union: searchRequests.union,
-      searches: searchRequests.searches.map(normalizeArrayableParams)
+      searches: searchRequests.searches.map(
+        normalizeArrayableParams
+      )
     };
     const { streamConfig, ...paramsWithoutStream } = params;
     const normalizedQueryParams = normalizeArrayableParams(
@@ -1665,9 +1667,7 @@ var Keys = class _Keys {
     return this.apiCall.get(RESOURCEPATH7);
   }
   generateScopedSearchKey(searchKey, parameters) {
-    const normalizedParams = normalizeArrayableParams(
-      parameters
-    );
+    const normalizedParams = normalizeArrayableParams(parameters);
     const paramsJSON = JSON.stringify(normalizedParams);
     const digest = Buffer.from(
       (0, import_crypto.createHmac)("sha256", searchKey).update(paramsJSON).digest("base64")
@@ -1772,9 +1772,7 @@ var Presets = class _Presets {
         value: { searches: normalizedParams2 }
       });
     }
-    const normalizedParams = normalizeArrayableParams(
-      params.value
-    );
+    const normalizedParams = normalizeArrayableParams(params.value);
     return this.apiCall.put(this.endpointPath(presetId), {
       value: normalizedParams
     });
