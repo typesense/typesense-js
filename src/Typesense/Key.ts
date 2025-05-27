@@ -2,7 +2,7 @@ import ApiCall from "./ApiCall";
 import Keys from "./Keys";
 
 export interface KeyCreateSchema {
-  actions: string[];
+  actions: Actions[];
   collections: string[];
   description?: string;
   value?: string;
@@ -10,6 +10,39 @@ export interface KeyCreateSchema {
   expires_at?: number;
   autodelete?: boolean;
 }
+
+type CRUDActions = "create" | "delete" | "get" | "list" | "*";
+type DocumentActionTypes =
+  | "search"
+  | "get"
+  | "create"
+  | "upsert"
+  | "update"
+  | "delete"
+  | "import"
+  | "export"
+  | "*";
+
+type CRUDFeatures =
+  | "collections"
+  | "aliases"
+  | "synonyms"
+  | "overrides"
+  | "stopwords"
+  | "keys"
+  | "analytics"
+  | "analytics/rules";
+
+type FeatureActions = `${CRUDFeatures}:${CRUDActions}`;
+type DocumentActions = `documents:${DocumentActionTypes}`;
+type AnalyticsEventActions = "analytics/events:create";
+type MiscActions = `${`metrics.json` | `stats.json` | `debug`}.list` | "*";
+
+export type Actions =
+  | FeatureActions
+  | DocumentActions
+  | AnalyticsEventActions
+  | MiscActions;
 
 export interface KeyDeleteSchema {
   id: number;
