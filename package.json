@@ -25,10 +25,12 @@
     "http": false,
     "https": false
   },
+  "main": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "default": "./lib/index.js"
+      "import": "./dist/index.min.mjs",
+      "require": "./lib/index.js"
     },
     "./lib/Typesense/*": {
       "types": "./lib/Typesense/*.d.ts",
