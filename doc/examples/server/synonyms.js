@@ -11,7 +11,7 @@ const Typesense = require("../../../lib/Typesense");
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: "localhost",
+      host: "127.0.0.1",
       port: "8108",
       protocol: "http",
     },
@@ -89,8 +89,8 @@ async function runExample() {
     // create a couple of documents
     await Promise.all(
       documents.map((document) =>
-        typesense.collections("companies").documents().create(document)
-      )
+        typesense.collections("companies").documents().create(document),
+      ),
     );
 
     // Create a multi-way synonym

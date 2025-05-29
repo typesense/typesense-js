@@ -11,20 +11,20 @@ const Typesense = require("../../../lib/Typesense");
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: "localhost",
+      host: "127.0.0.1",
       port: "8108",
       protocol: "http",
     },
-    {
-      host: "localhost",
-      port: "7108",
-      protocol: "http",
-    },
-    {
-      host: "localhost",
-      port: "9108",
-      protocol: "http",
-    },
+    // {
+    //   host: "localhost",
+    //   port: "7108",
+    //   protocol: "http",
+    // },
+    // {
+    //   host: "localhost",
+    //   port: "9108",
+    //   protocol: "http",
+    // },
   ],
   apiKey: "xyz",
   numRetries: 3, // A total of 4 tries (1 original try + 3 retries)
@@ -99,8 +99,8 @@ async function runExample() {
     // create a couple of documents
     await Promise.all(
       documents.map((document) =>
-        typesense.collections("companies").documents().create(document)
-      )
+        typesense.collections("companies").documents().create(document),
+      ),
     );
 
     // Create an override

@@ -1,19 +1,24 @@
 import ApiCall from "./ApiCall";
+import { DocumentSchema } from "./Documents";
 import Presets, { PresetCreateSchema } from "./Presets";
 
-export interface PresetSchema extends PresetCreateSchema {
-  id: string;
+export interface PresetSchema<T extends DocumentSchema>
+  extends PresetCreateSchema<T, string> {
+  name: string;
 }
 
 export interface PresetDeleteSchema {
-  id: string;
+  name: string;
 }
 
 export default class Preset {
-  constructor(private presetId: string, private apiCall: ApiCall) {}
+  constructor(
+    private presetId: string,
+    private apiCall: ApiCall,
+  ) {}
 
-  async retrieve(): Promise<PresetSchema> {
-    return this.apiCall.get<PresetSchema>(this.endpointPath());
+  async retrieve<T extends DocumentSchema>(): Promise<PresetSchema<T>> {
+    return this.apiCall.get<PresetSchema<T>>(this.endpointPath());
   }
 
   async delete(): Promise<PresetDeleteSchema> {
@@ -21,6 +26,6 @@ export default class Preset {
   }
 
   private endpointPath(): string {
-    return `${Presets.RESOURCEPATH}/${this.presetId}`;
+    return `${Presets.RESOURCEPATH}/${encodeURIComponent(this.presetId)}`;
   }
 }

@@ -1,5 +1,9 @@
 import ApiCall from "./ApiCall";
-import Collections, { CollectionCreateSchema } from "./Collections";
+import Collections from "./Collections";
+import type {
+  BaseCollectionCreateSchema,
+  CollectionCreateSchema,
+} from "./Collections";
 import Documents, { DocumentSchema } from "./Documents";
 import { ObjectNotFound } from "./Errors";
 import Overrides from "./Overrides";
@@ -15,6 +19,7 @@ export type FieldType =
   | "float"
   | "bool"
   | "geopoint"
+  | "geopolygon"
   | "geopoint[]"
   | "string[]"
   | "int32[]"
@@ -24,9 +29,13 @@ export type FieldType =
   | "object"
   | "object[]"
   | "auto"
-  | "string*";
+  | "string*"
+  | "image";
 
-export interface CollectionFieldSchema {
+export interface CollectionFieldSchema
+  extends Partial<
+    Pick<BaseCollectionCreateSchema, "token_separators" | "symbols_to_index">
+  > {
   name: string;
   type: FieldType;
   optional?: boolean;
@@ -35,7 +44,10 @@ export interface CollectionFieldSchema {
   sort?: boolean;
   locale?: string;
   infix?: boolean;
+  stem?: boolean;
   num_dim?: number;
+  store?: boolean;
+  range_index?: boolean;
   [t: string]: unknown;
 }
 
@@ -55,6 +67,10 @@ export interface CollectionUpdateSchema
   fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
 }
 
+export interface CollectionDeleteOptions {
+  compact_store?: boolean;
+}
+
 export default class Collection<T extends DocumentSchema = object> {
   private readonly _documents: Documents<T>;
   private individualDocuments: Record<string, Document<T>> = {};
@@ -66,7 +82,7 @@ export default class Collection<T extends DocumentSchema = object> {
   constructor(
     private readonly name: string,
     private readonly apiCall: ApiCall,
-    private readonly configuration: any
+    private readonly configuration: any,
   ) {
     this.name = name;
     this.apiCall = apiCall;
@@ -75,7 +91,7 @@ export default class Collection<T extends DocumentSchema = object> {
     this._documents = new Documents(
       this.name,
       this.apiCall,
-      this.configuration
+      this.configuration,
     );
     this._overrides = new Overrides(this.name, this.apiCall);
     this._synonyms = new Synonyms(this.name, this.apiCall);
@@ -89,8 +105,10 @@ export default class Collection<T extends DocumentSchema = object> {
     return this.apiCall.patch<CollectionSchema>(this.endpointPath(), schema);
   }
 
-  async delete(): Promise<CollectionSchema> {
-    return this.apiCall.delete<CollectionSchema>(this.endpointPath());
+  async delete(
+    options: CollectionDeleteOptions = {},
+  ): Promise<CollectionSchema> {
+    return this.apiCall.delete<CollectionSchema>(this.endpointPath(), options);
   }
 
   async exists(): Promise<boolean> {
@@ -113,7 +131,7 @@ export default class Collection<T extends DocumentSchema = object> {
         this.individualDocuments[documentId] = new Document(
           this.name,
           documentId,
-          this.apiCall
+          this.apiCall,
         );
       }
       return this.individualDocuments[documentId];
@@ -130,7 +148,7 @@ export default class Collection<T extends DocumentSchema = object> {
         this.individualOverrides[overrideId] = new Override(
           this.name,
           overrideId,
-          this.apiCall
+          this.apiCall,
         );
       }
       return this.individualOverrides[overrideId];
@@ -147,7 +165,7 @@ export default class Collection<T extends DocumentSchema = object> {
         this.individualSynonyms[synonymId] = new Synonym(
           this.name,
           synonymId,
-          this.apiCall
+          this.apiCall,
         );
       }
       return this.individualSynonyms[synonymId];
@@ -155,6 +173,6 @@ export default class Collection<T extends DocumentSchema = object> {
   }
 
   private endpointPath(): string {
-    return `${Collections.RESOURCEPATH}/${this.name}`;
+    return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.name)}`;
   }
 }

@@ -11,7 +11,7 @@ const Typesense = require("../../../lib/Typesense");
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: "localhost",
+      host: "127.0.0.1",
       port: "8108",
       protocol: "http",
     }, // ,
@@ -124,11 +124,11 @@ async function runExample() {
     console.log(result);
 
     // update by query
-    console.log("Updating by query")
-    result = await typesense.collections("companies").documents().update(
-      { num_employees: 200},
-      { filter_by: 'num_employees:>5000' }
-    );
+    console.log("Updating by query");
+    result = await typesense
+      .collections("companies")
+      .documents()
+      .update({ num_employees: 200 }, { filter_by: "num_employees:>5000" });
     console.log(result);
 
     // Export all documents in a collection in JSON Lines format

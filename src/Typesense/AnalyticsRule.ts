@@ -2,15 +2,23 @@ import ApiCall from "./ApiCall";
 import AnalyticsRules from "./AnalyticsRules";
 
 export interface AnalyticsRuleCreateSchema {
-  type: "popular_queries";
+  type: "popular_queries" | "nohits_queries" | "counter" | "log";
   params: {
+    enable_auto_aggregation?: boolean;
     source: {
       collections: string[];
+      events?: Array<{
+        type: string;
+        weight?: number;
+        name: string;
+      }>;
     };
-    destination: {
+    expand_query?: boolean;
+    destination?: {
       collection: string;
+      counter_field?: string;
     };
-    limit: number;
+    limit?: number;
   };
 }
 
@@ -23,7 +31,10 @@ export interface AnalyticsRuleSchema extends AnalyticsRuleCreateSchema {
 }
 
 export default class AnalyticsRule {
-  constructor(private name: string, private apiCall: ApiCall) {}
+  constructor(
+    private name: string,
+    private apiCall: ApiCall,
+  ) {}
 
   async retrieve(): Promise<AnalyticsRuleSchema> {
     return this.apiCall.get<AnalyticsRuleSchema>(this.endpointPath());
@@ -34,6 +45,6 @@ export default class AnalyticsRule {
   }
 
   private endpointPath(): string {
-    return `${AnalyticsRules.RESOURCEPATH}/${this.name}`;
+    return `${AnalyticsRules.RESOURCEPATH}/${encodeURIComponent(this.name)}`;
   }
 }

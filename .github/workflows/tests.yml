@@ -15,7 +15,8 @@ jobs:
       - run: npm run build
       - run: npm run ci-lint
       - run: npm run ci-test
-      - uses: actions/upload-artifact@v3
+      - run: npm run test:vitest
+      - uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: coverage/

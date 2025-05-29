@@ -70,7 +70,7 @@ describe("Collections", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(201, JSON.stringify(companySchema), {
           "content-type": "application/json",
@@ -94,7 +94,7 @@ describe("Collections", function () {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "application/json",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
+            },
           )
           .reply((config) => {
             expect(config.params.src_name).to.equal("collection_x");
@@ -124,13 +124,18 @@ describe("Collections", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
-        .reply(200, JSON.stringify([companySchema]), {
-          "content-type": "application/json",
+        .reply((config) => {
+          expect(config.params.exclude_fields).to.equal("fields");
+          return [
+            200,
+            JSON.stringify([companySchema]),
+            { "content-type": "application/json" },
+          ];
         });
 
-      let returnData = collections.retrieve();
+      let returnData = collections.retrieve({ exclude_fields: "fields" });
 
       expect(returnData).to.eventually.deep.equal([companySchema]).notify(done);
     });

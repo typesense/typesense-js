@@ -13,7 +13,7 @@ const masterApiKey = "xyz";
 const typesense = new Typesense.Client({
   nodes: [
     {
-      host: "localhost",
+      host: "127.0.0.1",
       port: "8108",
       protocol: "http",
     },
@@ -93,7 +93,7 @@ async function runExample() {
     await Promise.all(
       documents.map((document) => {
         return typesense.collections("users").documents().create(document);
-      })
+      }),
     );
 
     // Generate an API key and restrict it to only allow searches
@@ -130,7 +130,7 @@ async function runExample() {
     const scopedTypesenseClient = new Typesense.Client({
       nodes: [
         {
-          host: "localhost",
+          host: "127.0.0.1",
           port: "8108",
           protocol: "http",
         },

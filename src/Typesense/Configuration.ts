@@ -1,6 +1,10 @@
 import * as logger from "loglevel";
 import { Logger, LogLevelDesc } from "loglevel";
 import { MissingConfigurationError } from "./Errors";
+import type { Agent as HTTPAgent } from "http";
+import type { Agent as HTTPSAgent } from "https";
+import type { AxiosRequestConfig } from "axios";
+import { DocumentSchema, SearchResponse } from "./Documents";
 
 export interface NodeConfiguration {
   host: string;
@@ -60,6 +64,78 @@ export interface ConfigurationOptions {
 
   logLevel?: LogLevelDesc;
   logger?: Logger;
+
+  /**
+   * Set a custom HTTP Agent
+   *
+   * This is helpful for eg, to enable keepAlive which helps prevents ECONNRESET socket hang up errors
+   *    Usage:
+   *      const { Agent: HTTPAgent } = require("http");
+   *      ...
+   *      httpAgent: new HTTPAgent({ keepAlive: true }),
+   * @type {HTTPAgent}
+   */
+  httpAgent?: HTTPAgent;
+
+  /**
+   * Set a custom HTTPS Agent
+   *
+   * This is helpful for eg, to enable keepAlive which helps prevents ECONNRESET socket hang up errors
+   *    Usage:
+   *      const { Agent: HTTPSAgent } = require("https");
+   *      ...
+   *      httpsAgent: new HTTPSAgent({ keepAlive: true }),
+   * @type {HTTPSAgent}
+   */
+  httpsAgent?: HTTPSAgent;
+
+  /**
+   * Set a custom paramsSerializer
+   *
+   * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
+   *  This is helpful for handling React Native issues like this: https://github.com/axios/axios/issues/6102#issuecomment-2085301397
+   * @type {any}
+   */
+  paramsSerializer?: any;
+
+  /**
+   * Set a custom axios adapter
+   *
+   * Useful for customizing the underlying HTTP client library used by Typesense.
+   *
+   * For example, you can use this to use a custom HTTP client library like `fetch`, in order for the library to work on the edge.
+   * Related GiHub issue: https://github.com/typesense/typesense-js/issues/161
+   *
+   * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
+   */
+  axiosAdapter?: AxiosRequestConfig["adapter"];
+}
+
+/**
+ * Configuration options for streaming responses
+ */
+export interface BaseStreamConfig {
+  /**
+   * Callback function that will be called for each chunk of data received
+   * during streaming
+   */
+  onChunk?: (data: { conversation_id: string; message: string }) => void;
+  /**
+   * Callback function that will be called if there is an error during streaming
+   */
+  onError?: (error: Error) => void;
+}
+
+/**
+ * Stream configuration for standard search responses
+ * For specialized responses like MultiSearch, extend BaseStreamConfig with the appropriate onComplete signature
+ */
+export interface StreamConfig<T extends DocumentSchema>
+  extends BaseStreamConfig {
+  /**
+   * Callback function that will be called when the streaming is complete
+   */
+  onComplete?: (data: SearchResponse<T>) => void;
 }
 
 export default class Configuration {
@@ -82,6 +158,10 @@ export default class Configuration {
   readonly logger: Logger;
   readonly logLevel: LogLevelDesc;
   readonly additionalHeaders?: Record<string, string>;
+  readonly httpAgent?: HTTPAgent;
+  readonly httpsAgent?: HTTPSAgent;
+  readonly paramsSerializer?: any;
+  readonly axiosAdapter?: AxiosRequestConfig["adapter"];
 
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || [];
@@ -106,9 +186,9 @@ export default class Configuration {
       options.connectionTimeoutSeconds || options.timeoutSeconds || 5;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60;
     this.numRetries =
-      options.numRetries ||
-      this.nodes.length + (this.nearestNode == null ? 0 : 1) ||
-      3;
+      (options.numRetries !== undefined && options.numRetries >= 0
+        ? options.numRetries
+        : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
 
     this.apiKey = options.apiKey;
@@ -118,11 +198,17 @@ export default class Configuration {
       options.cacheSearchResultsForSeconds || 0; // Disable client-side cache by default
     this.useServerSideSearchCache = options.useServerSideSearchCache || false;
 
+    this.axiosAdapter = options.axiosAdapter;
     this.logger = options.logger || logger;
     this.logLevel = options.logLevel || "warn";
     this.logger.setLevel(this.logLevel);
 
     this.additionalHeaders = options.additionalHeaders;
+
+    this.httpAgent = options.httpAgent;
+    this.httpsAgent = options.httpsAgent;
+
+    this.paramsSerializer = options.paramsSerializer;
 
     this.showDeprecationWarnings(options);
     this.validate();
@@ -131,7 +217,7 @@ export default class Configuration {
   validate(): boolean {
     if (this.nodes == null || this.nodes.length === 0 || this.validateNodes()) {
       throw new MissingConfigurationError(
-        "Ensure that nodes[].protocol, nodes[].host and nodes[].port are set"
+        "Ensure that nodes[].protocol, nodes[].host and nodes[].port are set",
       );
     }
 
@@ -140,7 +226,7 @@ export default class Configuration {
       this.isNodeMissingAnyParameters(this.nearestNode)
     ) {
       throw new MissingConfigurationError(
-        "Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set"
+        "Ensure that nearestNodes.protocol, nearestNodes.host and nearestNodes.port are set",
       );
     }
 
@@ -161,7 +247,7 @@ export default class Configuration {
     node:
       | NodeConfiguration
       | NodeConfigurationWithHostname
-      | NodeConfigurationWithUrl
+      | NodeConfigurationWithUrl,
   ): boolean {
     return (
       !["protocol", "host", "port", "path"].every((key) => {
@@ -175,7 +261,7 @@ export default class Configuration {
       | NodeConfiguration
       | NodeConfigurationWithHostname
       | NodeConfigurationWithUrl
-      | undefined
+      | undefined,
   ):
     | NodeConfiguration
     | NodeConfigurationWithHostname
@@ -192,7 +278,7 @@ export default class Configuration {
       | NodeConfiguration
       | NodeConfigurationWithHostname
       | NodeConfigurationWithUrl
-      | undefined
+      | undefined,
   ):
     | NodeConfiguration
     | NodeConfigurationWithHostname
@@ -218,17 +304,17 @@ export default class Configuration {
   private showDeprecationWarnings(options: ConfigurationOptions): void {
     if (options.timeoutSeconds) {
       this.logger.warn(
-        "Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds"
+        "Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds",
       );
     }
     if (options.masterNode) {
       this.logger.warn(
-        "Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12"
+        "Deprecation warning: masterNode is now consolidated to nodes, starting with Typesense Server v0.12",
       );
     }
     if (options.readReplicaNodes) {
       this.logger.warn(
-        "Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12"
+        "Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12",
       );
     }
   }

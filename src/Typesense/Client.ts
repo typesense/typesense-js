@@ -10,22 +10,30 @@ import Keys from "./Keys";
 import Key from "./Key";
 import Debug from "./Debug";
 import Metrics from "./Metrics";
+import Stats from "./Stats";
 import Health from "./Health";
 import Operations from "./Operations";
 import MultiSearch from "./MultiSearch";
 import Presets from "./Presets";
 import Preset from "./Preset";
 import Analytics from "./Analytics";
+import Stopwords from "./Stopwords";
+import Stopword from "./Stopword";
+import Conversations from "./Conversations";
+import Conversation from "./Conversation";
+import Stemming from "./Stemming";
 
 export default class Client {
   configuration: Configuration;
   apiCall: ApiCall;
   debug: Debug;
   metrics: Metrics;
+  stats: Stats;
   health: Health;
   operations: Operations;
   multiSearch: MultiSearch;
   analytics: Analytics;
+  stemming: Stemming;
   private readonly _collections: Collections;
   private readonly individualCollections: Record<string, Collection>;
   private readonly _aliases: Aliases;
@@ -34,6 +42,10 @@ export default class Client {
   private readonly individualKeys: Record<number, Key>;
   private readonly _presets: Presets;
   private readonly individualPresets: Record<string, Preset>;
+  private readonly _stopwords: Stopwords;
+  private readonly individualStopwords: Record<string, Stopword>;
+  private readonly _conversations: Conversations;
+  private readonly individualConversations: Record<string, Conversation>;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false;
@@ -42,6 +54,7 @@ export default class Client {
     this.apiCall = new ApiCall(this.configuration);
     this.debug = new Debug(this.apiCall);
     this.metrics = new Metrics(this.apiCall);
+    this.stats = new Stats(this.apiCall);
     this.health = new Health(this.apiCall);
     this.operations = new Operations(this.apiCall);
     this.multiSearch = new MultiSearch(this.apiCall, this.configuration);
@@ -53,12 +66,17 @@ export default class Client {
     this.individualKeys = {};
     this._presets = new Presets(this.apiCall);
     this.individualPresets = {};
+    this._stopwords = new Stopwords(this.apiCall);
+    this.individualStopwords = {};
     this.analytics = new Analytics(this.apiCall);
+    this.stemming = new Stemming(this.apiCall);
+    this._conversations = new Conversations(this.apiCall);
+    this.individualConversations = {};
   }
 
   collections(): Collections;
   collections<T extends Record<string, any> = object>(
-    collectionName: string
+    collectionName: string,
   ): Collection<T>;
   collections(collectionName?: string): Collections | Collection {
     if (collectionName === undefined) {
@@ -68,7 +86,7 @@ export default class Client {
         this.individualCollections[collectionName] = new Collection(
           collectionName,
           this.apiCall,
-          this.configuration
+          this.configuration,
         );
       }
       return this.individualCollections[collectionName];
@@ -111,6 +129,32 @@ export default class Client {
         this.individualPresets[id] = new Preset(id, this.apiCall);
       }
       return this.individualPresets[id];
+    }
+  }
+
+  stopwords(): Stopwords;
+  stopwords(id: string): Stopword;
+  stopwords(id?: string): Stopwords | Stopword {
+    if (id === undefined) {
+      return this._stopwords;
+    } else {
+      if (this.individualStopwords[id] === undefined) {
+        this.individualStopwords[id] = new Stopword(id, this.apiCall);
+      }
+      return this.individualStopwords[id];
+    }
+  }
+
+  conversations(): Conversations;
+  conversations(id: string): Conversation;
+  conversations(id?: string): Conversations | Conversation {
+    if (id === undefined) {
+      return this._conversations;
+    } else {
+      if (this.individualConversations[id] === undefined) {
+        this.individualConversations[id] = new Conversation(id, this.apiCall);
+      }
+      return this.individualConversations[id];
     }
   }
 }

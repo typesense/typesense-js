@@ -31,6 +31,57 @@ describe("MultiSearch", function () {
   });
 
   describe(".perform", function () {
+    it("normalizes the search parameters in both params and body", async function () {
+      const searches = {
+        searches: [
+          { q: "term1", facet_by: ["field1", "field2"] },
+          { q: "term2", facet_by: "field3" },
+        ],
+      };
+      const commonParams = {
+        collection: "docs",
+        query_by: ["field", "field2"],
+      };
+
+      let capturedParams;
+      let capturedBody;
+
+      mockAxios
+        .onPost(
+          apiCall.uriFor("/multi_search", typesense.configuration.nodes[0]),
+          // Match the exact body structure
+          {
+            searches: [
+              { q: "term1", facet_by: "field1,field2" },
+              { q: "term2", facet_by: "field3" },
+            ],
+          },
+          {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+          },
+        )
+        .reply((config) => {
+          capturedParams = config.params;
+          capturedBody = JSON.parse(config.data);
+          return [200, "{}", { "content-type": "application/json" }];
+        });
+
+      await typesense.multiSearch.perform(searches, commonParams);
+
+      expect(capturedParams).to.deep.equal({
+        collection: "docs",
+        query_by: "field,field2",
+      });
+
+      expect(capturedBody).to.deep.equal({
+        searches: [
+          { q: "term1", facet_by: "field1,field2" },
+          { q: "term2", facet_by: "field3" },
+        ],
+      });
+    });
     it("performs a multi-search", function (done) {
       let searches = {
         searches: [{ q: "term1" }, { q: "term2" }],
@@ -48,7 +99,7 @@ describe("MultiSearch", function () {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply((config) => {
           expect(config.params).to.deep.equal(commonParams);
@@ -90,7 +141,7 @@ describe("MultiSearch", function () {
               Accept: "application/json, text/plain, */*",
               "Content-Type": "application/json",
               "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-            }
+            },
           )
           .reply((config) => {
             expect(config.params).to.deep.equal(commonParams[i]);
@@ -121,7 +172,7 @@ describe("MultiSearch", function () {
       // Now wait 60s and then retry the request, still should be fetched from cache
       timekeeper.freeze(currentTime + 60 * 1000);
       returnData.push(
-        await typesense.multiSearch.perform(searchRequests[1], commonParams[1])
+        await typesense.multiSearch.perform(searchRequests[1], commonParams[1]),
       );
       expect(returnData[3]).to.deep.equal(stubbedSearchResults[1]);
 
@@ -131,7 +182,7 @@ describe("MultiSearch", function () {
       // Now wait 2 minutes and then retry the request, it should now make an actual request, since cache is stale
       timekeeper.freeze(currentTime + 121 * 1000);
       returnData.push(
-        await typesense.multiSearch.perform(searchRequests[1], commonParams[1])
+        await typesense.multiSearch.perform(searchRequests[1], commonParams[1]),
       );
       expect(returnData[4]).to.deep.equal(stubbedSearchResults[1]);
 

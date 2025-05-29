@@ -29,10 +29,10 @@ let sharedNodeSelectionBehavior = (method) => {
       });
 
     await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-      "Request failed with HTTP code 409 | Server said: Already exists"
+      "Request failed with HTTP code 409 | Server said: Already exists",
     );
     await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-      ObjectUnprocessable
+      ObjectUnprocessable,
     );
     let requestHistory = this.mockAxios.history[method];
     expect(requestHistory.length).to.equal(2);
@@ -58,7 +58,7 @@ let sharedNodeSelectionBehavior = (method) => {
       });
 
     await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-      "Request failed with HTTP code 500 | Server said: Error message"
+      "Request failed with HTTP code 500 | Server said: Error message",
     );
     let requestHistory = this.mockAxios.history[method];
     expect(requestHistory.length).to.equal(4);
@@ -186,7 +186,7 @@ let sharedNodeSelectionBehavior = (method) => {
     it("uses the nearestNode if it is present and healthy, otherwise fallsback to regular nodes", async function () {
       this.mockAxios
         .onAny(
-          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode)
+          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode),
         )
         .timeout();
       this.mockAxios
@@ -217,7 +217,7 @@ let sharedNodeSelectionBehavior = (method) => {
       this.mockAxios.handlers[method].shift();
       this.mockAxios
         .onAny(
-          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode)
+          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode),
         )
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -259,7 +259,7 @@ let sharedNodeSelectionBehavior = (method) => {
     it("raises an error when no nodes are healthy", async function () {
       this.mockAxios
         .onAny(
-          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode)
+          this.apiCall.uriFor("/", this.typesense.configuration.nearestNode),
         )
         .reply(500, JSON.stringify({ message: "Error message" }), {
           "content-type": "application/json",
@@ -281,7 +281,7 @@ let sharedNodeSelectionBehavior = (method) => {
         });
 
       await expect(this.apiCall[method]("/")).to.eventually.be.rejectedWith(
-        "Request failed with HTTP code 500 | Server said: Error message"
+        "Request failed with HTTP code 500 | Server said: Error message",
       );
       let requestHistory = this.mockAxios.history[method];
       expect(requestHistory.length).to.equal(5);
@@ -356,7 +356,7 @@ describe("ApiCall", function () {
       const apiCall = new ApiCall(client.configuration);
 
       expect(
-        apiCall.uriFor("/collections", client.configuration.nodes[0])
+        apiCall.uriFor("/collections", client.configuration.nodes[0]),
       ).to.equal("https://node0/path/collections");
 
       done();
@@ -392,6 +392,129 @@ describe("ApiCall", function () {
 
       // Will error out if request doesn't match the stub
       return apiCall.get("/collections", {});
+    });
+  });
+  describe("Abort Signal Behavior", function () {
+    beforeEach(function () {
+      this.typesense = new TypesenseClient({
+        nodes: [
+          {
+            host: "node0",
+            port: "8108",
+            protocol: "http",
+          },
+          {
+            host: "node1",
+            port: "7108",
+            protocol: "http",
+          },
+          {
+            host: "node2",
+            port: "9108",
+            protocol: "http",
+          },
+        ],
+        apiKey: "abcd",
+        randomizeNodes: false,
+        logLevel: "error",
+        retryIntervalSeconds: 0.001,
+      });
+      this.mockAxios = new MockAxiosAdapter(axios);
+      this.apiCall = new ApiCall(this.typesense.configuration);
+    });
+
+    afterEach(function () {
+      this.mockAxios.reset();
+    });
+
+    it("aborts request without marking node as unhealthy", async function () {
+      const controller = new AbortController();
+
+      // First request fails immediately
+      this.mockAxios
+        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
+        .reply(500, JSON.stringify({ message: "Server Error" }), {
+          "content-type": "application/json",
+        });
+
+      // Second request has a delay to allow for abort
+      this.mockAxios
+        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
+        .reply(
+          200,
+          JSON.stringify({ message: "Success" }),
+          {
+            "content-type": "application/json",
+          },
+          { delay: 100 },
+        );
+
+      // Abort immediately
+      controller.abort();
+
+      await expect(
+        this.apiCall.get("/", {}, { abortSignal: controller.signal }),
+      ).to.eventually.be.rejectedWith("Request aborted by caller.");
+
+      // Reset mocks for next request
+      this.mockAxios.reset();
+
+      // Next request should succeed
+      this.mockAxios
+        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
+        .reply(200, JSON.stringify({ message: "Success" }), {
+          "content-type": "application/json",
+        });
+
+      await this.apiCall.get("/");
+
+      const requestHistory = this.mockAxios.history.get;
+      expect(requestHistory.length).to.equal(1);
+      expect(requestHistory[0].url).to.equal("http://node1:7108/");
+    });
+
+    it("keeps track of healthy nodes when some requests are aborted", async function () {
+      const controller = new AbortController();
+
+      // First node fails
+      this.mockAxios
+        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[0]))
+        .reply(500, JSON.stringify({ message: "Server Error" }), {
+          "content-type": "application/json",
+        });
+
+      // Second node has a delayed response that will be aborted
+      this.mockAxios
+        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
+        .reply(
+          200,
+          JSON.stringify({ message: "Success" }),
+          {
+            "content-type": "application/json",
+          },
+          { delay: 100 },
+        ); // Add delay to ensure abort happens first
+
+      // Abort immediately after first request fails
+      controller.abort();
+
+      await expect(
+        this.apiCall.get("/", {}, { abortSignal: controller.signal }),
+      ).to.eventually.be.rejectedWith("Request aborted by caller.");
+
+      // Set up response for next request to second node
+      this.mockAxios.reset();
+      this.mockAxios
+        .onAny(this.apiCall.uriFor("/", this.typesense.configuration.nodes[1]))
+        .reply(200, JSON.stringify({ message: "Success" }), {
+          "content-type": "application/json",
+        });
+
+      await this.apiCall.get("/");
+
+      const requestHistory = this.mockAxios.history.get;
+      expect(requestHistory.length).to.equal(1);
+      expect(requestHistory[0].url).to.equal("http://node1:7108/");
     });
   });
 });

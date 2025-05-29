@@ -28,7 +28,7 @@ Note: `@babel/runtime` is very a common dependency among many JS libraries. So i
 or via jsDelivr
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/typesense@1/dist/typesense.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/typesense@2/dist/typesense.min.js"></script>
 ```
 
 ## Usage
@@ -70,6 +70,8 @@ This table refers to server=>client compatibility. Newer versions of the client 
 
 | Typesense Server | typesense-js |
 |------------------|--------------|
+| \>= v27.0.rc20   | \>= v2.0.0   |
+| \>= v0.26.0.rc38 | \>= v1.8.0   |
 | \>= v0.25.0      | \>= v1.7.0   |
 | \>= v0.24.0      | \>= v1.5.0   |
 | \>= v0.23.0      | \>= v1.3.0   |

@@ -1,14 +1,22 @@
 import ApiCall from "./ApiCall";
 export interface AnalyticsRuleCreateSchema {
-    type: "popular_queries";
+    type: "popular_queries" | "nohits_queries" | "counter" | "log";
     params: {
+        enable_auto_aggregation?: boolean;
         source: {
             collections: string[];
+            events?: Array<{
+                type: string;
+                weight?: number;
+                name: string;
+            }>;
         };
-        destination: {
+        expand_query?: boolean;
+        destination?: {
             collection: string;
+            counter_field?: string;
         };
-        limit: number;
+        limit?: number;
     };
 }
 export interface AnalyticsRuleDeleteSchema {
