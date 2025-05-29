@@ -28,7 +28,7 @@ export type ExtractBaseTypes<T> = {
     [K in keyof T]: K extends UnionArrayKeys<T> ? T[K] extends (infer U)[] | infer U ? U : T[K] : T[K];
 };
 export declare const arrayableParams: ArraybleParams;
-export interface SearchParams<TDoc extends DocumentSchema, Infix extends string> {
+export interface SearchParams<TDoc extends DocumentSchema, Infix extends string = string> {
     q?: "*" | (string & {});
     query_by?: string | string[];
     query_by_weights?: string | number[];

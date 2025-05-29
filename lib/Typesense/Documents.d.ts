@@ -68,11 +68,13 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
         parent?: Record<string, string | number | boolean>;
     }[];
     field_name: keyof T;
+    sampled: boolean;
     stats: {
         avg?: number;
         max?: number;
         min?: number;
         sum?: number;
+        total_values?: number;
     };
 }
 export interface SearchResponse<T extends DocumentSchema> {
