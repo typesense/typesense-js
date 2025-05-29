@@ -95,7 +95,7 @@ export const arrayableParams: ArraybleParams = {
 
 export interface SearchParams<
   TDoc extends DocumentSchema,
-  Infix extends string,
+  Infix extends string = string,
 > {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
   // eslint-disable-next-line @typescript-eslint/ban-types -- Can't use `object` here, it needs to intersect with `{}`
