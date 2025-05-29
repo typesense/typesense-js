@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { Client } from "../src/Typesense";
+import { Client } from "../src";
 import type { CollectionCreateSchema } from "../src/Typesense/Collections";
 import { ObjectAlreadyExists } from "../src/Typesense/Errors";
 import { essays } from "./essays";

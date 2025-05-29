@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
+import { Client as TypesenseClient } from "../../src/index";
 import ApiCall from "../../src/Typesense/ApiCall";
 import axios from "axios";
 import MockAxiosAdapter from "axios-mock-adapter";
@@ -42,14 +42,14 @@ describe("Document", function () {
         .onGet(
           apiCall.uriFor(
             "/collections/companies/documents/124",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           null,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify(documentResult), {
           "content-type": "application/json",
@@ -71,14 +71,14 @@ describe("Document", function () {
         .onPatch(
           apiCall.uriFor(
             "/collections/companies/documents/124",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           partialDocument,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply((config) => {
           expect(config.params.dirty_values).to.equal("coerce_or_reject");
@@ -103,14 +103,14 @@ describe("Document", function () {
         .onDelete(
           apiCall.uriFor(
             "/collections/companies/documents/124",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           null,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply(200, JSON.stringify(documentResult), {
           "content-type": "application/json",

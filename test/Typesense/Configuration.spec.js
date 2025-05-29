@@ -1,5 +1,5 @@
 import chai from "chai";
-import { Client as TypesenseClient } from "../../src/Typesense";
+import { Client as TypesenseClient } from "../../src/index";
 import { MissingConfigurationError } from "../../src/Typesense/Errors";
 
 let expect = chai.expect;
@@ -106,7 +106,7 @@ describe("Configuration", function () {
         randomizeNodes: false,
       });
       expect(typesense.configuration.nodes[0].url).to.equal(
-        "https://example.net/"
+        "https://example.net/",
       );
     }).to.not.throw(MissingConfigurationError);
 

@@ -1,6 +1,6 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { Client as TypesenseClient } from "../../src/Typesense";
+import { Client as TypesenseClient } from "../../src/index";
 import ApiCall from "../../src/Typesense/ApiCall";
 import axios from "axios";
 import MockAxiosAdapter from "axios-mock-adapter";
@@ -34,14 +34,14 @@ describe("Operations", function () {
         .onPost(
           apiCall.uriFor(
             "/operations/snapshot",
-            typesense.configuration.nodes[0]
+            typesense.configuration.nodes[0],
           ),
           undefined,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          }
+          },
         )
         .reply((config) => {
           expect(config.params.snapshot_path).to.equal("/tmp/dbsnap");
