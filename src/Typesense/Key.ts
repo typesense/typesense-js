@@ -2,7 +2,7 @@ import ApiCall from "./ApiCall";
 import Keys from "./Keys";
 
 export interface KeyCreateSchema {
-  actions: Actions[];
+  actions: Actions[] | (string & {})[];
   collections: string[];
   description?: string;
   value?: string;
