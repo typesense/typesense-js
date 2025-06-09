@@ -92,6 +92,7 @@ export interface SearchParams<TDoc extends DocumentSchema, Infix extends string 
     limit?: number;
     stopwords?: string;
     conversation?: boolean;
+    validate_field_names?: boolean;
     conversation_stream?: boolean;
     conversation_model_id?: string;
     conversation_id?: string;
