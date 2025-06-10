@@ -9,5 +9,5 @@ export default class SearchClient {
     private readonly individualCollections;
     constructor(options: ConfigurationOptions);
     clearCache(): void;
-    collections<TDocumentSchema extends DocumentSchema>(collectionName: string): SearchOnlyCollection<TDocumentSchema> | SearchOnlyCollection<TDocumentSchema>;
+    collections<TDocumentSchema extends DocumentSchema>(collectionName: string): SearchOnlyCollection<TDocumentSchema>;
 }
