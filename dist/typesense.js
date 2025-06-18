@@ -3745,20 +3745,11 @@ var MultiSearch = /*#__PURE__*/function () {
   }, {
     key: "perform",
     value: function () {
-      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee(searchRequests, commonParams) {
-        var _ref,
-          _ref$cacheSearchResul,
-          cacheSearchResultsForSeconds,
-          params,
-          normalizedSearchRequests,
-          streamConfig,
-          paramsWithoutStream,
-          normalizedQueryParams,
-          _args = arguments;
+      var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee(searchRequests, commonParams, options) {
+        var params, normalizedSearchRequests, streamConfig, paramsWithoutStream, normalizedQueryParams;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              _ref = _args.length > 2 && _args[2] !== undefined ? _args[2] : {}, _ref$cacheSearchResul = _ref.cacheSearchResultsForSeconds, cacheSearchResultsForSeconds = _ref$cacheSearchResul === void 0 ? this.configuration.cacheSearchResultsForSeconds : _ref$cacheSearchResul;
               params = commonParams ? _objectSpread({}, commonParams) : {};
               if (this.configuration.useServerSideSearchCache === true) {
                 params.use_cache = true;
@@ -3777,17 +3768,18 @@ var MultiSearch = /*#__PURE__*/function () {
                   "content-type": "text/plain"
                 } : {},
                 streamConfig: streamConfig,
+                abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal,
                 isStreamingRequest: this.isStreamingRequest(params)
               }, {
-                cacheResponseForSeconds: cacheSearchResultsForSeconds
+                cacheResponseForSeconds: options === null || options === void 0 ? void 0 : options.cacheSearchResultsForSeconds
               }));
-            case 7:
+            case 6:
             case "end":
               return _context.stop();
           }
         }, _callee, this);
       }));
-      function perform(_x, _x2) {
+      function perform(_x, _x2, _x3) {
         return _perform.apply(this, arguments);
       }
       return perform;
