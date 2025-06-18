@@ -1,9 +1,10 @@
-import ApiCall from "./ApiCall";
-import Configuration from "./Configuration";
+import type ApiCall from "./ApiCall";
+import type Configuration from "./Configuration";
 import RequestWithCache from "./RequestWithCache";
-import {
+import type {
   DocumentSchema,
   ExtractBaseTypes,
+  SearchOptions,
   SearchParams,
   SearchResponse,
 } from "./Documents";
@@ -41,7 +42,7 @@ export default class MultiSearch {
   >(
     searchRequests: MultiSearchRequestsWithUnionSchema<T[number], Infix>,
     commonParams?: MultiSearchUnionParameters<T[number], Infix>,
-    options?: { cacheSearchResultsForSeconds?: number },
+    options?: SearchOptions,
   ): Promise<UnionSearchResponse<T[number]>>;
 
   async perform<
@@ -50,7 +51,7 @@ export default class MultiSearch {
   >(
     searchRequests: MultiSearchRequestsWithoutUnionSchema<T[number], Infix>,
     commonParams?: MultiSearchResultsParameters<T, Infix>,
-    options?: { cacheSearchResultsForSeconds?: number },
+    options?: SearchOptions,
   ): Promise<{
     results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
       length: T["length"];
@@ -65,10 +66,7 @@ export default class MultiSearch {
     commonParams?:
       | MultiSearchUnionParameters<T[number], Infix>
       | MultiSearchResultsParameters<T, Infix>,
-    {
-      cacheSearchResultsForSeconds = this.configuration
-        .cacheSearchResultsForSeconds,
-    }: { cacheSearchResultsForSeconds?: number } = {},
+    options?: SearchOptions,
   ): Promise<MultiSearchResponse<T, Infix>> {
     const params = commonParams ? { ...commonParams } : {};
 
@@ -105,9 +103,10 @@ export default class MultiSearch {
           ? { "content-type": "text/plain" }
           : {},
         streamConfig,
+        abortSignal: options?.abortSignal,
         isStreamingRequest: this.isStreamingRequest(params),
       },
-      { cacheResponseForSeconds: cacheSearchResultsForSeconds },
+      { cacheResponseForSeconds: options?.cacheSearchResultsForSeconds },
     );
   }
 
