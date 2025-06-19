@@ -20,6 +20,8 @@ import Stopword from "./Stopword";
 import Conversations from "./Conversations";
 import Conversation from "./Conversation";
 import Stemming from "./Stemming";
+import NLSearchModels from "./NLSearchModels";
+import NLSearchModel from "./NLSearchModel";
 export default class Client {
     configuration: Configuration;
     apiCall: ApiCall;
@@ -43,6 +45,8 @@ export default class Client {
     private readonly individualStopwords;
     private readonly _conversations;
     private readonly individualConversations;
+    private readonly _nlSearchModels;
+    private readonly individualNLSearchModels;
     constructor(options: ConfigurationOptions);
     collections(): Collections;
     collections<T extends Record<string, any> = object>(collectionName: string): Collection<T>;
@@ -56,4 +60,6 @@ export default class Client {
     stopwords(id: string): Stopword;
     conversations(): Conversations;
     conversations(id: string): Conversation;
+    nlSearchModels(): NLSearchModels;
+    nlSearchModels(id: string): NLSearchModel;
 }

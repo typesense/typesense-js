@@ -22,6 +22,8 @@ import Stopword from "./Stopword";
 import Conversations from "./Conversations";
 import Conversation from "./Conversation";
 import Stemming from "./Stemming";
+import NLSearchModels from "./NLSearchModels";
+import NLSearchModel from "./NLSearchModel";
 
 export default class Client {
   configuration: Configuration;
@@ -46,6 +48,8 @@ export default class Client {
   private readonly individualStopwords: Record<string, Stopword>;
   private readonly _conversations: Conversations;
   private readonly individualConversations: Record<string, Conversation>;
+  private readonly _nlSearchModels: NLSearchModels;
+  private readonly individualNLSearchModels: Record<string, NLSearchModel>;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false;
@@ -72,6 +76,8 @@ export default class Client {
     this.stemming = new Stemming(this.apiCall);
     this._conversations = new Conversations(this.apiCall);
     this.individualConversations = {};
+    this._nlSearchModels = new NLSearchModels(this.apiCall);
+    this.individualNLSearchModels = {};
   }
 
   collections(): Collections;
@@ -155,6 +161,19 @@ export default class Client {
         this.individualConversations[id] = new Conversation(id, this.apiCall);
       }
       return this.individualConversations[id];
+    }
+  }
+
+  nlSearchModels(): NLSearchModels;
+  nlSearchModels(id: string): NLSearchModel;
+  nlSearchModels(id?: string): NLSearchModels | NLSearchModel {
+    if (id === undefined) {
+      return this._nlSearchModels;
+    } else {
+      if (this.individualNLSearchModels[id] === undefined) {
+        this.individualNLSearchModels[id] = new NLSearchModel(id, this.apiCall);
+      }
+      return this.individualNLSearchModels[id];
     }
   }
 }
