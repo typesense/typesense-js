@@ -1,8 +1,8 @@
 import ApiCall from "./ApiCall";
 import NLSearchModels from "./NLSearchModels";
-import { NLSearchModelCreateSchema } from "./NLSearchModels";
+import type { NLSearchModelBase, NLSearchModelSchema } from "./NLSearchModels";
 
-export type NLSearchModelUpdateSchema = Partial<Omit<NLSearchModelCreateSchema, "id">>;
+type NLSearchModelUpdateSchema = NLSearchModelBase;
 
 export interface NLSearchModelDeleteSchema {
   id: string;
@@ -14,12 +14,14 @@ export default class NLSearchModel {
     private apiCall: ApiCall,
   ) {}
 
-  async retrieve(): Promise<any> {
-    return this.apiCall.get<any>(this.endpointPath());
+  async retrieve(): Promise<NLSearchModelSchema> {
+    return this.apiCall.get<NLSearchModelSchema>(this.endpointPath());
   }
 
-  async update(schema: NLSearchModelUpdateSchema): Promise<any> {
-    return this.apiCall.put<any>(this.endpointPath(), schema);
+  async update(
+    schema: NLSearchModelUpdateSchema,
+  ): Promise<NLSearchModelSchema> {
+    return this.apiCall.put<NLSearchModelSchema>(this.endpointPath(), schema);
   }
 
   async delete(): Promise<NLSearchModelDeleteSchema> {
@@ -30,3 +32,4 @@ export default class NLSearchModel {
     return `${NLSearchModels.RESOURCEPATH}/${encodeURIComponent(this.id)}`;
   }
 }
+

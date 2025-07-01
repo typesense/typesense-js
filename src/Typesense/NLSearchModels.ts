@@ -3,7 +3,7 @@ import ApiCall from "./ApiCall";
 const RESOURCEPATH = "/nl_search_models";
 
 // Base schema with all possible fields
-interface NLSearchModelBase {
+export interface NLSearchModelBase {
   model_name: string;
   api_key?: string;
   api_url?: string;
@@ -40,7 +40,9 @@ export type NLSearchModelsRetrieveSchema = NLSearchModelSchema[];
 export default class NLSearchModels {
   constructor(private apiCall: ApiCall) {}
 
-  async create(schema: NLSearchModelCreateSchema): Promise<NLSearchModelSchema> {
+  async create(
+    schema: NLSearchModelCreateSchema,
+  ): Promise<NLSearchModelSchema> {
     return this.apiCall.post<NLSearchModelSchema>(this.endpointPath(), schema);
   }
 
@@ -56,3 +58,4 @@ export default class NLSearchModels {
     return RESOURCEPATH;
   }
 }
+
