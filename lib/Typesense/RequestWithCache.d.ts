@@ -5,7 +5,7 @@ export default class RequestWithCache {
     private responseCache;
     private responsePromiseCache;
     clearCache(): void;
-    perform<const TContext extends HttpClient, const TMethod extends keyof HttpClient, const TDoc extends DocumentSchema[], TResult>(requestContext: TContext, methodName: TMethod, requestParams: RequestParams<TDoc>, cacheOptions: CacheOptions): Promise<TResult>;
+    perform<const TContext extends HttpClient, const TMethod extends keyof HttpClient, const TDoc extends DocumentSchema[], TResult>(requestContext: TContext, methodName: TMethod, requestParams: RequestParams<TDoc>, cacheOptions: CacheOptions | undefined): Promise<TResult>;
     private executeRequest;
 }
 interface CacheOptions {

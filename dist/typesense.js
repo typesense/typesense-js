@@ -3788,9 +3788,9 @@ var MultiSearch = /*#__PURE__*/function () {
                 streamConfig: streamConfig,
                 abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal,
                 isStreamingRequest: this.isStreamingRequest(params)
-              }, {
-                cacheResponseForSeconds: options === null || options === void 0 ? void 0 : options.cacheSearchResultsForSeconds
-              }));
+              }, (options === null || options === void 0 ? void 0 : options.cacheSearchResultsForSeconds) !== undefined ? {
+                cacheResponseForSeconds: options.cacheSearchResultsForSeconds
+              } : undefined));
             case 6:
             case "end":
               return _context.stop();
@@ -4434,12 +4434,12 @@ var RequestWithCache = /*#__PURE__*/function () {
     key: "perform",
     value: function () {
       var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(requestContext, methodName, requestParams, cacheOptions) {
-        var _cacheOptions$cacheRe, cacheResponseForSeconds, _cacheOptions$maxSize, maxSize, isCacheDisabled, path, queryParams, body, headers, streamConfig, abortSignal, responseType, isStreamingRequest, requestParamsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry;
+        var _ref, _ref$cacheResponseFor, cacheResponseForSeconds, _ref$maxSize, maxSize, isCacheDisabled, path, queryParams, body, headers, streamConfig, abortSignal, responseType, isStreamingRequest, requestParamsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              _cacheOptions$cacheRe = cacheOptions.cacheResponseForSeconds, cacheResponseForSeconds = _cacheOptions$cacheRe === void 0 ? defaultCacheResponseForSeconds : _cacheOptions$cacheRe, _cacheOptions$maxSize = cacheOptions.maxSize, maxSize = _cacheOptions$maxSize === void 0 ? defaultMaxSize : _cacheOptions$maxSize;
-              isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0;
+              _ref = cacheOptions || {}, _ref$cacheResponseFor = _ref.cacheResponseForSeconds, cacheResponseForSeconds = _ref$cacheResponseFor === void 0 ? defaultCacheResponseForSeconds : _ref$cacheResponseFor, _ref$maxSize = _ref.maxSize, maxSize = _ref$maxSize === void 0 ? defaultMaxSize : _ref$maxSize;
+              isCacheDisabled = cacheOptions === undefined || cacheResponseForSeconds <= 0 || maxSize <= 0;
               path = requestParams.path, queryParams = requestParams.queryParams, body = requestParams.body, headers = requestParams.headers, streamConfig = requestParams.streamConfig, abortSignal = requestParams.abortSignal, responseType = requestParams.responseType, isStreamingRequest = requestParams.isStreamingRequest;
               if (!isCacheDisabled) {
                 _context.next = 5;

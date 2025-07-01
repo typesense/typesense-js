@@ -1,5 +1,5 @@
 import ApiCall from "./ApiCall";
-interface NLSearchModelBase {
+export interface NLSearchModelBase {
     model_name: string;
     api_key?: string;
     api_url?: string;
@@ -34,4 +34,3 @@ export default class NLSearchModels {
     private endpointPath;
     static get RESOURCEPATH(): string;
 }
-export {};
