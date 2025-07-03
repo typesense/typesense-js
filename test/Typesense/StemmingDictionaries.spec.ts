@@ -1,16 +1,12 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
+import { describe, it, expect, beforeEach } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
 import axios from "axios";
 import MockAxiosAdapter from "axios-mock-adapter";
 
-let expect = chai.expect;
-chai.use(chaiAsPromised);
-
-describe("StemmingDictionary", function () {
+describe("StemmingDictionaries", function () {
   let typesense;
-  let stemmingDictionary;
+  let stemmingDictionaries;
   let apiCall;
   let mockAxios;
 
@@ -26,39 +22,33 @@ describe("StemmingDictionary", function () {
       apiKey: "abcd",
       randomizeNodes: false,
     });
-    stemmingDictionary = typesense.stemming.dictionaries("set1");
+    stemmingDictionaries = typesense.stemming.dictionaries();
     apiCall = new ApiCall(typesense.configuration);
     mockAxios = new MockAxiosAdapter(axios);
   });
 
   describe(".retrieve", function () {
-    it("retrieves the dictionary", function (done) {
+    it("retrieves all stemming dictionaries", async function () {
       mockAxios
         .onGet(
           apiCall.uriFor(
-            "/stemming/dictionaries/set1",
+            "/stemming/dictionaries",
             typesense.configuration.nodes[0],
           ),
-          null,
+          undefined,
           {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json",
             "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
           },
         )
-        .reply(200, {
-          id: "set1",
-          words: [{ word: "people", root: "person" }],
-        });
+        .reply(200, { dictionaries: ["set1", "set2"] });
 
-      let returnData = stemmingDictionary.retrieve();
+      const returnData = await stemmingDictionaries.retrieve();
 
-      expect(returnData)
-        .to.eventually.deep.equal({
-          id: "set1",
-          words: [{ word: "people", root: "person" }],
-        })
-        .notify(done);
+      expect(returnData).toEqual({
+        dictionaries: ["set1", "set2"],
+      });
     });
   });
 });
