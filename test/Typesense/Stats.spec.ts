@@ -1,17 +1,14 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
+import { describe, it, expect, beforeEach } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
 import axios from "axios";
 import MockAxiosAdapter from "axios-mock-adapter";
 
-let expect = chai.expect;
-chai.use(chaiAsPromised);
-
 describe("Stats", function () {
   let mockAxios;
   let typesense;
   let apiCall;
+
   beforeEach(function () {
     mockAxios = new MockAxiosAdapter(axios);
     typesense = new TypesenseClient({
@@ -29,7 +26,7 @@ describe("Stats", function () {
   });
 
   describe(".retrieve", function () {
-    it("retrieves stats", function (done) {
+    it("retrieves stats", async function () {
       mockAxios
         .onGet(
           apiCall.uriFor("/stats.json", typesense.configuration.nodes[0]),
@@ -42,9 +39,9 @@ describe("Stats", function () {
         )
         .reply(200, "{}", { "content-type": "application/json" });
 
-      let returnData = typesense.stats.retrieve();
+      const returnData = await typesense.stats.retrieve();
 
-      expect(returnData).to.eventually.deep.equal({}).notify(done);
+      expect(returnData).toEqual({});
     });
   });
 });
