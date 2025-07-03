@@ -59,7 +59,7 @@ export interface SearchResponseHit<T extends DocumentSchema> {
         score: `${number}`;
         tokens_matched: number;
     };
-    geo_distance_meters: {
+    geo_distance_meters?: {
         location: number
     };
 }
