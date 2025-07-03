@@ -1,12 +1,11 @@
-import { describe } from "node:test";
+import { describe, it, expect } from "vitest";
 import { normalizeArrayableParams } from "../../src/Typesense/Utils";
-import chai from "chai";
+import { DocumentSchema, SearchParams } from "../../src/Typesense/Documents";
 
-let expect = chai.expect;
 describe("Utils", function () {
   describe("normalizeArrayableParams", function () {
     it("converts only arrayable params to strings", function () {
-      const params = {
+      const params: SearchParams<DocumentSchema, string> = {
         q: "search query",
         query_by: ["title", "description", "tags"],
         query_by_weights: [2, 1, 1],
@@ -73,7 +72,7 @@ describe("Utils", function () {
         voice_query: "what is the weather like",
       };
 
-      expect(normalizeArrayableParams(params)).to.deep.equal({
+      expect(normalizeArrayableParams(params)).toEqual({
         q: "search query",
         query_by: "title,description,tags",
         query_by_weights: "2,1,1",
@@ -140,8 +139,9 @@ describe("Utils", function () {
         voice_query: "what is the weather like",
       });
     });
+
     it("doesn't convert already stringified arrayable params", function () {
-      const params = {
+      const params: SearchParams<DocumentSchema, string> = {
         q: "search query",
         // Comma-separated
         query_by: "title,description,tags",
@@ -216,7 +216,7 @@ describe("Utils", function () {
         voice_query: "what is the weather like",
       };
 
-      expect(normalizeArrayableParams(params)).to.deep.equal({
+      expect(normalizeArrayableParams(params)).toEqual({
         q: "search query",
         query_by: "title,description,tags",
         query_by_weights: "2,1,1",
