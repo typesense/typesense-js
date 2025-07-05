@@ -106,7 +106,9 @@ export default class MultiSearch {
         abortSignal: options?.abortSignal,
         isStreamingRequest: this.isStreamingRequest(params),
       },
-      { cacheResponseForSeconds: options?.cacheSearchResultsForSeconds },
+      options?.cacheSearchResultsForSeconds !== undefined
+        ? { cacheResponseForSeconds: options.cacheSearchResultsForSeconds }
+        : undefined,
     );
   }
 

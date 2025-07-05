@@ -35,13 +35,16 @@ export default class RequestWithCache {
     requestContext: TContext,
     methodName: TMethod,
     requestParams: RequestParams<TDoc>,
-    cacheOptions: CacheOptions,
+    cacheOptions: CacheOptions | undefined,
   ): Promise<TResult> {
     const {
       cacheResponseForSeconds = defaultCacheResponseForSeconds,
       maxSize = defaultMaxSize,
-    } = cacheOptions;
-    const isCacheDisabled = cacheResponseForSeconds <= 0 || maxSize <= 0;
+    } = cacheOptions || {};
+    const isCacheDisabled =
+      cacheOptions === undefined ||
+      cacheResponseForSeconds <= 0 ||
+      maxSize <= 0;
 
     const {
       path,
