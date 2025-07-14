@@ -5,20 +5,38 @@ on: [push, pull_request]
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    services:
+      typesense:
+        image: typesense/typesense:29.0
+        ports:
+          - 8108:8108
+        volumes:
+          - /tmp/typesense-data:/data
+          - /tmp/typesense-analytics:/analytics
+        env:
+          TYPESENSE_API_KEY: xyz
+          TYPESENSE_DATA_DIR: /data
+          TYPESENSE_ENABLE_CORS: true
+          TYPESENSE_ANALYTICS_DIR: /analytics
+          TYPESENSE_ENABLE_SEARCH_ANALYTICS: true
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npm run ci-lint
-      - run: npm run ci-test
-      - run: npm run test:vitest
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage/
-          retention-days: 1
+    - name: Wait for Typesense
+      run: |
+        timeout 20 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8108/health)" != "200" ]]; do sleep 1; done' || false
+
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: lts/*
+        cache: npm
+    - run: npm ci
+    - run: npm run build
+    - run: npm run ci-lint
+    - run: npm run test
+    - uses: actions/upload-artifact@v4
+      with:
+        name: coverage
+        path: coverage/
+        retention-days: 1
 

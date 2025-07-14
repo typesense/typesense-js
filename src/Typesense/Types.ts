@@ -132,6 +132,10 @@ export interface SearchParams<
   highlight_end_tag?: string; // default: </mark>
   enable_highlight_v1?: boolean;
   snippet_threshold?: number; // default: 30
+  nl_query?: boolean;
+  nl_model_id?: string;
+  nl_query_debug?: boolean;
+  nl_query_prompt_cache_ttl?: number;
   num_typos?: string | number | number[]; // default: 2
   min_len_1typo?: number;
   min_len_2typo?: number;

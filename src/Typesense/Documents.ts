@@ -81,6 +81,9 @@ export interface SearchResponseHit<T extends DocumentSchema> {
     score: `${number}`; // To prevent scores from being truncated by JSON spec
     tokens_matched: number;
   };
+  geo_distance_meters?: {
+    location: number
+  };
 }
 
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
@@ -101,6 +104,12 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
   };
 }
 
+interface LLMResponse {
+  content: string;
+  extraction_method: string;
+  model: string;
+}
+
 // Todo: we could infer whether this is a grouped response by adding the search params as a generic
 export interface SearchResponse<T extends DocumentSchema> {
   facet_counts?: SearchResponseFacetCountSchema<T>[];
@@ -117,6 +126,12 @@ export interface SearchResponse<T extends DocumentSchema> {
     hits: SearchResponseHit<T>[];
     found?: number;
   }[];
+  parsed_nl_query?: {
+    parse_time_ms: number;
+    generated_params: SearchParams<T>;
+    augmented_params: SearchParams<T>;
+    llm_response?: LLMResponse;
+  };
   conversation?: {
     answer: string;
     conversation_history: {

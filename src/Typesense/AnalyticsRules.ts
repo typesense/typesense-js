@@ -18,8 +18,8 @@ export default class AnalyticsRules {
   async upsert(
     name: string,
     params: AnalyticsRuleCreateSchema
-  ): Promise<AnalyticsRuleCreateSchema> {
-    return this.apiCall.put<AnalyticsRuleCreateSchema>(
+  ): Promise<AnalyticsRuleSchema> {
+    return this.apiCall.put<AnalyticsRuleSchema>(
       this.endpointPath(name),
       params
     );
