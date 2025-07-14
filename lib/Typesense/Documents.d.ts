@@ -60,7 +60,7 @@ export interface SearchResponseHit<T extends DocumentSchema> {
         tokens_matched: number;
     };
     geo_distance_meters?: {
-        location: number
+        location: number;
     };
 }
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
@@ -80,6 +80,11 @@ export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
         total_values?: number;
     };
 }
+interface LLMResponse {
+    content: string;
+    extraction_method: string;
+    model: string;
+}
 export interface SearchResponse<T extends DocumentSchema> {
     facet_counts?: SearchResponseFacetCountSchema<T>[];
     found: number;
@@ -95,6 +100,12 @@ export interface SearchResponse<T extends DocumentSchema> {
         hits: SearchResponseHit<T>[];
         found?: number;
     }[];
+    parsed_nl_query?: {
+        parse_time_ms: number;
+        generated_params: SearchParams<T>;
+        augmented_params: SearchParams<T>;
+        llm_response?: LLMResponse;
+    };
     conversation?: {
         answer: string;
         conversation_history: {

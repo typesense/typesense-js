@@ -6,6 +6,12 @@ export interface ConversationModelCreateSchema {
     system_prompt?: string;
     max_bytes: number;
     history_collection?: string;
+    account_id?: string;
+    url?: string;
+    ttl?: number;
+    vllm_url?: string;
+    openai_url?: string;
+    openai_path?: string;
 }
 export interface ConversationModelDeleteSchema {
     id: string;

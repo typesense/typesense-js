@@ -62,6 +62,10 @@ export interface SearchParams<TDoc extends DocumentSchema, Infix extends string 
     highlight_end_tag?: string;
     enable_highlight_v1?: boolean;
     snippet_threshold?: number;
+    nl_query?: boolean;
+    nl_model_id?: string;
+    nl_query_debug?: boolean;
+    nl_query_prompt_cache_ttl?: number;
     num_typos?: string | number | number[];
     min_len_1typo?: number;
     min_len_2typo?: number;
