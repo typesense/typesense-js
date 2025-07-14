@@ -88,7 +88,7 @@ This table refers to server=>client compatibility. Newer versions of the client 
 
 ## Development
 
-After checking out the repo, run `npm install` to install dependencies. Then run `npm test` to run the linter and tests.
+After checking out the repo, run `npm install` to install dependencies. Then run `npm run test:local` to run the linter and tests.
 
 To release a new version, we use the [np](https://github.com/sindresorhus/np) package:
 
