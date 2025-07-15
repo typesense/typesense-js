@@ -161,7 +161,7 @@ export interface SearchParams<
     | OperationMode[]
     | OperationMode;
   preset?: string;
-  text_match_type?: "max_score" | "max_weight";
+  text_match_type?: "max_score" | "max_weight" | "sum_score";
   vector_query?: string;
   "x-typesense-api-key"?: string;
   "x-typesense-user-id"?: string;
