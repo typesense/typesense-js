@@ -11,20 +11,29 @@ export type DeleteQuery = {
     filter_by?: string;
     batch_size?: number;
     ignore_not_found?: boolean;
+    return_doc?: boolean;
+    return_id?: boolean;
 };
-export interface DeleteResponse {
+export interface DeleteResponse<T extends DocumentSchema = DocumentSchema> {
     num_deleted: number;
+    documents?: T[];
+    ids?: string[];
 }
-interface ImportResponseSuccess {
+interface ImportResponseSuccess<T extends DocumentSchema = DocumentSchema> {
     success: true;
+    error?: never;
+    document?: T;
+    id?: string;
+    code?: never;
 }
-export interface ImportResponseFail {
+export interface ImportResponseFail<T extends DocumentSchema = DocumentSchema> {
     success: false;
     error: string;
-    document: DocumentSchema;
+    document?: T;
+    id?: string;
     code: number;
 }
-export type ImportResponse = ImportResponseSuccess | ImportResponseFail;
+export type ImportResponse<T extends DocumentSchema = DocumentSchema> = ImportResponseSuccess<T> | ImportResponseFail<T>;
 export type DocumentSchema = Record<string, any>;
 export interface SearchParamsWithPreset<T extends DocumentSchema, Infix extends string> extends Partial<SearchParams<T, Infix>> {
     preset: string;
@@ -137,6 +146,7 @@ export interface DocumentImportParameters extends DocumentWriteParameters {
     remote_embedding_num_tries?: number;
     return_doc?: boolean;
     return_id?: boolean;
+    throwOnFail?: boolean;
 }
 export interface DocumentsExportParameters {
     filter_by?: string;
@@ -153,8 +163,8 @@ export default class Documents<T extends DocumentSchema = object> extends Search
     upsert(document: T, options?: DocumentWriteParameters): Promise<T>;
     update(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
     update(document: T, options: DocumentWriteParameters): Promise<T>;
-    delete(query?: DeleteQuery): Promise<DeleteResponse>;
-    createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
+    delete(query?: DeleteQuery): Promise<DeleteResponse<T>>;
+    createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
     /**
      * Import a set of documents in a batch.
      * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
@@ -162,11 +172,11 @@ export default class Documents<T extends DocumentSchema = object> extends Search
      * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
      */
     import(documents: string, options?: DocumentImportParameters): Promise<string>;
-    import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse[]>;
+    import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
     /**
      * Imports documents from a NodeJS readable stream of JSONL.
      */
-    importStream(readableStream: ReadStream, options?: DocumentImportParameters): Promise<ImportResponse[]>;
+    importStream(readableStream: ReadStream, options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
     /**
      * Returns a JSONL string for all the documents in this collection
      */

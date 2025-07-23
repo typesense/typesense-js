@@ -2605,16 +2605,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Documents)
 /* harmony export */ });
-/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
-/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js");
-/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js");
-/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/esm/inherits.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _Errors__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Errors */ "./src/Typesense/Errors/index.ts");
-/* harmony import */ var _SearchOnlyDocuments__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./SearchOnlyDocuments */ "./src/Typesense/SearchOnlyDocuments.ts");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/possibleConstructorReturn */ "./node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js");
+/* harmony import */ var _babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime/helpers/getPrototypeOf */ "./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js");
+/* harmony import */ var _babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @babel/runtime/helpers/inherits */ "./node_modules/@babel/runtime/helpers/esm/inherits.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _Errors__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Errors */ "./src/Typesense/Errors/index.ts");
+/* harmony import */ var _SearchOnlyDocuments__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SearchOnlyDocuments */ "./src/Typesense/SearchOnlyDocuments.ts");
 
 
 
@@ -2622,7 +2623,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function _callSuper(t, o, e) { return o = (0,_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_4__["default"])(o), (0,_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_3__["default"])(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], (0,_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_4__["default"])(t).constructor) : o.apply(t, e)); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+
+function _callSuper(t, o, e) { return o = (0,_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5__["default"])(o), (0,_babel_runtime_helpers_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_4__["default"])(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], (0,_babel_runtime_helpers_getPrototypeOf__WEBPACK_IMPORTED_MODULE_5__["default"])(t).constructor) : o.apply(t, e)); }
 function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
 
 
@@ -2633,18 +2637,18 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 
 var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
 var Documents = /*#__PURE__*/function (_ref) {
-  (0,_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_5__["default"])(Documents, _ref);
+  (0,_babel_runtime_helpers_inherits__WEBPACK_IMPORTED_MODULE_6__["default"])(Documents, _ref);
   function Documents(collectionName, apiCall, configuration) {
-    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Documents);
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_2__["default"])(this, Documents);
     return _callSuper(this, Documents, [collectionName, apiCall, configuration]);
   }
-  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(Documents, [{
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_3__["default"])(Documents, [{
     key: "create",
     value: function () {
-      var _create = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee(document) {
+      var _create = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee(document) {
         var options,
           _args = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee$(_context) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               options = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
@@ -2669,10 +2673,10 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "upsert",
     value: function () {
-      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee2(document) {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee2(document) {
         var options,
           _args2 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee2$(_context2) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               options = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
@@ -2699,10 +2703,10 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "update",
     value: function () {
-      var _update = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee3(document) {
+      var _update = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee3(document) {
         var options,
           _args3 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee3$(_context3) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
               options = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
@@ -2735,10 +2739,10 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "delete",
     value: function () {
-      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee4() {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee4() {
         var query,
           _args4 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee4$(_context4) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
               query = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : {};
@@ -2757,10 +2761,10 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "createMany",
     value: function () {
-      var _createMany = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee5(documents) {
+      var _createMany = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee5(documents) {
         var options,
           _args5 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee5$(_context5) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee5$(_context5) {
           while (1) switch (_context5.prev = _context5.next) {
             case 0:
               options = _args5.length > 1 && _args5[1] !== undefined ? _args5[1] : {};
@@ -2786,57 +2790,62 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "import",
     value: function () {
-      var _import2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee6(documents) {
+      var _import2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee6(documents) {
         var options,
+          finalOptions,
           documentsInJSONLFormat,
           resultsInJSONLFormat,
           resultsInJSONFormat,
           failedItems,
           _args6 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee6$(_context6) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee6$(_context6) {
           while (1) switch (_context6.prev = _context6.next) {
             case 0:
               options = _args6.length > 1 && _args6[1] !== undefined ? _args6[1] : {};
+              // Set default value for throwOnFail if not provided
+              finalOptions = _objectSpread({
+                throwOnFail: true
+              }, options);
               if (!Array.isArray(documents)) {
-                _context6.next = 15;
+                _context6.next = 16;
                 break;
               }
               if (!(documents.length === 0)) {
-                _context6.next = 4;
+                _context6.next = 5;
                 break;
               }
-              throw new _Errors__WEBPACK_IMPORTED_MODULE_7__.RequestMalformed("No documents provided");
-            case 4:
-              _context6.prev = 4;
+              throw new _Errors__WEBPACK_IMPORTED_MODULE_8__.RequestMalformed("No documents provided");
+            case 5:
+              _context6.prev = 5;
               documentsInJSONLFormat = documents.map(function (document) {
                 return JSON.stringify(document);
               }).join("\n");
-              _context6.next = 13;
+              _context6.next = 14;
               break;
-            case 8:
-              _context6.prev = 8;
-              _context6.t0 = _context6["catch"](4);
+            case 9:
+              _context6.prev = 9;
+              _context6.t0 = _context6["catch"](5);
               if (!(_context6.t0 instanceof RangeError && _context6.t0.message.includes("Too many properties to enumerate"))) {
-                _context6.next = 12;
+                _context6.next = 13;
                 break;
               }
               throw new Error("".concat(_context6.t0, "\n          It looks like you have reached a Node.js limit that restricts the number of keys in an Object: https://stackoverflow.com/questions/9282869/are-there-limits-to-the-number-of-properties-in-a-javascript-object\n\n         Please try reducing the number of keys in your document, or using CURL to import your data.\n          "));
-            case 12:
-              throw new Error(_context6.t0);
             case 13:
-              _context6.next = 18;
+              throw new Error(_context6.t0);
+            case 14:
+              _context6.next = 19;
               break;
-            case 15:
+            case 16:
               documentsInJSONLFormat = documents;
               if (!isEmptyString(documentsInJSONLFormat)) {
-                _context6.next = 18;
+                _context6.next = 19;
                 break;
               }
-              throw new _Errors__WEBPACK_IMPORTED_MODULE_7__.RequestMalformed("No documents provided");
-            case 18:
-              _context6.next = 20;
+              throw new _Errors__WEBPACK_IMPORTED_MODULE_8__.RequestMalformed("No documents provided");
+            case 19:
+              _context6.next = 21;
               return this.apiCall.performRequest("post", this.endpointPath("import"), {
-                queryParameters: options,
+                queryParameters: finalOptions,
                 bodyParameters: documentsInJSONLFormat,
                 additionalHeaders: {
                   "Content-Type": "text/plain"
@@ -2845,10 +2854,10 @@ var Documents = /*#__PURE__*/function (_ref) {
                 // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
                 enableKeepAlive: isNodeJSEnvironment ? true : false // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
               });
-            case 20:
+            case 21:
               resultsInJSONLFormat = _context6.sent;
               if (!Array.isArray(documents)) {
-                _context6.next = 31;
+                _context6.next = 32;
                 break;
               }
               resultsInJSONFormat = resultsInJSONLFormat.split("\n").map(function (r) {
@@ -2857,28 +2866,28 @@ var Documents = /*#__PURE__*/function (_ref) {
               failedItems = resultsInJSONFormat.filter(function (r) {
                 return r.success === false;
               });
-              if (!(failedItems.length > 0)) {
-                _context6.next = 28;
+              if (!(failedItems.length > 0 && finalOptions.throwOnFail)) {
+                _context6.next = 29;
                 break;
               }
-              throw new _Errors__WEBPACK_IMPORTED_MODULE_7__.ImportError("".concat(resultsInJSONFormat.length - failedItems.length, " documents imported successfully, ").concat(failedItems.length, " documents failed during import. Use `error.importResults` from the raised exception to get a detailed error reason for each document."), resultsInJSONFormat, {
+              throw new _Errors__WEBPACK_IMPORTED_MODULE_8__.ImportError("".concat(resultsInJSONFormat.length - failedItems.length, " documents imported successfully, ").concat(failedItems.length, " documents failed during import. Use `error.importResults` from the raised exception to get a detailed error reason for each document."), resultsInJSONFormat, {
                 documentsInJSONLFormat: documentsInJSONLFormat,
-                options: options,
+                options: finalOptions,
                 failedItems: failedItems,
                 successCount: resultsInJSONFormat.length - failedItems.length
               });
-            case 28:
-              return _context6.abrupt("return", resultsInJSONFormat);
             case 29:
-              _context6.next = 32;
+              return _context6.abrupt("return", resultsInJSONFormat);
+            case 30:
+              _context6.next = 33;
               break;
-            case 31:
-              return _context6.abrupt("return", resultsInJSONLFormat);
             case 32:
+              return _context6.abrupt("return", resultsInJSONLFormat);
+            case 33:
             case "end":
               return _context6.stop();
           }
-        }, _callee6, this, [[4, 8]]);
+        }, _callee6, this, [[5, 9]]);
       }));
       function _import(_x5) {
         return _import2.apply(this, arguments);
@@ -2891,19 +2900,23 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "importStream",
     value: (function () {
-      var _importStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee7(readableStream) {
+      var _importStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee7(readableStream) {
         var options,
+          finalOptions,
           resultsInJSONLFormat,
           resultsInJSONFormat,
           failedItems,
           _args7 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee7$(_context7) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee7$(_context7) {
           while (1) switch (_context7.prev = _context7.next) {
             case 0:
               options = _args7.length > 1 && _args7[1] !== undefined ? _args7[1] : {};
-              _context7.next = 3;
+              finalOptions = _objectSpread({
+                throwOnFail: true
+              }, options);
+              _context7.next = 4;
               return this.apiCall.performRequest("post", this.endpointPath("import"), {
-                queryParameters: options,
+                queryParameters: finalOptions,
                 bodyParameters: readableStream,
                 additionalHeaders: {
                   "Content-Type": "text/plain"
@@ -2912,7 +2925,7 @@ var Documents = /*#__PURE__*/function (_ref) {
                 // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
                 enableKeepAlive: isNodeJSEnvironment ? true : false // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
               });
-            case 3:
+            case 4:
               resultsInJSONLFormat = _context7.sent;
               resultsInJSONFormat = resultsInJSONLFormat.split("\n").map(function (r) {
                 return JSON.parse(r);
@@ -2920,19 +2933,19 @@ var Documents = /*#__PURE__*/function (_ref) {
               failedItems = resultsInJSONFormat.filter(function (r) {
                 return r.success === false;
               });
-              if (!(failedItems.length > 0)) {
-                _context7.next = 10;
+              if (!(failedItems.length > 0 && finalOptions.throwOnFail)) {
+                _context7.next = 11;
                 break;
               }
-              throw new _Errors__WEBPACK_IMPORTED_MODULE_7__.ImportError("".concat(resultsInJSONFormat.length - failedItems.length, " documents imported successfully, ").concat(failedItems.length, " documents failed during import. Use `error.importResults` from the raised exception to get a detailed error reason for each document."), resultsInJSONFormat, {
+              throw new _Errors__WEBPACK_IMPORTED_MODULE_8__.ImportError("".concat(resultsInJSONFormat.length - failedItems.length, " documents imported successfully, ").concat(failedItems.length, " documents failed during import. Use `error.importResults` from the raised exception to get a detailed error reason for each document."), resultsInJSONFormat, {
                 documentsInJSONLFormat: readableStream,
-                options: options,
+                options: finalOptions,
                 failedItems: failedItems,
                 successCount: resultsInJSONFormat.length - failedItems.length
               });
-            case 10:
-              return _context7.abrupt("return", resultsInJSONFormat);
             case 11:
+              return _context7.abrupt("return", resultsInJSONFormat);
+            case 12:
             case "end":
               return _context7.stop();
           }
@@ -2950,10 +2963,10 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "export",
     value: (function () {
-      var _export2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee8() {
+      var _export2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee8() {
         var options,
           _args8 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee8$(_context8) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee8$(_context8) {
           while (1) switch (_context8.prev = _context8.next) {
             case 0:
               options = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : {};
@@ -2976,10 +2989,10 @@ var Documents = /*#__PURE__*/function (_ref) {
   }, {
     key: "exportStream",
     value: (function () {
-      var _exportStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee9() {
+      var _exportStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee9() {
         var options,
           _args9 = arguments;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function _callee9$(_context9) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function _callee9$(_context9) {
           while (1) switch (_context9.prev = _context9.next) {
             case 0:
               options = _args9.length > 0 && _args9[0] !== undefined ? _args9[0] : {};
@@ -2999,7 +3012,7 @@ var Documents = /*#__PURE__*/function (_ref) {
     }())
   }]);
   return Documents;
-}(_SearchOnlyDocuments__WEBPACK_IMPORTED_MODULE_8__.SearchOnlyDocuments);
+}(_SearchOnlyDocuments__WEBPACK_IMPORTED_MODULE_9__.SearchOnlyDocuments);
 
 function isEmptyString(str) {
   return str == null || str === "" || str.length === 0;
