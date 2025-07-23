@@ -29,18 +29,23 @@ export interface DeleteResponse<T extends DocumentSchema = DocumentSchema> {
   ids?: string[];
 }
 
-interface ImportResponseSuccess {
+interface ImportResponseSuccess<T extends DocumentSchema = DocumentSchema> {
   success: true;
+  error?: never;
+  document?: T;
+  id?: string;
+  code?: never;
 }
 
-export interface ImportResponseFail {
+export interface ImportResponseFail<T extends DocumentSchema = DocumentSchema> {
   success: false;
   error: string;
-  document: DocumentSchema;
+  document?: T;
+  id?: string;
   code: number;
 }
 
-export type ImportResponse = ImportResponseSuccess | ImportResponseFail;
+export type ImportResponse<T extends DocumentSchema = DocumentSchema> = ImportResponseSuccess<T> | ImportResponseFail<T>;
 
 export type DocumentSchema = Record<string, any>;
 
@@ -171,6 +176,7 @@ export interface DocumentImportParameters extends DocumentWriteParameters {
   remote_embedding_num_tries?: number;
   return_doc?: boolean;
   return_id?: boolean;
+  throwOnFail?: boolean;
 }
 
 export interface DocumentsExportParameters {
@@ -267,11 +273,13 @@ export default class Documents<T extends DocumentSchema = object>
   async import(
     documents: T[],
     options?: DocumentImportParameters,
-  ): Promise<ImportResponse[]>;
+  ): Promise<ImportResponse<T>[]>;
   async import(
     documents: T[] | string,
     options: DocumentImportParameters = {},
-  ): Promise<string | ImportResponse[]> {
+  ): Promise<string | ImportResponse<T>[]> {
+    // Set default value for throwOnFail if not provided
+    const finalOptions = { throwOnFail: true, ...options };
     let documentsInJSONLFormat;
     if (Array.isArray(documents)) {
       if (documents.length === 0) {
@@ -308,7 +316,7 @@ export default class Documents<T extends DocumentSchema = object>
       "post",
       this.endpointPath("import"),
       {
-        queryParameters: options,
+        queryParameters: finalOptions,
         bodyParameters: documentsInJSONLFormat,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
@@ -319,11 +327,11 @@ export default class Documents<T extends DocumentSchema = object>
     if (Array.isArray(documents)) {
       const resultsInJSONFormat = resultsInJSONLFormat
         .split("\n")
-        .map((r) => JSON.parse(r)) as ImportResponse[];
+        .map((r) => JSON.parse(r)) as ImportResponse<T>[];
       const failedItems = resultsInJSONFormat.filter(
         (r) => r.success === false,
       );
-      if (failedItems.length > 0) {
+      if (failedItems.length > 0 && finalOptions.throwOnFail) {
         throw new ImportError(
           `${
             resultsInJSONFormat.length - failedItems.length
@@ -333,7 +341,7 @@ export default class Documents<T extends DocumentSchema = object>
           resultsInJSONFormat,
           {
             documentsInJSONLFormat,
-            options,
+            options: finalOptions,
             failedItems,
             successCount: resultsInJSONFormat.length - failedItems.length,
           },
@@ -351,12 +359,14 @@ export default class Documents<T extends DocumentSchema = object>
   async importStream(
     readableStream: ReadStream,
     options: DocumentImportParameters = {},
-  ): Promise<ImportResponse[]> {
+  ): Promise<ImportResponse<T>[]> {
+    const finalOptions = { throwOnFail: true, ...options };
+    
     const resultsInJSONLFormat = await this.apiCall.performRequest<string>(
       "post",
       this.endpointPath("import"),
       {
-        queryParameters: options,
+        queryParameters: finalOptions,
         bodyParameters: readableStream,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
@@ -366,9 +376,9 @@ export default class Documents<T extends DocumentSchema = object>
 
     const resultsInJSONFormat = resultsInJSONLFormat
       .split("\n")
-      .map((r) => JSON.parse(r)) as ImportResponse[];
+      .map((r) => JSON.parse(r)) as ImportResponse<T>[];
     const failedItems = resultsInJSONFormat.filter((r) => r.success === false);
-    if (failedItems.length > 0) {
+    if (failedItems.length > 0 && finalOptions.throwOnFail) {
       throw new ImportError(
         `${
           resultsInJSONFormat.length - failedItems.length
@@ -378,7 +388,7 @@ export default class Documents<T extends DocumentSchema = object>
         resultsInJSONFormat,
         {
           documentsInJSONLFormat: readableStream,
-          options,
+          options: finalOptions,
           failedItems,
           successCount: resultsInJSONFormat.length - failedItems.length,
         },

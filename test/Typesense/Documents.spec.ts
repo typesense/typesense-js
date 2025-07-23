@@ -303,6 +303,51 @@ describe("Documents", function () {
       expect(importResult).toBeDefined();
       expect(typeof importResult).toBe("string");
     });
+
+    it("throws ImportError by default when some documents fail", async function () {
+      const validDocument = { ...documentData, id: "valid-1" };
+      const invalidDocument = { 
+        id: "invalid-1", 
+        // Missing required field 'company_name'
+        num_employees: 100,
+        country: "USA" 
+      };
+
+      await expect(
+        typesense
+          .collections<typeof documentData>(testCollectionName)
+          .documents()
+          // @ts-expect-error - invalid document
+          .import([validDocument, invalidDocument])
+      ).rejects.toThrow("1 documents imported successfully, 1 documents failed during import");
+    });
+
+    it("does not throw and returns results when throwOnFail is false", async function () {
+      const validDocument = { ...documentData, id: "valid-2" };
+      const invalidDocument = { 
+        id: "invalid-2", 
+        // Missing required field 'company_name'
+        num_employees: 200,
+        country: "USA" 
+      };
+
+      const importResult = await typesense
+        .collections<typeof documentData>(testCollectionName)
+        .documents()
+        // @ts-expect-error - invalid document
+        .import([validDocument, invalidDocument], { throwOnFail: false });
+
+      expect(importResult).toBeDefined();
+      expect(Array.isArray(importResult)).toBe(true);
+      expect(importResult.length).toBe(2);
+
+      // First document should succeed
+      expect(importResult[0].success).toBe(true);
+      
+      // Second document should fail  
+      expect(importResult[1].success).toBe(false);
+      expect((importResult[1]).error).toBeDefined();
+    });
   });
 
   describe(".export", function () {
