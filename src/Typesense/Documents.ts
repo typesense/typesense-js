@@ -19,10 +19,14 @@ export type DeleteQuery =
       filter_by?: string;
       batch_size?: number;
       ignore_not_found?: boolean;
+      return_doc?: boolean;
+      return_id?: boolean;
     };
 
-export interface DeleteResponse {
+export interface DeleteResponse<T extends DocumentSchema = DocumentSchema> {
   num_deleted: number;
+  documents?: T[];
+  ids?: string[];
 }
 
 interface ImportResponseSuccess {
@@ -239,8 +243,8 @@ export default class Documents<T extends DocumentSchema = object>
 
   async delete(
     query: DeleteQuery = {} as DeleteQuery,
-  ): Promise<DeleteResponse> {
-    return this.apiCall.delete<DeleteResponse>(this.endpointPath(), query);
+  ): Promise<DeleteResponse<T>> {
+    return this.apiCall.delete<DeleteResponse<T>>(this.endpointPath(), query);
   }
 
   async createMany(documents: T[], options: DocumentImportParameters = {}) {
