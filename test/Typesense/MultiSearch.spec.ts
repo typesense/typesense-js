@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import { ObjectNotFound } from "../../src/Typesense/Errors";
+import logger from "loglevel";
 
 type MultiSearchResult = {
   title: string;
@@ -9,6 +10,14 @@ type MultiSearchResult = {
 };
 
 describe("MultiSearch", function () {
+  const mockConsole = {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    log: vi.fn(),
+    debug: vi.fn(),
+  };
+
   const typesense = new TypesenseClient({
     nodes: [
       {
@@ -45,6 +54,18 @@ describe("MultiSearch", function () {
   ];
 
   beforeEach(async function () {
+    // Setup console mocking
+    vi.spyOn(console, "error").mockImplementation(mockConsole.error);
+    vi.spyOn(console, "warn").mockImplementation(mockConsole.warn);
+    vi.spyOn(console, "info").mockImplementation(mockConsole.info);
+    vi.spyOn(console, "log").mockImplementation(mockConsole.log);
+    vi.spyOn(console, "debug").mockImplementation(mockConsole.debug);
+
+    typesense.multiSearch.logger.setLevel(logger.levels.INFO);
+
+    // Clear any previous mock calls
+    vi.clearAllMocks();
+
     try {
       await typesense.collections(testCollectionName).delete();
     } catch (error) {
@@ -217,6 +238,60 @@ describe("MultiSearch", function () {
 
       expect(result.results[0].hits?.length).toBe(0);
       expect(result.results[1].hits?.length).toBe(0);
+    });
+
+    it("warns when individual search pagination is used with union: true", async function () {
+      const searches = {
+        union: true as const,
+        searches: [
+          { q: "first", query_by: "title", page: 1 },
+          { q: "second", query_by: "title", per_page: 10 },
+        ],
+      };
+      const commonParams = {
+        collection: testCollectionName,
+      };
+
+      await typesense.multiSearch.perform(searches, commonParams);
+
+      expect(mockConsole.warn).toHaveBeenCalledWith(
+        "Individual `searches` pagination parameters are ignored when `union: true` is set. Use a top-level pagination parameter instead. See https://typesense.org/docs/29.0/api/federated-multi-search.html#union-search"
+      );
+    });
+
+    it("does not warn when union: true is used without individual search pagination", async function () {
+      const searches = {
+        union: true as const,
+        searches: [
+          { q: "first", query_by: "title" },
+          { q: "second", query_by: "title" },
+        ],
+      };
+      const commonParams = {
+        collection: testCollectionName,
+        page: 1, // top-level pagination is fine
+      };
+
+      await typesense.multiSearch.perform(searches, commonParams);
+
+      expect(mockConsole.warn).not.toHaveBeenCalled();
+    });
+
+    it("does not warn when union is false with individual search pagination", async function () {
+      const searches = {
+        union: false as const,
+        searches: [
+          { q: "first", query_by: "title", page: 1 },
+          { q: "second", query_by: "title", per_page: 10 },
+        ],
+      };
+      const commonParams = {
+        collection: testCollectionName,
+      };
+
+      await typesense.multiSearch.perform(searches, commonParams);
+
+      expect(mockConsole.warn).not.toHaveBeenCalled();
     });
   });
 });
