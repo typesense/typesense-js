@@ -103,7 +103,7 @@ export default class ApiCall implements HttpClient {
   private readonly numRetriesPerRequest: number;
   private readonly additionalUserHeaders?: Record<string, string>;
 
-  private readonly logger: Logger;
+  readonly logger: Logger;
   private currentNodeIndex: number;
 
   constructor(private configuration: Configuration) {
