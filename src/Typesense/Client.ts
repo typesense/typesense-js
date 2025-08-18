@@ -24,6 +24,8 @@ import Conversation from "./Conversation";
 import Stemming from "./Stemming";
 import NLSearchModels from "./NLSearchModels";
 import NLSearchModel from "./NLSearchModel";
+import SynonymSets from "./SynonymSets";
+import SynonymSet from "./SynonymSet";
 
 export default class Client {
   configuration: Configuration;
@@ -50,6 +52,8 @@ export default class Client {
   private readonly individualConversations: Record<string, Conversation>;
   private readonly _nlSearchModels: NLSearchModels;
   private readonly individualNLSearchModels: Record<string, NLSearchModel>;
+  private readonly _synonymSets: SynonymSets;
+  private readonly individualSynonymSets: Record<string, SynonymSet>;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false;
@@ -78,6 +82,8 @@ export default class Client {
     this.individualConversations = {};
     this._nlSearchModels = new NLSearchModels(this.apiCall);
     this.individualNLSearchModels = {};
+    this._synonymSets = new SynonymSets(this.apiCall);
+    this.individualSynonymSets = {};
   }
 
   collections(): Collections;
@@ -174,6 +180,22 @@ export default class Client {
         this.individualNLSearchModels[id] = new NLSearchModel(id, this.apiCall);
       }
       return this.individualNLSearchModels[id];
+    }
+  }
+
+  synonymSets(): SynonymSets;
+  synonymSets(synonymSetName: string): SynonymSet;
+  synonymSets(synonymSetName?: string): SynonymSets | SynonymSet {
+    if (synonymSetName === undefined) {
+      return this._synonymSets;
+    } else {
+      if (this.individualSynonymSets[synonymSetName] === undefined) {
+        this.individualSynonymSets[synonymSetName] = new SynonymSet(
+          synonymSetName,
+          this.apiCall,
+        );
+      }
+      return this.individualSynonymSets[synonymSetName];
     }
   }
 }
