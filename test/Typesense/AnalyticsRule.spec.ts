@@ -5,20 +5,21 @@ import {
   ObjectAlreadyExists,
 } from "../../src/Typesense/Errors";
 import { AnalyticsRuleCreateSchema } from "../../src/Typesense/AnalyticsRule";
+import { isV30OrAbove } from "../utils";
 
-describe("AnalyticsRule", function () {
-  const typesense = new TypesenseClient({
-    nodes: [
-      {
-        host: "localhost",
-        port: 8108,
-        protocol: "http",
-      },
-    ],
-    apiKey: "xyz",
-    connectionTimeoutSeconds: 180,
-  });
+const typesense = new TypesenseClient({
+  nodes: [
+    {
+      host: "localhost",
+      port: 8108,
+      protocol: "http",
+    },
+  ],
+  apiKey: "xyz",
+  connectionTimeoutSeconds: 180,
+});
 
+describe.skipIf(await isV30OrAbove(typesense))("AnalyticsRule", function () {
   const testRuleName = "test_analytics_rule";
   const testRuleData = {
     type: "popular_queries",
