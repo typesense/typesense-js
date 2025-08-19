@@ -1,7 +1,7 @@
 import ApiCall from "./ApiCall";
 
 export interface SynonymItemSchema {
-  id: string;
+  id?: string;
   synonyms: string[];
   root?: string;
   locale?: string;
