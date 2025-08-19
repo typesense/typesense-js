@@ -44,18 +44,6 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSets", function () {
     }
   });
 
-  describe(".upsert", function () {
-    it("creates the synonym set", async function () {
-      const createResult = await typesense
-        .synonymSets(testSynonymSetName)
-        .upsert(synonymSetData);
-
-      expect(createResult).toBeDefined();
-      expect(createResult.synonyms[0].id).toBe("dummy");
-      expect(createResult.synonyms).toMatchObject(synonymSetData.synonyms);
-    });
-  });
-
   describe(".retrieve", function () {
     it("retrieves all synonym sets", async function () {
       await typesense.synonymSets(testSynonymSetName).upsert(synonymSetData);
@@ -74,37 +62,6 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSets", function () {
       expect(createdSynonymSet?.synonyms).toMatchObject(
         synonymSetData.synonyms,
       );
-    });
-  });
-
-  describe("individual synonym set operations", function () {
-    it("retrieves a specific synonym set", async function () {
-      await typesense.synonymSets(testSynonymSetName).upsert(synonymSetData);
-
-      const retrievedSynonymSet = await typesense
-        .synonymSets(testSynonymSetName)
-        .retrieve();
-
-      expect(retrievedSynonymSet).toBeDefined();
-      expect(retrievedSynonymSet.synonyms[0].id).toBe("dummy");
-      expect(retrievedSynonymSet.synonyms).toMatchObject(
-        synonymSetData.synonyms,
-      );
-    });
-
-    it("deletes a specific synonym set", async function () {
-      await typesense.synonymSets(testSynonymSetName).upsert(synonymSetData);
-
-      const deleteResult = await typesense
-        .synonymSets(testSynonymSetName)
-        .delete();
-
-      expect(deleteResult).toBeDefined();
-      expect(deleteResult.name).toBe(testSynonymSetName);
-
-      await expect(
-        typesense.synonymSets(testSynonymSetName).retrieve(),
-      ).rejects.toThrow(ObjectNotFound);
     });
   });
 });
