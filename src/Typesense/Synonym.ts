@@ -10,7 +10,11 @@ export interface SynonymDeleteSchema {
   id: string;
 }
 
+/**
+ * @deprecated Deprecated starting with Typesense Server v30. Please migrate to `client.synonymSets` (new Synonym Sets APIs).
+ */
 export default class Synonym {
+  private static hasWarnedDeprecation = false;
   constructor(
     private collectionName: string,
     private synonymId: string,
@@ -26,6 +30,13 @@ export default class Synonym {
   }
 
   private endpointPath(): string {
+    if (!Synonym.hasWarnedDeprecation) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[typesense] 'synonym' APIs are deprecated starting with Typesense Server v30. Please migrate to synonym sets 'synonym_sets'.",
+      );
+      Synonym.hasWarnedDeprecation = true;
+    }
     return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${Synonyms.RESOURCEPATH}/${encodeURIComponent(this.synonymId)}`;
   }
 }

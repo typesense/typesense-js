@@ -15,7 +15,11 @@ export interface SynonymsRetrieveSchema {
   synonyms: SynonymSchema[];
 }
 
+/**
+ * @deprecated Deprecated starting with Typesense Server v30. Please migrate to `client.synonymSets` (new Synonym Sets APIs).
+ */
 export default class Synonyms {
+  private static hasWarnedDeprecation = false;
   constructor(private collectionName: string, private apiCall: ApiCall) {}
 
   async upsert(
@@ -33,6 +37,13 @@ export default class Synonyms {
   }
 
   private endpointPath(operation?: string) {
+    if (!Synonyms.hasWarnedDeprecation) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[typesense] 'synonyms' APIs are deprecated starting with Typesense Server v30. Please migrate to synonym sets ('synonym_sets').",
+      );
+      Synonyms.hasWarnedDeprecation = true;
+    }
     return `${Collections.RESOURCEPATH}/${encodeURIComponent(this.collectionName)}${
       Synonyms.RESOURCEPATH
     }${operation === undefined ? "" : "/" + encodeURIComponent(operation)}`;

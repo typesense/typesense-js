@@ -115,6 +115,10 @@ describe("AnalyticsEvents", async function () {
 
   describe(".create", function () {
     it("shouldn't create an event for a non-existing name", async function () {
+      let errorMessage = "Request failed with HTTP code 404 | Server said: Rule not found";
+      if (!(await isV30OrAbove(typesense))) {
+        errorMessage = "Request failed with HTTP code 400 | Server said: No analytics rule defined for event name non-existing-event";
+      }
       await expect(
         analyticsEvents.create({
           name: "non-existing-event",
@@ -125,7 +129,7 @@ describe("AnalyticsEvents", async function () {
           },
         }),
       ).rejects.toThrow(
-        "Request failed with HTTP code 404 | Server said: Rule not found",
+        errorMessage,
       );
     });
 

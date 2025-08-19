@@ -5,7 +5,11 @@ import AnalyticsEvents from "./AnalyticsEvents";
 
 const RESOURCEPATH = "/analytics";
 
+/**
+ * @deprecated Deprecated starting with Typesense Server v30. Please migrate to `client.analytics` (new Analytics APIs).
+ */
 export default class AnalyticsV1 {
+  private static hasWarnedDeprecation = false;
   private readonly _analyticsRules: AnalyticsRulesV1;
   private readonly individualAnalyticsRules: Record<string, AnalyticsRuleV1> = {};
   private readonly _analyticsEvents: AnalyticsEvents;
@@ -19,6 +23,13 @@ export default class AnalyticsV1 {
   rules(): AnalyticsRulesV1;
   rules(id: string): AnalyticsRuleV1;
   rules(id?: string): AnalyticsRulesV1 | AnalyticsRuleV1 {
+    if (!AnalyticsV1.hasWarnedDeprecation) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[typesense] 'analyticsV1' is deprecated starting with Typesense Server v30 and will be removed in a future release. Please use 'analytics' instead.",
+      );
+      AnalyticsV1.hasWarnedDeprecation = true;
+    }
     if (id === undefined) {
       return this._analyticsRules;
     } else {
