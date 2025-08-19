@@ -1,20 +1,21 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import { ObjectNotFound } from "../../src/Typesense/Errors";
+import { isV30OrAbove } from "../utils";
 
-describe("AnalyticsEvents", function () {
-  const typesense = new TypesenseClient({
-    nodes: [
-      {
-        host: "localhost",
-        port: 8108,
-        protocol: "http",
-      },
-    ],
-    apiKey: "xyz",
-    connectionTimeoutSeconds: 180,
-  });
+const typesense = new TypesenseClient({
+  nodes: [
+    {
+      host: "localhost",
+      port: 8108,
+      protocol: "http",
+    },
+  ],
+  apiKey: "xyz",
+  connectionTimeoutSeconds: 180,
+});
 
+describe.skipIf(await isV30OrAbove(typesense))("AnalyticsEvents", function () {
   const analyticsEvents = typesense.analytics.events();
 
   beforeAll(async function () {

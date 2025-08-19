@@ -90,6 +90,7 @@ export const arrayableParams: ArraybleParams = {
   override_tags: "override_tags",
   num_typos: "num_typos",
   prefix: "prefix",
+  synonym_sets: "synonym_sets",
   sort_by: "sort_by",
 };
 
@@ -145,6 +146,7 @@ export interface SearchParams<
   drop_tokens_mode?: DropTokensMode;
   typo_tokens_threshold?: number; // default: 100
   pinned_hits?: string | string[];
+  synonym_sets?: string[] | string;
   hidden_hits?: string | string[];
   limit_hits?: number; // default: no limit
   pre_segmented_query?: boolean;
