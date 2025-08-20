@@ -1,0 +1,1 @@
+{"version":3,"file":"SynonymSets.js","sourceRoot":"","sources":["../../src/Typesense/SynonymSets.ts"],"names":[],"mappings":";;;AAsBA;IACE,qBAAoB,OAAgB;QAAhB,YAAO,GAAP,OAAO,CAAS;IAAG,CAAC;IAGlC,8BAAQ,GAAd;;;gBACE,sBAAO,IAAI,CAAC,OAAO,CAAC,GAAG,CAAqB,WAAW,CAAC,YAAY,CAAC,EAAC;;;KACvE;IAJe,wBAAY,GAAG,eAAe,CAAC;IAKjD,kBAAC;CAAA,AAPD,IAOC;kBAPoB,WAAW"}
