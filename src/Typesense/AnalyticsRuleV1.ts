@@ -7,11 +7,11 @@ export interface AnalyticsRuleCreateSchemaV1 {
     enable_auto_aggregation?: boolean;
     source: {
       collections: string[];
-      events?: Array<{
+      events?: {
         type: string;
         weight?: number;
         name: string;
-      }>;
+      }[];
     };
     expand_query?: boolean;
     destination?: {

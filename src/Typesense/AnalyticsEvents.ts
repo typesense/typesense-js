@@ -4,7 +4,7 @@ import { AnalyticsEventCreateSchema } from "./AnalyticsEvent";
 const RESOURCEPATH = "/analytics/events";
 
 export interface AnalyticsEventsRetrieveSchema {
-  events: Array<{
+  events: {
     name: string;
     event_type: string;
     collection: string;
@@ -13,7 +13,7 @@ export interface AnalyticsEventsRetrieveSchema {
     doc_id?: string;
     doc_ids?: string[];
     query?: string;
-  }>;
+  }[];
 }
 
 export default class AnalyticsEvents {
