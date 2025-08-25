@@ -4,7 +4,7 @@ import {
   ObjectNotFound,
   ObjectAlreadyExists,
 } from "../../src/Typesense/Errors";
-import { AnalyticsRuleCreateSchema } from "../../src/Typesense/AnalyticsRule";
+import { AnalyticsRuleCreateSchemaV1 } from "../../src/Typesense/AnalyticsRuleV1";
 import { isV30OrAbove } from "../utils";
 
 const typesense = new TypesenseClient({
@@ -19,7 +19,7 @@ const typesense = new TypesenseClient({
   connectionTimeoutSeconds: 180,
 });
 
-describe.skipIf(await isV30OrAbove(typesense))("AnalyticsRule", function () {
+describe.skipIf(await isV30OrAbove(typesense))("AnalyticsRuleV1", function () {
   const testRuleName = "test_analytics_rule";
   const testRuleData = {
     type: "popular_queries",
@@ -31,7 +31,7 @@ describe.skipIf(await isV30OrAbove(typesense))("AnalyticsRule", function () {
         collection: "top_queries",
       },
     },
-  } as const satisfies AnalyticsRuleCreateSchema;
+  } as const satisfies AnalyticsRuleCreateSchemaV1;
 
   let createdRuleNames: string[] = [];
 
@@ -60,7 +60,7 @@ describe.skipIf(await isV30OrAbove(typesense))("AnalyticsRule", function () {
   afterEach(async function () {
     for (const ruleName of createdRuleNames) {
       try {
-        await typesense.analytics.rules(ruleName).delete();
+        await typesense.analyticsV1.rules(ruleName).delete();
       } catch (error) {
         if (!(error instanceof ObjectNotFound)) {
           console.warn("Failed to cleanup test analytics rule:", error);
@@ -80,10 +80,10 @@ describe.skipIf(await isV30OrAbove(typesense))("AnalyticsRule", function () {
 
   describe(".retrieve", function () {
     it("retrieves the rule", async function () {
-      await typesense.analytics.rules().upsert(testRuleName, testRuleData);
+      await typesense.analyticsV1.rules().upsert(testRuleName, testRuleData);
       createdRuleNames.push(testRuleName);
 
-      const analyticsRule = typesense.analytics.rules(testRuleName);
+      const analyticsRule = typesense.analyticsV1.rules(testRuleName);
       const ruleData = await analyticsRule.retrieve();
 
       expect(ruleData).toBeDefined();
@@ -99,10 +99,10 @@ describe.skipIf(await isV30OrAbove(typesense))("AnalyticsRule", function () {
 
   describe(".delete", function () {
     it("deletes a rule", async function () {
-      await typesense.analytics.rules().upsert(testRuleName, testRuleData);
+      await typesense.analyticsV1.rules().upsert(testRuleName, testRuleData);
       createdRuleNames.push(testRuleName);
 
-      const analyticsRule = typesense.analytics.rules(testRuleName);
+      const analyticsRule = typesense.analyticsV1.rules(testRuleName);
       const deleteResponse = await analyticsRule.delete();
 
       expect(deleteResponse).toBeDefined();

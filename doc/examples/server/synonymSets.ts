@@ -17,7 +17,7 @@ async function synonymSetsExample(): Promise<void> {
     // Create a synonym set
     const synonymSet = await client.synonymSets().upsert({
       name: "foobar",
-      synonyms: [
+      items: [
         {
           id: "dummy",
           synonyms: ["foo", "bar", "baz"],

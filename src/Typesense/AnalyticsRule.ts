@@ -2,23 +2,36 @@ import ApiCall from "./ApiCall";
 import AnalyticsRules from "./AnalyticsRules";
 
 export interface AnalyticsRuleCreateSchema {
-  type: "popular_queries" | "nohits_queries" | "counter" | "log";
-  params: {
-    enable_auto_aggregation?: boolean;
-    source: {
-      collections: string[];
-      events?: Array<{
-        type: string;
-        weight?: number;
-        name: string;
-      }>;
-    };
-    expand_query?: boolean;
-    destination?: {
-      collection: string;
-      counter_field?: string;
-    };
+  name: string;
+  type: string;
+  collection: string;
+  event_type: string;
+  rule_tag?: string;
+  params?: {
+    destination_collection?: string;
     limit?: number;
+    capture_search_requests?: boolean;
+    meta_fields?: string[];
+    expand_query?: boolean;
+    counter_field?: string;
+    weight?: number;
+  };
+}
+
+export interface AnalyticsRuleUpsertSchema {
+  name?: string;
+  type?: string;
+  collection?: string;
+  event_type?: string;
+  rule_tag?: string;
+  params?: {
+    destination_collection?: string;
+    limit?: number;
+    capture_search_requests?: boolean;
+    meta_fields?: string[];
+    expand_query?: boolean;
+    counter_field?: string;
+    weight?: number;
   };
 }
 

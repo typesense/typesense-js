@@ -16,6 +16,7 @@ import Operations from "./Operations";
 import MultiSearch from "./MultiSearch";
 import Presets from "./Presets";
 import Preset from "./Preset";
+import AnalyticsV1 from "./AnalyticsV1";
 import Analytics from "./Analytics";
 import Stopwords from "./Stopwords";
 import Stopword from "./Stopword";
@@ -37,6 +38,7 @@ export default class Client {
   operations: Operations;
   multiSearch: MultiSearch;
   analytics: Analytics;
+  analyticsV1: AnalyticsV1;
   stemming: Stemming;
   private readonly _collections: Collections;
   private readonly individualCollections: Record<string, Collection>;
@@ -77,6 +79,7 @@ export default class Client {
     this._stopwords = new Stopwords(this.apiCall);
     this.individualStopwords = {};
     this.analytics = new Analytics(this.apiCall);
+    this.analyticsV1 = new AnalyticsV1(this.apiCall);
     this.stemming = new Stemming(this.apiCall);
     this._conversations = new Conversations(this.apiCall);
     this.individualConversations = {};
