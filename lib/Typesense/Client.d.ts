@@ -22,6 +22,8 @@ import Conversation from "./Conversation";
 import Stemming from "./Stemming";
 import NLSearchModels from "./NLSearchModels";
 import NLSearchModel from "./NLSearchModel";
+import SynonymSets from "./SynonymSets";
+import SynonymSet from "./SynonymSet";
 export default class Client {
     configuration: Configuration;
     apiCall: ApiCall;
@@ -47,6 +49,8 @@ export default class Client {
     private readonly individualConversations;
     private readonly _nlSearchModels;
     private readonly individualNLSearchModels;
+    private readonly _synonymSets;
+    private readonly individualSynonymSets;
     constructor(options: ConfigurationOptions);
     collections(): Collections;
     collections<T extends Record<string, any> = object>(collectionName: string): Collection<T>;
@@ -62,4 +66,6 @@ export default class Client {
     conversations(id: string): Conversation;
     nlSearchModels(): NLSearchModels;
     nlSearchModels(id: string): NLSearchModel;
+    synonymSets(): SynonymSets;
+    synonymSets(synonymSetName: string): SynonymSet;
 }

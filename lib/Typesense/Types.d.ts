@@ -75,6 +75,7 @@ export interface SearchParams<TDoc extends DocumentSchema, Infix extends string 
     drop_tokens_mode?: DropTokensMode;
     typo_tokens_threshold?: number;
     pinned_hits?: string | string[];
+    synonym_sets?: string[] | string;
     hidden_hits?: string | string[];
     limit_hits?: number;
     pre_segmented_query?: boolean;

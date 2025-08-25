@@ -10,6 +10,7 @@ export interface BaseCollectionCreateSchema {
     voice_query_model?: {
         model_name?: string;
     };
+    synonym_sets?: string[];
 }
 interface CollectionCreateSchemaWithSrc extends Pick<BaseCollectionCreateSchema, "name"> {
     fields?: CollectionFieldSchema[];
