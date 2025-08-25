@@ -105,7 +105,11 @@ describe("AnalyticsEvents", async function () {
     }
 
     try {
-      await typesense.analytics.rules("counter-rule").delete();
+      if (!(await isV30OrAbove(typesense))) {
+        await typesense.analyticsV1.rules("counter-rule").delete();
+      } else {
+        await typesense.analytics.rules("event_conversion").delete();
+      }
     } catch (error) {
       if (!(error instanceof ObjectNotFound)) {
         console.warn("Failed to cleanup analytics rule:", error);
@@ -115,7 +119,7 @@ describe("AnalyticsEvents", async function () {
 
   describe(".create", function () {
     it("shouldn't create an event for a non-existing name", async function () {
-      let errorMessage = "Request failed with HTTP code 404 | Server said: Rule not found";
+      let errorMessage = "Request failed with HTTP code 400 | Server said: Rule not found";
       if (!(await isV30OrAbove(typesense))) {
         errorMessage = "Request failed with HTTP code 400 | Server said: No analytics rule defined for event name non-existing-event";
       }

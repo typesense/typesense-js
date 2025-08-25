@@ -18,8 +18,9 @@ const typesense = new TypesenseClient({
 describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSet", function () {
   const testSynonymSetName = "test-synonym-set";
   const synonymSetData = {
-    synonyms: [
+    items: [
       {
+        id: "test-synonym-set-0",
         synonyms: ["foo", "bar", "baz"],
       },
     ],
@@ -50,8 +51,28 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSet", function () {
         .upsert(synonymSetData);
 
       expect(createResult).toBeDefined();
-      expect(createResult.synonyms[0].id).toBe("test-synonym-set-0");
-      expect(createResult.synonyms).toMatchObject(synonymSetData.synonyms);
+      expect(createResult.items[0].id).toBe("test-synonym-set-0");
+      expect(createResult.items).toMatchObject(synonymSetData.items);
+    });
+  });
+
+  describe(".items", function () {
+    it("upserts and retrieves individual items", async function () {
+      await typesense.synonymSets(testSynonymSetName).upsert(synonymSetData);
+
+      const item = await typesense
+        .synonymSets(testSynonymSetName)
+        .items()
+        .upsert("custom-item", { synonyms: ["alpha", "beta"] });
+
+      expect(item).toBeDefined();
+      expect(item.id).toBe("custom-item");
+
+      const retrieved = await typesense
+        .synonymSets(testSynonymSetName)
+        .items("custom-item")
+        .retrieve();
+      expect(retrieved.synonyms).toEqual(["alpha", "beta"]);
     });
   });
 
@@ -64,9 +85,9 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSet", function () {
         .retrieve();
 
       expect(retrievedSynonymSet).toBeDefined();
-      expect(retrievedSynonymSet.synonyms[0].id).toBe("test-synonym-set-0");
-      expect(retrievedSynonymSet.synonyms).toMatchObject(
-        synonymSetData.synonyms,
+      expect(retrievedSynonymSet.items[0].id).toBe("test-synonym-set-0");
+      expect(retrievedSynonymSet.items).toMatchObject(
+        synonymSetData.items,
       );
     });
   });
