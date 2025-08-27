@@ -18,11 +18,13 @@ import type {
   UnionSearchResponse,
   MultiSearchRequestsWithoutUnionSchema,
 } from "./Types";
+import { Logger } from "loglevel";
 
 const RESOURCEPATH = "/multi_search";
 
 export default class MultiSearch {
   private requestWithCache: RequestWithCache;
+  readonly logger: Logger;
 
   constructor(
     private apiCall: ApiCall,
@@ -30,6 +32,7 @@ export default class MultiSearch {
     private useTextContentType: boolean = false,
   ) {
     this.requestWithCache = new RequestWithCache();
+    this.logger = this.apiCall.logger;
   }
 
   clearCache() {
@@ -74,6 +77,12 @@ export default class MultiSearch {
       params.use_cache = true;
     }
 
+    if (searchRequests.union === true && this.hasAnySearchObjectPagination(searchRequests)) {
+      this.logger.warn(
+        "Individual `searches` pagination parameters are ignored when `union: true` is set. Use a top-level pagination parameter instead. See https://typesense.org/docs/29.0/api/federated-multi-search.html#union-search"
+      );
+    }
+
     const normalizedSearchRequests: Omit<typeof searchRequests, "searches"> & {
       searches: ExtractBaseTypes<SearchParams<T[number], Infix>>[];
     } = {
@@ -114,6 +123,10 @@ export default class MultiSearch {
 
   private isStreamingRequest(commonParams: { streamConfig?: unknown }) {
     return commonParams.streamConfig !== undefined;
+  }
+
+  private hasAnySearchObjectPagination(searchRequests: MultiSearchRequestsSchema<DocumentSchema, string>) {
+    return searchRequests.searches.some(search => search.page !== undefined || search.per_page !== undefined || search.offset !== undefined || search.limit !== undefined || search.limit_hits !== undefined);
   }
 }
 
