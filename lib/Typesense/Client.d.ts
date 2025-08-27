@@ -14,6 +14,7 @@ import Operations from "./Operations";
 import MultiSearch from "./MultiSearch";
 import Presets from "./Presets";
 import Preset from "./Preset";
+import AnalyticsV1 from "./AnalyticsV1";
 import Analytics from "./Analytics";
 import Stopwords from "./Stopwords";
 import Stopword from "./Stopword";
@@ -34,6 +35,7 @@ export default class Client {
     operations: Operations;
     multiSearch: MultiSearch;
     analytics: Analytics;
+    analyticsV1: AnalyticsV1;
     stemming: Stemming;
     private readonly _collections;
     private readonly individualCollections;

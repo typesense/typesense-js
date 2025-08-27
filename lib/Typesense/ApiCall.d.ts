@@ -1,4 +1,5 @@
 import type { AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import { Logger } from "loglevel";
 import Configuration from "./Configuration";
 import type { NodeConfiguration, StreamConfig } from "./Configuration";
 import TypesenseError from "./Errors/TypesenseError";
@@ -35,7 +36,7 @@ export default class ApiCall implements HttpClient {
     private readonly sendApiKeyAsQueryParam?;
     private readonly numRetriesPerRequest;
     private readonly additionalUserHeaders?;
-    private readonly logger;
+    readonly logger: Logger;
     private currentNodeIndex;
     constructor(configuration: Configuration);
     get<T>(endpoint: string, queryParameters?: any, { abortSignal, responseType, streamConfig, isStreamingRequest, }?: {

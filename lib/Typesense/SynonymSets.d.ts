@@ -7,7 +7,7 @@ export interface SynonymItemSchema {
     symbols_to_index?: string[];
 }
 export interface SynonymSetCreateSchema {
-    synonyms: SynonymItemSchema[];
+    items: SynonymItemSchema[];
 }
 export interface SynonymSetSchema extends SynonymSetCreateSchema {
     name: string;

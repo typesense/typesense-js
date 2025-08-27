@@ -270,6 +270,25 @@ var AnalyticsEvents = /*#__PURE__*/function () {
       return create;
     }()
   }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2(params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.get(this.endpointPath(), params));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function retrieve(_x2) {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
       return "".concat(AnalyticsEvents.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
@@ -364,6 +383,84 @@ var AnalyticsRule = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./src/Typesense/AnalyticsRuleV1.ts":
+/*!******************************************!*\
+  !*** ./src/Typesense/AnalyticsRuleV1.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ AnalyticsRuleV1)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _AnalyticsRulesV1__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./AnalyticsRulesV1 */ "./src/Typesense/AnalyticsRulesV1.ts");
+
+
+
+
+
+var AnalyticsRuleV1 = /*#__PURE__*/function () {
+  function AnalyticsRuleV1(name, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, AnalyticsRuleV1);
+    this.name = name;
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(AnalyticsRuleV1, [{
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "delete",
+    value: function () {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.delete(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function _delete() {
+        return _delete2.apply(this, arguments);
+      }
+      return _delete;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath() {
+      return "".concat(_AnalyticsRulesV1__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.name));
+    }
+  }]);
+  return AnalyticsRuleV1;
+}();
+
+
+/***/ }),
+
 /***/ "./src/Typesense/AnalyticsRules.ts":
 /*!*****************************************!*\
   !*** ./src/Typesense/AnalyticsRules.ts ***!
@@ -392,6 +489,112 @@ var AnalyticsRules = /*#__PURE__*/function () {
     this.apiCall = apiCall;
   }
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(AnalyticsRules, [{
+    key: "create",
+    value: function () {
+      var _create = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.post(this.endpointPath(), params, {}, {}));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function create(_x) {
+        return _create.apply(this, arguments);
+      }
+      return create;
+    }()
+  }, {
+    key: "upsert",
+    value: function () {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2(name, params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.put(this.endpointPath(name), params));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function upsert(_x2, _x3) {
+        return _upsert.apply(this, arguments);
+      }
+      return upsert;
+    }()
+  }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee3(ruleTag) {
+        var query;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              query = {};
+              if (ruleTag) {
+                query["rule_tag"] = ruleTag;
+              }
+              return _context3.abrupt("return", this.apiCall.get(this.endpointPath(), query));
+            case 3:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, this);
+      }));
+      function retrieve(_x4) {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath(operation) {
+      return "".concat(AnalyticsRules.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return AnalyticsRules;
+}();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/AnalyticsRulesV1.ts":
+/*!*******************************************!*\
+  !*** ./src/Typesense/AnalyticsRulesV1.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ AnalyticsRulesV1)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+var RESOURCEPATH = "/analytics/rules";
+var AnalyticsRulesV1 = /*#__PURE__*/function () {
+  function AnalyticsRulesV1(apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, AnalyticsRulesV1);
+    this.apiCall = apiCall;
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(AnalyticsRulesV1, [{
     key: "upsert",
     value: function () {
       var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(name, params) {
@@ -432,7 +635,7 @@ var AnalyticsRules = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(AnalyticsRules.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
+      return "".concat(AnalyticsRulesV1.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -440,8 +643,80 @@ var AnalyticsRules = /*#__PURE__*/function () {
       return RESOURCEPATH;
     }
   }]);
-  return AnalyticsRules;
+  return AnalyticsRulesV1;
 }();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/AnalyticsV1.ts":
+/*!**************************************!*\
+  !*** ./src/Typesense/AnalyticsV1.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ AnalyticsV1)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _AnalyticsRulesV1__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AnalyticsRulesV1 */ "./src/Typesense/AnalyticsRulesV1.ts");
+/* harmony import */ var _AnalyticsRuleV1__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./AnalyticsRuleV1 */ "./src/Typesense/AnalyticsRuleV1.ts");
+/* harmony import */ var _AnalyticsEvents__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./AnalyticsEvents */ "./src/Typesense/AnalyticsEvents.ts");
+
+
+
+
+
+
+var RESOURCEPATH = "/analytics";
+
+/**
+ * @deprecated Deprecated starting with Typesense Server v30. Please migrate to `client.analytics` (new Analytics APIs).
+ */
+var AnalyticsV1 = /*#__PURE__*/function () {
+  function AnalyticsV1(apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__["default"])(this, AnalyticsV1);
+    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_2__["default"])(this, "individualAnalyticsRules", {});
+    this.apiCall = apiCall;
+    this.apiCall = apiCall;
+    this._analyticsRules = new _AnalyticsRulesV1__WEBPACK_IMPORTED_MODULE_3__["default"](this.apiCall);
+    this._analyticsEvents = new _AnalyticsEvents__WEBPACK_IMPORTED_MODULE_5__["default"](this.apiCall);
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__["default"])(AnalyticsV1, [{
+    key: "rules",
+    value: function rules(id) {
+      if (!AnalyticsV1.hasWarnedDeprecation) {
+        // eslint-disable-next-line no-console
+        console.warn("[typesense] 'analyticsV1' is deprecated starting with Typesense Server v30 and will be removed in a future release. Please use 'analytics' instead.");
+        AnalyticsV1.hasWarnedDeprecation = true;
+      }
+      if (id === undefined) {
+        return this._analyticsRules;
+      } else {
+        if (this.individualAnalyticsRules[id] === undefined) {
+          this.individualAnalyticsRules[id] = new _AnalyticsRuleV1__WEBPACK_IMPORTED_MODULE_4__["default"](id, this.apiCall);
+        }
+        return this.individualAnalyticsRules[id];
+      }
+    }
+  }, {
+    key: "events",
+    value: function events() {
+      return this._analyticsEvents;
+    }
+  }], [{
+    key: "RESOURCEPATH",
+    get: function get() {
+      return RESOURCEPATH;
+    }
+  }]);
+  return AnalyticsV1;
+}();
+(0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_2__["default"])(AnalyticsV1, "hasWarnedDeprecation", false);
 
 
 /***/ }),
@@ -1491,19 +1766,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MultiSearch__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./MultiSearch */ "./src/Typesense/MultiSearch.ts");
 /* harmony import */ var _Presets__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Presets */ "./src/Typesense/Presets.ts");
 /* harmony import */ var _Preset__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Preset */ "./src/Typesense/Preset.ts");
-/* harmony import */ var _Analytics__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Analytics */ "./src/Typesense/Analytics.ts");
-/* harmony import */ var _Stopwords__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./Stopwords */ "./src/Typesense/Stopwords.ts");
-/* harmony import */ var _Stopword__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./Stopword */ "./src/Typesense/Stopword.ts");
-/* harmony import */ var _Conversations__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./Conversations */ "./src/Typesense/Conversations.ts");
-/* harmony import */ var _Conversation__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./Conversation */ "./src/Typesense/Conversation.ts");
-/* harmony import */ var _Stemming__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./Stemming */ "./src/Typesense/Stemming.ts");
-/* harmony import */ var _NLSearchModels__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./NLSearchModels */ "./src/Typesense/NLSearchModels.ts");
-/* harmony import */ var _NLSearchModel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./NLSearchModel */ "./src/Typesense/NLSearchModel.ts");
-/* harmony import */ var _SynonymSets__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./SynonymSets */ "./src/Typesense/SynonymSets.ts");
-/* harmony import */ var _SynonymSet__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./SynonymSet */ "./src/Typesense/SynonymSet.ts");
+/* harmony import */ var _AnalyticsV1__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./AnalyticsV1 */ "./src/Typesense/AnalyticsV1.ts");
+/* harmony import */ var _Analytics__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./Analytics */ "./src/Typesense/Analytics.ts");
+/* harmony import */ var _Stopwords__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./Stopwords */ "./src/Typesense/Stopwords.ts");
+/* harmony import */ var _Stopword__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./Stopword */ "./src/Typesense/Stopword.ts");
+/* harmony import */ var _Conversations__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./Conversations */ "./src/Typesense/Conversations.ts");
+/* harmony import */ var _Conversation__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./Conversation */ "./src/Typesense/Conversation.ts");
+/* harmony import */ var _Stemming__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./Stemming */ "./src/Typesense/Stemming.ts");
+/* harmony import */ var _NLSearchModels__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./NLSearchModels */ "./src/Typesense/NLSearchModels.ts");
+/* harmony import */ var _NLSearchModel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./NLSearchModel */ "./src/Typesense/NLSearchModel.ts");
+/* harmony import */ var _SynonymSets__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./SynonymSets */ "./src/Typesense/SynonymSets.ts");
+/* harmony import */ var _SynonymSet__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./SynonymSet */ "./src/Typesense/SynonymSet.ts");
 
 
 /* eslint-disable no-dupe-class-members */
+
 
 
 
@@ -1552,15 +1829,16 @@ var Client = /*#__PURE__*/function () {
     this.individualKeys = {};
     this._presets = new _Presets__WEBPACK_IMPORTED_MODULE_16__["default"](this.apiCall);
     this.individualPresets = {};
-    this._stopwords = new _Stopwords__WEBPACK_IMPORTED_MODULE_19__["default"](this.apiCall);
+    this._stopwords = new _Stopwords__WEBPACK_IMPORTED_MODULE_20__["default"](this.apiCall);
     this.individualStopwords = {};
-    this.analytics = new _Analytics__WEBPACK_IMPORTED_MODULE_18__["default"](this.apiCall);
-    this.stemming = new _Stemming__WEBPACK_IMPORTED_MODULE_23__["default"](this.apiCall);
-    this._conversations = new _Conversations__WEBPACK_IMPORTED_MODULE_21__["default"](this.apiCall);
+    this.analytics = new _Analytics__WEBPACK_IMPORTED_MODULE_19__["default"](this.apiCall);
+    this.analyticsV1 = new _AnalyticsV1__WEBPACK_IMPORTED_MODULE_18__["default"](this.apiCall);
+    this.stemming = new _Stemming__WEBPACK_IMPORTED_MODULE_24__["default"](this.apiCall);
+    this._conversations = new _Conversations__WEBPACK_IMPORTED_MODULE_22__["default"](this.apiCall);
     this.individualConversations = {};
-    this._nlSearchModels = new _NLSearchModels__WEBPACK_IMPORTED_MODULE_24__["default"](this.apiCall);
+    this._nlSearchModels = new _NLSearchModels__WEBPACK_IMPORTED_MODULE_25__["default"](this.apiCall);
     this.individualNLSearchModels = {};
-    this._synonymSets = new _SynonymSets__WEBPACK_IMPORTED_MODULE_26__["default"](this.apiCall);
+    this._synonymSets = new _SynonymSets__WEBPACK_IMPORTED_MODULE_27__["default"](this.apiCall);
     this.individualSynonymSets = {};
   }
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__["default"])(Client, [{
@@ -1618,7 +1896,7 @@ var Client = /*#__PURE__*/function () {
         return this._stopwords;
       } else {
         if (this.individualStopwords[id] === undefined) {
-          this.individualStopwords[id] = new _Stopword__WEBPACK_IMPORTED_MODULE_20__["default"](id, this.apiCall);
+          this.individualStopwords[id] = new _Stopword__WEBPACK_IMPORTED_MODULE_21__["default"](id, this.apiCall);
         }
         return this.individualStopwords[id];
       }
@@ -1630,7 +1908,7 @@ var Client = /*#__PURE__*/function () {
         return this._conversations;
       } else {
         if (this.individualConversations[id] === undefined) {
-          this.individualConversations[id] = new _Conversation__WEBPACK_IMPORTED_MODULE_22__["default"](id, this.apiCall);
+          this.individualConversations[id] = new _Conversation__WEBPACK_IMPORTED_MODULE_23__["default"](id, this.apiCall);
         }
         return this.individualConversations[id];
       }
@@ -1642,7 +1920,7 @@ var Client = /*#__PURE__*/function () {
         return this._nlSearchModels;
       } else {
         if (this.individualNLSearchModels[id] === undefined) {
-          this.individualNLSearchModels[id] = new _NLSearchModel__WEBPACK_IMPORTED_MODULE_25__["default"](id, this.apiCall);
+          this.individualNLSearchModels[id] = new _NLSearchModel__WEBPACK_IMPORTED_MODULE_26__["default"](id, this.apiCall);
         }
         return this.individualNLSearchModels[id];
       }
@@ -1654,7 +1932,7 @@ var Client = /*#__PURE__*/function () {
         return this._synonymSets;
       } else {
         if (this.individualSynonymSets[synonymSetName] === undefined) {
-          this.individualSynonymSets[synonymSetName] = new _SynonymSet__WEBPACK_IMPORTED_MODULE_27__["default"](synonymSetName, this.apiCall);
+          this.individualSynonymSets[synonymSetName] = new _SynonymSet__WEBPACK_IMPORTED_MODULE_28__["default"](synonymSetName, this.apiCall);
         }
         return this.individualSynonymSets[synonymSetName];
       }
@@ -3785,6 +4063,7 @@ var MultiSearch = /*#__PURE__*/function () {
     this.configuration = configuration;
     this.useTextContentType = useTextContentType;
     this.requestWithCache = new _RequestWithCache__WEBPACK_IMPORTED_MODULE_6__["default"]();
+    this.logger = this.apiCall.logger;
   }
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_4__["default"])(MultiSearch, [{
     key: "clearCache",
@@ -3802,6 +4081,9 @@ var MultiSearch = /*#__PURE__*/function () {
               params = commonParams ? _objectSpread({}, commonParams) : {};
               if (this.configuration.useServerSideSearchCache === true) {
                 params.use_cache = true;
+              }
+              if (searchRequests.union === true && this.hasAnySearchObjectPagination(searchRequests)) {
+                this.logger.warn("Individual `searches` pagination parameters are ignored when `union: true` is set. Use a top-level pagination parameter instead. See https://typesense.org/docs/29.0/api/federated-multi-search.html#union-search");
               }
               normalizedSearchRequests = {
                 union: searchRequests.union,
@@ -3822,7 +4104,7 @@ var MultiSearch = /*#__PURE__*/function () {
               }, (options === null || options === void 0 ? void 0 : options.cacheSearchResultsForSeconds) !== undefined ? {
                 cacheResponseForSeconds: options.cacheSearchResultsForSeconds
               } : undefined));
-            case 6:
+            case 7:
             case "end":
               return _context.stop();
           }
@@ -3837,6 +4119,13 @@ var MultiSearch = /*#__PURE__*/function () {
     key: "isStreamingRequest",
     value: function isStreamingRequest(commonParams) {
       return commonParams.streamConfig !== undefined;
+    }
+  }, {
+    key: "hasAnySearchObjectPagination",
+    value: function hasAnySearchObjectPagination(searchRequests) {
+      return searchRequests.searches.some(function (search) {
+        return search.page !== undefined || search.per_page !== undefined || search.offset !== undefined || search.limit !== undefined || search.limit_hits !== undefined;
+      });
     }
   }]);
   return MultiSearch;
@@ -5256,16 +5545,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _Collections__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Collections */ "./src/Typesense/Collections.ts");
-/* harmony import */ var _Synonyms__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Synonyms */ "./src/Typesense/Synonyms.ts");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _Collections__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Collections */ "./src/Typesense/Collections.ts");
+/* harmony import */ var _Synonyms__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Synonyms */ "./src/Typesense/Synonyms.ts");
 
 
 
 
 
 
+
+/**
+ * @deprecated Deprecated starting with Typesense Server v30. Please migrate to `client.synonymSets` (new Synonym Sets APIs).
+ */
 var Synonym = /*#__PURE__*/function () {
   function Synonym(collectionName, synonymId, apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Synonym);
@@ -5274,6 +5568,208 @@ var Synonym = /*#__PURE__*/function () {
     this.apiCall = apiCall;
   }
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(Synonym, [{
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "delete",
+    value: function () {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.delete(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function _delete() {
+        return _delete2.apply(this, arguments);
+      }
+      return _delete;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath() {
+      if (!Synonym.hasWarnedDeprecation) {
+        // eslint-disable-next-line no-console
+        console.warn("[typesense] 'synonym' APIs are deprecated starting with Typesense Server v30. Please migrate to synonym sets 'synonym_sets'.");
+        Synonym.hasWarnedDeprecation = true;
+      }
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(_Synonyms__WEBPACK_IMPORTED_MODULE_6__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.synonymId));
+    }
+  }]);
+  return Synonym;
+}();
+(0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(Synonym, "hasWarnedDeprecation", false);
+
+
+/***/ }),
+
+/***/ "./src/Typesense/SynonymSet.ts":
+/*!*************************************!*\
+  !*** ./src/Typesense/SynonymSet.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ SynonymSet)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _SynonymSets__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SynonymSets */ "./src/Typesense/SynonymSets.ts");
+/* harmony import */ var _SynonymSetItems__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SynonymSetItems */ "./src/Typesense/SynonymSetItems.ts");
+/* harmony import */ var _SynonymSetItem__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./SynonymSetItem */ "./src/Typesense/SynonymSetItem.ts");
+
+
+
+
+
+
+
+
+var SynonymSet = /*#__PURE__*/function () {
+  function SynonymSet(synonymSetName, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, SynonymSet);
+    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(this, "individualItems", {});
+    this.synonymSetName = synonymSetName;
+    this.apiCall = apiCall;
+    this._items = new _SynonymSetItems__WEBPACK_IMPORTED_MODULE_6__["default"](this.synonymSetName, apiCall);
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(SynonymSet, [{
+    key: "upsert",
+    value: function () {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.put(this.endpointPath(), params));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function upsert(_x) {
+        return _upsert.apply(this, arguments);
+      }
+      return upsert;
+    }()
+  }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "delete",
+    value: function () {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee3() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              return _context3.abrupt("return", this.apiCall.delete(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, this);
+      }));
+      function _delete() {
+        return _delete2.apply(this, arguments);
+      }
+      return _delete;
+    }()
+  }, {
+    key: "items",
+    value: function items(itemId) {
+      if (itemId === undefined) {
+        return this._items;
+      } else {
+        if (this.individualItems[itemId] === undefined) {
+          this.individualItems[itemId] = new _SynonymSetItem__WEBPACK_IMPORTED_MODULE_7__["default"](this.synonymSetName, itemId, this.apiCall);
+        }
+        return this.individualItems[itemId];
+      }
+    }
+  }, {
+    key: "endpointPath",
+    value: function endpointPath() {
+      return "".concat(_SynonymSets__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.synonymSetName));
+    }
+  }]);
+  return SynonymSet;
+}();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/SynonymSetItem.ts":
+/*!*****************************************!*\
+  !*** ./src/Typesense/SynonymSetItem.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ SynonymSetItem)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _SynonymSets__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./SynonymSets */ "./src/Typesense/SynonymSets.ts");
+
+
+
+
+
+var SynonymSetItem = /*#__PURE__*/function () {
+  function SynonymSetItem(synonymSetName, itemId, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, SynonymSetItem);
+    this.synonymSetName = synonymSetName;
+    this.itemId = itemId;
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(SynonymSetItem, [{
     key: "retrieve",
     value: function () {
       var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee() {
@@ -5314,25 +5810,25 @@ var Synonym = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath() {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(_Synonyms__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.synonymId));
+      return "".concat(_SynonymSets__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.synonymSetName), "/items/").concat(encodeURIComponent(this.itemId));
     }
   }]);
-  return Synonym;
+  return SynonymSetItem;
 }();
 
 
 /***/ }),
 
-/***/ "./src/Typesense/SynonymSet.ts":
-/*!*************************************!*\
-  !*** ./src/Typesense/SynonymSet.ts ***!
-  \*************************************/
+/***/ "./src/Typesense/SynonymSetItems.ts":
+/*!******************************************!*\
+  !*** ./src/Typesense/SynonymSetItems.ts ***!
+  \******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ SynonymSet)
+/* harmony export */   "default": () => (/* binding */ SynonymSetItems)
 /* harmony export */ });
 /* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
@@ -5345,27 +5841,27 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var SynonymSet = /*#__PURE__*/function () {
-  function SynonymSet(synonymSetName, apiCall) {
-    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, SynonymSet);
+var SynonymSetItems = /*#__PURE__*/function () {
+  function SynonymSetItems(synonymSetName, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, SynonymSetItems);
     this.synonymSetName = synonymSetName;
     this.apiCall = apiCall;
   }
-  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(SynonymSet, [{
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(SynonymSetItems, [{
     key: "upsert",
     value: function () {
-      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(params) {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(itemId, params) {
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              return _context.abrupt("return", this.apiCall.put(this.endpointPath(), params));
+              return _context.abrupt("return", this.apiCall.put(this.endpointPath(itemId), params));
             case 1:
             case "end":
               return _context.stop();
           }
         }, _callee, this);
       }));
-      function upsert(_x) {
+      function upsert(_x, _x2) {
         return _upsert.apply(this, arguments);
       }
       return upsert;
@@ -5390,31 +5886,12 @@ var SynonymSet = /*#__PURE__*/function () {
       return retrieve;
     }()
   }, {
-    key: "delete",
-    value: function () {
-      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee3() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
-            case 0:
-              return _context3.abrupt("return", this.apiCall.delete(this.endpointPath()));
-            case 1:
-            case "end":
-              return _context3.stop();
-          }
-        }, _callee3, this);
-      }));
-      function _delete() {
-        return _delete2.apply(this, arguments);
-      }
-      return _delete;
-    }()
-  }, {
     key: "endpointPath",
-    value: function endpointPath() {
-      return "".concat(_SynonymSets__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.synonymSetName));
+    value: function endpointPath(operation) {
+      return "".concat(_SynonymSets__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.synonymSetName), "/items").concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }]);
-  return SynonymSet;
+  return SynonymSetItems;
 }();
 
 
@@ -5488,15 +5965,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
 /* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
 /* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
-/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _Collections__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Collections */ "./src/Typesense/Collections.ts");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _Collections__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Collections */ "./src/Typesense/Collections.ts");
+
 
 
 
 
 
 var RESOURCEPATH = "/synonyms";
+/**
+ * @deprecated Deprecated starting with Typesense Server v30. Please migrate to `client.synonymSets` (new Synonym Sets APIs).
+ */
 var Synonyms = /*#__PURE__*/function () {
   function Synonyms(collectionName, apiCall) {
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Synonyms);
@@ -5506,8 +5988,8 @@ var Synonyms = /*#__PURE__*/function () {
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(Synonyms, [{
     key: "upsert",
     value: function () {
-      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee(synonymId, params) {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(synonymId, params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               return _context.abrupt("return", this.apiCall.put(this.endpointPath(synonymId), params));
@@ -5525,8 +6007,8 @@ var Synonyms = /*#__PURE__*/function () {
   }, {
     key: "retrieve",
     value: function () {
-      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2() {
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               return _context2.abrupt("return", this.apiCall.get(this.endpointPath()));
@@ -5544,7 +6026,12 @@ var Synonyms = /*#__PURE__*/function () {
   }, {
     key: "endpointPath",
     value: function endpointPath(operation) {
-      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
+      if (!Synonyms.hasWarnedDeprecation) {
+        // eslint-disable-next-line no-console
+        console.warn("[typesense] 'synonyms' APIs are deprecated starting with Typesense Server v30. Please migrate to synonym sets ('synonym_sets').");
+        Synonyms.hasWarnedDeprecation = true;
+      }
+      return "".concat(_Collections__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.collectionName)).concat(Synonyms.RESOURCEPATH).concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
     }
   }], [{
     key: "RESOURCEPATH",
@@ -5554,6 +6041,7 @@ var Synonyms = /*#__PURE__*/function () {
   }]);
   return Synonyms;
 }();
+(0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(Synonyms, "hasWarnedDeprecation", false);
 
 
 /***/ }),
