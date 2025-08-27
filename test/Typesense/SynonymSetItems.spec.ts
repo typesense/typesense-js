@@ -15,13 +15,13 @@ const typesense = new TypesenseClient({
   connectionTimeoutSeconds: 180,
 });
 
-describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSets", function () {
-  const testSynonymSetName = "test-synonym-set";
+describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSetItems", function () {
+  const testSynonymSetName = "test-synonym-set-items";
   const synonymSetData = {
     items: [
       {
-        id: "dummy",
-        synonyms: ["foo", "bar", "baz"],
+        id: "color-item",
+        synonyms: ["red", "scarlet"],
       },
     ],
   };
@@ -45,23 +45,33 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSets", function () {
   });
 
   describe(".retrieve", function () {
-    it("retrieves all synonym sets", async function () {
+    it("lists items in a synonym set", async function () {
       await typesense.synonymSets(testSynonymSetName).upsert(synonymSetData);
 
-      const allSynonymSets = await typesense.synonymSets().retrieve();
+      const items = await typesense
+        .synonymSets(testSynonymSetName)
+        .items()
+        .retrieve();
 
-      expect(allSynonymSets).toBeDefined();
-      expect(Array.isArray(allSynonymSets)).toBe(true);
-      expect(allSynonymSets.length).toBeGreaterThan(0);
+      expect(Array.isArray(items)).toBe(true);
+      expect(items.length).toBeGreaterThan(0);
+      expect(items[0].synonyms).toEqual(["red", "scarlet"]);
+    });
+  });
 
-      const createdSynonymSet = allSynonymSets.find(
-        (synonymSet) => synonymSet.name === testSynonymSetName,
-      );
+  describe(".upsert", function () {
+    it("creates or updates a synonym set item", async function () {
+      await typesense.synonymSets(testSynonymSetName).upsert(synonymSetData);
 
-      expect(createdSynonymSet).toBeDefined();
-      expect(createdSynonymSet?.items).toMatchObject(
-        synonymSetData.items,
-      );
+      const upserted = await typesense
+        .synonymSets(testSynonymSetName)
+        .items()
+        .upsert("color-item", { synonyms: ["blue", "azure"] });
+
+      expect(upserted.id).toBe("color-item");
+      expect(upserted.synonyms).toEqual(["blue", "azure"]);
     });
   });
 });
+
+

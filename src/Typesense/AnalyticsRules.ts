@@ -2,6 +2,7 @@ import ApiCall from "./ApiCall";
 import {
   AnalyticsRuleCreateSchema,
   AnalyticsRuleSchema,
+  AnalyticsRuleUpsertSchema,
 } from "./AnalyticsRule";
 
 export interface AnalyticsRulesRetrieveSchema {
@@ -15,9 +16,30 @@ export default class AnalyticsRules {
     this.apiCall = apiCall;
   }
 
+  async create(
+    params:
+      | AnalyticsRuleCreateSchema
+      | AnalyticsRuleCreateSchema[],
+  ): Promise<
+    | AnalyticsRuleSchema
+    | (
+        | AnalyticsRuleSchema
+        | {
+            error?: string;
+          }
+      )[]
+  > {
+    return this.apiCall.post(
+      this.endpointPath(),
+      params,
+      {},
+      {},
+    );
+  }
+
   async upsert(
     name: string,
-    params: AnalyticsRuleCreateSchema
+    params: AnalyticsRuleUpsertSchema
   ): Promise<AnalyticsRuleSchema> {
     return this.apiCall.put<AnalyticsRuleSchema>(
       this.endpointPath(name),
@@ -25,8 +47,15 @@ export default class AnalyticsRules {
     );
   }
 
-  async retrieve(): Promise<AnalyticsRulesRetrieveSchema> {
-    return this.apiCall.get<AnalyticsRulesRetrieveSchema>(this.endpointPath());
+  async retrieve(ruleTag?: string): Promise<AnalyticsRulesRetrieveSchema> {
+    const query: Record<string, string> = {};
+    if (ruleTag) {
+      query["rule_tag"] = ruleTag;
+    }
+    return this.apiCall.get<AnalyticsRulesRetrieveSchema>(
+      this.endpointPath(),
+      query,
+    );
   }
 
   private endpointPath(operation?: string): string {

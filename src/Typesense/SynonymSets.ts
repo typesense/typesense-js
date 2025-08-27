@@ -9,7 +9,7 @@ export interface SynonymItemSchema {
 }
 
 export interface SynonymSetCreateSchema {
-  synonyms: SynonymItemSchema[];
+  items: SynonymItemSchema[];
 }
 
 export interface SynonymSetSchema extends SynonymSetCreateSchema {
