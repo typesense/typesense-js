@@ -154,7 +154,14 @@ export interface SearchResponse<T extends DocumentSchema> {
   };
   error?: string;
   code?: number;
+  metadata?: JsonRecord;
 }
+
+type JSONPrimitive = string | number | boolean | null;
+
+type JsonRecord = {
+  [key: string]: JSONPrimitive | JSONPrimitive[] | JsonRecord;
+};
 
 export interface DocumentWriteParameters {
   dirty_values?: "coerce_or_reject" | "coerce_or_drop" | "drop" | "reject";
