@@ -2,19 +2,20 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import { ObjectNotFound } from "../../src/Typesense/Errors";
 import { OverrideCreateSchema } from "../../src/Typesense/Overrides";
+import { isV30OrAbove } from "../utils";
 
-describe("Override", function () {
-  const typesense = new TypesenseClient({
-    nodes: [
-      {
-        host: "localhost",
-        port: 8108,
-        protocol: "http",
-      },
-    ],
-    apiKey: "xyz",
-    connectionTimeoutSeconds: 180,
-  });
+const typesense = new TypesenseClient({
+  nodes: [
+    {
+      host: "localhost",
+      port: 8108,
+      protocol: "http",
+    },
+  ],
+  apiKey: "xyz",
+  connectionTimeoutSeconds: 180,
+});
+describe.skipIf((await isV30OrAbove(typesense)))("Override", function () {
 
   const testCollectionName = "test_companies_override";
   const testOverrideId = "lex-exact";

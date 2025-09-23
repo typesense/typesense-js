@@ -27,7 +27,8 @@ import NLSearchModels from "./NLSearchModels";
 import NLSearchModel from "./NLSearchModel";
 import SynonymSets from "./SynonymSets";
 import SynonymSet from "./SynonymSet";
-
+import CurationSets from "./CurationSets";
+import CurationSet from "./CurationSet";
 export default class Client {
   configuration: Configuration;
   apiCall: ApiCall;
@@ -56,6 +57,8 @@ export default class Client {
   private readonly individualNLSearchModels: Record<string, NLSearchModel>;
   private readonly _synonymSets: SynonymSets;
   private readonly individualSynonymSets: Record<string, SynonymSet>;
+  private readonly _curationSets: CurationSets;
+  private readonly individualCurationSets: Record<string, CurationSet>;
 
   constructor(options: ConfigurationOptions) {
     options.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam ?? false;
@@ -87,6 +90,8 @@ export default class Client {
     this.individualNLSearchModels = {};
     this._synonymSets = new SynonymSets(this.apiCall);
     this.individualSynonymSets = {};
+    this._curationSets = new CurationSets(this.apiCall);
+    this.individualCurationSets = {};
   }
 
   collections(): Collections;
@@ -199,6 +204,22 @@ export default class Client {
         );
       }
       return this.individualSynonymSets[synonymSetName];
+    }
+  }
+
+  curationSets(): CurationSets;
+  curationSets(name: string): CurationSet;
+  curationSets(name?: string): CurationSets | CurationSet {
+    if (name === undefined) {
+      return this._curationSets;
+    } else {
+      if (this.individualCurationSets[name] === undefined) {
+        this.individualCurationSets[name] = new CurationSet(
+          name,
+          this.apiCall,
+        );
+      }
+      return this.individualCurationSets[name];
     }
   }
 }

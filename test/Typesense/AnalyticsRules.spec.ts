@@ -157,7 +157,7 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("AnalyticsRules", function () 
     name: testRuleName,
     type: "popular_queries",
     collection: "products",
-    event_type: "query",
+    event_type: "search",
     params: {
       destination_collection: "products_top_queries",
       expand_query: true,
