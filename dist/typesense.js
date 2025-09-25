@@ -1777,9 +1777,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NLSearchModel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./NLSearchModel */ "./src/Typesense/NLSearchModel.ts");
 /* harmony import */ var _SynonymSets__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./SynonymSets */ "./src/Typesense/SynonymSets.ts");
 /* harmony import */ var _SynonymSet__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./SynonymSet */ "./src/Typesense/SynonymSet.ts");
+/* harmony import */ var _CurationSets__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CurationSets */ "./src/Typesense/CurationSets.ts");
+/* harmony import */ var _CurationSet__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./CurationSet */ "./src/Typesense/CurationSet.ts");
 
 
 /* eslint-disable no-dupe-class-members */
+
+
 
 
 
@@ -1840,6 +1844,8 @@ var Client = /*#__PURE__*/function () {
     this.individualNLSearchModels = {};
     this._synonymSets = new _SynonymSets__WEBPACK_IMPORTED_MODULE_27__["default"](this.apiCall);
     this.individualSynonymSets = {};
+    this._curationSets = new _CurationSets__WEBPACK_IMPORTED_MODULE_29__["default"](this.apiCall);
+    this.individualCurationSets = {};
   }
   (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__["default"])(Client, [{
     key: "collections",
@@ -1935,6 +1941,18 @@ var Client = /*#__PURE__*/function () {
           this.individualSynonymSets[synonymSetName] = new _SynonymSet__WEBPACK_IMPORTED_MODULE_28__["default"](synonymSetName, this.apiCall);
         }
         return this.individualSynonymSets[synonymSetName];
+      }
+    }
+  }, {
+    key: "curationSets",
+    value: function curationSets(name) {
+      if (name === undefined) {
+        return this._curationSets;
+      } else {
+        if (this.individualCurationSets[name] === undefined) {
+          this.individualCurationSets[name] = new _CurationSet__WEBPACK_IMPORTED_MODULE_30__["default"](name, this.apiCall);
+        }
+        return this.individualCurationSets[name];
       }
     }
   }]);
@@ -2732,6 +2750,334 @@ var Conversations = /*#__PURE__*/function () {
   }]);
   return Conversations;
 }();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/CurationSet.ts":
+/*!**************************************!*\
+  !*** ./src/Typesense/CurationSet.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ CurationSet)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _CurationSets__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CurationSets */ "./src/Typesense/CurationSets.ts");
+/* harmony import */ var _CurationSetItems__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./CurationSetItems */ "./src/Typesense/CurationSetItems.ts");
+/* harmony import */ var _CurationSetItem__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./CurationSetItem */ "./src/Typesense/CurationSetItem.ts");
+
+
+
+
+
+
+
+
+var CurationSet = /*#__PURE__*/function () {
+  function CurationSet(name, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, CurationSet);
+    (0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(this, "individualItems", {});
+    this.name = name;
+    this.apiCall = apiCall;
+    this._items = new _CurationSetItems__WEBPACK_IMPORTED_MODULE_6__["default"](this.name, apiCall);
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(CurationSet, [{
+    key: "upsert",
+    value: function () {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.put(this.endpointPath(), params));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function upsert(_x) {
+        return _upsert.apply(this, arguments);
+      }
+      return upsert;
+    }()
+  }, {
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee2() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "delete",
+    value: function () {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee3() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              return _context3.abrupt("return", this.apiCall.delete(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, this);
+      }));
+      function _delete() {
+        return _delete2.apply(this, arguments);
+      }
+      return _delete;
+    }()
+  }, {
+    key: "items",
+    value: function items(itemId) {
+      if (itemId === undefined) {
+        return this._items;
+      } else {
+        if (this.individualItems[itemId] === undefined) {
+          this.individualItems[itemId] = new _CurationSetItem__WEBPACK_IMPORTED_MODULE_7__["default"](this.name, itemId, this.apiCall);
+        }
+        return this.individualItems[itemId];
+      }
+    }
+  }, {
+    key: "endpointPath",
+    value: function endpointPath() {
+      return "".concat(_CurationSets__WEBPACK_IMPORTED_MODULE_5__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.name));
+    }
+  }]);
+  return CurationSet;
+}();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/CurationSetItem.ts":
+/*!******************************************!*\
+  !*** ./src/Typesense/CurationSetItem.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ CurationSetItem)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _CurationSets__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CurationSets */ "./src/Typesense/CurationSets.ts");
+
+
+
+
+
+var CurationSetItem = /*#__PURE__*/function () {
+  function CurationSetItem(name, itemId, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, CurationSetItem);
+    this.name = name;
+    this.itemId = itemId;
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(CurationSetItem, [{
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "upsert",
+    value: function () {
+      var _upsert = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee2(params) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", this.apiCall.put(this.endpointPath(), params));
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function upsert(_x) {
+        return _upsert.apply(this, arguments);
+      }
+      return upsert;
+    }()
+  }, {
+    key: "delete",
+    value: function () {
+      var _delete2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee3() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              return _context3.abrupt("return", this.apiCall.delete(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, this);
+      }));
+      function _delete() {
+        return _delete2.apply(this, arguments);
+      }
+      return _delete;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath() {
+      return "".concat(_CurationSets__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.name), "/items/").concat(encodeURIComponent(this.itemId));
+    }
+  }]);
+  return CurationSetItem;
+}();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/CurationSetItems.ts":
+/*!*******************************************!*\
+  !*** ./src/Typesense/CurationSetItems.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ CurationSetItems)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _CurationSets__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CurationSets */ "./src/Typesense/CurationSets.ts");
+
+
+
+
+
+var CurationSetItems = /*#__PURE__*/function () {
+  function CurationSetItems(name, apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, CurationSetItems);
+    this.name = name;
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(CurationSetItems, [{
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_3___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.get(this.endpointPath()));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }, {
+    key: "endpointPath",
+    value: function endpointPath(operation) {
+      return "".concat(_CurationSets__WEBPACK_IMPORTED_MODULE_4__["default"].RESOURCEPATH, "/").concat(encodeURIComponent(this.name), "/items").concat(operation === undefined ? "" : "/" + encodeURIComponent(operation));
+    }
+  }]);
+  return CurationSetItems;
+}();
+
+
+/***/ }),
+
+/***/ "./src/Typesense/CurationSets.ts":
+/*!***************************************!*\
+  !*** ./src/Typesense/CurationSets.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ CurationSets)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ "./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/esm/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/esm/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4__);
+
+
+
+
+
+var CurationSets = /*#__PURE__*/function () {
+  function CurationSets(apiCall) {
+    (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, CurationSets);
+    this.apiCall = apiCall;
+  }
+  (0,_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_2__["default"])(CurationSets, [{
+    key: "retrieve",
+    value: function () {
+      var _retrieve = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", this.apiCall.get(CurationSets.RESOURCEPATH));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function retrieve() {
+        return _retrieve.apply(this, arguments);
+      }
+      return retrieve;
+    }()
+  }]);
+  return CurationSets;
+}();
+(0,_babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_3__["default"])(CurationSets, "RESOURCEPATH", "/curation_sets");
 
 
 /***/ }),

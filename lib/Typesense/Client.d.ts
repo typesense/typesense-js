@@ -25,6 +25,8 @@ import NLSearchModels from "./NLSearchModels";
 import NLSearchModel from "./NLSearchModel";
 import SynonymSets from "./SynonymSets";
 import SynonymSet from "./SynonymSet";
+import CurationSets from "./CurationSets";
+import CurationSet from "./CurationSet";
 export default class Client {
     configuration: Configuration;
     apiCall: ApiCall;
@@ -53,6 +55,8 @@ export default class Client {
     private readonly individualNLSearchModels;
     private readonly _synonymSets;
     private readonly individualSynonymSets;
+    private readonly _curationSets;
+    private readonly individualCurationSets;
     constructor(options: ConfigurationOptions);
     collections(): Collections;
     collections<T extends Record<string, any> = object>(collectionName: string): Collection<T>;
@@ -70,4 +74,6 @@ export default class Client {
     nlSearchModels(id: string): NLSearchModel;
     synonymSets(): SynonymSets;
     synonymSets(synonymSetName: string): SynonymSet;
+    curationSets(): CurationSets;
+    curationSets(name: string): CurationSet;
 }
