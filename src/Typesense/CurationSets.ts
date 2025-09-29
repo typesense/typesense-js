@@ -42,8 +42,6 @@ export interface CurationSetsListEntrySchema {
   items: CurationObjectSchema[];
 }
 
-export type CurationSetsListResponseSchema = CurationSetsListEntrySchema[];
-
 export interface CurationSetDeleteResponseSchema {
   name: string;
 }
@@ -52,8 +50,8 @@ export default class CurationSets {
   constructor(private apiCall: ApiCall) {}
   static readonly RESOURCEPATH = "/curation_sets";
 
-  async retrieve(): Promise<CurationSetsListResponseSchema> {
-    return this.apiCall.get<CurationSetsListResponseSchema>(
+  async retrieve(): Promise<CurationSetsListEntrySchema[]> {
+    return this.apiCall.get<CurationSetsListEntrySchema[]>(
       CurationSets.RESOURCEPATH,
     );
   }
