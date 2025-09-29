@@ -1,5 +1,6 @@
 import ApiCall from "./ApiCall";
-import CurationSets, { CurationObjectSchema } from "./CurationSets";
+import CurationSets from "./CurationSets";
+import type { CurationObjectSchema } from "./CurationSets";
 
 export interface CurationItemDeleteResponseSchema {
   id: string;
@@ -32,5 +33,3 @@ export default class CurationSetItem {
     )}/items/${encodeURIComponent(this.itemId)}`;
   }
 }
-
-
