@@ -9,12 +9,15 @@ export interface CurationExcludeSchema {
   id: string;
 }
 
-export interface CurationRuleSchema {
-  query?: string;
-  match?: "exact" | "contains";
-  filter_by?: string;
-  tags?: string[];
-}
+export type CurationRuleSchema =
+  | { tags: string[]; query?: never; match?: never; filter_by?: never }
+  | {
+      query: string;
+      match: "exact" | "contains";
+      tags?: never;
+      filter_by?: never;
+    }
+  | { filter_by: string; tags?: never; query?: never; match?: never };
 
 export interface CurationObjectSchema {
   id: string;
