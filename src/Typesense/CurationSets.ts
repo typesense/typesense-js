@@ -26,6 +26,8 @@ export interface CurationObjectSchema {
   remove_matched_tokens?: boolean;
   filter_curated_hits?: boolean;
   stop_processing?: boolean;
+  effective_from_ts?: number;
+  effective_to_ts?: number;
   metadata?: Record<string, unknown>;
 }
 
