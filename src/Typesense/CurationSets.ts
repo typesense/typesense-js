@@ -21,9 +21,9 @@ export type CurationRuleSchema =
 
 export interface CurationObjectSchema {
   id: string;
-  rule?: CurationRuleSchema;
   includes?: CurationIncludeSchema[];
   excludes?: CurationExcludeSchema[];
+  rule: CurationRuleSchema;
   filter_by?: string;
   sort_by?: string;
   replace_query?: string;
