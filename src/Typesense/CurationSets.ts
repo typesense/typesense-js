@@ -1,14 +1,5 @@
 import ApiCall from "./ApiCall";
 
-export interface CurationIncludeSchema {
-  id: string;
-  position: number;
-}
-
-export interface CurationExcludeSchema {
-  id: string;
-}
-
 export type CurationRuleSchema =
   | { tags: string[]; query?: never; match?: never; filter_by?: never }
   | {
@@ -21,9 +12,14 @@ export type CurationRuleSchema =
 
 export interface CurationObjectSchema {
   id: string;
-  includes?: CurationIncludeSchema[];
-  excludes?: CurationExcludeSchema[];
   rule: CurationRuleSchema;
+  includes?: {
+    id: string;
+    position: number;
+  }[];
+  excludes?: {
+    id: string;
+  }[];
   filter_by?: string;
   sort_by?: string;
   replace_query?: string;
