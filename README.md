@@ -41,6 +41,46 @@ Tests are also a good place to know how the library works internally: [test](tes
 
 See [Configuration.ts](src/Typesense/Configuration.ts) for a list of all client configuration options.
 
+### Request Timeouts and Abort Signals
+
+The client supports both global timeout configuration and per-request abort signals:
+
+#### Global Timeout Configuration
+
+```javascript
+const client = new Typesense.Client({
+  nodes: [{ host: "localhost", port: "8108", protocol: "http" }],
+  apiKey: "xyz",
+  connectionTimeoutSeconds: 30, // 30 second timeout for all requests
+});
+```
+
+#### Per-Request Abort Signals
+
+```javascript
+// Search with 5-second timeout
+const controller = new AbortController();
+setTimeout(() => controller.abort(), 5000);
+
+const results = await client.collections("books").documents().search(
+  {
+    q: "*",
+    query_by: "title",
+  },
+  { abortSignal: controller.signal },
+);
+
+// Collections with 2-second timeout
+const collectionsController = new AbortController();
+setTimeout(() => collectionsController.abort(), 2000);
+
+const collections = await client.collections().retrieve({
+  abortSignal: collectionsController.signal,
+});
+```
+
+**Note**: The `import()` operation doesn't support abort signals or timeout configuration as it's designed to run to completion.
+
 ### Examples
 
 Here are some examples with inline comments that walk you through how to use the client: [doc/examples](doc/examples)
