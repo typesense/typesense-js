@@ -5,6 +5,10 @@ export async function isV30OrAbove(client: Client) {
   if (debug.version === "nightly") {
     return true;
   }
-  const numberedVersion = debug.version.split("v")[1];
-  return Number(numberedVersion) >= 30;
+  const numberedVersion = debug.version.startsWith("v")
+    ? debug.version.split("v")[1]
+    : debug.version;
+
+  const majorVersion = numberedVersion.split(".")[0];
+  return Number(majorVersion) >= 30;
 }
