@@ -1,5 +1,6 @@
 import ApiCall from "./ApiCall";
-import CurationSets, {
+import CurationSets from "./CurationSets";
+import type {
   CurationSetDeleteResponseSchema,
   CurationSetSchema,
   CurationSetUpsertSchema,
@@ -11,7 +12,10 @@ export default class CurationSet {
   private readonly _items: CurationSetItems;
   private individualItems: Record<string, CurationSetItem> = {};
 
-  constructor(private name: string, private apiCall: ApiCall) {
+  constructor(
+    private name: string,
+    private apiCall: ApiCall,
+  ) {
     this._items = new CurationSetItems(this.name, apiCall);
   }
 
@@ -50,5 +54,3 @@ export default class CurationSet {
     return `${CurationSets.RESOURCEPATH}/${encodeURIComponent(this.name)}`;
   }
 }
-
-
