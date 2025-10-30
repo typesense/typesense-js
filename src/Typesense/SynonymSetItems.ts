@@ -1,10 +1,6 @@
 import ApiCall from "./ApiCall";
 import SynonymSets, { SynonymItemSchema } from "./SynonymSets";
 
-export interface SynonymSetItemDeleteSchema {
-  id: string;
-}
-
 export default class SynonymSetItems {
   constructor(
     private synonymSetName: string,
