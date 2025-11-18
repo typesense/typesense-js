@@ -214,6 +214,10 @@ export interface WriteableDocuments<T> {
     document: T,
     options: Omit<DocumentWriteParameters, "action">,
   ): Promise<T>;
+  emplace(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action">,
+  ): Promise<T>;
   delete(query: DeleteQuery): Promise<DeleteResponse>;
   import(
     documents: T[] | string,
