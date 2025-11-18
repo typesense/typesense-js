@@ -263,7 +263,14 @@ export type MultiSearchRequestsSchema<
 
 export interface UnionSearchResponse<T extends DocumentSchema>
   extends Omit<SearchResponse<T>, "request_params"> {
-  union_request_params: SearchResponseRequestParams[];
+  union_request_params: UnionSearchResponseRequestParams[];
+}
+
+type AllRequiredBut<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T, K>;
+
+export interface UnionSearchResponseRequestParams
+  extends AllRequiredBut<SearchResponseRequestParams, "voice_query"> {
+  found: number;
 }
 
 export type MultiSearchResponse<
