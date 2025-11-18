@@ -257,6 +257,35 @@ export default class Documents<T extends DocumentSchema = object>
     }
   }
 
+  async emplace(
+    document: T,
+    options: UpdateByFilterParameters,
+  ): Promise<UpdateByFilterResponse>;
+  async emplace(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action">,
+  ): Promise<T>;
+  async emplace(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action"> | UpdateByFilterParameters = {},
+  ): Promise<UpdateByFilterResponse | T> {
+    if (!document) throw new Error("No document provided");
+
+    if (options["filter_by"] != null) {
+      return this.apiCall.patch<T>(
+        this.endpointPath(),
+        document,
+        Object.assign({}, options),
+      );
+    } else {
+      return this.apiCall.post<T>(
+        this.endpointPath(),
+        document,
+        Object.assign({}, options, { action: "emplace" }),
+      );
+    }
+  }
+
   async delete(
     query: DeleteQuery = {} as DeleteQuery,
   ): Promise<DeleteResponse<T>> {
