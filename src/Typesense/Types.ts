@@ -202,9 +202,18 @@ export interface SearchableDocuments<
 }
 
 export interface WriteableDocuments<T> {
-  create(document: T, options: DocumentWriteParameters): Promise<T>;
-  upsert(document: T, options: DocumentWriteParameters): Promise<T>;
-  update(document: T, options: DocumentWriteParameters): Promise<T>;
+  create(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action">,
+  ): Promise<T>;
+  upsert(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action">,
+  ): Promise<T>;
+  update(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action">,
+  ): Promise<T>;
   delete(query: DeleteQuery): Promise<DeleteResponse>;
   import(
     documents: T[] | string,
