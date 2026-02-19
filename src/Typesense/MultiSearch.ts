@@ -72,6 +72,9 @@ export default class MultiSearch {
     options?: SearchOptions,
   ): Promise<MultiSearchResponse<T, Infix>> {
     const params = commonParams ? { ...commonParams } : {};
+    const cacheSearchResultsForSeconds =
+      options?.cacheSearchResultsForSeconds ??
+      this.configuration.cacheSearchResultsForSeconds;
 
     if (this.configuration.useServerSideSearchCache === true) {
       params.use_cache = true;
@@ -115,8 +118,8 @@ export default class MultiSearch {
         abortSignal: options?.abortSignal,
         isStreamingRequest: this.isStreamingRequest(params),
       },
-      options?.cacheSearchResultsForSeconds !== undefined
-        ? { cacheResponseForSeconds: options.cacheSearchResultsForSeconds }
+      cacheSearchResultsForSeconds !== undefined
+        ? { cacheResponseForSeconds: cacheSearchResultsForSeconds }
         : undefined,
     );
   }
