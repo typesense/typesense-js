@@ -4420,11 +4420,13 @@ var MultiSearch = /*#__PURE__*/function () {
     key: "perform",
     value: function () {
       var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_2__["default"])( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().mark(function _callee(searchRequests, commonParams, options) {
-        var params, normalizedSearchRequests, streamConfig, paramsWithoutStream, normalizedQueryParams;
+        var _options$cacheSearchR;
+        var params, cacheSearchResultsForSeconds, normalizedSearchRequests, streamConfig, paramsWithoutStream, normalizedQueryParams;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_5___default().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               params = commonParams ? _objectSpread({}, commonParams) : {};
+              cacheSearchResultsForSeconds = (_options$cacheSearchR = options === null || options === void 0 ? void 0 : options.cacheSearchResultsForSeconds) !== null && _options$cacheSearchR !== void 0 ? _options$cacheSearchR : this.configuration.cacheSearchResultsForSeconds;
               if (this.configuration.useServerSideSearchCache === true) {
                 params.use_cache = true;
               }
@@ -4447,10 +4449,10 @@ var MultiSearch = /*#__PURE__*/function () {
                 streamConfig: streamConfig,
                 abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal,
                 isStreamingRequest: this.isStreamingRequest(params)
-              }, (options === null || options === void 0 ? void 0 : options.cacheSearchResultsForSeconds) !== undefined ? {
-                cacheResponseForSeconds: options.cacheSearchResultsForSeconds
+              }, cacheSearchResultsForSeconds !== undefined ? {
+                cacheResponseForSeconds: cacheSearchResultsForSeconds
               } : undefined));
-            case 7:
+            case 8:
             case "end":
               return _context.stop();
           }
