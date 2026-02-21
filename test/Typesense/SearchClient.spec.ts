@@ -179,4 +179,25 @@ describe("SearchClient", function () {
     // if 2 requests are made, then we know that cache was cleared successfully
     expect(mockAxios.history["post"].length).toBe(2);
   });
+
+  it("should cache multi_search requests using client configuration by default", async function () {
+    const searchRequest = {
+      searches: [{ q: "term1" }, { q: "term2" }],
+    };
+    const commonParams = {
+      collection: "docs",
+      query_by: "field",
+    };
+
+    mockAxios
+      .onPost("http://node0:8108/multi_search")
+      .reply(200, JSON.stringify({ results: [] }), {
+        "content-type": "application/json",
+      });
+
+    await typesense.multiSearch.perform(searchRequest, commonParams);
+    await typesense.multiSearch.perform(searchRequest, commonParams);
+
+    expect(mockAxios.history["post"].length).toBe(1);
+  });
 });
