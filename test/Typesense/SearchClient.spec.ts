@@ -77,9 +77,11 @@ describe("SearchClient", function () {
 
     mockAxios
       .onPost("http://node0:8108/multi_search", searches, {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "text/plain",
-        "X-TYPESENSE-API-KEY": longApiKey,
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "text/plain",
+          "X-TYPESENSE-API-KEY": longApiKey,
+        },
       })
       .reply((config: any) => {
         expect(config.params["x-typesense-api-key"]).toBeUndefined();
