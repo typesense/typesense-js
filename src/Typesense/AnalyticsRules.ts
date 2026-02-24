@@ -47,15 +47,12 @@ export default class AnalyticsRules {
     );
   }
 
-  async retrieve(ruleTag?: string): Promise<AnalyticsRulesRetrieveSchema> {
+  async retrieve(ruleTag?: string): Promise<AnalyticsRuleSchema[]> {
     const query: Record<string, string> = {};
     if (ruleTag) {
       query["rule_tag"] = ruleTag;
     }
-    return this.apiCall.get<AnalyticsRulesRetrieveSchema>(
-      this.endpointPath(),
-      query,
-    );
+    return this.apiCall.get<AnalyticsRuleSchema[]>(this.endpointPath(), query);
   }
 
   private endpointPath(operation?: string): string {
