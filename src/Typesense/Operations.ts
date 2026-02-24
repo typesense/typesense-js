@@ -16,7 +16,7 @@ export default class Operations {
       | "vote"
       | "snapshot"
       | "cache/clear"
-      // eslint-disable-next-line @typescript-eslint/ban-types -- Can't use `object` here, it needs to intersect with `{}`
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Can't use `object` here, it needs to intersect with `{}`
       | (string & {}),
     queryParameters: Record<string, any> = {},
   ): Promise<any> {

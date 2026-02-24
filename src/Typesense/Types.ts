@@ -99,7 +99,7 @@ export interface SearchParams<
   Infix extends string = string,
 > {
   // From https://typesense.org/docs/latest/api/documents.html#arguments
-  // eslint-disable-next-line @typescript-eslint/ban-types -- Can't use `object` here, it needs to intersect with `{}`
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Can't use `object` here, it needs to intersect with `{}`
   q?: "*" | (string & {});
   query_by?: string | string[];
   query_by_weights?: string | number[];
