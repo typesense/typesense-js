@@ -251,8 +251,9 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("AnalyticsRules", function () 
 
   describe(".retrieve", function () {
     it("retrieves analytics rules (optionally filtered)", async function () {
-      const rulesData = await analyticsRules.retrieve();
-      expect(rulesData).toBeDefined();
-    });
+        const rulesData = await analyticsRules.retrieve();
+        expect(rulesData).toBeDefined();
+        expect(Array.isArray(rulesData)).toBe(true);
+      });
   });
 });
