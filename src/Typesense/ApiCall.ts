@@ -535,7 +535,7 @@ export default class ApiCall implements HttpClient {
           conversation_id: "unknown",
           message: JSON.stringify(jsonData),
         };
-      } catch (e) {
+      } catch {
         return {
           conversation_id: "unknown",
           message: line.trim(),
@@ -574,7 +574,7 @@ export default class ApiCall implements HttpClient {
           conversation_id: "unknown",
           message: JSON.stringify(jsonData),
         };
-      } catch (e) {
+      } catch {
         // Not valid JSON, use as plain text
         return {
           conversation_id: "unknown",

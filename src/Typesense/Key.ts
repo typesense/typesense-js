@@ -2,7 +2,7 @@ import ApiCall from "./ApiCall";
 import Keys from "./Keys";
 
 export interface KeyCreateSchema {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   actions: Actions[] | (string & {})[];
   collections: string[];
   description?: string;
