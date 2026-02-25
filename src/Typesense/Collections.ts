@@ -12,6 +12,7 @@ export interface BaseCollectionCreateSchema {
     model_name?: string;
   };
   synonym_sets?: string[];
+  curation_sets?: string[];
 }
 
 interface CollectionCreateSchemaWithSrc

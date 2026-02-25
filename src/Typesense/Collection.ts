@@ -51,7 +51,7 @@ export interface CollectionFieldSchema
   [t: string]: unknown;
 }
 
-export interface CollectionSchema extends CollectionCreateSchema {
+export interface CollectionSchema extends Required<CollectionCreateSchema> {
   created_at: number;
   num_documents: number;
   num_memory_shards: number;
