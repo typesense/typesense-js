@@ -214,12 +214,15 @@ export default class Documents<T extends DocumentSchema = object>
     super(collectionName, apiCall, configuration);
   }
 
-  async create(document: T, options: DocumentWriteParameters = {}): Promise<T> {
+  async create(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action"> = {},
+  ): Promise<T> {
     if (!document) throw new Error("No document provided");
     return this.apiCall.post<T>(this.endpointPath(), document, options);
   }
 
-  async upsert(document: T, options: DocumentWriteParameters = {}): Promise<T> {
+  async upsert(document: T, options: Omit<DocumentWriteParameters, "action"> = {}): Promise<T> {
     if (!document) throw new Error("No document provided");
     return this.apiCall.post<T>(
       this.endpointPath(),
@@ -232,10 +235,10 @@ export default class Documents<T extends DocumentSchema = object>
     document: T,
     options: UpdateByFilterParameters,
   ): Promise<UpdateByFilterResponse>;
-  async update(document: T, options: DocumentWriteParameters): Promise<T>;
+  async update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
   async update(
     document: T,
-    options: DocumentWriteParameters | UpdateByFilterParameters = {},
+    options: Omit<DocumentWriteParameters, "action"> | UpdateByFilterParameters = {},
   ): Promise<UpdateByFilterResponse | T> {
     if (!document) throw new Error("No document provided");
 
@@ -250,6 +253,35 @@ export default class Documents<T extends DocumentSchema = object>
         this.endpointPath(),
         document,
         Object.assign({}, options, { action: "update" }),
+      );
+    }
+  }
+
+  async emplace(
+    document: T,
+    options: UpdateByFilterParameters,
+  ): Promise<UpdateByFilterResponse>;
+  async emplace(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action">,
+  ): Promise<T>;
+  async emplace(
+    document: T,
+    options: Omit<DocumentWriteParameters, "action"> | UpdateByFilterParameters = {},
+  ): Promise<UpdateByFilterResponse | T> {
+    if (!document) throw new Error("No document provided");
+
+    if (options["filter_by"] != null) {
+      return this.apiCall.patch<T>(
+        this.endpointPath(),
+        document,
+        Object.assign({}, options),
+      );
+    } else {
+      return this.apiCall.post<T>(
+        this.endpointPath(),
+        document,
+        Object.assign({}, options, { action: "emplace" }),
       );
     }
   }
