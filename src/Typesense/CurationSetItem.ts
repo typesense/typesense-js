@@ -2,6 +2,8 @@ import ApiCall from "./ApiCall";
 import CurationSets from "./CurationSets";
 import type { CurationObjectSchema } from "./CurationSets";
 
+export type CurationItemUpsertSchema = Omit<CurationObjectSchema, "id">;
+
 export interface CurationItemDeleteResponseSchema {
   id: string;
 }
@@ -17,7 +19,9 @@ export default class CurationSetItem {
     return this.apiCall.get<CurationObjectSchema>(this.endpointPath());
   }
 
-  async upsert(params: CurationObjectSchema): Promise<CurationObjectSchema> {
+  async upsert(
+    params: CurationItemUpsertSchema,
+  ): Promise<CurationObjectSchema> {
     return this.apiCall.put<CurationObjectSchema>(this.endpointPath(), params);
   }
 
