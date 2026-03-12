@@ -22,7 +22,7 @@ export interface CollectionFieldSchema extends Partial<Pick<BaseCollectionCreate
     range_index?: boolean;
     [t: string]: unknown;
 }
-export interface CollectionSchema extends CollectionCreateSchema {
+export interface CollectionSchema extends Required<CollectionCreateSchema> {
     created_at: number;
     num_documents: number;
     num_memory_shards: number;
