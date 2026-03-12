@@ -89,6 +89,7 @@
   },
   "scripts": {
     "format": "prettier --write \"(src|test|doc)/**/*.(ts|json|js)\"",
+    "prepublishOnly": "npm run build",
     "pretest": "eslint .",
     "test": "vitest",
     "test:local": "npm run test:typesenseServer:start && vitest run; npm run test:typesenseServer:stop",
