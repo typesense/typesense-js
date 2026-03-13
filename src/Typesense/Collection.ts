@@ -65,8 +65,6 @@ export interface CollectionDropFieldSchema {
 export interface CollectionUpdateSchema
   extends Partial<Omit<CollectionCreateSchema, "name" | "fields">> {
   fields?: (CollectionFieldSchema | CollectionDropFieldSchema)[];
-  synonym_sets?: string[];
-  curation_sets?: string[];
 }
 
 export interface CollectionDeleteOptions {
