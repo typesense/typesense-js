@@ -10,7 +10,7 @@ export default class AnalyticsRules {
         error?: string;
     })[]>;
     upsert(name: string, params: AnalyticsRuleUpsertSchema): Promise<AnalyticsRuleSchema>;
-    retrieve(ruleTag?: string): Promise<AnalyticsRulesRetrieveSchema>;
+    retrieve(ruleTag?: string): Promise<AnalyticsRuleSchema[]>;
     private endpointPath;
     static get RESOURCEPATH(): string;
 }
