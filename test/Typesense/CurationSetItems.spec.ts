@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import { ObjectNotFound } from "../../src/Typesense/Errors";
+import type { CurationObjectSchema } from "../../src/Typesense/CurationSets";
 import { isV30OrAbove } from "../utils";
 
 const typesense = new TypesenseClient({
@@ -14,6 +15,27 @@ const typesense = new TypesenseClient({
   apiKey: "xyz",
   connectionTimeoutSeconds: 180,
 });
+
+const validTaggedRule = {
+  id: "rule-with-tags",
+  rule: {
+    query: "test",
+    match: "exact",
+    filter_by: "brand:=nike",
+    tags: ["tag1", "tag2"],
+  },
+  includes: [{ id: "123", position: 1 }],
+} as const satisfies CurationObjectSchema;
+
+const _: CurationObjectSchema = {
+  id: "invalid-rule-missing-match",
+  // @ts-expect-error query requires match
+  rule: {
+    query: "test",
+    tags: ["tag1"],
+  },
+  includes: [{ id: "123", position: 1 }],
+};
 
 describe.skipIf(!(await isV30OrAbove(typesense)))(
   "CurationSetItems",
@@ -69,7 +91,11 @@ describe.skipIf(!(await isV30OrAbove(typesense)))(
       const upserted = await typesense
         .curationSets(testCurationSetName)
         .items("rule-1")
-        .upsert({ id: "rule-1", rule: { query: "test", match: "exact" as const }, includes: [{ id: "999", position: 1 }] });
+        .upsert({
+          id: "rule-1",
+          rule: { query: "test", match: "exact" as const },
+          includes: [{ id: "999", position: 1 }],
+        });
       expect(upserted.id).toBe("rule-1");
 
       const fetched = await typesense
@@ -84,7 +110,22 @@ describe.skipIf(!(await isV30OrAbove(typesense)))(
         .delete();
       expect(deletion.id).toBe("rule-1");
     });
+
+    it("upserts and retrieves an item with rule tags", async function () {
+      await typesense.curationSets(testCurationSetName).upsert({ items: [] });
+
+      const upserted = await typesense
+        .curationSets(testCurationSetName)
+        .items("rule-with-tags")
+        .upsert(validTaggedRule);
+      expect(upserted.id).toBe("rule-with-tags");
+
+      const fetched = await typesense
+        .curationSets(testCurationSetName)
+        .items("rule-with-tags")
+        .retrieve();
+      expect(fetched.rule.tags).toEqual(["tag1", "tag2"]);
+      expect(fetched.rule.filter_by).toBe("brand:=nike");
+    });
   },
 );
-
-
