@@ -1,14 +1,24 @@
 import ApiCall from "./ApiCall";
 
 export type CurationRuleSchema =
-  | { tags: string[]; query?: never; match?: never; filter_by?: never }
   | {
       query: string;
       match: "exact" | "contains";
-      tags?: never;
-      filter_by?: never;
+      filter_by?: string;
+      tags?: string[];
     }
-  | { filter_by: string; tags?: never; query?: never; match?: never };
+  | {
+      query?: never;
+      match?: never;
+      filter_by: string;
+      tags?: string[];
+    }
+  | {
+      query?: never;
+      match?: never;
+      filter_by?: string;
+      tags: string[];
+    };
 
 export interface CurationObjectSchema {
   id: string;
