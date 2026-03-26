@@ -3,6 +3,8 @@
   "include": ["./src/**/*.ts", "./test/**/*.ts"],
   "compilerOptions": {
     "noEmit": true,
-    "rootDir": "."
-  }
+    "rootDir": ".",
+    "target": "esnext",
+    "module": "esnext"
+}
 }
