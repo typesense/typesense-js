@@ -75,11 +75,12 @@ describe("Operations", function () {
             "/operations/schema_changes",
             typesense.configuration.nodes[0],
           ),
-          null,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            headers: {
+              Accept: "application/json, text/plain, */*",
+              "Content-Type": "application/json",
+              "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            },
           },
         )
         .reply(200, [
@@ -108,11 +109,12 @@ describe("Operations", function () {
             "/operations/schema_changes",
             typesense.configuration.nodes[0],
           ),
-          null,
           {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            headers: {
+              Accept: "application/json, text/plain, */*",
+              "Content-Type": "application/json",
+              "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
+            },
           },
         )
         .reply(200, []);

@@ -422,11 +422,13 @@ describe("ApiCall", () => {
       const apiCall = new ApiCall(client.configuration);
 
       mockAxios
-        .onGet("https://node0/path/collections", "", {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
-          "X-TYPESENSE-API-KEY": client.configuration.apiKey,
-          "x-header-name": "value",
+        .onGet("https://node0/path/collections", {
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "X-TYPESENSE-API-KEY": client.configuration.apiKey,
+            "x-header-name": "value",
+          },
         })
         .reply(200, JSON.stringify({}), { "content-type": "application/json" });
 

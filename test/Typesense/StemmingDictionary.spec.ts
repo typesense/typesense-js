@@ -15,7 +15,7 @@ describe("StemmingDictionary", function () {
       nodes: [
         {
           host: "node0",
-          port: "8108",
+          port: 8108,
           protocol: "http",
         },
       ],
