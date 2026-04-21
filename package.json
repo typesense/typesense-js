@@ -74,8 +74,6 @@
     "eslint-plugin-promise": "^6.6.0",
     "eslint-plugin-standard": "^5.0.0",
     "jsdom": "^28.1.0",
-    "mocha": "^11.7.5",
-    "mocha-junit-reporter": "^2.2.1",
     "prettier": "^3.8.1",
     "timekeeper": "^2.3.1",
     "ts-loader": "^9.5.4",
