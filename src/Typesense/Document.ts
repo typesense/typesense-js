@@ -5,6 +5,12 @@ import Documents, {
   DocumentSchema,
   DocumentWriteParameters,
 } from "./Documents";
+import { normalizeArrayableParams } from "./Utils";
+
+export interface DocumentsRetrieveParameters {
+  include_fields?: string | string[];
+  exclude_fields?: string | string[];
+}
 
 export class Document<T extends DocumentSchema = object> {
   constructor(
@@ -13,8 +19,10 @@ export class Document<T extends DocumentSchema = object> {
     private apiCall: ApiCall
   ) {}
 
-  async retrieve(): Promise<T> {
-    return this.apiCall.get<T>(this.endpointPath());
+  async retrieve(options?: DocumentsRetrieveParameters): Promise<T> {
+    const queryParams = normalizeArrayableParams(options ?? {})
+    
+    return this.apiCall.get<T>(this.endpointPath(), queryParams);
   }
 
   async delete(options?: DeleteQuery): Promise<T> {
