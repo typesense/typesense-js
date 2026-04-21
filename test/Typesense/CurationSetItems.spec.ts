@@ -92,7 +92,6 @@ describe.skipIf(!(await isV30OrAbove(typesense)))(
         .curationSets(testCurationSetName)
         .items("rule-1")
         .upsert({
-          id: "rule-1",
           rule: { query: "test", match: "exact" as const },
           includes: [{ id: "999", position: 1 }],
         });
