@@ -84,7 +84,7 @@
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
     "vitest": "^4.1.4",
-    "webpack": "^5.105.2",
+    "webpack": "^5.106.2",
     "webpack-cli": "^6.0.1"
   },
   "scripts": {
