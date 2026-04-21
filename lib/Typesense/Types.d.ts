@@ -119,9 +119,10 @@ export interface SearchableDocuments<T extends DocumentSchema = DocumentSchema, 
     clearCache(): void;
 }
 export interface WriteableDocuments<T> {
-    create(document: T, options: DocumentWriteParameters): Promise<T>;
-    upsert(document: T, options: DocumentWriteParameters): Promise<T>;
-    update(document: T, options: DocumentWriteParameters): Promise<T>;
+    create(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    upsert(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    emplace(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
     delete(query: DeleteQuery): Promise<DeleteResponse>;
     import(documents: T[] | string, options: DocumentWriteParameters): Promise<string | ImportResponse[]>;
     export(options: DocumentsExportParameters): Promise<string>;
@@ -156,7 +157,11 @@ export interface MultiSearchRequestsWithoutUnionSchema<T extends DocumentSchema,
 }
 export type MultiSearchRequestsSchema<T extends DocumentSchema, Infix extends string> = MultiSearchRequestsWithUnionSchema<T, Infix> | MultiSearchRequestsWithoutUnionSchema<T, Infix>;
 export interface UnionSearchResponse<T extends DocumentSchema> extends Omit<SearchResponse<T>, "request_params"> {
-    union_request_params: SearchResponseRequestParams[];
+    union_request_params: UnionSearchResponseRequestParams[];
+}
+type AllRequiredBut<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T, K>;
+export interface UnionSearchResponseRequestParams extends AllRequiredBut<SearchResponseRequestParams, "voice_query"> {
+    found: number;
 }
 export type MultiSearchResponse<T extends DocumentSchema[], Infix extends string, R extends MultiSearchRequestsSchema<T[number], Infix> = MultiSearchRequestsSchema<T[number], Infix>> = R extends MultiSearchRequestsWithUnionSchema<T[number], Infix> ? UnionSearchResponse<T[number]> : {
     results: {

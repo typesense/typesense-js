@@ -163,10 +163,12 @@ export interface SearchOptions {
 }
 export default class Documents<T extends DocumentSchema = object> extends SearchOnlyDocuments<T> implements WriteableDocuments<T> {
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
-    create(document: T, options?: DocumentWriteParameters): Promise<T>;
-    upsert(document: T, options?: DocumentWriteParameters): Promise<T>;
+    create(document: T, options?: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    upsert(document: T, options?: Omit<DocumentWriteParameters, "action">): Promise<T>;
     update(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
-    update(document: T, options: DocumentWriteParameters): Promise<T>;
+    update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    emplace(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
+    emplace(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
     delete(query?: DeleteQuery): Promise<DeleteResponse<T>>;
     createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
     /**
