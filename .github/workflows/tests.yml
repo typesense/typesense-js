@@ -28,15 +28,15 @@ jobs:
         timeout 20 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8108/health)" != "200" ]]; do sleep 1; done' || false
 
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v4
       with:
-        node-version: 22
-        cache: npm
-    - run: npm ci
-    - run: npm run build
-    - run: npm run ci-lint
-    - run: npm run typecheck
-    - run: npm run test
+        node-version-file: '.nvmrc'
+    - run: pnpm install --frozen-lockfile
+    - run: pnpm build
+    - run: pnpm ci-lint
+    - run: pnpm typecheck
+    - run: pnpm test
     - uses: actions/upload-artifact@v4
       with:
         name: coverage
