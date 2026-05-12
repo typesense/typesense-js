@@ -320,7 +320,7 @@ export default class ApiCall implements HttpClient {
               if (
                 headers !== undefined &&
                 typeof data === "string" &&
-                headers["content-type"] &&
+                typeof headers["content-type"] === "string" &&
                 headers["content-type"].startsWith("application/json")
               ) {
                 transformedData = JSON.parse(data);
