@@ -88,7 +88,7 @@ Here are some examples with inline comments that walk you through how to use the
 To run the examples, from the repo root:
 
 ```bash
-npm run typesenseServer
+pnpm typesenseServer
 node doc/examples/server/bulkImport.js
 ```
 
@@ -129,7 +129,7 @@ This table refers to server=>client compatibility. Newer versions of the client 
 
 ## Development
 
-After checking out the repo, run `npm install` to install dependencies. Then run `npm run test:local` to run the linter and tests.
+After checking out the repo, run `pnpm install` to install dependencies. Then run `pnpm test:local` to run the linter and tests.
 
 To release a new version, we use the [np](https://github.com/sindresorhus/np) package:
 
