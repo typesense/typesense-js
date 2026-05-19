@@ -62,6 +62,14 @@ export default class CurationSets {
   constructor(private apiCall: ApiCall) {}
   static readonly RESOURCEPATH = "/curation_sets";
 
+  /**
+   * Retrieve all curation sets
+   *
+   * @example
+   * await client.curationSets().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async retrieve(): Promise<CurationSetsListEntrySchema[]> {
     return this.apiCall.get<CurationSetsListEntrySchema[]>(
       CurationSets.RESOURCEPATH,
