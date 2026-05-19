@@ -15,6 +15,14 @@ export interface StopwordsRetrieveSchema {
 export default class Stopwords {
   constructor(private apiCall: ApiCall) {}
 
+  /**
+   * Upserts a stopwords set.
+   *
+   * @example
+   * await client.stopwords().upsert("en", { stopwords: ["a", "the"] })
+   *
+   * @see https://typesense.org/docs/latest/api/stopwords.html
+   */
   async upsert(
     stopwordId: string,
     params: StopwordCreateSchema,
@@ -25,6 +33,14 @@ export default class Stopwords {
     );
   }
 
+  /**
+   * Retrieve the details of all stopwords sets
+   *
+   * @example
+   * await client.stopwords().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/stopwords.html
+   */
   async retrieve(): Promise<StopwordsRetrieveSchema> {
     return this.apiCall.get<StopwordsRetrieveSchema>(this.endpointPath());
   }

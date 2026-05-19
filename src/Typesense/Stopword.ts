@@ -17,10 +17,26 @@ export default class Stopword {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Retrieve the details of a stopwords set, given it's name.
+   *
+   * @example
+   * await client.stopwords("en").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/stopwords.html
+   */
   async retrieve(): Promise<StopwordSchema> {
     return this.apiCall.get<StopwordSchema>(this.endpointPath());
   }
 
+  /**
+   * Permanently deletes a stopwords set, given it's name.
+   *
+   * @example
+   * await client.stopwords("en").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/stopwords.html
+   */
   async delete(): Promise<StopwordDeleteSchema> {
     return this.apiCall.delete<StopwordDeleteSchema>(this.endpointPath());
   }
