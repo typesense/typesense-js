@@ -17,10 +17,26 @@ export default class Override {
     private apiCall: ApiCall
   ) {}
 
+  /**
+   * Retrieve an override (curation rule) by ID on this collection.
+   *
+   * @example
+   * await client.collections("products").overrides("promote-hat").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async retrieve(): Promise<OverrideSchema> {
     return this.apiCall.get<OverrideSchema>(this.endpointPath());
   }
 
+  /**
+   * Delete an override (curation rule) by ID on this collection.
+   *
+   * @example
+   * await client.collections("products").overrides("promote-hat").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async delete(): Promise<OverrideDeleteSchema> {
     return this.apiCall.delete<OverrideDeleteSchema>(this.endpointPath());
   }

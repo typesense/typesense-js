@@ -47,6 +47,14 @@ export default class Overrides {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Create or update an override (curation rule) on this collection.
+   *
+   * @example
+   * await client.collections("products").overrides().upsert("promote-hat", { rule: { query: "hat", match: "exact" }, includes: [] })
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async upsert(
     overrideId: string,
     params: OverrideCreateSchema,
@@ -57,6 +65,14 @@ export default class Overrides {
     );
   }
 
+  /**
+   * Retrieve all overrides (curation rules) on this collection.
+   *
+   * @example
+   * await client.collections("products").overrides().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async retrieve(): Promise<OverridesRetrieveSchema> {
     return this.apiCall.get<OverridesRetrieveSchema>(this.endpointPath());
   }

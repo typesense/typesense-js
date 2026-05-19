@@ -22,6 +22,14 @@ export default class Synonyms {
   private static hasWarnedDeprecation = false;
   constructor(private collectionName: string, private apiCall: ApiCall) {}
 
+  /**
+   * Create or update a synonym (legacy v1) on this collection.
+   *
+   * @example
+   * await client.collections("products").synonyms().upsert("syn-1", { synonyms: ["nyc", "new york"] })
+   *
+   * @see https://typesense.org/docs/29.0/api/synonyms.html
+   */
   async upsert(
     synonymId: string,
     params: SynonymCreateSchema
@@ -32,6 +40,14 @@ export default class Synonyms {
     );
   }
 
+  /**
+   * Retrieve all synonyms (legacy v1) on this collection.
+   *
+   * @example
+   * await client.collections("products").synonyms().retrieve()
+   *
+   * @see https://typesense.org/docs/29.0/api/synonyms.html
+   */
   async retrieve(): Promise<SynonymsRetrieveSchema> {
     return this.apiCall.get<SynonymsRetrieveSchema>(this.endpointPath());
   }
