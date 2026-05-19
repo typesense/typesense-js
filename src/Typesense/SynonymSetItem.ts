@@ -12,10 +12,26 @@ export default class SynonymSetItem {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Retrieve a specific synonym item by its id
+   *
+   * @example
+   * await client.synonymSets("my-set").items("syn-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/synonyms.html
+   */
   async retrieve(): Promise<SynonymItemSchema> {
     return this.apiCall.get<SynonymItemSchema>(this.endpointPath());
   }
 
+  /**
+   * Delete a specific synonym item by its id
+   *
+   * @example
+   * await client.synonymSets("my-set").items("syn-1").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/synonyms.html
+   */
   async delete(): Promise<SynonymSetItemDeleteSchema> {
     return this.apiCall.delete<SynonymSetItemDeleteSchema>(this.endpointPath());
   }
