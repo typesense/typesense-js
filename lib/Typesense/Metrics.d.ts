@@ -21,5 +21,13 @@ export interface MetricsResponse {
 export default class Metrics {
     private apiCall;
     constructor(apiCall: ApiCall);
+    /**
+     * Get current RAM, CPU, Disk & Network usage metrics.
+     *
+     * @example
+     * await client.metrics.retrieve()
+     *
+     * @see https://typesense.org/docs/latest/api/cluster-operations.html
+     */
     retrieve(): Promise<MetricsResponse>;
 }

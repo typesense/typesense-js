@@ -163,32 +163,124 @@ export interface SearchOptions {
 }
 export default class Documents<T extends DocumentSchema = object> extends SearchOnlyDocuments<T> implements WriteableDocuments<T> {
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
+    /**
+     * Index a single document. The document must conform to the schema of the collection.
+     *
+     * @example
+     * await client.collections("products").documents().create({ id: "1", title: "Hat" })
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#index-a-single-document
+     */
     create(document: T, options?: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    /**
+     * Upsert a single document. Creates the document if it does not exist, otherwise updates it.
+     *
+     * @example
+     * await client.collections("products").documents().upsert({ id: "1", title: "Hat" })
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#upsert
+     */
     upsert(document: T, options?: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    /**
+     * Update documents matching a `filter_by` condition, or update a single document with `action: "update"` semantics.
+     *
+     * @example
+     * await client.collections("products").documents().update({ in_stock: true }, { filter_by: "category:=hats" })
+     * @example
+     * await client.collections("products").documents().update({ id: "1", title: "Hat" })
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#update-documents-with-conditional-query
+     */
     update(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
+    /**
+     * Update a single document by merging the provided fields.
+     *
+     * @example
+     * await client.collections("products").documents().update({ id: "1", title: "Hat" })
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#update-a-document
+     */
     update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    /**
+     * Emplace documents — insert new documents or update existing ones, optionally by `filter_by`.
+     *
+     * @example
+     * await client.collections("products").documents().emplace({ id: "1", title: "Hat" })
+     * @example
+     * await client.collections("products").documents().emplace({ in_stock: true }, { filter_by: "category:=hats" })
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#index-multiple-documents
+     */
     emplace(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
+    /**
+     * Emplace a single document — inserts if it does not exist, otherwise merges the provided fields.
+     *
+     * @example
+     * await client.collections("products").documents().emplace({ id: "1", title: "Hat" })
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#index-multiple-documents
+     */
     emplace(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    /**
+     * Delete a bunch of documents that match a specific filter condition, or truncate the collection.
+     *
+     * @example
+     * await client.collections("products").documents().delete({ filter_by: "in_stock:=false" })
+     * @example
+     * await client.collections("products").documents().delete({ truncate: true })
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#delete-by-query
+     */
     delete(query?: DeleteQuery): Promise<DeleteResponse<T>>;
+    /**
+     * @deprecated Use `import` instead, which accepts both an array of documents or a JSONL string.
+     */
     createMany(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
     /**
-     * Import a set of documents in a batch.
-     * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
-     * @param options
-     * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
+     * Import documents into a collection. Accepts a JSONL string or an array of document objects.
+     *
+     * @example
+     * await client.collections("products").documents().import([{ id: "1", title: "Hat" }, { id: "2", title: "Shirt" }])
+     * @example
+     * await client.collections("products").documents().import(jsonlString)
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#index-multiple-documents
      */
     import(documents: string, options?: DocumentImportParameters): Promise<string>;
+    /**
+     * Import documents into a collection from an array of objects. Returns one result per document.
+     *
+     * @example
+     * await client.collections("products").documents().import([{ id: "1", title: "Hat" }])
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#index-multiple-documents
+     */
     import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
     /**
      * Imports documents from a NodeJS readable stream of JSONL.
+     *
+     * @example
+     * await client.collections("products").documents().importStream(fs.createReadStream("products.jsonl"))
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#index-multiple-documents
      */
     importStream(readableStream: ReadStream, options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
     /**
-     * Returns a JSONL string for all the documents in this collection
+     * Export all documents in a collection as a JSONL string.
+     *
+     * @example
+     * await client.collections("products").documents().export()
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#export-documents
      */
     export(options?: DocumentsExportParameters): Promise<string>;
     /**
-     * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+     * Export all documents in a collection as a NodeJS readable stream of JSONL.
+     *
+     * @example
+     * await client.collections("products").documents().exportStream()
+     *
+     * @see https://typesense.org/docs/latest/api/documents.html#export-documents
      */
     exportStream(options?: DocumentsExportParameters): Promise<ReadStream>;
 }
