@@ -16,7 +16,25 @@ export default class Stemming {
     this._stemmingDictionaries = new StemmingDictionaries(this.apiCall);
   }
 
+  /**
+   * Access the stemming dictionaries resource. Call without arguments to list or import dictionaries, or pass an ID to access a single dictionary.
+   *
+   * @example
+   * await client.stemming.dictionaries().retrieve()
+   * @example
+   * await client.stemming.dictionaries("en").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/stemming.html
+   */
   dictionaries(): StemmingDictionaries;
+  /**
+   * Access an individual stemming dictionary by ID.
+   *
+   * @example
+   * await client.stemming.dictionaries("en").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/stemming.html
+   */
   dictionaries(id: string): StemmingDictionary;
   dictionaries(id?: string): StemmingDictionaries | StemmingDictionary {
     if (id === undefined) {

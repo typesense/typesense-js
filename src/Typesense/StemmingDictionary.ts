@@ -21,10 +21,26 @@ export default class StemmingDictionary {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Fetch details of a specific stemming dictionary.
+   *
+   * @example
+   * await client.stemming.dictionaries("en").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/stemming.html
+   */
   async retrieve(): Promise<StemmingDictionarySchema> {
     return this.apiCall.get<StemmingDictionarySchema>(this.endpointPath());
   }
 
+  /**
+   * Delete a stemming dictionary by ID.
+   *
+   * @example
+   * await client.stemming.dictionaries("en").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/stemming.html
+   */
   async delete(): Promise<StemmingDictionaryDeleteSchema> {
     return this.apiCall.delete<StemmingDictionaryDeleteSchema>(
       this.endpointPath(),
