@@ -15,6 +15,14 @@ export default class AnalyticsRulesV1 {
     this.apiCall = apiCall;
   }
 
+  /**
+   * Upsert a legacy v1 analytics rule by name.
+   *
+   * @example
+   * await client.analyticsV1.rules().upsert("products_query_hits", { type: "popular_queries", params: {} })
+   *
+   * @see https://typesense.org/docs/29.0/api/analytics-query-suggestions.html
+   */
   async upsert(
     name: string,
     params: AnalyticsRuleCreateSchemaV1
@@ -25,14 +33,21 @@ export default class AnalyticsRulesV1 {
     );
   }
 
+  /**
+   * Retrieve all legacy v1 analytics rules.
+   *
+   * @example
+   * await client.analyticsV1.rules().retrieve()
+   *
+   * @see https://typesense.org/docs/29.0/api/analytics-query-suggestions.html
+   */
   async retrieve(): Promise<AnalyticsRulesRetrieveSchemaV1> {
     return this.apiCall.get<AnalyticsRulesRetrieveSchemaV1>(this.endpointPath());
   }
 
   private endpointPath(operation?: string): string {
-    return `${AnalyticsRulesV1.RESOURCEPATH}${
-      operation === undefined ? "" : "/" + encodeURIComponent(operation)
-    }`;
+    return `${AnalyticsRulesV1.RESOURCEPATH}${operation === undefined ? "" : "/" + encodeURIComponent(operation)
+      }`;
   }
 
   static get RESOURCEPATH() {
