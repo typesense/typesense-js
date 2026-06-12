@@ -1,5 +1,5 @@
-import type { AxiosRequestConfig } from "axios";
 import type { BaseStreamConfig, StreamConfig } from "./Configuration";
+import type { ResponseType } from "./Transport";
 import type {
   DocumentSchema,
   SearchParamsWithPreset,
@@ -226,13 +226,15 @@ export interface WriteableDocuments<T> {
   export(options: DocumentsExportParameters): Promise<string>;
 }
 
-export interface MultiSearchUnionStreamConfig<T extends DocumentSchema>
-  extends BaseStreamConfig {
+export interface MultiSearchUnionStreamConfig<
+  T extends DocumentSchema,
+> extends BaseStreamConfig {
   onComplete?: (data: UnionSearchResponse<T>) => void;
 }
 
-export interface MultiSearchResultsStreamConfig<T extends DocumentSchema[]>
-  extends BaseStreamConfig {
+export interface MultiSearchResultsStreamConfig<
+  T extends DocumentSchema[],
+> extends BaseStreamConfig {
   onComplete?: (data: {
     results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
       length: T["length"];
@@ -249,7 +251,7 @@ export interface RequestParams<T extends DocumentSchema[]> {
     | MultiSearchResultsStreamConfig<T>
     | MultiSearchUnionStreamConfig<T[number]>;
   abortSignal?: AbortSignal | null;
-  responseType?: AxiosRequestConfig["responseType"] | undefined;
+  responseType?: ResponseType | undefined;
   isStreamingRequest: boolean | undefined;
 }
 
@@ -274,25 +276,27 @@ export type MultiSearchRequestsSchema<
   | MultiSearchRequestsWithUnionSchema<T, Infix>
   | MultiSearchRequestsWithoutUnionSchema<T, Infix>;
 
-export interface UnionSearchResponse<T extends DocumentSchema>
-  extends Omit<SearchResponse<T>, "request_params"> {
+export interface UnionSearchResponse<T extends DocumentSchema> extends Omit<
+  SearchResponse<T>,
+  "request_params"
+> {
   union_request_params: UnionSearchResponseRequestParams[];
 }
 
 type AllRequiredBut<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T, K>;
 
-export interface UnionSearchResponseRequestParams
-  extends AllRequiredBut<SearchResponseRequestParams, "voice_query"> {
+export interface UnionSearchResponseRequestParams extends AllRequiredBut<
+  SearchResponseRequestParams,
+  "voice_query"
+> {
   found: number;
 }
 
 export type MultiSearchResponse<
   T extends DocumentSchema[],
   Infix extends string,
-  R extends MultiSearchRequestsSchema<
-    T[number],
-    Infix
-  > = MultiSearchRequestsSchema<T[number], Infix>,
+  R extends MultiSearchRequestsSchema<T[number], Infix> =
+    MultiSearchRequestsSchema<T[number], Infix>,
 > =
   R extends MultiSearchRequestsWithUnionSchema<T[number], Infix>
     ? UnionSearchResponse<T[number]>
@@ -302,13 +306,15 @@ export type MultiSearchResponse<
         };
       };
 
-export interface MultiSearchUnionStreamConfig<T extends DocumentSchema>
-  extends BaseStreamConfig {
+export interface MultiSearchUnionStreamConfig<
+  T extends DocumentSchema,
+> extends BaseStreamConfig {
   onComplete?: (data: UnionSearchResponse<T>) => void;
 }
 
-export interface MultiSearchResultsStreamConfig<T extends DocumentSchema[]>
-  extends BaseStreamConfig {
+export interface MultiSearchResultsStreamConfig<
+  T extends DocumentSchema[],
+> extends BaseStreamConfig {
   onComplete?: (data: {
     results: { [Index in keyof T]: SearchResponse<T[Index]> } & {
       length: T["length"];

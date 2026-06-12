@@ -45,7 +45,9 @@ export interface ImportResponseFail<T extends DocumentSchema = DocumentSchema> {
   code: number;
 }
 
-export type ImportResponse<T extends DocumentSchema = DocumentSchema> = ImportResponseSuccess<T> | ImportResponseFail<T>;
+export type ImportResponse<T extends DocumentSchema = DocumentSchema> =
+  | ImportResponseSuccess<T>
+  | ImportResponseFail<T>;
 
 export type DocumentSchema = Record<string, any>;
 
@@ -91,7 +93,7 @@ export interface SearchResponseHit<T extends DocumentSchema> {
     tokens_matched: number;
   };
   geo_distance_meters?: {
-    location: number
+    location: number;
   };
 }
 
@@ -238,7 +240,13 @@ export default class Documents<T extends DocumentSchema = object>
   async update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
   async update(
     document: T,
-    options: Omit<DocumentWriteParameters, "action"> | UpdateByFilterParameters = {},
+    options: Omit<DocumentWriteParameters, "action">,
+  ): Promise<T>;
+  async update(
+    document: T,
+    options:
+      | Omit<DocumentWriteParameters, "action">
+      | UpdateByFilterParameters = {},
   ): Promise<UpdateByFilterResponse | T> {
     if (!document) throw new Error("No document provided");
 
@@ -267,7 +275,9 @@ export default class Documents<T extends DocumentSchema = object>
   ): Promise<T>;
   async emplace(
     document: T,
-    options: Omit<DocumentWriteParameters, "action"> | UpdateByFilterParameters = {},
+    options:
+      | Omit<DocumentWriteParameters, "action">
+      | UpdateByFilterParameters = {},
   ): Promise<UpdateByFilterResponse | T> {
     if (!document) throw new Error("No document provided");
 
@@ -359,7 +369,7 @@ export default class Documents<T extends DocumentSchema = object>
         bodyParameters: documentsInJSONLFormat,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+        enableKeepAlive: isNodeJSEnvironment ? true : false,
       },
     );
 
@@ -400,7 +410,7 @@ export default class Documents<T extends DocumentSchema = object>
     options: DocumentImportParameters = {},
   ): Promise<ImportResponse<T>[]> {
     const finalOptions = { throwOnFail: true, ...options };
-    
+
     const resultsInJSONLFormat = await this.apiCall.performRequest<string>(
       "post",
       this.endpointPath("import"),
@@ -409,7 +419,7 @@ export default class Documents<T extends DocumentSchema = object>
         bodyParameters: readableStream,
         additionalHeaders: { "Content-Type": "text/plain" },
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+        enableKeepAlive: isNodeJSEnvironment ? true : false,
       },
     );
 
@@ -449,10 +459,14 @@ export default class Documents<T extends DocumentSchema = object>
    */
   async exportStream(
     options: DocumentsExportParameters = {},
-  ): Promise<ReadStream> {
-    return this.apiCall.get<ReadStream>(this.endpointPath("export"), options, {
-      responseType: "stream",
-    });
+  ): Promise<ReadableStream<Uint8Array> | null> {
+    return this.apiCall.get<ReadableStream<Uint8Array> | null>(
+      this.endpointPath("export"),
+      options,
+      {
+        responseType: "stream",
+      },
+    );
   }
 }
 

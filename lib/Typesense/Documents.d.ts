@@ -167,6 +167,7 @@ export default class Documents<T extends DocumentSchema = object> extends Search
     upsert(document: T, options?: Omit<DocumentWriteParameters, "action">): Promise<T>;
     update(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
     update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
+    update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
     emplace(document: T, options: UpdateByFilterParameters): Promise<UpdateByFilterResponse>;
     emplace(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
     delete(query?: DeleteQuery): Promise<DeleteResponse<T>>;
@@ -190,7 +191,7 @@ export default class Documents<T extends DocumentSchema = object> extends Search
     /**
      * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
      */
-    exportStream(options?: DocumentsExportParameters): Promise<ReadStream>;
+    exportStream(options?: DocumentsExportParameters): Promise<ReadableStream<Uint8Array> | null>;
 }
 /**
  * @deprecated Import from './Types' instead

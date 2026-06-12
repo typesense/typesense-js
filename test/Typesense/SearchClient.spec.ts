@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { SearchClient as TypesenseSearchClient } from "../../src/Typesense";
-import MockAxiosAdapter from "axios-mock-adapter";
-import axios from "axios";
+import { createFetchMock, FetchMock } from "../fetchMock";
 
 describe("SearchClient", function () {
   let typesense: TypesenseSearchClient;
-  let mockAxios: MockAxiosAdapter;
+  let mockFetch: FetchMock;
 
   beforeEach(function () {
     typesense = new TypesenseSearchClient({
@@ -21,11 +20,11 @@ describe("SearchClient", function () {
       cacheSearchResultsForSeconds: 2 * 60,
     });
 
-    mockAxios = new MockAxiosAdapter(axios);
+    mockFetch = createFetchMock();
   });
 
   afterEach(function () {
-    mockAxios.reset();
+    mockFetch.restore();
   });
 
   it("should set the right default configuration values", function () {
@@ -75,18 +74,16 @@ describe("SearchClient", function () {
       query_by: "field",
     };
 
-    mockAxios
-      .onPost("http://node0:8108/multi_search", searches, {
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "text/plain",
-          "X-TYPESENSE-API-KEY": longApiKey,
-        },
-      })
-      .reply((config: any) => {
-        expect(config.params["x-typesense-api-key"]).toBeUndefined();
-        return [200, "{}", { "content-type": "application/json" }];
+    mockFetch.onPost("http://node0:8108/multi_search").reply((config) => {
+      expect(config.params["x-typesense-api-key"]).toBeUndefined();
+      expect(config.headers).toMatchObject({
+        accept: "application/json, text/plain, */*",
+        "content-type": "text/plain",
+        "x-typesense-api-key": longApiKey,
       });
+      expect(config.body).toBe(JSON.stringify(searches));
+      return [200, {}, { "content-type": "application/json" }];
+    });
 
     const returnData = await testTypesense.multiSearch.perform(
       searches,
@@ -127,9 +124,9 @@ describe("SearchClient", function () {
     ];
 
     searchParameters.forEach((_, i: number) => {
-      mockAxios
+      mockFetch
         .onGet("http://node0:8108/collections/companies/documents/search")
-        .reply(200, JSON.stringify(stubbedSearchResults[i]), {
+        .reply(200, stubbedSearchResults[i], {
           "content-type": "application/json",
         });
     });
@@ -141,7 +138,7 @@ describe("SearchClient", function () {
     await documents.search(searchParameters[0], {});
 
     // if 2 requests are made, then we know that cache was cleared successfully
-    expect(mockAxios.history["get"].length).toBe(2);
+    expect(mockFetch.history["get"].length).toBe(2);
   });
 
   it("should programatically clear multi_search cache", async function () {
@@ -159,13 +156,13 @@ describe("SearchClient", function () {
     const stubbedSearchResults = [{ results1: [] }, { results2: [] }];
 
     searchRequests.forEach((_, i: number) => {
-      mockAxios
+      mockFetch
         .onPost("http://node0:8108/multi_search")
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .reply((config: any) => {
+        .reply(() => {
           return [
             200,
-            JSON.stringify(stubbedSearchResults[i]),
+            stubbedSearchResults[i],
             { "content-type": "application/json" },
           ];
         });
@@ -179,7 +176,7 @@ describe("SearchClient", function () {
     await typesense.multiSearch.perform(searchRequests[0], commonParams[0]);
 
     // if 2 requests are made, then we know that cache was cleared successfully
-    expect(mockAxios.history["post"].length).toBe(2);
+    expect(mockFetch.history["post"].length).toBe(2);
   });
 
   it("should cache multi_search requests using client configuration by default", async function () {
@@ -191,15 +188,17 @@ describe("SearchClient", function () {
       query_by: "field",
     };
 
-    mockAxios
-      .onPost("http://node0:8108/multi_search")
-      .reply(200, JSON.stringify({ results: [] }), {
+    mockFetch.onPost("http://node0:8108/multi_search").reply(
+      200,
+      { results: [] },
+      {
         "content-type": "application/json",
-      });
+      },
+    );
 
     await typesense.multiSearch.perform(searchRequest, commonParams);
     await typesense.multiSearch.perform(searchRequest, commonParams);
 
-    expect(mockAxios.history["post"].length).toBe(1);
+    expect(mockFetch.history["post"].length).toBe(1);
   });
 });
