@@ -17,6 +17,7 @@ export type * from "./Typesense/AnalyticsRules";
 export type * from "./Typesense/Collection";
 export type * from "./Typesense/Collections";
 export type * from "./Typesense/Configuration";
+export type * from "./Typesense/Transport";
 export type * from "./Typesense/Conversations";
 export type * from "./Typesense/Conversation";
 export type * from "./Typesense/ConversationModel";

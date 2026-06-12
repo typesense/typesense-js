@@ -1,8 +1,6 @@
 import { Logger, LogLevelDesc } from "loglevel";
-import type { Agent as HTTPAgent } from "http";
-import type { Agent as HTTPSAgent } from "https";
-import type { AxiosRequestConfig } from "axios";
 import { DocumentSchema, SearchResponse } from "./Documents";
+import type { ErrorHook, FetchFunction, ParamsSerializer, RequestHook, ResponseHook } from "./Transport";
 export interface NodeConfiguration {
     host: string;
     port: number;
@@ -46,46 +44,23 @@ export interface ConfigurationOptions {
     logLevel?: LogLevelDesc;
     logger?: Logger;
     /**
-     * Set a custom HTTP Agent
-     *
-     * This is helpful for eg, to enable keepAlive which helps prevents ECONNRESET socket hang up errors
-     *    Usage:
-     *      const { Agent: HTTPAgent } = require("http");
-     *      ...
-     *      httpAgent: new HTTPAgent({ keepAlive: true }),
-     * @type {HTTPAgent}
+     * Set a custom fetch implementation.
+     * Useful for tests, edge runtimes, and fetch wrappers.
      */
-    httpAgent?: HTTPAgent;
+    fetch?: FetchFunction;
     /**
-     * Set a custom HTTPS Agent
-     *
-     * This is helpful for eg, to enable keepAlive which helps prevents ECONNRESET socket hang up errors
-     *    Usage:
-     *      const { Agent: HTTPSAgent } = require("https");
-     *      ...
-     *      httpsAgent: new HTTPSAgent({ keepAlive: true }),
-     * @type {HTTPSAgent}
+     * Set a custom Node fetch dispatcher using Undici semantics.
+     * For example, migrate from `new http.Agent({ keepAlive: true })` to
+     * `new undici.Agent({ keepAliveTimeout: ... })` and pass it as dispatcher.
      */
-    httpsAgent?: HTTPSAgent;
+    dispatcher?: unknown;
     /**
-     * Set a custom paramsSerializer
-     *
-     * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
-     *  This is helpful for handling React Native issues like this: https://github.com/axios/axios/issues/6102#issuecomment-2085301397
-     * @type {any}
+     * Set a custom params serializer.
      */
-    paramsSerializer?: any;
-    /**
-     * Set a custom axios adapter
-     *
-     * Useful for customizing the underlying HTTP client library used by Typesense.
-     *
-     * For example, you can use this to use a custom HTTP client library like `fetch`, in order for the library to work on the edge.
-     * Related GiHub issue: https://github.com/typesense/typesense-js/issues/161
-     *
-     * See axios documentation for more information on how to use this parameter: https://axios-http.com/docs/req_config
-     */
-    axiosAdapter?: AxiosRequestConfig["adapter"];
+    paramsSerializer?: ParamsSerializer;
+    requestHooks?: RequestHook[];
+    responseHooks?: ResponseHook[];
+    errorHooks?: ErrorHook[];
 }
 /**
  * Configuration options for streaming responses
@@ -128,10 +103,12 @@ export default class Configuration {
     readonly logger: Logger;
     readonly logLevel: LogLevelDesc;
     readonly additionalHeaders?: Record<string, string>;
-    readonly httpAgent?: HTTPAgent;
-    readonly httpsAgent?: HTTPSAgent;
-    readonly paramsSerializer?: any;
-    readonly axiosAdapter?: AxiosRequestConfig["adapter"];
+    readonly fetch?: FetchFunction;
+    readonly dispatcher?: unknown;
+    readonly paramsSerializer?: ParamsSerializer;
+    readonly requestHooks?: RequestHook[];
+    readonly responseHooks?: ResponseHook[];
+    readonly errorHooks?: ErrorHook[];
     constructor(options: ConfigurationOptions);
     validate(): boolean;
     private validateNodes;

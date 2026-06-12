@@ -1,9 +1,9 @@
-import type { AxiosRequestConfig, AxiosResponse, Method } from "axios";
 import { Logger } from "loglevel";
 import Configuration from "./Configuration";
 import type { NodeConfiguration, StreamConfig } from "./Configuration";
 import TypesenseError from "./Errors/TypesenseError";
 import type { DocumentSchema } from "./Documents";
+import { RequestMethod, ResponseType, TypesenseResponse } from "./Transport";
 interface Node extends NodeConfiguration {
     isHealthy: boolean;
     index: string | number;
@@ -11,14 +11,14 @@ interface Node extends NodeConfiguration {
 export interface HttpClient {
     get<T>(endpoint: string, queryParameters: Record<string, unknown>, { abortSignal, responseType, streamConfig, isStreamingRequest, }: {
         abortSignal?: AbortSignal | null;
-        responseType?: AxiosRequestConfig["responseType"] | undefined;
+        responseType?: ResponseType | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
         isStreamingRequest: boolean | undefined;
     }): Promise<T>;
     delete<T>(endpoint: string, queryParameters: Record<string, unknown>): Promise<T>;
     post<T>(endpoint: string, bodyParameters: unknown, queryParameters: Record<string, unknown>, additionalHeaders: Record<string, string>, { abortSignal, responseType, streamConfig, isStreamingRequest, }: {
         abortSignal?: AbortSignal | null;
-        responseType?: AxiosRequestConfig["responseType"] | undefined;
+        responseType?: ResponseType | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
         isStreamingRequest: boolean | undefined;
     }): Promise<T>;
@@ -36,31 +36,31 @@ export default class ApiCall implements HttpClient {
     private readonly sendApiKeyAsQueryParam?;
     private readonly numRetriesPerRequest;
     private readonly additionalUserHeaders?;
+    private readonly transport;
     readonly logger: Logger;
     private currentNodeIndex;
     constructor(configuration: Configuration);
     get<T>(endpoint: string, queryParameters?: any, { abortSignal, responseType, streamConfig, isStreamingRequest, }?: {
         abortSignal?: any;
-        responseType?: AxiosRequestConfig["responseType"] | undefined;
+        responseType?: ResponseType | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
         isStreamingRequest?: boolean | undefined;
     }): Promise<T>;
     delete<T>(endpoint: string, queryParameters?: any): Promise<T>;
     post<T>(endpoint: string, bodyParameters?: any, queryParameters?: any, additionalHeaders?: any, { abortSignal, responseType, streamConfig, isStreamingRequest, }?: {
         abortSignal?: AbortSignal | null;
-        responseType?: AxiosRequestConfig["responseType"] | undefined;
+        responseType?: ResponseType | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
         isStreamingRequest?: boolean | undefined;
     }): Promise<T>;
     put<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
     patch<T>(endpoint: string, bodyParameters?: any, queryParameters?: any): Promise<T>;
-    private getAdapter;
-    performRequest<T>(requestType: Method, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, skipConnectionTimeout, enableKeepAlive, streamConfig, isStreamingRequest, }: {
+    performRequest<T>(requestType: RequestMethod, endpoint: string, { queryParameters, bodyParameters, additionalHeaders, abortSignal, responseType, skipConnectionTimeout, enableKeepAlive, streamConfig, isStreamingRequest, }: {
         queryParameters?: any;
         bodyParameters?: any;
         additionalHeaders?: any;
         abortSignal?: any;
-        responseType?: AxiosRequestConfig["responseType"] | undefined;
+        responseType?: ResponseType | undefined;
         skipConnectionTimeout?: boolean;
         enableKeepAlive?: boolean | undefined;
         streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema> | undefined;
@@ -69,10 +69,9 @@ export default class ApiCall implements HttpClient {
     private processStreamingLine;
     private processDataLine;
     private handleStreamingResponse;
-    private handleNodeStreaming;
-    private handleBrowserStreaming;
-    private handleBrowserReadableStream;
-    private handleBrowserStringResponse;
+    private handleReadableStream;
+    private handleStringStreamResponse;
+    private isReadableStream;
     private processStreamLines;
     private finalizeStreamResult;
     /**
@@ -90,8 +89,12 @@ export default class ApiCall implements HttpClient {
     setNodeHealthcheck(node: any, isHealthy: any): void;
     uriFor(endpoint: string, node: any): string;
     defaultHeaders(): any;
+    private mergeHeaders;
+    private isCallerAbortError;
+    private messageFromResponseData;
+    private httpBodyForError;
     timer(seconds: any): Promise<void>;
-    customErrorForResponse(response: AxiosResponse, messageFromServer: string, httpBody?: string): TypesenseError;
+    customErrorForResponse(response: TypesenseResponse, messageFromServer: string, httpBody?: string): TypesenseError;
     private invokeOnChunkCallback;
     private invokeOnCompleteCallback;
     private invokeOnErrorCallback;

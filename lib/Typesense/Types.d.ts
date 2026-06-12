@@ -1,5 +1,5 @@
-import type { AxiosRequestConfig } from "axios";
 import type { BaseStreamConfig, StreamConfig } from "./Configuration";
+import type { ResponseType } from "./Transport";
 import type { DocumentSchema, SearchParamsWithPreset, SearchOptions, SearchResponse, DocumentWriteParameters, DeleteQuery, DeleteResponse, ImportResponse, DocumentsExportParameters } from "./Documents";
 export type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 export type OperationMode = "off" | "always" | "fallback";
@@ -146,7 +146,7 @@ export interface RequestParams<T extends DocumentSchema[]> {
     headers?: Record<string, string>;
     streamConfig?: StreamConfig<T[number]> | MultiSearchResultsStreamConfig<T> | MultiSearchUnionStreamConfig<T[number]>;
     abortSignal?: AbortSignal | null;
-    responseType?: AxiosRequestConfig["responseType"] | undefined;
+    responseType?: ResponseType | undefined;
     isStreamingRequest: boolean | undefined;
 }
 export interface MultiSearchRequestsWithUnionSchema<T extends DocumentSchema, Infix extends string> extends SearchesMultiSearchesRequestSchema<T, Infix> {
