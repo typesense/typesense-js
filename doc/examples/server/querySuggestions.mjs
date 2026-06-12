@@ -7,9 +7,6 @@ import "@babel/register";
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Typesense from "../../../lib/Typesense.js";
 
-// import axios from "axios";
-// import curlirize from "axios-curlirize";
-
 const masterApiKey = "xyz";
 
 const typesense = new Typesense.Client({
@@ -22,8 +19,6 @@ const typesense = new Typesense.Client({
   ],
   apiKey: masterApiKey,
 });
-
-// curlirize(axios);
 
 async function runExample() {
   await deleteDataFromPreviousRuns();

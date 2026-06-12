@@ -6,9 +6,6 @@ import "@babel/register";
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Typesense from "../../../lib/Typesense.js";
 
-// import axios from "axios";
-// import curlirize from "axios-curlirize";
-
 // Create a client
 const typesense = new Typesense.Client({
   nodes: [
@@ -60,8 +57,6 @@ let documents = [
   },
 ];
 
-// curlirize(axios);
-
 async function runExample() {
   try {
     // Delete if the collection already exists from a previous example run
@@ -91,7 +86,7 @@ async function runExample() {
 
     // retrieve stopword set
     result = await typesense.stopwords("common-words").retrieve();
-    console.dir(result), { depth: null };
+    (console.dir(result), { depth: null });
 
     // retrieve all stopword sets
     result = await typesense.stopwords().retrieve();
@@ -104,9 +99,12 @@ async function runExample() {
       .search({
         q: "the acme",
         query_by: "company_name",
-        stopwords: "common-words"
+        stopwords: "common-words",
       });
-    console.dir(searchResults.hits.map(h => h.highlight), { depth: null });
+    console.dir(
+      searchResults.hits.map((h) => h.highlight),
+      { depth: null },
+    );
   } catch (error) {
     console.dir(error, { depth: null });
   } finally {
