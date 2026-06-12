@@ -1,7 +1,7 @@
-import { AxiosRequestConfig } from "axios";
 import type { DocumentSchema } from "./Documents";
 import { HttpClient } from "./ApiCall";
 import type { RequestParams } from "./Types";
+import type { ResponseType } from "./Transport";
 
 const defaultCacheResponseForSeconds = 2 * 60;
 const defaultMaxSize = 100;
@@ -148,7 +148,7 @@ export default class RequestWithCache {
     headers?: Record<string, string>,
     options?: {
       abortSignal?: AbortSignal | null;
-      responseType?: AxiosRequestConfig["responseType"];
+      responseType?: ResponseType;
       streamConfig?: any;
       isStreamingRequest: boolean | undefined;
     },
