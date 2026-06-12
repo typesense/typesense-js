@@ -3,50 +3,16 @@ import "dotenv/config";
 import { Essay } from "./essays";
 import { StreamConfig } from "../src/Typesense/Configuration";
 import { client, collection, model } from "./setup";
-import { EventEmitter } from "events";
-
-class MockReadableWithError extends EventEmitter {
-  pipe() {
-    return this;
-  }
-  on(event, handler) {
-    super.on(event, handler);
-    return this;
-  }
-}
-
-const axiosMock = vi.hoisted(() => {
-  const mockFn = vi.fn();
-  return {
-    mockFn,
-    request: vi.fn(),
-    isAxiosError: vi.fn(),
-    create: vi.fn(),
-  };
-});
-
-vi.mock("axios", () => {
-  return {
-    default: axiosMock.mockFn,
-    __esModule: true,
-  };
-});
 
 const runIntegrationTests = process.env.RUN_INTEGRATION_TESTS === "true";
 
 describe.skipIf(!runIntegrationTests)("Streaming responses in Node.js", () => {
-  beforeEach(async () => {
-    vi.clearAllMocks();
-
-    const realAxios = (await vi.importActual("axios")) as { default: any };
-
-    axiosMock.mockFn.mockImplementation((config) => {
-      return realAxios.default(config);
-    });
+  beforeEach(() => {
+    vi.restoreAllMocks();
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should handle streaming responses for search", async () => {
@@ -126,17 +92,27 @@ describe.skipIf(!runIntegrationTests)("Streaming responses in Node.js", () => {
       onError,
     };
 
-    const mockStream = new MockReadableWithError();
-
-    axiosMock.mockFn.mockResolvedValueOnce({
-      status: 200,
-      data: mockStream,
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(
+          encoder.encode(
+            'data: {"conversation_id":"123","message":"This is test data"}\n\n',
+          ),
+        );
+        controller.error(new Error("Stream error during processing"));
+      },
     });
 
-    const requestPromise = client
-      .collections<Essay>(collection.name)
-      .documents()
-      .search({
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(stream, {
+        status: 200,
+        headers: { "content-type": "text/event-stream" },
+      }),
+    );
+
+    try {
+      await client.collections<Essay>(collection.name).documents().search({
         q: "What is the maker schedule?",
         query_by: "embedding",
         conversation: true,
@@ -145,23 +121,6 @@ describe.skipIf(!runIntegrationTests)("Streaming responses in Node.js", () => {
         include_fields: "title",
         streamConfig,
       });
-
-    // Add a small delay to ensure search processing has started
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    mockStream.emit(
-      "data",
-      Buffer.from(
-        'data: {"conversation_id":"123","message":"This is test data"}\n\n',
-      ),
-    );
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    mockStream.emit("error", new Error("Stream error during processing"));
-
-    try {
-      await requestPromise;
 
       // If it doesn't fail, that's a problem
       expect(true).toBe(false);

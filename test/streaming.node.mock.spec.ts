@@ -1,21 +1,35 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Readable } from "stream";
-import MockAdapter from "axios-mock-adapter";
-import axios from "axios";
 import { client } from "./setup";
 import { StreamConfig } from "../src/Typesense/Configuration";
 import { Essay } from "./essays";
 import { MultiSearchResultsStreamConfig } from "../src/Typesense/Types";
+import { createFetchMock, FetchMock } from "./fetchMock";
 
-describe("Streaming responses with axios-mock-adapter", () => {
-  let mock: MockAdapter;
+function streamFromChunks(
+  chunks: string[],
+  metadata: unknown,
+): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  return new ReadableStream({
+    start(controller) {
+      chunks.forEach((chunk) => {
+        controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
+      });
+      controller.enqueue(encoder.encode(JSON.stringify(metadata)));
+      controller.close();
+    },
+  });
+}
+
+describe("Streaming responses with fetch mock in Node.js", () => {
+  let mock: FetchMock;
 
   beforeEach(() => {
-    mock = new MockAdapter(axios);
+    mock = createFetchMock();
   });
 
   afterEach(() => {
-    mock.reset();
+    mock.restore();
   });
 
   it("should handle streaming responses for search", async () => {
@@ -46,18 +60,8 @@ describe("Streaming responses with axios-mock-adapter", () => {
       search_time_ms: 123,
     };
 
-    mock.onAny().reply(() => {
-      const stream = new Readable({
-        read() {
-          chunks.forEach((chunk) => {
-            this.push(`data: ${chunk}\n\n`);
-          });
-          this.push(JSON.stringify(metadata));
-          this.push(null);
-        },
-      });
-
-      return [200, stream, { "content-type": "text/event-stream" }];
+    mock.onAny().reply(200, streamFromChunks(chunks, metadata), {
+      "content-type": "text/event-stream",
     });
 
     const response = await client
@@ -112,18 +116,8 @@ describe("Streaming responses with axios-mock-adapter", () => {
       ],
     };
 
-    mock.onAny().reply(() => {
-      const stream = new Readable({
-        read() {
-          chunks.forEach((chunk) => {
-            this.push(`data: ${chunk}\n\n`);
-          });
-          this.push(JSON.stringify(metadata));
-          this.push(null);
-        },
-      });
-
-      return [200, stream, { "content-type": "text/event-stream" }];
+    mock.onAny().reply(200, streamFromChunks(chunks, metadata), {
+      "content-type": "text/event-stream",
     });
 
     const response = await client.multiSearch.perform<[Essay]>(
@@ -163,18 +157,25 @@ describe("Streaming responses with axios-mock-adapter", () => {
       onError,
     };
 
-    mock.onAny().reply(() => {
-      const stream = new Readable({
-        read() {
-          this.push(
-            'data: {"conversation_id":"123","message":"Error chunk"}\n\n',
-          );
-          this.destroy(new Error("Stream error during processing"));
-        },
-      });
+    const encoder = new TextEncoder();
+    let sentFirstChunk = false;
+    const stream = new ReadableStream({
+      pull(controller) {
+        if (sentFirstChunk) {
+          controller.error(new Error("Stream error during processing"));
+          return;
+        }
 
-      return [200, stream, { "content-type": "text/event-stream" }];
+        sentFirstChunk = true;
+        controller.enqueue(
+          encoder.encode(
+            'data: {"conversation_id":"123","message":"Error chunk"}\n\n',
+          ),
+        );
+      },
     });
+
+    mock.onAny().reply(200, stream, { "content-type": "text/event-stream" });
 
     try {
       await client.collections<Essay>("test-collection").documents().search({
