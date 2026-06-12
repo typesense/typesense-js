@@ -1,14 +1,13 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
+import { createFetchMock, FetchMock } from "../fetchMock";
 
 describe("StemmingDictionary", function () {
   let typesense;
   let stemmingDictionary;
   let apiCall;
-  let mockAxios;
+  let mockFetch: FetchMock;
 
   beforeEach(function () {
     typesense = new TypesenseClient({
@@ -24,27 +23,35 @@ describe("StemmingDictionary", function () {
     });
     stemmingDictionary = typesense.stemming.dictionaries("set1");
     apiCall = new ApiCall(typesense.configuration);
-    mockAxios = new MockAxiosAdapter(axios);
+    mockFetch = createFetchMock();
+  });
+
+  afterEach(function () {
+    mockFetch.restore();
   });
 
   describe(".retrieve", function () {
     it("retrieves the dictionary", async function () {
-      mockAxios
+      mockFetch
         .onGet(
           apiCall.uriFor(
             "/stemming/dictionaries/set1",
             typesense.configuration.nodes[0],
           ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
         )
-        .reply(200, {
-          id: "set1",
-          words: [{ word: "people", root: "person" }],
+        .reply((config) => {
+          expect(config.headers).toMatchObject({
+            accept: "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "x-typesense-api-key": typesense.configuration.apiKey,
+          });
+          return [
+            200,
+            {
+              id: "set1",
+              words: [{ word: "people", root: "person" }],
+            },
+          ];
         });
 
       const returnData = await stemmingDictionary.retrieve();
@@ -58,22 +65,14 @@ describe("StemmingDictionary", function () {
 
   describe(".delete", function () {
     it("deletes the dictionary", async function () {
-      mockAxios
+      mockFetch
         .onDelete(
           apiCall.uriFor(
             "/stemming/dictionaries/set1",
             typesense.configuration.nodes[0],
           ),
-          null,
-          {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": typesense.configuration.apiKey,
-          },
         )
-        .reply(200, {
-          id: "set1",
-        });
+        .reply(200, { id: "set1" });
 
       const returnData = await stemmingDictionary.delete();
 

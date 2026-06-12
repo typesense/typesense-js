@@ -368,7 +368,7 @@ export default class Documents<T extends DocumentSchema = object>
         additionalHeaders: { "Content-Type": "text/plain" },
         abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+        enableKeepAlive: isNodeJSEnvironment ? true : false,
       },
     );
 
@@ -420,7 +420,7 @@ export default class Documents<T extends DocumentSchema = object>
         additionalHeaders: { "Content-Type": "text/plain" },
         abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
+        enableKeepAlive: isNodeJSEnvironment ? true : false,
       },
     );
 
@@ -460,10 +460,14 @@ export default class Documents<T extends DocumentSchema = object>
    */
   async exportStream(
     options: DocumentsExportParameters = {},
-  ): Promise<ReadStream> {
-    return this.apiCall.get<ReadStream>(this.endpointPath("export"), options, {
-      responseType: "stream",
-    });
+  ): Promise<ReadableStream<Uint8Array> | null> {
+    return this.apiCall.get<ReadableStream<Uint8Array> | null>(
+      this.endpointPath("export"),
+      options,
+      {
+        responseType: "stream",
+      },
+    );
   }
 }
 

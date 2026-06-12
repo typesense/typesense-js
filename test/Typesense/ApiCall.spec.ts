@@ -1,15 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import ApiCall from "../../src/Typesense/ApiCall";
 import { ObjectUnprocessable } from "../../src/Typesense/Errors";
-import axios from "axios";
-import MockAxiosAdapter from "axios-mock-adapter";
 import timekeeper from "timekeeper";
+import { createFetchMock, FetchMock } from "../fetchMock";
 
 const createSharedNodeSelectionBehavior = (method: string) => {
   return () => {
     let typesense: TypesenseClient;
-    let mockAxios: MockAxiosAdapter;
+    let mockFetch: FetchMock;
     let apiCall: ApiCall;
 
     beforeEach(() => {
@@ -36,22 +35,26 @@ const createSharedNodeSelectionBehavior = (method: string) => {
         logLevel: "error",
         retryIntervalSeconds: 0.001,
       });
-      mockAxios = new MockAxiosAdapter(axios);
+      mockFetch = createFetchMock();
       apiCall = new ApiCall(typesense.configuration);
     });
 
+    afterEach(() => {
+      mockFetch.restore();
+    });
+
     it("does not retry when HTTPStatus >= 300 and HTTPStatus < 500", async () => {
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[0]))
         .reply(409, JSON.stringify({ message: "Already exists" }), {
           "content-type": "application/json",
         });
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .reply(422, JSON.stringify({ message: "Unprocessable" }), {
           "content-type": "application/json",
         });
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[2]))
         .reply(500, JSON.stringify({ message: "Error message" }), {
           "content-type": "application/json",
@@ -61,24 +64,24 @@ const createSharedNodeSelectionBehavior = (method: string) => {
         "Request failed with HTTP code 409 | Server said: Already exists",
       );
       await expect(apiCall[method]("/")).rejects.toThrow(ObjectUnprocessable);
-      const requestHistory = mockAxios.history[method];
+      const requestHistory = mockFetch.history[method];
       expect(requestHistory.length).toBe(2);
       expect(requestHistory[0].url).toBe("http://node0:8108/");
       expect(requestHistory[1].url).toBe("http://node1:7108/");
     });
 
     it("raises an error when no nodes are healthy", async () => {
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[0]))
         .reply(500, JSON.stringify({ message: "Error message" }), {
           "content-type": "application/json",
         });
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .reply(500, JSON.stringify({ message: "Error message" }), {
           "content-type": "application/json",
         });
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[2]))
         .reply(500, JSON.stringify({ message: "Error message" }), {
           "content-type": "application/json",
@@ -87,7 +90,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
       await expect(apiCall[method]("/")).rejects.toThrow(
         "Request failed with HTTP code 500 | Server said: Error message",
       );
-      const requestHistory = mockAxios.history[method];
+      const requestHistory = mockFetch.history[method];
       expect(requestHistory.length).toBe(4);
       expect(requestHistory[0].url).toBe("http://node0:8108/");
       expect(requestHistory[1].url).toBe("http://node1:7108/");
@@ -96,13 +99,13 @@ const createSharedNodeSelectionBehavior = (method: string) => {
     });
 
     it("selects the next available node when there is a connection timeout", async () => {
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[0]))
         .timeout();
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .timeout();
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[2]))
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -112,7 +115,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
       expect(result).toEqual({
         message: "Success",
       });
-      const requestHistory = mockAxios.history[method];
+      const requestHistory = mockFetch.history[method];
       expect(requestHistory.length).toBe(3);
       expect(requestHistory[0].url).toBe("http://node0:8108/");
       expect(requestHistory[1].url).toBe("http://node1:7108/");
@@ -120,13 +123,13 @@ const createSharedNodeSelectionBehavior = (method: string) => {
     });
 
     it("removes unhealthy nodes out of rotation, until threshold", async () => {
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[0]))
         .timeout();
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .timeout();
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[2]))
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -145,7 +148,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
       await apiCall[method]("/"); // Request should have been made to Node 2, since Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold
 
       // Remove first mock, to let request to node 0 succeed
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[0]))
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -154,7 +157,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
       timekeeper.freeze(currentTime + 185 * 1000);
       await apiCall[method]("/"); // Request should have been made to Node 0, since it is now healthy and the unhealthy threshold was exceeded
 
-      const requestHistory = mockAxios.history[method];
+      const requestHistory = mockFetch.history[method];
       expect(requestHistory.length).toBe(12);
 
       expect(requestHistory[0].url).toBe("http://node0:8108/");
@@ -178,7 +181,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
 
     describe("when a nearestNode is specified", () => {
       let nearestNodeTypesense: TypesenseClient;
-      let nearestNodeMockAxios: MockAxiosAdapter;
+      let nearestNodeMockFetch: FetchMock;
       let nearestNodeApiCall: ApiCall;
 
       beforeEach(() => {
@@ -210,12 +213,16 @@ const createSharedNodeSelectionBehavior = (method: string) => {
           logLevel: "error",
           retryIntervalSeconds: 0.001,
         });
-        nearestNodeMockAxios = new MockAxiosAdapter(axios);
+        nearestNodeMockFetch = createFetchMock();
         nearestNodeApiCall = new ApiCall(nearestNodeTypesense.configuration);
       });
 
+      afterEach(() => {
+        nearestNodeMockFetch.restore();
+      });
+
       it("uses the nearestNode if it is present and healthy, otherwise fallsback to regular nodes", async () => {
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -223,7 +230,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
             ),
           )
           .timeout();
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -231,7 +238,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
             ),
           )
           .timeout();
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -239,7 +246,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
             ),
           )
           .timeout();
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -262,8 +269,8 @@ const createSharedNodeSelectionBehavior = (method: string) => {
         timekeeper.freeze(currentTime + 65 * 1000);
         await nearestNodeApiCall[method]("/"); // Request should have been attempted to nearestNode, Node 0 and Node 1, but finally made to Node 2 (since disributedSearchNode, Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold)
         // Remove first mock, to let request to nearestNode succeed
-        nearestNodeMockAxios.resetHandlers();
-        nearestNodeMockAxios
+        nearestNodeMockFetch.resetHandlers();
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -279,7 +286,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
         await nearestNodeApiCall[method]("/"); // Request should have been made to nearestNode, since no roundrobin if it is present and healthy
         await nearestNodeApiCall[method]("/"); // Request should have been made to nearestNode, since no roundrobin if it is present and healthy
 
-        const requestHistory = nearestNodeMockAxios.history[method];
+        const requestHistory = nearestNodeMockFetch.history[method];
         expect(requestHistory.length).toBe(14);
 
         expect(requestHistory[0].url).toBe("http://nearestNode:6108/");
@@ -308,7 +315,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
       });
 
       it("raises an error when no nodes are healthy", async () => {
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -318,7 +325,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
           .reply(500, JSON.stringify({ message: "Error message" }), {
             "content-type": "application/json",
           });
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -328,7 +335,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
           .reply(500, JSON.stringify({ message: "Error message" }), {
             "content-type": "application/json",
           });
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -338,7 +345,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
           .reply(500, JSON.stringify({ message: "Error message" }), {
             "content-type": "application/json",
           });
-        nearestNodeMockAxios
+        nearestNodeMockFetch
           .onAny(
             nearestNodeApiCall.uriFor(
               "/",
@@ -352,7 +359,7 @@ const createSharedNodeSelectionBehavior = (method: string) => {
         await expect(nearestNodeApiCall[method]("/")).rejects.toThrow(
           "Request failed with HTTP code 500 | Server said: Error message",
         );
-        const requestHistory = nearestNodeMockAxios.history[method];
+        const requestHistory = nearestNodeMockFetch.history[method];
         expect(requestHistory.length).toBe(5);
         expect(requestHistory[0].url).toBe("http://nearestNode:6108/");
         expect(requestHistory[1].url).toBe("http://node0:8108/");
@@ -418,28 +425,205 @@ describe("ApiCall", () => {
         },
       });
 
-      const mockAxios = new MockAxiosAdapter(axios);
+      const mockFetch = createFetchMock();
       const apiCall = new ApiCall(client.configuration);
 
-      mockAxios
-        .onGet("https://node0/path/collections", {
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "X-TYPESENSE-API-KEY": client.configuration.apiKey,
-            "x-header-name": "value",
-          },
-        })
-        .reply(200, JSON.stringify({}), { "content-type": "application/json" });
+      mockFetch.onGet("https://node0/path/collections").reply((config) => {
+        expect(config.headers).toMatchObject({
+          accept: "application/json, text/plain, */*",
+          "content-type": "application/json",
+          "x-typesense-api-key": client.configuration.apiKey,
+          "x-header-name": "value",
+        });
+        return [200, {}, { "content-type": "application/json" }];
+      });
 
       // Will error out if request doesn't match the stub
+      try {
+        await apiCall.get("/collections", {});
+      } finally {
+        mockFetch.restore();
+      }
+    });
+  });
+
+  describe("Fetch transport", () => {
+    let mockFetch: FetchMock;
+
+    const client = (options = {}) =>
+      new TypesenseClient({
+        nodes: [
+          {
+            host: "node0",
+            port: 8108,
+            protocol: "http",
+          },
+        ],
+        apiKey: "abcd",
+        randomizeNodes: false,
+        logLevel: "error",
+        numRetries: 0,
+        ...options,
+      });
+
+    beforeEach(() => {
+      mockFetch = createFetchMock();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      mockFetch.restore();
+    });
+
+    it("sends the API key as a query parameter when configured", async () => {
+      const typesense = client({ sendApiKeyAsQueryParam: true });
+      const apiCall = new ApiCall(typesense.configuration);
+
+      mockFetch.onGet("http://node0:8108/collections").reply((config) => {
+        expect(config.params["x-typesense-api-key"]).toBe("abcd");
+        expect(config.headers["x-typesense-api-key"]).toBeUndefined();
+        return [200, {}];
+      });
+
       await apiCall.get("/collections", {});
+    });
+
+    it("uses a custom params serializer", async () => {
+      const paramsSerializer = vi.fn(() => "serialized=true");
+      const typesense = client({ paramsSerializer });
+      const apiCall = new ApiCall(typesense.configuration);
+
+      mockFetch.onGet("http://node0:8108/collections").reply((config) => {
+        expect(config.url).toBe(
+          "http://node0:8108/collections?serialized=true",
+        );
+        return [200, {}];
+      });
+
+      await apiCall.get("/collections", { q: "hello world" });
+
+      expect(paramsSerializer).toHaveBeenCalledWith({ q: "hello world" });
+    });
+
+    it("uses a custom fetch implementation", async () => {
+      mockFetch.restore();
+      const customFetch = vi.fn<typeof fetch>().mockResolvedValue(
+        new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+      const typesense = client({ fetch: customFetch });
+      const apiCall = new ApiCall(typesense.configuration);
+
+      await expect(apiCall.get("/health")).resolves.toEqual({ ok: true });
+      expect(customFetch).toHaveBeenCalledOnce();
+    });
+
+    it("returns text and empty response bodies without JSON parsing", async () => {
+      const typesense = client();
+      const apiCall = new ApiCall(typesense.configuration);
+
+      mockFetch
+        .onGet("http://node0:8108/text")
+        .reply(200, "plain text", { "content-type": "text/plain" });
+      await expect(apiCall.get<string>("/text")).resolves.toBe("plain text");
+
+      mockFetch.reset();
+      mockFetch
+        .onGet("http://node0:8108/empty")
+        .reply(200, "", { "content-type": "application/json" });
+      await expect(apiCall.get<string>("/empty")).resolves.toBe("");
+    });
+
+    it("handles non-JSON error bodies", async () => {
+      const typesense = client();
+      const apiCall = new ApiCall(typesense.configuration);
+
+      mockFetch
+        .onGet("http://node0:8108/collections")
+        .reply(400, "bad request", { "content-type": "text/plain" });
+
+      await expect(apiCall.get("/collections")).rejects.toThrow(
+        "Request failed with HTTP code 400",
+      );
+    });
+
+    it("runs request, response, and HTTP error hooks", async () => {
+      const requestHook = vi.fn((request) => {
+        request.headers["x-hook"] = "request";
+        request.queryParameters["hook"] = "yes";
+      });
+      const responseHook = vi.fn();
+      const errorHook = vi.fn();
+      const typesense = client({
+        requestHooks: [requestHook],
+        responseHooks: [responseHook],
+        errorHooks: [errorHook],
+      });
+      const apiCall = new ApiCall(typesense.configuration);
+
+      mockFetch.onGet("http://node0:8108/collections").reply((config) => {
+        expect(config.headers["x-hook"]).toBe("request");
+        expect(config.params["hook"]).toBe("yes");
+        return [200, { ok: true }];
+      });
+
+      await expect(apiCall.get("/collections")).resolves.toEqual({ ok: true });
+      expect(requestHook).toHaveBeenCalledOnce();
+      expect(responseHook).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 200,
+          data: { ok: true },
+        }),
+        expect.objectContaining({ attemptNumber: 1 }),
+      );
+
+      mockFetch.reset();
+      mockFetch.onGet("http://node0:8108/collections").reply(503, {
+        message: "Unavailable",
+      });
+
+      await expect(apiCall.get("/collections")).rejects.toThrow(
+        "Request failed with HTTP code 503 | Server said: Unavailable",
+      );
+      expect(errorHook).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({ errorType: "http" }),
+      );
+    });
+
+    it("classifies SDK timeouts separately from caller aborts", async () => {
+      mockFetch.restore();
+      const errorHook = vi.fn();
+      const customFetch = vi.fn<typeof fetch>(
+        (_url, init) =>
+          new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener("abort", () => {
+              reject(new Error("fetch aborted"));
+            });
+          }),
+      );
+      const typesense = client({
+        connectionTimeoutSeconds: 0.001,
+        fetch: customFetch,
+        errorHooks: [errorHook],
+      });
+      const apiCall = new ApiCall(typesense.configuration);
+
+      await expect(apiCall.get("/collections")).rejects.toThrow(
+        "Request timed out after 0.001 seconds.",
+      );
+      expect(errorHook).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({ errorType: "timeout" }),
+      );
     });
   });
 
   describe("Abort Signal Behavior", () => {
     let typesense: TypesenseClient;
-    let mockAxios: MockAxiosAdapter;
+    let mockFetch: FetchMock;
     let apiCall: ApiCall;
 
     beforeEach(() => {
@@ -466,26 +650,26 @@ describe("ApiCall", () => {
         logLevel: "error",
         retryIntervalSeconds: 0.001,
       });
-      mockAxios = new MockAxiosAdapter(axios);
+      mockFetch = createFetchMock();
       apiCall = new ApiCall(typesense.configuration);
     });
 
     afterEach(() => {
-      mockAxios.reset();
+      mockFetch.restore();
     });
 
     it("aborts request without marking node as unhealthy", async () => {
       const controller = new AbortController();
 
       // First request fails immediately
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[0]))
         .reply(500, JSON.stringify({ message: "Server Error" }), {
           "content-type": "application/json",
         });
 
       // Second request has a delay to allow for abort
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -499,10 +683,10 @@ describe("ApiCall", () => {
       ).rejects.toThrow("Request aborted by caller.");
 
       // Reset mocks for next request
-      mockAxios.reset();
+      mockFetch.reset();
 
       // Next request should succeed
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -510,7 +694,7 @@ describe("ApiCall", () => {
 
       await apiCall.get("/");
 
-      const requestHistory = mockAxios.history.get;
+      const requestHistory = mockFetch.history.get;
       expect(requestHistory.length).toBe(1);
       expect(requestHistory[0].url).toBe("http://node1:7108/");
     });
@@ -519,14 +703,14 @@ describe("ApiCall", () => {
       const controller = new AbortController();
 
       // First node fails
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[0]))
         .reply(500, JSON.stringify({ message: "Server Error" }), {
           "content-type": "application/json",
         });
 
       // Second node has a delayed response that will be aborted
-      mockAxios
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -538,8 +722,8 @@ describe("ApiCall", () => {
         apiCall.get("/", {}, { abortSignal: controller.signal }),
       ).rejects.toThrow("Request aborted by caller.");
 
-      mockAxios.reset();
-      mockAxios
+      mockFetch.reset();
+      mockFetch
         .onAny(apiCall.uriFor("/", typesense.configuration.nodes[1]))
         .reply(200, JSON.stringify({ message: "Success" }), {
           "content-type": "application/json",
@@ -547,7 +731,7 @@ describe("ApiCall", () => {
 
       await apiCall.get("/");
 
-      const requestHistory = mockAxios.history.get;
+      const requestHistory = mockFetch.history.get;
       expect(requestHistory.length).toBe(1);
       expect(requestHistory[0].url).toBe("http://node1:7108/");
     });

@@ -1,12 +1,3 @@
-import type {
-  AxiosAdapter,
-  AxiosRequestConfig,
-  AxiosResponse,
-  Method,
-} from "axios";
-import axios from "axios";
-import { Agent as HTTPAgent } from "http";
-import { Agent as HTTPSAgent } from "https";
 import { Logger } from "loglevel";
 import Configuration from "./Configuration";
 import type { NodeConfiguration, StreamConfig } from "./Configuration";
@@ -23,6 +14,13 @@ import TypesenseError from "./Errors/TypesenseError";
 import type { DocumentSchema, SearchResponse } from "./Documents";
 import { toErrorWithMessage } from "./Utils";
 import { MessageChunk } from "./Types";
+import FetchTransport, {
+  FetchTransportError,
+  RequestMethod,
+  ResponseType,
+  TypesenseRequest,
+  TypesenseResponse,
+} from "./Transport";
 
 const APIKEYHEADERNAME = "X-TYPESENSE-API-KEY";
 const HEALTHY = true;
@@ -32,12 +30,6 @@ interface Node extends NodeConfiguration {
   isHealthy: boolean;
   index: string | number;
 }
-
-const isNodeJSEnvironment =
-  typeof process !== "undefined" &&
-  process.versions != null &&
-  process.versions.node != null &&
-  typeof window === "undefined";
 
 export interface HttpClient {
   get<T>(
@@ -50,7 +42,7 @@ export interface HttpClient {
       isStreamingRequest,
     }: {
       abortSignal?: AbortSignal | null;
-      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      responseType?: ResponseType | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
@@ -73,7 +65,7 @@ export interface HttpClient {
       isStreamingRequest,
     }: {
       abortSignal?: AbortSignal | null;
-      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      responseType?: ResponseType | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
@@ -102,6 +94,7 @@ export default class ApiCall implements HttpClient {
   private readonly sendApiKeyAsQueryParam?: boolean;
   private readonly numRetriesPerRequest: number;
   private readonly additionalUserHeaders?: Record<string, string>;
+  private readonly transport: FetchTransport;
 
   readonly logger: Logger;
   private currentNodeIndex: number;
@@ -125,6 +118,15 @@ export default class ApiCall implements HttpClient {
     this.additionalUserHeaders = this.configuration.additionalHeaders;
 
     this.logger = this.configuration.logger;
+    this.transport = new FetchTransport({
+      fetch: this.configuration.fetch,
+      paramsSerializer: this.configuration.paramsSerializer,
+      dispatcher: this.configuration.dispatcher,
+      requestHooks: this.configuration.requestHooks,
+      responseHooks: this.configuration.responseHooks,
+      errorHooks: this.configuration.errorHooks,
+      connectionTimeoutSeconds: this.connectionTimeoutSeconds,
+    });
 
     this.initializeMetadataForNodes();
     this.currentNodeIndex = -1;
@@ -140,7 +142,7 @@ export default class ApiCall implements HttpClient {
       isStreamingRequest,
     }: {
       abortSignal?: any;
-      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      responseType?: ResponseType | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
@@ -175,7 +177,7 @@ export default class ApiCall implements HttpClient {
       isStreamingRequest,
     }: {
       abortSignal?: AbortSignal | null;
-      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      responseType?: ResponseType | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
@@ -217,23 +219,8 @@ export default class ApiCall implements HttpClient {
     });
   }
 
-  private getAdapter(): AxiosAdapter | undefined {
-    if (!this.configuration.axiosAdapter) return undefined;
-
-    if (typeof this.configuration.axiosAdapter === "function")
-      return this.configuration.axiosAdapter;
-
-    const isCloudflareWorkers =
-      typeof navigator !== "undefined" &&
-      navigator.userAgent === "Cloudflare-Workers";
-
-    return isCloudflareWorkers
-      ? axios.getAdapter(this.configuration.axiosAdapter).bind(globalThis)
-      : axios.getAdapter(this.configuration.axiosAdapter);
-  }
-
   async performRequest<T>(
-    requestType: Method,
+    requestType: RequestMethod,
     endpoint: string,
     {
       queryParameters = null,
@@ -250,7 +237,7 @@ export default class ApiCall implements HttpClient {
       bodyParameters?: any;
       additionalHeaders?: any;
       abortSignal?: any;
-      responseType?: AxiosRequestConfig["responseType"] | undefined;
+      responseType?: ResponseType | undefined;
       skipConnectionTimeout?: boolean;
       enableKeepAlive?: boolean | undefined;
       streamConfig?:
@@ -263,17 +250,11 @@ export default class ApiCall implements HttpClient {
 
     if (isStreamingRequest) {
       this.logger.debug(`Request: Performing streaming request to ${endpoint}`);
-
-      // For browser streaming, always use responseType: "stream" and adapter: "fetch"
-      if (!isNodeJSEnvironment && typeof fetch !== "undefined") {
-        this.logger.debug("Using fetch adapter for browser streaming");
-        responseType = "stream";
-      }
+      responseType = "stream";
     }
 
     const requestNumber = Date.now();
     let lastException;
-    let wasAborted = false;
     this.logger.debug(
       `Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`,
     );
@@ -293,136 +274,55 @@ export default class ApiCall implements HttpClient {
         return Promise.reject(new Error("Request aborted by caller."));
       }
 
-      let abortListener: ((event: Event) => void) | undefined;
-
       try {
-        const requestOptions: AxiosRequestConfig<string> = {
-          method: requestType,
-          url: this.uriFor(endpoint, node),
-          headers: Object.assign(
-            {},
-            this.defaultHeaders(),
-            additionalHeaders,
-            this.additionalUserHeaders,
-          ),
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity,
-          validateStatus: (status) => {
-            /* Override default validateStatus, which only considers 2xx a success.
-                In our case, if the server returns any HTTP code, we will handle it below.
-                We do this to be able to raise custom errors based on response code.
-             */
-            return status > 0;
-          },
-          transformResponse: [
-            (data, headers) => {
-              let transformedData = data;
-              if (
-                headers !== undefined &&
-                typeof data === "string" &&
-                typeof headers["content-type"] === "string" &&
-                headers["content-type"].startsWith("application/json")
-              ) {
-                transformedData = JSON.parse(data);
-              }
-              return transformedData;
-            },
-          ],
-        };
-
-        // Use fetch adapter only for streaming requests in browser environments
-        requestOptions.adapter =
-          isStreamingRequest && !isNodeJSEnvironment
-            ? "fetch"
-            : this.getAdapter();
-
-        if (skipConnectionTimeout !== true) {
-          requestOptions.timeout = this.connectionTimeoutSeconds * 1000;
+        if (this.configuration.dispatcher) {
+          this.logger.debug(
+            `Request #${requestNumber}: Using custom fetch dispatcher`,
+          );
+        } else if (enableKeepAlive === true) {
+          this.logger.debug(
+            `Request #${requestNumber}: Native fetch manages connection pooling; pass a dispatcher for custom keep-alive behavior`,
+          );
         }
 
-        if (queryParameters && Object.keys(queryParameters).length !== 0) {
-          requestOptions.params = queryParameters;
-        }
+        const requestHeaders = this.mergeHeaders(
+          this.defaultHeaders(),
+          isStreamingRequest ? { Accept: "text/event-stream" } : {},
+          additionalHeaders,
+          this.additionalUserHeaders,
+        );
+        const requestQueryParameters =
+          queryParameters && Object.keys(queryParameters).length !== 0
+            ? { ...queryParameters }
+            : {};
 
         if (this.sendApiKeyAsQueryParam) {
-          requestOptions.params = requestOptions.params || {};
-          requestOptions.params["x-typesense-api-key"] = this.apiKey;
-        }
-
-        if (this.configuration.httpAgent) {
-          this.logger.debug(
-            `Request #${requestNumber}: Using custom httpAgent`,
-          );
-          requestOptions.httpAgent = this.configuration.httpAgent;
-        } else if (enableKeepAlive === true) {
-          if (!isNodeJSEnvironment) {
-            this.logger.warn(
-              `Request #${requestNumber}: Cannot use custom httpAgent in a browser environment to enable keepAlive`,
-            );
-          } else {
-            this.logger.debug(`Request #${requestNumber}: Enabling KeepAlive`);
-            requestOptions.httpAgent = new HTTPAgent({ keepAlive: true });
-          }
-        }
-
-        if (this.configuration.httpsAgent) {
-          this.logger.debug(
-            `Request #${requestNumber}: Using custom httpsAgent`,
-          );
-          requestOptions.httpsAgent = this.configuration.httpsAgent;
-        } else if (enableKeepAlive === true) {
-          if (!isNodeJSEnvironment) {
-            this.logger.warn(
-              `Request #${requestNumber}: Cannot use custom httpAgent in a browser environment to enable keepAlive`,
-            );
-          } else {
-            this.logger.debug(`Request #${requestNumber}: Enabling keepAlive`);
-            requestOptions.httpsAgent = new HTTPSAgent({ keepAlive: true });
-          }
+          requestQueryParameters["x-typesense-api-key"] = this.apiKey;
         }
 
         if (this.configuration.paramsSerializer) {
           this.logger.debug(
             `Request #${requestNumber}: Using custom paramsSerializer`,
           );
-          requestOptions.paramsSerializer = this.configuration.paramsSerializer;
         }
 
-        if (
-          bodyParameters &&
-          ((typeof bodyParameters === "string" &&
-            bodyParameters.length !== 0) ||
-            (typeof bodyParameters === "object" &&
-              Object.keys(bodyParameters).length !== 0))
-        ) {
-          requestOptions.data = bodyParameters;
-        }
+        const request: TypesenseRequest = {
+          method: requestType,
+          url: this.uriFor(endpoint, node),
+          headers: requestHeaders,
+          queryParameters: requestQueryParameters,
+          bodyParameters,
+          responseType,
+          isStreamingRequest,
+        };
 
-        // Translate from user-provided AbortController to the Axios request cancel mechanism.
-        if (abortSignal) {
-          const cancelToken = axios.CancelToken;
-          const source = cancelToken.source();
-          abortListener = () => {
-            wasAborted = true;
-            source.cancel();
-          };
-          abortSignal.addEventListener("abort", abortListener);
-          requestOptions.cancelToken = source.token;
-        }
-
-        if (isStreamingRequest) {
-          requestOptions.responseType = "stream";
-          if (!isNodeJSEnvironment) {
-            requestOptions.headers = {
-              ...requestOptions.headers,
-              Accept: "text/event-stream",
-            };
-          }
-        } else if (responseType) {
-          requestOptions.responseType = responseType;
-        }
-
-        const response = await axios(requestOptions);
+        const response = await this.transport.perform<T>(request, {
+          abortSignal,
+          skipConnectionTimeout,
+          requestNumber,
+          attemptNumber: numTries,
+          nodeIndex: node.index,
+        });
 
         if (response.status >= 1 && response.status <= 499) {
           // Treat any status code > 0 and < 500 to be an indication that node is healthy
@@ -441,24 +341,49 @@ export default class ApiCall implements HttpClient {
           return Promise.resolve(response.data);
         } else if (response.status < 500) {
           // Next, if response is anything but 5xx, don't retry, return a custom error
-          return Promise.reject(
-            this.customErrorForResponse(
-              response,
-              response.data?.message,
-              requestOptions.data,
-            ),
+          const error = this.customErrorForResponse(
+            response,
+            this.messageFromResponseData(response.data),
+            this.httpBodyForError(response.request.body),
           );
+          await this.transport.notifyError(
+            error,
+            "http",
+            {
+              abortSignal,
+              skipConnectionTimeout,
+              requestNumber,
+              attemptNumber: numTries,
+              nodeIndex: node.index,
+            },
+            response,
+          );
+          return Promise.reject(error);
         } else {
           // Retry all other HTTP errors (HTTPStatus > 500)
           // This will get caught by the catch block below
-          throw this.customErrorForResponse(
+          const error = this.customErrorForResponse(
             response,
-            response.data?.message,
-            requestOptions.data,
+            this.messageFromResponseData(response.data),
+            this.httpBodyForError(response.request.body),
           );
+          await this.transport.notifyError(
+            error,
+            "http",
+            {
+              abortSignal,
+              skipConnectionTimeout,
+              requestNumber,
+              attemptNumber: numTries,
+              nodeIndex: node.index,
+            },
+            response,
+          );
+          throw error;
         }
       } catch (error: any) {
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
+        const wasAborted = this.isCallerAbortError(error);
         if (!wasAborted) {
           this.setNodeHealthcheck(node, UNHEALTHY);
         }
@@ -492,10 +417,6 @@ export default class ApiCall implements HttpClient {
           return Promise.reject(lastException);
         }
         await this.timer(this.retryIntervalSeconds);
-      } finally {
-        if (abortSignal && abortListener) {
-          abortSignal.removeEventListener("abort", abortListener);
-        }
       }
     }
 
@@ -591,89 +512,17 @@ export default class ApiCall implements HttpClient {
   }
 
   private async handleStreamingResponse<T>(
-    response: AxiosResponse,
+    response: TypesenseResponse,
     streamConfig:
       | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
       | undefined,
   ): Promise<T> {
-    this.logger.debug(
-      `Handling streaming response. Environment: ${isNodeJSEnvironment ? "Node.js" : "Browser"}`,
-    );
-
-    if (isNodeJSEnvironment && response.data) {
-      return this.handleNodeStreaming<T>(response, streamConfig);
-    }
-
-    if (!isNodeJSEnvironment) {
-      return this.handleBrowserStreaming<T>(response, streamConfig);
-    }
-
-    this.logger.debug("Processing non-streaming response");
-    this.invokeOnCompleteCallback(response.data, streamConfig);
-    return Promise.resolve(response.data as T);
-  }
-
-  private handleNodeStreaming<T>(
-    response: AxiosResponse,
-    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
-  ): Promise<T> {
-    this.logger.debug("Processing Node.js stream");
-    return new Promise<T>((resolve, reject) => {
-      const stream = response.data;
-      const allChunks:
-        | [
-            ...MessageChunk[],
-            SearchResponse<T extends DocumentSchema ? T : DocumentSchema>,
-          ]
-        | [] = [];
-      let buffer = "";
-
-      stream.on("data", (chunk) => {
-        try {
-          const data = chunk.toString();
-          buffer += data;
-
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-
-          this.processStreamLines(lines, allChunks, streamConfig);
-        } catch (error) {
-          reject(error);
-        }
-      });
-
-      stream.on("end", () => {
-        if (buffer.trim().length > 0) {
-          const lines = buffer.split("\n");
-          this.processStreamLines(lines, allChunks, streamConfig);
-        }
-
-        this.finalizeStreamResult<T>(
-          allChunks,
-          resolve,
-          response,
-          streamConfig,
-        );
-      });
-
-      stream.on("error", (error: unknown) => {
-        this.logger.error(`Stream error: ${error}`);
-        this.invokeOnErrorCallback(error, streamConfig);
-        reject(error);
-      });
-    });
-  }
-
-  private handleBrowserStreaming<T>(
-    response: AxiosResponse,
-    streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
-  ): Promise<T> {
-    this.logger.debug("Processing browser stream");
+    this.logger.debug("Handling streaming response");
 
     return new Promise<T>(async (resolve, reject) => {
       try {
-        if (response.data && typeof response.data.getReader === "function") {
-          return this.handleBrowserReadableStream<T>(
+        if (this.isReadableStream(response.data)) {
+          return this.handleReadableStream<T>(
             response.data,
             resolve,
             reject,
@@ -683,7 +532,7 @@ export default class ApiCall implements HttpClient {
         }
 
         if (typeof response.data === "string") {
-          return this.handleBrowserStringResponse<T>(
+          return this.handleStringStreamResponse<T>(
             response.data,
             resolve,
             response,
@@ -693,7 +542,12 @@ export default class ApiCall implements HttpClient {
 
         if (typeof response.data === "object" && response.data !== null) {
           this.logger.debug("No stream found, but data object is available");
-          this.invokeOnCompleteCallback(response.data, streamConfig);
+          this.invokeOnCompleteCallback(
+            response.data as SearchResponse<
+              T extends DocumentSchema ? T : DocumentSchema
+            >,
+            streamConfig,
+          );
           return resolve(response.data as T);
         }
 
@@ -707,11 +561,11 @@ export default class ApiCall implements HttpClient {
     });
   }
 
-  private async handleBrowserReadableStream<T>(
+  private async handleReadableStream<T>(
     stream: any,
     resolve: (value: T) => void,
     reject: (reason?: any) => void,
-    response: AxiosResponse,
+    response: TypesenseResponse,
     streamConfig:
       | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
       | undefined,
@@ -757,10 +611,10 @@ export default class ApiCall implements HttpClient {
     }
   }
 
-  private handleBrowserStringResponse<T>(
+  private handleStringStreamResponse<T>(
     data: string,
     resolve: (value: T) => void,
-    response: AxiosResponse,
+    response: TypesenseResponse,
     streamConfig:
       | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
       | undefined,
@@ -786,9 +640,23 @@ export default class ApiCall implements HttpClient {
     } else {
       // If no chunks were processed, use the original response
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(response.data, streamConfig);
+      this.invokeOnCompleteCallback(
+        response.data as SearchResponse<
+          T extends DocumentSchema ? T : DocumentSchema
+        >,
+        streamConfig,
+      );
       resolve(response.data as T);
     }
+  }
+
+  private isReadableStream(data: unknown): data is ReadableStream<Uint8Array> {
+    return (
+      typeof data === "object" &&
+      data !== null &&
+      "getReader" in data &&
+      typeof (data as { getReader?: unknown }).getReader === "function"
+    );
   }
 
   private processStreamLines<T extends DocumentSchema>(
@@ -815,7 +683,7 @@ export default class ApiCall implements HttpClient {
         ]
       | [],
     resolve: (value: T) => void,
-    response: AxiosResponse,
+    response: TypesenseResponse,
     streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
   ): void {
     if (allChunks.length > 0) {
@@ -825,7 +693,12 @@ export default class ApiCall implements HttpClient {
       resolve(finalResult as unknown as T);
     } else {
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(response.data, streamConfig);
+      this.invokeOnCompleteCallback(
+        response.data as SearchResponse<
+          T extends DocumentSchema ? T : DocumentSchema
+        >,
+        streamConfig,
+      );
       resolve(response.data as T);
     }
   }
@@ -1013,6 +886,7 @@ export default class ApiCall implements HttpClient {
 
   defaultHeaders(): any {
     const defaultHeaders = {};
+    defaultHeaders["Accept"] = "application/json, text/plain, */*";
     if (!this.sendApiKeyAsQueryParam) {
       defaultHeaders[APIKEYHEADERNAME] = this.apiKey;
     }
@@ -1020,12 +894,67 @@ export default class ApiCall implements HttpClient {
     return defaultHeaders;
   }
 
+  private mergeHeaders(
+    ...headerSources: Array<Record<string, string> | undefined>
+  ): Record<string, string> {
+    const result: Record<string, string> = {};
+    const headerNamesByLowercaseName: Record<string, string> = {};
+
+    headerSources.forEach((headers) => {
+      Object.entries(headers || {}).forEach(([headerName, headerValue]) => {
+        const lowercaseHeaderName = headerName.toLowerCase();
+        const existingHeaderName =
+          headerNamesByLowercaseName[lowercaseHeaderName];
+        if (existingHeaderName !== undefined) {
+          delete result[existingHeaderName];
+        }
+        result[headerName] = headerValue;
+        headerNamesByLowercaseName[lowercaseHeaderName] = headerName;
+      });
+    });
+
+    return result;
+  }
+
+  private isCallerAbortError(error: unknown): boolean {
+    return (
+      error instanceof FetchTransportError &&
+      error.type === "abort" &&
+      error.message === "Request aborted by caller."
+    );
+  }
+
+  private messageFromResponseData(data: unknown): string {
+    return typeof data === "object" &&
+      data !== null &&
+      "message" in data &&
+      typeof (data as Record<string, unknown>).message === "string"
+      ? ((data as Record<string, unknown>).message as string)
+      : "";
+  }
+
+  private httpBodyForError(body: unknown): string | undefined {
+    if (typeof body === "string") {
+      return body;
+    }
+
+    if (body === undefined || body === null) {
+      return undefined;
+    }
+
+    try {
+      return JSON.stringify(body);
+    } catch {
+      return String(body);
+    }
+  }
+
   async timer(seconds): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
   }
 
   customErrorForResponse(
-    response: AxiosResponse,
+    response: TypesenseResponse,
     messageFromServer: string,
     httpBody?: string,
   ): TypesenseError {

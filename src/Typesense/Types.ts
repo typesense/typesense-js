@@ -1,5 +1,5 @@
-import type { AxiosRequestConfig } from "axios";
 import type { BaseStreamConfig, StreamConfig } from "./Configuration";
+import type { ResponseType } from "./Transport";
 import type {
   DocumentSchema,
   SearchParamsWithPreset,
@@ -251,7 +251,7 @@ export interface RequestParams<T extends DocumentSchema[]> {
     | MultiSearchResultsStreamConfig<T>
     | MultiSearchUnionStreamConfig<T[number]>;
   abortSignal?: AbortSignal | null;
-  responseType?: AxiosRequestConfig["responseType"] | undefined;
+  responseType?: ResponseType | undefined;
   isStreamingRequest: boolean | undefined;
 }
 
