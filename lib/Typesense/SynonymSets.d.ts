@@ -19,5 +19,13 @@ export default class SynonymSets {
     private apiCall;
     constructor(apiCall: ApiCall);
     static readonly RESOURCEPATH = "/synonym_sets";
+    /**
+     * Retrieve all synonym sets
+     *
+     * @example
+     * await client.synonymSets().retrieve()
+     *
+     * @see https://typesense.org/docs/latest/api/synonyms.html
+     */
     retrieve(): Promise<SynonymSetSchema[]>;
 }

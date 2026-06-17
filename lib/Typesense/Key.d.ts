@@ -26,7 +26,23 @@ export default class Key {
     private id;
     private apiCall;
     constructor(id: number, apiCall: ApiCall);
+    /**
+     * Retrieve (metadata about) a key. Only the key prefix is returned when you retrieve a key. Due to security reasons, only the create endpoint returns the full API key.
+     *
+     * @example
+     * await client.keys(1).retrieve()
+     *
+     * @see https://typesense.org/docs/latest/api/api-keys.html#retrieve-an-api-key
+     */
     retrieve(): Promise<KeySchema>;
+    /**
+     * Delete an API key given its ID.
+     *
+     * @example
+     * await client.keys(1).delete()
+     *
+     * @see https://typesense.org/docs/latest/api/api-keys.html#delete-api-key
+     */
     delete(): Promise<KeyDeleteSchema>;
     private endpointPath;
 }

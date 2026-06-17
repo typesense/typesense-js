@@ -20,6 +20,14 @@ export interface PresetsRetrieveSchema<T extends DocumentSchema> {
 export default class Presets {
   constructor(private apiCall: ApiCall) {}
 
+  /**
+   * Create or update an existing preset.
+   *
+   * @example
+   * await client.presets().upsert("listing_view", { value: { q: "*" } })
+   *
+   * @see https://typesense.org/docs/latest/api/search.html#presets
+   */
   async upsert<T extends DocumentSchema, const Infix extends string>(
     presetId: string,
     params: PresetCreateSchema<T, Infix>,
@@ -44,6 +52,14 @@ export default class Presets {
     });
   }
 
+  /**
+   * Retrieve the details of all presets
+   *
+   * @example
+   * await client.presets().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/search.html#presets
+   */
   async retrieve<T extends DocumentSchema>(): Promise<
     PresetsRetrieveSchema<T>
   > {

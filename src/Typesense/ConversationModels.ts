@@ -11,6 +11,14 @@ export default class ConversationModels {
     this.apiCall = apiCall;
   }
 
+  /**
+   * Create a Conversation Model
+   *
+   * @example
+   * await client.conversations().models().create({ model_name: "openai/gpt-4", api_key: "..." })
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async create(
     params: ConversationModelCreateSchema,
   ): Promise<ConversationModelCreateSchema> {
@@ -20,6 +28,14 @@ export default class ConversationModels {
     );
   }
 
+  /**
+   * Retrieve all conversation models
+   *
+   * @example
+   * await client.conversations().models().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async retrieve(): Promise<ConversationModelSchema[]> {
     return this.apiCall.get<ConversationModelSchema[]>(
       this.endpointPath(),

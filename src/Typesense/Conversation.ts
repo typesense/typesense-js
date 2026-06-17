@@ -22,10 +22,26 @@ export default class Conversation {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Retrieve a conversation by ID.
+   *
+   * @example
+   * await client.conversations("conv-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async retrieve(): Promise<ConversationSchema[]> {
     return this.apiCall.get<ConversationSchema[]>(this.endpointPath());
   }
 
+  /**
+   * Update a conversation's TTL.
+   *
+   * @example
+   * await client.conversations("conv-1").update({ ttl: 3600 })
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async update(
     params: ConversationUpdateSchema,
   ): Promise<ConversationUpdateSchema> {
@@ -35,6 +51,14 @@ export default class Conversation {
     );
   }
 
+  /**
+   * Delete a conversation by ID.
+   *
+   * @example
+   * await client.conversations("conv-1").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async delete(): Promise<ConversationDeleteSchema> {
     return this.apiCall.delete<ConversationDeleteSchema>(this.endpointPath());
   }

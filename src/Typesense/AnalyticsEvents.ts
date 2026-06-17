@@ -21,6 +21,14 @@ export default class AnalyticsEvents {
     this.apiCall = apiCall;
   }
 
+  /**
+   * Submit a single analytics event. The event must correspond to an existing analytics rule by name.
+   *
+   * @example
+   * await client.analytics.events().create({ type: "click", name: "products_click", data: {} })
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   async create(
     params: AnalyticsEventCreateSchema,
   ): Promise<AnalyticsEventCreateSchema> {
@@ -30,6 +38,14 @@ export default class AnalyticsEvents {
     );
   }
 
+  /**
+   * Retrieve the most recent events for a user and rule.
+   *
+   * @example
+   * await client.analytics.events().retrieve({ user_id: "u1", name: "products_click", n: 10 })
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   async retrieve(params: {
     user_id: string;
     name: string;

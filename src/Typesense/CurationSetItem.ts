@@ -15,16 +15,40 @@ export default class CurationSetItem {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Retrieve a specific curation item by its id
+   *
+   * @example
+   * await client.curationSets("my-set").items("promote-hat").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async retrieve(): Promise<CurationObjectSchema> {
     return this.apiCall.get<CurationObjectSchema>(this.endpointPath());
   }
 
+  /**
+   * Create or update a curation set item with the given id
+   *
+   * @example
+   * await client.curationSets("my-set").items("promote-hat").upsert({ rule: { query: "hat", match: "exact" }, includes: [] })
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async upsert(
     params: CurationItemUpsertSchema,
   ): Promise<CurationObjectSchema> {
     return this.apiCall.put<CurationObjectSchema>(this.endpointPath(), params);
   }
 
+  /**
+   * Delete a specific curation item by its id
+   *
+   * @example
+   * await client.curationSets("my-set").items("promote-hat").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   async delete(): Promise<CurationItemDeleteResponseSchema> {
     return this.apiCall.delete<CurationItemDeleteResponseSchema>(
       this.endpointPath(),

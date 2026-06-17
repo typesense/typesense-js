@@ -25,6 +25,14 @@ export interface StatsResponse {
 export default class Metrics {
   constructor(private apiCall: ApiCall) {}
 
+  /**
+   * Get stats about API endpoints.
+   *
+   * @example
+   * await client.stats.retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/cluster-operations.html
+   */
   async retrieve(): Promise<StatsResponse> {
     return this.apiCall.get(RESOURCEPATH);
   }
