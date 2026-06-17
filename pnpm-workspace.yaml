@@ -1,0 +1,5 @@
+minimumReleaseAge: 10080
+
+allowBuilds:
+  core-js: false
+  es5-ext: false
