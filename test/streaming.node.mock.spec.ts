@@ -152,6 +152,57 @@ describe("Streaming responses with axios-mock-adapter", () => {
     expect(response.results[0].hits?.length).toBeGreaterThan(0);
   });
 
+  it("should not treat multisearch as streaming when streamConfig is set but conversation_stream is not", async () => {
+    const onChunk = vi.fn();
+    const onComplete = vi.fn();
+    const onError = vi.fn();
+
+    const streamConfig: MultiSearchResultsStreamConfig<[Essay]> = {
+      onChunk,
+      onComplete,
+      onError,
+    };
+
+    let capturedResponseType: string | undefined;
+
+    const jsonResponse = {
+      results: [
+        {
+          found: 0,
+          hits: [],
+        },
+      ],
+    };
+
+    mock.onAny().reply((config) => {
+      capturedResponseType = config.responseType;
+      return [200, jsonResponse, { "content-type": "application/json" }];
+    });
+
+    const response = await client.multiSearch.perform<[Essay]>(
+      {
+        searches: [
+          {
+            collection: "test-collection",
+            query_by: "title",
+          },
+        ],
+      },
+      {
+        q: "*",
+        streamConfig,
+      },
+    );
+
+    expect(capturedResponseType).not.toBe("stream");
+    expect(onChunk).not.toHaveBeenCalled();
+    expect(onComplete).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+    expect(response).toEqual(jsonResponse);
+    expect(response).not.toHaveProperty("conversation_id");
+    expect(response).not.toHaveProperty("message");
+  });
+
   it("should invoke onError callback when an error occurs during stream processing", async () => {
     const onChunk = vi.fn();
     const onComplete = vi.fn();

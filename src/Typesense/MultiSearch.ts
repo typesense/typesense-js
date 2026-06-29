@@ -124,8 +124,8 @@ export default class MultiSearch {
     );
   }
 
-  private isStreamingRequest(commonParams: { streamConfig?: unknown }) {
-    return commonParams.streamConfig !== undefined;
+  private isStreamingRequest(commonParams: { conversation_stream?: boolean }) {
+    return commonParams.conversation_stream === true;
   }
 
   private hasAnySearchObjectPagination(searchRequests: MultiSearchRequestsSchema<DocumentSchema, string>) {
