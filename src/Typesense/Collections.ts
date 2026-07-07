@@ -49,6 +49,14 @@ const RESOURCEPATH = "/collections";
 export default class Collections {
   constructor(private apiCall: ApiCall) {}
 
+  /**
+   * When a collection is created, we give it a name and describe the fields that will be indexed from the documents added to the collection.
+   *
+   * @example
+   * await client.collections().create({ name: "products", fields: [{ name: "title", type: "string" }] })
+   *
+   * @see https://typesense.org/docs/latest/api/collections.html#create-a-collection
+   */
   async create<const Options extends CollectionCreateOptions>(
     schema: CollectionCreateSchema<Options>,
     options?: Options,
@@ -56,6 +64,14 @@ export default class Collections {
     return this.apiCall.post<CollectionSchema>(RESOURCEPATH, schema, options);
   }
 
+  /**
+   * Returns a summary of all your collections. The collections are returned sorted by creation date, with the most recent collections appearing first.
+   *
+   * @example
+   * await client.collections().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/collections.html#list-all-collections
+   */
   async retrieve(
     options: CollectionsRetrieveOptions = {},
   ): Promise<CollectionSchema[]> {

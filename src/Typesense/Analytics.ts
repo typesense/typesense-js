@@ -16,7 +16,25 @@ export default class Analytics {
     this._analyticsEvents = new AnalyticsEvents(this.apiCall);
   }
 
+  /**
+   * Access the analytics rules resource. Call without arguments to list or create rules, or pass an ID to access a single rule.
+   *
+   * @example
+   * await client.analytics.rules().retrieve()
+   * @example
+   * await client.analytics.rules("rule-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   rules(): AnalyticsRules;
+  /**
+   * Access an individual analytics rule by ID.
+   *
+   * @example
+   * await client.analytics.rules("rule-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   rules(id: string): AnalyticsRule;
   rules(id?: string): AnalyticsRules | AnalyticsRule {
     if (id === undefined) {
@@ -29,6 +47,14 @@ export default class Analytics {
     }
   }
 
+  /**
+   * Access the analytics events resource to send analytics events.
+   *
+   * @example
+   * await client.analytics.events().create({ type: "click", name: "products_click", data: {} })
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   events(): AnalyticsEvents {
     return this._analyticsEvents;
   }

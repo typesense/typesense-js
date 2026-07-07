@@ -12,6 +12,14 @@ export default class StemmingDictionaries {
     this.apiCall = apiCall;
   }
 
+  /**
+   * Upload a JSONL file containing word mappings to create or update a stemming dictionary.
+   *
+   * @example
+   * await client.stemming.dictionaries().upsert("irregular-plurals", [{ word: "people", root: "person" }])
+   *
+   * @see https://typesense.org/docs/latest/api/stemming.html
+   */
   async upsert(
     id: string,
     wordRootCombinations: StemmingDictionaryCreateSchema[] | string,
@@ -41,6 +49,14 @@ export default class StemmingDictionaries {
       : resultsInJSONLFormat;
   }
 
+  /**
+   * Retrieve a list of all available stemming dictionaries.
+   *
+   * @example
+   * await client.stemming.dictionaries().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/stemming.html
+   */
   async retrieve(): Promise<StemmingDictionariesRetrieveSchema> {
     return this.apiCall.get<StemmingDictionariesRetrieveSchema>(
       this.endpointPath(),

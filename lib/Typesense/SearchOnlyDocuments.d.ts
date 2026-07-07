@@ -10,6 +10,14 @@ export declare class SearchOnlyDocuments<T extends DocumentSchema> implements Se
     protected requestWithCache: RequestWithCache;
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
     clearCache(): void;
+    /**
+     * Search for documents in a collection that match the search criteria.
+     *
+     * @example
+     * await client.collections("products").documents().search({ q: "*", query_by: "title" })
+     *
+     * @see https://typesense.org/docs/latest/api/search.html
+     */
     search<const Infix extends string>(searchParameters: SearchParams<T, Infix> | SearchParamsWithPreset<T, Infix>, { cacheSearchResultsForSeconds, abortSignal, }?: SearchOptions): Promise<SearchResponse<T>>;
     protected endpointPath(operation?: string): string;
     static get RESOURCEPATH(): string;

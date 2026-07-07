@@ -7,6 +7,14 @@ export default class SynonymSetItems {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Create or update a synonym set item with the given id
+   *
+   * @example
+   * await client.synonymSets("my-set").items().upsert("syn-1", { synonyms: ["nyc", "new york"] })
+   *
+   * @see https://typesense.org/docs/latest/api/synonyms.html
+   */
   async upsert(
     itemId: string,
     params: Omit<SynonymItemSchema, "id">,
@@ -17,6 +25,14 @@ export default class SynonymSetItems {
     );
   }
 
+  /**
+   * Retrieve all synonym items in a set
+   *
+   * @example
+   * await client.synonymSets("my-set").items().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/synonyms.html
+   */
   async retrieve(): Promise<SynonymItemSchema[]> {
     return this.apiCall.get<SynonymItemSchema[]>(this.endpointPath());
   }

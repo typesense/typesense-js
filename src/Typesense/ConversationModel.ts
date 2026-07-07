@@ -30,6 +30,14 @@ export default class ConversationModel {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Update a conversation model
+   *
+   * @example
+   * await client.conversations().models("model-1").update({ model_name: "openai/gpt-4", max_bytes: 16384 })
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async update(
     params: ConversationModelCreateSchema,
   ): Promise<ConversationModelCreateSchema> {
@@ -39,10 +47,26 @@ export default class ConversationModel {
     );
   }
 
+  /**
+   * Retrieve a conversation model
+   *
+   * @example
+   * await client.conversations().models("model-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async retrieve(): Promise<ConversationModelSchema> {
     return this.apiCall.get<ConversationModelSchema>(this.endpointPath());
   }
 
+  /**
+   * Delete a conversation model
+   *
+   * @example
+   * await client.conversations().models("model-1").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+   */
   async delete(): Promise<ConversationModelDeleteSchema> {
     return this.apiCall.delete<ConversationModelDeleteSchema>(
       this.endpointPath(),

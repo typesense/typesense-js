@@ -17,10 +17,26 @@ export default class Preset {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Retrieve the details of a preset, given it's name.
+   *
+   * @example
+   * await client.presets("listing_view").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/search.html#presets
+   */
   async retrieve<T extends DocumentSchema>(): Promise<PresetSchema<T>> {
     return this.apiCall.get<PresetSchema<T>>(this.endpointPath());
   }
 
+  /**
+   * Permanently deletes a preset, given it's name.
+   *
+   * @example
+   * await client.presets("listing_view").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/search.html#presets
+   */
   async delete(): Promise<PresetDeleteSchema> {
     return this.apiCall.delete<PresetDeleteSchema>(this.endpointPath());
   }

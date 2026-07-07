@@ -18,6 +18,14 @@ export class SearchOnlyCollection<T extends DocumentSchema> {
     );
   }
 
+  /**
+   * Access the search-only documents resource for this collection.
+   *
+   * @example
+   * await searchClient.collections("products").documents().search({ q: "*", query_by: "title" })
+   *
+   * @see https://typesense.org/docs/latest/api/search.html
+   */
   documents(): SearchableDocuments<T> {
     return this._documents;
   }

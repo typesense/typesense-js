@@ -17,6 +17,14 @@ export interface CollectionAliasesResponseSchema {
 export default class Aliases {
   constructor(private apiCall: ApiCall) {}
 
+  /**
+   * Create or update a collection alias.
+   *
+   * @example
+   * await client.aliases().upsert("my-alias", { collection_name: "products" })
+   *
+   * @see https://typesense.org/docs/latest/api/collection-alias.html#create-or-update-an-alias
+   */
   async upsert(
     name: string,
     mapping: CollectionAliasCreateSchema
@@ -27,6 +35,14 @@ export default class Aliases {
     );
   }
 
+  /**
+   * List all aliases and the corresponding collections that they map to.
+   *
+   * @example
+   * await client.aliases().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/collection-alias.html#list-all-aliases
+   */
   async retrieve(): Promise<CollectionAliasesResponseSchema> {
     return this.apiCall.get<CollectionAliasesResponseSchema>(RESOURCEPATH);
   }

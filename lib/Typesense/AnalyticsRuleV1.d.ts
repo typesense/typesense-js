@@ -29,7 +29,23 @@ export default class AnalyticsRuleV1 {
     private name;
     private apiCall;
     constructor(name: string, apiCall: ApiCall);
+    /**
+     * Retrieve a legacy v1 analytics rule by name.
+     *
+     * @example
+     * await client.analyticsV1.rules("rule-1").retrieve()
+     *
+     * @see https://typesense.org/docs/29.0/api/analytics-query-suggestions.html
+     */
     retrieve(): Promise<AnalyticsRuleSchemaV1>;
+    /**
+     * Delete a legacy v1 analytics rule by name.
+     *
+     * @example
+     * await client.analyticsV1.rules("rule-1").delete()
+     *
+     * @see https://typesense.org/docs/29.0/api/analytics-query-suggestions.html
+     */
     delete(): Promise<AnalyticsRuleDeleteSchemaV1>;
     private endpointPath;
 }

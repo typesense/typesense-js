@@ -23,8 +23,32 @@ export default class ConversationModel {
     private id;
     private apiCall;
     constructor(id: string, apiCall: ApiCall);
+    /**
+     * Update a conversation model
+     *
+     * @example
+     * await client.conversations().models("model-1").update({ model_name: "openai/gpt-4", max_bytes: 16384 })
+     *
+     * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+     */
     update(params: ConversationModelCreateSchema): Promise<ConversationModelCreateSchema>;
+    /**
+     * Retrieve a conversation model
+     *
+     * @example
+     * await client.conversations().models("model-1").retrieve()
+     *
+     * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+     */
     retrieve(): Promise<ConversationModelSchema>;
+    /**
+     * Delete a conversation model
+     *
+     * @example
+     * await client.conversations().models("model-1").delete()
+     *
+     * @see https://typesense.org/docs/latest/api/conversational-search-rag.html
+     */
     delete(): Promise<ConversationModelDeleteSchema>;
     private endpointPath;
 }

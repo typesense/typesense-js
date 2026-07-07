@@ -40,12 +40,28 @@ export type NLSearchModelsRetrieveSchema = NLSearchModelSchema[];
 export default class NLSearchModels {
   constructor(private apiCall: ApiCall) {}
 
+  /**
+   * Create a new NL search model.
+   *
+   * @example
+   * await client.nlSearchModels().create({ model_name: "openai/gpt-4", api_key: "..." })
+   *
+   * @see https://typesense.org/docs/latest/api/natural-language-search.html
+   */
   async create(
     schema: NLSearchModelCreateSchema,
   ): Promise<NLSearchModelSchema> {
     return this.apiCall.post<NLSearchModelSchema>(this.endpointPath(), schema);
   }
 
+  /**
+   * Retrieve all NL search models.
+   *
+   * @example
+   * await client.nlSearchModels().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/natural-language-search.html
+   */
   async retrieve(): Promise<NLSearchModelsRetrieveSchema> {
     return this.apiCall.get<NLSearchModelsRetrieveSchema>(this.endpointPath());
   }

@@ -28,6 +28,14 @@ export class SearchOnlyDocuments<T extends DocumentSchema>
     this.requestWithCache.clearCache();
   }
 
+  /**
+   * Search for documents in a collection that match the search criteria.
+   *
+   * @example
+   * await client.collections("products").documents().search({ q: "*", query_by: "title" })
+   *
+   * @see https://typesense.org/docs/latest/api/search.html
+   */
   async search<const Infix extends string>(
     searchParameters: SearchParams<T, Infix> | SearchParamsWithPreset<T, Infix>,
     {

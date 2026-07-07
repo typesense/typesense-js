@@ -97,20 +97,52 @@ export default class Collection<T extends DocumentSchema = object> {
     this._synonyms = new Synonyms(this.name, this.apiCall);
   }
 
+  /**
+   * Retrieve the details of a collection, given its name.
+   *
+   * @example
+   * await client.collections("products").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/collections.html#retrieve-a-collection
+   */
   async retrieve(): Promise<CollectionSchema> {
     return this.apiCall.get<CollectionSchema>(this.endpointPath());
   }
 
+  /**
+   * Update a collection's schema to modify the fields and their types.
+   *
+   * @example
+   * await client.collections("products").update({ fields: [{ name: "tags", type: "string[]" }] })
+   *
+   * @see https://typesense.org/docs/latest/api/collections.html#update-or-alter-a-collection
+   */
   async update(schema: CollectionUpdateSchema): Promise<CollectionSchema> {
     return this.apiCall.patch<CollectionSchema>(this.endpointPath(), schema);
   }
 
+  /**
+   * Permanently drops a collection. This action cannot be undone. For large collections, this might have an impact on read latencies.
+   *
+   * @example
+   * await client.collections("products").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/collections.html#drop-a-collection
+   */
   async delete(
     options: CollectionDeleteOptions = {},
   ): Promise<CollectionSchema> {
     return this.apiCall.delete<CollectionSchema>(this.endpointPath(), options);
   }
 
+  /**
+   * Check whether the collection exists.
+   *
+   * @example
+   * await client.collections("products").exists()
+   *
+   * @see https://typesense.org/docs/latest/api/collections.html#retrieve-a-collection
+   */
   async exists(): Promise<boolean> {
     try {
       await this.retrieve();
@@ -121,7 +153,25 @@ export default class Collection<T extends DocumentSchema = object> {
     }
   }
 
+  /**
+   * Access the documents resource for this collection. Call without arguments to list, index, search, import, or export documents, or pass a document ID to access a single document.
+   *
+   * @example
+   * await client.collections("products").documents().create({ id: "1", title: "Hat" })
+   * @example
+   * await client.collections("products").documents("1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/documents.html
+   */
   documents(): Documents<T>;
+  /**
+   * Access an individual document by ID within this collection.
+   *
+   * @example
+   * await client.collections("products").documents("1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/documents.html
+   */
   documents(documentId: string): Document<T>;
   documents(documentId?: string): Document<T> | Documents<T> {
     if (!documentId) {
@@ -138,7 +188,25 @@ export default class Collection<T extends DocumentSchema = object> {
     }
   }
 
+  /**
+   * Access the legacy overrides (curation) resource for this collection. Call without arguments to list or upsert overrides, or pass an ID to access a single override.
+   *
+   * @example
+   * await client.collections("products").overrides().upsert("promote-hat", { rule: { query: "hat", match: "exact" }, includes: [] })
+   * @example
+   * await client.collections("products").overrides("promote-hat").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   overrides(): Overrides;
+  /**
+   * Access an individual override by ID within this collection.
+   *
+   * @example
+   * await client.collections("products").overrides("promote-hat").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/curation.html
+   */
   overrides(overrideId: string): Override;
   overrides(overrideId?: string): Overrides | Override {
     if (overrideId === undefined) {
@@ -155,7 +223,25 @@ export default class Collection<T extends DocumentSchema = object> {
     }
   }
 
+  /**
+   * Access the legacy synonyms resource for this collection. Call without arguments to list or upsert synonyms, or pass an ID to access a single synonym.
+   *
+   * @example
+   * await client.collections("products").synonyms().upsert("syn-1", { synonyms: ["nyc", "new york"] })
+   * @example
+   * await client.collections("products").synonyms("syn-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/synonyms.html
+   */
   synonyms(): Synonyms;
+  /**
+   * Access an individual synonym by ID within this collection.
+   *
+   * @example
+   * await client.collections("products").synonyms("syn-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/synonyms.html
+   */
   synonyms(synonymId: string): Synonym;
   synonyms(synonymId?: string): Synonyms | Synonym {
     if (synonymId === undefined) {

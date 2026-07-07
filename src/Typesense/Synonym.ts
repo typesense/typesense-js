@@ -21,10 +21,26 @@ export default class Synonym {
     private apiCall: ApiCall
   ) {}
 
+  /**
+   * Retrieve a synonym (legacy v1) by ID on this collection.
+   *
+   * @example
+   * await client.collections("products").synonyms("syn-1").retrieve()
+   *
+   * @see https://typesense.org/docs/29.0/api/synonyms.html
+   */
   async retrieve(): Promise<SynonymSchema> {
     return this.apiCall.get<SynonymSchema>(this.endpointPath());
   }
 
+  /**
+   * Delete a synonym (legacy v1) by ID on this collection.
+   *
+   * @example
+   * await client.collections("products").synonyms("syn-1").delete()
+   *
+   * @see https://typesense.org/docs/29.0/api/synonyms.html
+   */
   async delete(): Promise<SynonymDeleteSchema> {
     return this.apiCall.delete<SynonymDeleteSchema>(this.endpointPath());
   }

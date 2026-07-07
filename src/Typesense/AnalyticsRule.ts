@@ -49,10 +49,26 @@ export default class AnalyticsRule {
     private apiCall: ApiCall,
   ) {}
 
+  /**
+   * Retrieve the details of an analytics rule, given it's name
+   *
+   * @example
+   * await client.analytics.rules("rule-1").retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   async retrieve(): Promise<AnalyticsRuleSchema> {
     return this.apiCall.get<AnalyticsRuleSchema>(this.endpointPath());
   }
 
+  /**
+   * Permanently deletes an analytics rule, given it's name
+   *
+   * @example
+   * await client.analytics.rules("rule-1").delete()
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   async delete(): Promise<AnalyticsRuleDeleteSchema> {
     return this.apiCall.delete<AnalyticsRuleDeleteSchema>(this.endpointPath());
   }

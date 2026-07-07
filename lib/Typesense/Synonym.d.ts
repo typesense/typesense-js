@@ -15,7 +15,23 @@ export default class Synonym {
     private apiCall;
     private static hasWarnedDeprecation;
     constructor(collectionName: string, synonymId: string, apiCall: ApiCall);
+    /**
+     * Retrieve a synonym (legacy v1) by ID on this collection.
+     *
+     * @example
+     * await client.collections("products").synonyms("syn-1").retrieve()
+     *
+     * @see https://typesense.org/docs/29.0/api/synonyms.html
+     */
     retrieve(): Promise<SynonymSchema>;
+    /**
+     * Delete a synonym (legacy v1) by ID on this collection.
+     *
+     * @example
+     * await client.collections("products").synonyms("syn-1").delete()
+     *
+     * @see https://typesense.org/docs/29.0/api/synonyms.html
+     */
     delete(): Promise<SynonymDeleteSchema>;
     private endpointPath;
 }

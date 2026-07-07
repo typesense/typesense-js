@@ -16,6 +16,14 @@ export default class AnalyticsRules {
     this.apiCall = apiCall;
   }
 
+  /**
+   * Create one or more analytics rules. You can send a single rule object or an array of rule objects.
+   *
+   * @example
+   * await client.analytics.rules().create({ name: "products_query_hits", type: "popular_queries", params: {} })
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   async create(
     params:
       | AnalyticsRuleCreateSchema
@@ -37,6 +45,14 @@ export default class AnalyticsRules {
     );
   }
 
+  /**
+   * Upserts an analytics rule with the given name.
+   *
+   * @example
+   * await client.analytics.rules().upsert("products_query_hits", { type: "popular_queries", params: {} })
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   async upsert(
     name: string,
     params: AnalyticsRuleUpsertSchema
@@ -47,6 +63,14 @@ export default class AnalyticsRules {
     );
   }
 
+  /**
+   * Retrieve all analytics rules. Use the optional rule_tag filter to narrow down results.
+   *
+   * @example
+   * await client.analytics.rules().retrieve()
+   *
+   * @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
+   */
   async retrieve(ruleTag?: string): Promise<AnalyticsRuleSchema[]> {
     const query: Record<string, string> = {};
     if (ruleTag) {

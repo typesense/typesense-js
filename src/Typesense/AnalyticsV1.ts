@@ -20,7 +20,25 @@ export default class AnalyticsV1 {
     this._analyticsEvents = new AnalyticsEvents(this.apiCall);
   }
 
+  /**
+   * Access the legacy v1 analytics rules resource. Call without arguments to list or upsert rules, or pass an ID to access a single rule.
+   *
+   * @example
+   * await client.analyticsV1.rules().retrieve()
+   * @example
+   * await client.analyticsV1.rules("rule-1").retrieve()
+   *
+   * @see https://typesense.org/docs/29.0/api/analytics-query-suggestions.html
+   */
   rules(): AnalyticsRulesV1;
+  /**
+   * Access an individual legacy v1 analytics rule by ID.
+   *
+   * @example
+   * await client.analyticsV1.rules("rule-1").retrieve()
+   *
+   * @see https://typesense.org/docs/29.0/api/analytics-query-suggestions.html
+   */
   rules(id: string): AnalyticsRuleV1;
   rules(id?: string): AnalyticsRulesV1 | AnalyticsRuleV1 {
     if (!AnalyticsV1.hasWarnedDeprecation) {
@@ -40,6 +58,14 @@ export default class AnalyticsV1 {
     }
   }
 
+  /**
+   * Access the legacy v1 analytics events resource to send analytics events.
+   *
+   * @example
+   * await client.analyticsV1.events().create({ type: "click", name: "products_click", data: {} })
+   *
+   * @see https://typesense.org/docs/29.0/api/analytics-query-suggestions.html
+   */
   events(): AnalyticsEvents {
     return this._analyticsEvents;
   }
