@@ -130,8 +130,9 @@ export interface BaseStreamConfig {
  * Stream configuration for standard search responses
  * For specialized responses like MultiSearch, extend BaseStreamConfig with the appropriate onComplete signature
  */
-export interface StreamConfig<T extends DocumentSchema>
-  extends BaseStreamConfig {
+export interface StreamConfig<
+  T extends DocumentSchema,
+> extends BaseStreamConfig {
   /**
    * Callback function that will be called when the streaming is complete
    */
@@ -166,9 +167,9 @@ export default class Configuration {
   constructor(options: ConfigurationOptions) {
     this.nodes = options.nodes || [];
     this.nodes = this.nodes
+      .map((node) => ({ ...node })) // Copy the caller's node objects before mutating them
       .map((node) => this.setDefaultPathInNode(node))
-      .map((node) => this.setDefaultPortInNode(node))
-      .map((node) => ({ ...node })) as NodeConfiguration[]; // Make a deep copy
+      .map((node) => this.setDefaultPortInNode(node)) as NodeConfiguration[];
 
     if (options.randomizeNodes == null) {
       options.randomizeNodes = true;
@@ -178,7 +179,10 @@ export default class Configuration {
       this.shuffleArray(this.nodes);
     }
 
-    this.nearestNode = options.nearestNode;
+    this.nearestNode =
+      options.nearestNode == null
+        ? options.nearestNode
+        : { ...options.nearestNode };
     this.nearestNode = this.setDefaultPathInNode(this.nearestNode);
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode);
 
