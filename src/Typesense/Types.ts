@@ -282,7 +282,11 @@ export interface UnionSearchResponse<T extends DocumentSchema>
 type AllRequiredBut<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T, K>;
 
 export interface UnionSearchResponseRequestParams
-  extends AllRequiredBut<SearchResponseRequestParams, "voice_query"> {
+  extends Omit<
+    AllRequiredBut<SearchResponseRequestParams, "voice_query">,
+    "collection_name"
+  > {
+  collection: string;
   found: number;
 }
 
