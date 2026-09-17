@@ -151,6 +151,7 @@ export interface RequestParams<T extends DocumentSchema[]> {
 }
 export interface MultiSearchRequestsWithUnionSchema<T extends DocumentSchema, Infix extends string> extends SearchesMultiSearchesRequestSchema<T, Infix> {
     union: true;
+    remove_duplicates?: boolean;
 }
 export interface MultiSearchRequestsWithoutUnionSchema<T extends DocumentSchema, Infix extends string> extends SearchesMultiSearchesRequestSchema<T, Infix> {
     union?: false | undefined;
