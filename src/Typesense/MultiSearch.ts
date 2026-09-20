@@ -87,9 +87,14 @@ export default class MultiSearch {
     }
 
     const normalizedSearchRequests: Omit<typeof searchRequests, "searches"> & {
+      remove_duplicates?: boolean;
       searches: ExtractBaseTypes<SearchParams<T[number], Infix>>[];
     } = {
       union: searchRequests.union,
+      remove_duplicates:
+        "remove_duplicates" in searchRequests
+          ? searchRequests.remove_duplicates
+          : undefined,
       searches: searchRequests.searches.map(
         normalizeArrayableParams<
           T[number],

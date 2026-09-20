@@ -258,6 +258,7 @@ export interface MultiSearchRequestsWithUnionSchema<
   Infix extends string,
 > extends SearchesMultiSearchesRequestSchema<T, Infix> {
   union: true;
+  remove_duplicates?: boolean;
 }
 
 export interface MultiSearchRequestsWithoutUnionSchema<
