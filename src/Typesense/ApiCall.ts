@@ -883,15 +883,26 @@ export default class ApiCall implements HttpClient {
       `Found ${messagesChunks.length} message chunks to combine`,
     );
 
-    const lastChunk = chunks[chunks.length - 1];
-    if (this.isCompleteSearchResponse(lastChunk)) {
-      return lastChunk;
-    }
+    // The server streams the conversational answer token-by-token as separate
+    // message chunks, then sends one final metadata chunk whose
+    // `conversation.answer` is left empty (the answer was already streamed
+    // incrementally). Assemble it here so callers get the complete answer
+    // instead of silently getting back an empty string.
+    const assembledAnswer = messagesChunks
+      .map((chunk) => chunk.message)
+      .join("");
 
-    const metadataChunk = chunks.find(this.isCompleteSearchResponse);
+    const lastChunk = chunks[chunks.length - 1];
+    const metadataChunk = this.isCompleteSearchResponse(lastChunk)
+      ? lastChunk
+      : chunks.find(this.isCompleteSearchResponse);
 
     if (!metadataChunk) {
       throw new Error("No metadata chunk found");
+    }
+
+    if (metadataChunk.conversation && !metadataChunk.conversation.answer) {
+      metadataChunk.conversation.answer = assembledAnswer;
     }
 
     return metadataChunk;

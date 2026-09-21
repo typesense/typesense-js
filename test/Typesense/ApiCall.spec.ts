@@ -437,6 +437,106 @@ describe("ApiCall", () => {
     });
   });
 
+  describe("Streaming conversation chunk combination", () => {
+    let typesense: TypesenseClient;
+    let apiCall: ApiCall;
+
+    beforeEach(() => {
+      typesense = new TypesenseClient({
+        nodes: [{ host: "node0", port: 8108, protocol: "http" }],
+        apiKey: "abcd",
+        randomizeNodes: false,
+        logLevel: "error",
+      });
+      apiCall = new ApiCall(typesense.configuration);
+    });
+
+    // combineStreamingChunks/combineMessageChunks are private: they hold the
+    // actual chunk-assembly logic, so they're exercised directly here rather
+    // than through the full Node/browser stream-parsing machinery.
+    const combineStreamingChunks = (chunks: unknown[]) =>
+      (
+        apiCall as unknown as {
+          combineStreamingChunks: (chunks: unknown[]) => unknown;
+        }
+      ).combineStreamingChunks(chunks);
+
+    it("assembles the streamed message chunks into conversation.answer", () => {
+      const streamedChunks = [
+        { conversation_id: "conv_1", message: "The " },
+        { conversation_id: "conv_1", message: "capital " },
+        { conversation_id: "conv_1", message: "of " },
+        { conversation_id: "conv_1", message: "France " },
+        { conversation_id: "conv_1", message: "is " },
+        { conversation_id: "conv_1", message: "Paris." },
+        {
+          found: 1,
+          out_of: 1,
+          page: 1,
+          search_time_ms: 4,
+          hits: [{ document: { id: "1" }, text_match: 100 }],
+          conversation: {
+            answer: "",
+            conversation_id: "conv_1",
+            query: "what is the capital of france",
+            conversation_history: {
+              conversation: [],
+              id: "conv_1",
+              last_updated: 0,
+              ttl: 0,
+            },
+          },
+        },
+      ];
+
+      const result = combineStreamingChunks(streamedChunks) as {
+        conversation: { answer: string };
+      };
+
+      expect(result.conversation.answer).toBe(
+        "The capital of France is Paris.",
+      );
+    });
+
+    it("does not touch conversation.answer when the server already populated it", () => {
+      const streamedChunks = [
+        { conversation_id: "conv_1", message: "ignored" },
+        {
+          found: 1,
+          out_of: 1,
+          page: 1,
+          search_time_ms: 4,
+          conversation: {
+            answer: "already set",
+            conversation_id: "conv_1",
+            query: "q",
+            conversation_history: {
+              conversation: [],
+              id: "conv_1",
+              last_updated: 0,
+              ttl: 0,
+            },
+          },
+        },
+      ];
+
+      const result = combineStreamingChunks(streamedChunks) as {
+        conversation: { answer: string };
+      };
+
+      expect(result.conversation.answer).toBe("already set");
+    });
+
+    it("still returns the metadata chunk unchanged for non-conversation streams", () => {
+      const streamedChunks = [
+        { found: 1, out_of: 1, page: 1, search_time_ms: 4 },
+      ];
+
+      const result = combineStreamingChunks(streamedChunks);
+      expect(result).toEqual(streamedChunks[0]);
+    });
+  });
+
   describe("Abort Signal Behavior", () => {
     let typesense: TypesenseClient;
     let mockAxios: MockAxiosAdapter;
