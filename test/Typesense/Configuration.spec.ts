@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import { MissingConfigurationError } from "../../src/Typesense/Errors";
 import {
+  ConfigurationOptions,
   NodeConfigurationWithHostname,
   NodeConfigurationWithUrl,
 } from "../../src/Typesense/Configuration";
@@ -144,5 +145,55 @@ describe("Configuration", function () {
           .host,
       ),
     ).toBe(true);
+  });
+  describe("numRetries", function () {
+    const node = { host: "node0", protocol: "https", port: 8108 };
+
+    function numRetriesFor(
+      options: Partial<ConfigurationOptions> = {},
+    ): number {
+      return new TypesenseClient({
+        nodes: [node],
+        apiKey: "abcd",
+        randomizeNodes: false,
+        ...options,
+      }).configuration.numRetries;
+    }
+
+    it("uses the given value when it is zero", function () {
+      expect(numRetriesFor({ numRetries: 0 })).toBe(0);
+    });
+
+    it("uses the given value when it is positive", function () {
+      expect(numRetriesFor({ numRetries: 1 })).toBe(1);
+      expect(numRetriesFor({ numRetries: 2 })).toBe(2);
+      expect(numRetriesFor({ numRetries: 10 })).toBe(10);
+    });
+
+    it("falls back to the node count when it is negative", function () {
+      expect(numRetriesFor({ numRetries: -1 })).toBe(1);
+    });
+
+    it("defaults to the node count when it is undefined", function () {
+      expect(numRetriesFor({ numRetries: undefined })).toBe(1);
+      expect(numRetriesFor()).toBe(1);
+      expect(
+        numRetriesFor({
+          nodes: [
+            { host: "node0", protocol: "https", port: 8108 },
+            { host: "node1", protocol: "https", port: 8108 },
+            { host: "node2", protocol: "https", port: 8108 },
+          ],
+        }),
+      ).toBe(3);
+    });
+
+    it("counts nearestNode in the default", function () {
+      expect(
+        numRetriesFor({
+          nearestNode: { host: "node1", protocol: "https", port: 8108 },
+        }),
+      ).toBe(2);
+    });
   });
 });
