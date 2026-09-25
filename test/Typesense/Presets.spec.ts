@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
 
 describe("Presets", function () {
@@ -77,16 +77,22 @@ describe("Presets", function () {
   });
 
   describe(".retrieve", function () {
+    const presetName = "presets-retrieve";
+    const presetValue = { query_by: "field1,field2" };
+
     beforeEach(async function () {
-      const presets = await typesense.presets().retrieve();
-      for (const preset of presets.presets) {
-        await typesense.presets(preset.name).delete();
-      }
+      await typesense.presets().upsert(presetName, { value: presetValue });
+    });
+    afterEach(async function () {
+      await typesense.presets(presetName).delete();
     });
     it("retrieves all presets", async function () {
       const returnData = await typesense.presets().retrieve();
 
-      expect(returnData).toEqual({ presets: [] });
+      expect(returnData.presets).toContainEqual({
+        name: presetName,
+        value: presetValue,
+      });
     });
   });
 });
