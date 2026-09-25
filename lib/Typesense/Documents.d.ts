@@ -68,7 +68,7 @@ export interface SearchResponseHit<T extends DocumentSchema> {
         tokens_matched: number;
     };
     geo_distance_meters?: {
-        location: number;
+        [key: string]: number;
     };
 }
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
