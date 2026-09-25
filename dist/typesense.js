@@ -2292,7 +2292,7 @@ var Configuration = /*#__PURE__*/function () {
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode);
     this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 5;
     this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60;
-    this.numRetries = (options.numRetries !== undefined && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1)) || 3;
+    this.numRetries = options.numRetries !== undefined && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3;
     this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
     this.apiKey = options.apiKey;
     this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam; // We will set a default for this in Client and SearchClient
@@ -4450,6 +4450,7 @@ var MultiSearch = /*#__PURE__*/function () {
               }
               normalizedSearchRequests = {
                 union: searchRequests.union,
+                remove_duplicates: "remove_duplicates" in searchRequests ? searchRequests.remove_duplicates : undefined,
                 searches: searchRequests.searches.map(_Utils__WEBPACK_IMPORTED_MODULE_7__.normalizeArrayableParams)
               };
               streamConfig = params.streamConfig, paramsWithoutStream = (0,_babel_runtime_helpers_objectWithoutProperties__WEBPACK_IMPORTED_MODULE_0__["default"])(params, _excluded);
