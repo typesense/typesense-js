@@ -5129,7 +5129,7 @@ var RequestWithCache = /*#__PURE__*/function () {
     key: "perform",
     value: function () {
       var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_0__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().mark(function _callee(requestContext, methodName, requestParams, cacheOptions) {
-        var _ref, _ref$cacheResponseFor, cacheResponseForSeconds, _ref$maxSize, maxSize, isCacheDisabled, path, queryParams, body, headers, streamConfig, abortSignal, responseType, isStreamingRequest, requestParamsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry;
+        var _ref, _ref$cacheResponseFor, cacheResponseForSeconds, _ref$maxSize, maxSize, isCacheDisabled, path, queryParams, body, headers, streamConfig, abortSignal, responseType, isStreamingRequest, requestParamsJSON, cacheEntry, now, isEntryValid, cachePromiseEntry, _isEntryValid, responsePromise, response, _this$responsePromise, isCacheOverMaxSize, oldestEntry, isResponsePromiseCacheOverMaxSize, _oldestEntry, _t;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_4___default().wrap(function (_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
@@ -5191,10 +5191,21 @@ var RequestWithCache = /*#__PURE__*/function () {
                 requestTimestamp: now,
                 responsePromise: responsePromise
               });
-              _context.next = 6;
+              _context.prev = 6;
+              _context.next = 7;
               return responsePromise;
-            case 6:
+            case 7:
               response = _context.sent;
+              _context.next = 9;
+              break;
+            case 8:
+              _context.prev = 8;
+              _t = _context["catch"](6);
+              if (((_this$responsePromise = this.responsePromiseCache.get(requestParamsJSON)) === null || _this$responsePromise === void 0 ? void 0 : _this$responsePromise.responsePromise) === responsePromise) {
+                this.responsePromiseCache.delete(requestParamsJSON);
+              }
+              throw _t;
+            case 9:
               this.responseCache.set(requestParamsJSON, {
                 requestTimestamp: now,
                 response: response
@@ -5214,11 +5225,11 @@ var RequestWithCache = /*#__PURE__*/function () {
                 }
               }
               return _context.abrupt("return", response);
-            case 7:
+            case 10:
             case "end":
               return _context.stop();
           }
-        }, _callee, this);
+        }, _callee, this, [[6, 8]]);
       }));
       function perform(_x, _x2, _x3, _x4) {
         return _perform.apply(this, arguments);
