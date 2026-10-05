@@ -115,7 +115,18 @@ export default class RequestWithCache {
       responsePromise,
     });
 
-    const response = await responsePromise;
+    let response: TResult;
+    try {
+      response = await responsePromise;
+    } catch (error) {
+      if (
+        this.responsePromiseCache.get(requestParamsJSON)?.responsePromise ===
+        responsePromise
+      ) {
+        this.responsePromiseCache.delete(requestParamsJSON);
+      }
+      throw error;
+    }
     this.responseCache.set(requestParamsJSON, {
       requestTimestamp: now,
       response: response,

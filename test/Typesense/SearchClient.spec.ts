@@ -202,4 +202,47 @@ describe("SearchClient", function () {
 
     expect(mockAxios.history["post"].length).toBe(1);
   });
+
+  it("should not cache failed multi_search requests", async function () {
+    typesense = new TypesenseSearchClient({
+      nodes: [
+        {
+          host: "node0",
+          port: 8108,
+          protocol: "http",
+        },
+      ],
+      apiKey: "abcd",
+      randomizeNodes: false,
+      numRetries: 0,
+      cacheSearchResultsForSeconds: 2 * 60,
+    });
+    const searchRequest = {
+      searches: [{ q: "term1" }],
+    };
+    const commonParams = {
+      collection: "docs",
+      query_by: "field",
+    };
+
+    mockAxios
+      .onPost("http://node0:8108/multi_search")
+      .networkErrorOnce()
+      .onPost("http://node0:8108/multi_search")
+      .reply(200, JSON.stringify({ results: [] }), {
+        "content-type": "application/json",
+      });
+
+    await expect(
+      typesense.multiSearch.perform(searchRequest, commonParams),
+    ).rejects.toThrow();
+
+    const response = await typesense.multiSearch.perform(
+      searchRequest,
+      commonParams,
+    );
+
+    expect(response).toEqual({ results: [] });
+    expect(mockAxios.history["post"].length).toBe(2);
+  });
 });
