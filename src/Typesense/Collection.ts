@@ -101,8 +101,13 @@ export default class Collection<T extends DocumentSchema = object> {
     return this.apiCall.get<CollectionSchema>(this.endpointPath());
   }
 
-  async update(schema: CollectionUpdateSchema): Promise<CollectionSchema> {
-    return this.apiCall.patch<CollectionSchema>(this.endpointPath(), schema);
+  async update(
+    schema: CollectionUpdateSchema,
+  ): Promise<CollectionUpdateSchema> {
+    return this.apiCall.patch<CollectionUpdateSchema>(
+      this.endpointPath(),
+      schema,
+    );
   }
 
   async delete(

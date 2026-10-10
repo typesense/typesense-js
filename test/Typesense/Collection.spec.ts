@@ -1,5 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  expectTypeOf,
+  beforeEach,
+  afterEach,
+} from "vitest";
 import { Client as TypesenseClient } from "../../src/Typesense";
+import type { CollectionUpdateSchema } from "../../src/Typesense/Collection";
 import { ObjectNotFound } from "../../src/Typesense/Errors";
 
 describe("Collection", function () {
@@ -108,12 +116,16 @@ describe("Collection", function () {
         fields: [{ name: "new_field", type: "string" as const }],
       };
 
-      const updateResult = await collection.update(updateSchema);
+      const typedCollection = typesense.collections(testCollectionName);
+      const updateResult = await typedCollection.update(updateSchema);
 
+      expectTypeOf(updateResult).toEqualTypeOf<CollectionUpdateSchema>();
       expect(updateResult).toBeDefined();
-      expect(updateResult.fields).toHaveLength(1);
-      expect(updateResult.fields[0].name).toBe("new_field");
-      expect(updateResult.fields[0].type).toBe("string");
+      expect(updateResult).not.toHaveProperty("name");
+      expect(updateResult).not.toHaveProperty("num_documents");
+      expect(updateResult.fields).toMatchObject([
+        { name: "new_field", type: "string" },
+      ]);
 
       // Verify the update by retrieving the collection
       const updatedCollection = await collection.retrieve();
