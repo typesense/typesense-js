@@ -197,6 +197,10 @@ export interface SearchOptions {
   abortSignal?: AbortSignal | null;
 }
 
+export interface ImportOptions {
+  abortSignal?: AbortSignal | null;
+}
+
 const isNodeJSEnvironment =
   typeof process !== "undefined" &&
   process.versions != null &&
@@ -303,19 +307,23 @@ export default class Documents<T extends DocumentSchema = object>
    * Import a set of documents in a batch.
    * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
    * @param options
+   * @param importOptions - An `abortSignal` cancels the request, and its retries, when aborted.
    * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
    */
   async import(
     documents: string,
     options?: DocumentImportParameters,
+    importOptions?: ImportOptions,
   ): Promise<string>;
   async import(
     documents: T[],
     options?: DocumentImportParameters,
+    importOptions?: ImportOptions,
   ): Promise<ImportResponse<T>[]>;
   async import(
     documents: T[] | string,
     options: DocumentImportParameters = {},
+    { abortSignal = null }: ImportOptions = {},
   ): Promise<string | ImportResponse<T>[]> {
     // Set default value for throwOnFail if not provided
     const finalOptions = { throwOnFail: true, ...options };
@@ -358,6 +366,7 @@ export default class Documents<T extends DocumentSchema = object>
         queryParameters: finalOptions,
         bodyParameters: documentsInJSONLFormat,
         additionalHeaders: { "Content-Type": "text/plain" },
+        abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
         enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },
@@ -398,6 +407,7 @@ export default class Documents<T extends DocumentSchema = object>
   async importStream(
     readableStream: ReadStream,
     options: DocumentImportParameters = {},
+    { abortSignal = null }: ImportOptions = {},
   ): Promise<ImportResponse<T>[]> {
     const finalOptions = { throwOnFail: true, ...options };
     
@@ -408,6 +418,7 @@ export default class Documents<T extends DocumentSchema = object>
         queryParameters: finalOptions,
         bodyParameters: readableStream,
         additionalHeaders: { "Content-Type": "text/plain" },
+        abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
         enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },

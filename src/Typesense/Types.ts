@@ -9,6 +9,7 @@ import type {
   DeleteQuery,
   DeleteResponse,
   ImportResponse,
+  ImportOptions,
   DocumentsExportParameters,
 } from "./Documents";
 
@@ -222,6 +223,7 @@ export interface WriteableDocuments<T> {
   import(
     documents: T[] | string,
     options: DocumentWriteParameters,
+    importOptions?: ImportOptions,
   ): Promise<string | ImportResponse[]>;
   export(options: DocumentsExportParameters): Promise<string>;
 }
