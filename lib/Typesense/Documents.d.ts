@@ -161,6 +161,9 @@ export interface SearchOptions {
     cacheSearchResultsForSeconds?: number;
     abortSignal?: AbortSignal | null;
 }
+export interface ImportOptions {
+    abortSignal?: AbortSignal | null;
+}
 export default class Documents<T extends DocumentSchema = object> extends SearchOnlyDocuments<T> implements WriteableDocuments<T> {
     constructor(collectionName: string, apiCall: ApiCall, configuration: Configuration);
     create(document: T, options?: Omit<DocumentWriteParameters, "action">): Promise<T>;
@@ -175,14 +178,15 @@ export default class Documents<T extends DocumentSchema = object> extends Search
      * Import a set of documents in a batch.
      * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
      * @param options
+     * @param importOptions - An `abortSignal` cancels the request, and its retries, when aborted.
      * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
      */
-    import(documents: string, options?: DocumentImportParameters): Promise<string>;
-    import(documents: T[], options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
+    import(documents: string, options?: DocumentImportParameters, importOptions?: ImportOptions): Promise<string>;
+    import(documents: T[], options?: DocumentImportParameters, importOptions?: ImportOptions): Promise<ImportResponse<T>[]>;
     /**
      * Imports documents from a NodeJS readable stream of JSONL.
      */
-    importStream(readableStream: ReadStream, options?: DocumentImportParameters): Promise<ImportResponse<T>[]>;
+    importStream(readableStream: ReadStream, options?: DocumentImportParameters, { abortSignal }?: ImportOptions): Promise<ImportResponse<T>[]>;
     /**
      * Returns a JSONL string for all the documents in this collection
      */

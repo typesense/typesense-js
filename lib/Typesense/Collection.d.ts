@@ -49,7 +49,7 @@ export default class Collection<T extends DocumentSchema = object> {
     private individualSynonyms;
     constructor(name: string, apiCall: ApiCall, configuration: any);
     retrieve(): Promise<CollectionSchema>;
-    update(schema: CollectionUpdateSchema): Promise<CollectionSchema>;
+    update(schema: CollectionUpdateSchema): Promise<CollectionUpdateSchema>;
     delete(options?: CollectionDeleteOptions): Promise<CollectionSchema>;
     exists(): Promise<boolean>;
     documents(): Documents<T>;

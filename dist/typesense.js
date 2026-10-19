@@ -3448,6 +3448,7 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
      * Import a set of documents in a batch.
      * @param {string|Array} documents - Can be a JSONL string of documents or an array of document objects.
      * @param options
+     * @param importOptions - An `abortSignal` cancels the request, and its retries, when aborted.
      * @return {string|Array} Returns a JSONL string if the input was a JSONL string, otherwise it returns an array of results.
      */
   }, {
@@ -3455,6 +3456,9 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
     value: function () {
       var _import2 = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee7(documents) {
         var options,
+          _ref,
+          _ref$abortSignal,
+          abortSignal,
           finalOptions,
           documentsInJSONLFormat,
           resultsInJSONLFormat,
@@ -3466,6 +3470,7 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
           while (1) switch (_context7.prev = _context7.next) {
             case 0:
               options = _args7.length > 1 && _args7[1] !== undefined ? _args7[1] : {};
+              _ref = _args7.length > 2 && _args7[2] !== undefined ? _args7[2] : {}, _ref$abortSignal = _ref.abortSignal, abortSignal = _ref$abortSignal === void 0 ? null : _ref$abortSignal;
               // Set default value for throwOnFail if not provided
               finalOptions = _objectSpread({
                 throwOnFail: true
@@ -3514,6 +3519,7 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
                 additionalHeaders: {
                   "Content-Type": "text/plain"
                 },
+                abortSignal: abortSignal,
                 skipConnectionTimeout: true,
                 // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
                 enableKeepAlive: isNodeJSEnvironment ? true : false // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
@@ -3566,6 +3572,9 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
     value: (function () {
       var _importStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee8(readableStream) {
         var options,
+          _ref2,
+          _ref2$abortSignal,
+          abortSignal,
           finalOptions,
           resultsInJSONLFormat,
           resultsInJSONFormat,
@@ -3575,6 +3584,7 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
           while (1) switch (_context8.prev = _context8.next) {
             case 0:
               options = _args8.length > 1 && _args8[1] !== undefined ? _args8[1] : {};
+              _ref2 = _args8.length > 2 && _args8[2] !== undefined ? _args8[2] : {}, _ref2$abortSignal = _ref2.abortSignal, abortSignal = _ref2$abortSignal === void 0 ? null : _ref2$abortSignal;
               finalOptions = _objectSpread({
                 throwOnFail: true
               }, options);
@@ -3585,6 +3595,7 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
                 additionalHeaders: {
                   "Content-Type": "text/plain"
                 },
+                abortSignal: abortSignal,
                 skipConnectionTimeout: true,
                 // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
                 enableKeepAlive: isNodeJSEnvironment ? true : false // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991

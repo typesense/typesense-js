@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig } from "axios";
 import type { BaseStreamConfig, StreamConfig } from "./Configuration";
-import type { DocumentSchema, SearchParamsWithPreset, SearchOptions, SearchResponse, DocumentWriteParameters, DeleteQuery, DeleteResponse, ImportResponse, DocumentsExportParameters } from "./Documents";
+import type { DocumentSchema, SearchParamsWithPreset, SearchOptions, SearchResponse, DocumentWriteParameters, DeleteQuery, DeleteResponse, ImportResponse, ImportOptions, DocumentsExportParameters } from "./Documents";
 export type DropTokensMode = "right_to_left" | "left_to_right" | "both_sides:3";
 export type OperationMode = "off" | "always" | "fallback";
 export type CommaSeparated<T extends string, ToExtend, OriginalString extends string = T, Previous extends string[] = []> = T extends `${infer Start},${infer Rest}` ? TrimString<Start> extends ToExtend ? CommaSeparated<Rest, ToExtend, OriginalString, [
@@ -124,7 +124,7 @@ export interface WriteableDocuments<T> {
     update(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
     emplace(document: T, options: Omit<DocumentWriteParameters, "action">): Promise<T>;
     delete(query: DeleteQuery): Promise<DeleteResponse>;
-    import(documents: T[] | string, options: DocumentWriteParameters): Promise<string | ImportResponse[]>;
+    import(documents: T[] | string, options: DocumentWriteParameters, importOptions?: ImportOptions): Promise<string | ImportResponse[]>;
     export(options: DocumentsExportParameters): Promise<string>;
 }
 export interface MultiSearchUnionStreamConfig<T extends DocumentSchema> extends BaseStreamConfig {
