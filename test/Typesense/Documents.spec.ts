@@ -348,6 +348,41 @@ describe("Documents", function () {
       expect(importResult[1].success).toBe(false);
       expect((importResult[1]).error).toBeDefined();
     });
+
+    it("imports the documents when given an abort signal", async function () {
+      const abortController = new AbortController();
+
+      const importResult = await typesense
+        .collections<typeof documentData>(testCollectionName)
+        .documents()
+        .import(
+          [documentData, anotherDocumentData],
+          {},
+          {
+            abortSignal: abortController.signal,
+          },
+        );
+
+      expect(importResult.map((r) => r.success)).toEqual([true, true]);
+    });
+
+    it("imports nothing when the abort signal is already aborted", async function () {
+      const abortController = new AbortController();
+      abortController.abort();
+
+      await expect(
+        typesense
+          .collections<typeof documentData>(testCollectionName)
+          .documents()
+          .import([documentData], {}, { abortSignal: abortController.signal }),
+      ).rejects.toThrow("Request aborted by caller.");
+
+      const exported = await typesense
+        .collections(testCollectionName)
+        .documents()
+        .export();
+      expect(exported).toBe("");
+    });
   });
 
   describe(".export", function () {
