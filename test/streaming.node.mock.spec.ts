@@ -254,4 +254,35 @@ describe("Streaming responses with fetch mock in Node.js", () => {
       expect(onComplete).not.toHaveBeenCalled();
     }
   });
+
+  it("decodes multi-byte characters split across chunks", async () => {
+    const onChunk = vi.fn();
+    const bytes = new TextEncoder().encode(
+      'data: {"conversation_id":"123","message":"καλημέρα 👋"}\n\n' +
+        JSON.stringify({ found: 0, hits: [], page: 1 }),
+    );
+    // Split every character's bytes across two chunks
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        for (let i = 0; i < bytes.length; i++) {
+          controller.enqueue(bytes.subarray(i, i + 1));
+        }
+        controller.close();
+      },
+    });
+    mock.onAny().reply(200, stream, { "content-type": "text/event-stream" });
+
+    await client.collections<Essay>("test-collection").documents().search({
+      q: "hello",
+      query_by: "embedding",
+      conversation: true,
+      conversation_stream: true,
+      conversation_model_id: "test-model",
+      streamConfig: { onChunk },
+    });
+
+    expect(onChunk).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "καλημέρα 👋" }),
+    );
+  });
 });
