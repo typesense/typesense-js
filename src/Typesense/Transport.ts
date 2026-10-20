@@ -1,4 +1,5 @@
 import { fetch as undiciFetch, getGlobalDispatcher, Dispatcher } from "undici";
+import type { Logger } from "loglevel";
 import FetchTransportError from "./Errors/FetchTransportError";
 
 export type RequestMethod = "get" | "delete" | "post" | "put" | "patch";
@@ -18,7 +19,8 @@ export type TransportErrorType =
   | "timeout"
   | "abort"
   | "parse"
-  | "http";
+  | "http"
+  | "hook";
 
 export interface TypesenseRequest {
   method: RequestMethod;
@@ -76,6 +78,7 @@ export interface FetchTransportOptions {
   responseHooks?: ResponseHook[];
   errorHooks?: ErrorHook[];
   connectionTimeoutSeconds: number;
+  logger?: Pick<Logger, "warn">;
 }
 
 export interface FetchTransportRequestOptions {
@@ -248,7 +251,7 @@ export default class FetchTransport {
             classifyError,
             onError: async (error) => {
               bodyErrorReported = true;
-              await this.runErrorHooks(error, error.type, requestOptions);
+              await this.notifyError(error, error.type, requestOptions);
             },
           })
         : null;
@@ -271,8 +274,8 @@ export default class FetchTransport {
         await responseBody.cancel().catch(() => {});
       }
       const transportError = classifyError(error);
-      if (!bodyErrorReported) {
-        await this.runErrorHooks(
+      if (!bodyErrorReported && transportError.type !== "hook") {
+        await this.notifyError(
           transportError,
           transportError.type,
           requestOptions,
@@ -314,12 +317,8 @@ export default class FetchTransport {
             .cancel(error)
             .catch(() => {})
             .finally(() => reader.releaseLock());
-          try {
-            await lifecycle.onError(transportError);
-            controller.error(transportError);
-          } catch (hookError) {
-            controller.error(hookError);
-          }
+          await lifecycle.onError(transportError);
+          controller.error(transportError);
         };
         abortListener = () => {
           void fail(lifecycle.signal.reason);
@@ -352,15 +351,6 @@ export default class FetchTransport {
         }
       },
     });
-  }
-
-  async notifyError(
-    error: unknown,
-    type: TransportErrorType,
-    requestOptions: FetchTransportRequestOptions,
-    response?: TypesenseResponse,
-  ): Promise<void> {
-    await this.runErrorHooks(error, type, requestOptions, response);
   }
 
   private fetchFn(requestOptions: FetchTransportRequestOptions): FetchFunction {
@@ -577,12 +567,18 @@ export default class FetchTransport {
     return result;
   }
 
+  // A failing request or response hook ends the request without a retry:
+  // the node did nothing wrong, and a retry could repeat a write.
   private async runRequestHooks(
     request: TypesenseRequest,
     requestOptions: FetchTransportRequestOptions,
   ): Promise<void> {
     for (const hook of this.options.requestHooks || []) {
-      await hook(request, this.hookContext(requestOptions));
+      try {
+        await hook(request, this.hookContext(requestOptions));
+      } catch (error) {
+        throw hookError(error, { request });
+      }
     }
   }
 
@@ -591,22 +587,34 @@ export default class FetchTransport {
     requestOptions: FetchTransportRequestOptions,
   ): Promise<void> {
     for (const hook of this.options.responseHooks || []) {
-      await hook(response, this.hookContext(requestOptions));
+      try {
+        await hook(response, this.hookContext(requestOptions));
+      } catch (error) {
+        throw hookError(error, { request: response.request, response });
+      }
     }
   }
 
-  private async runErrorHooks(
+  // Error hooks only observe: a failing one is logged and the original error
+  // keeps its classification.
+  async notifyError(
     error: unknown,
     errorType: TransportErrorType,
     requestOptions: FetchTransportRequestOptions,
     response?: TypesenseResponse,
   ): Promise<void> {
     for (const hook of this.options.errorHooks || []) {
-      await hook(error, {
-        ...this.hookContext(requestOptions),
-        errorType,
-        response,
-      });
+      try {
+        await hook(error, {
+          ...this.hookContext(requestOptions),
+          errorType,
+          response,
+        });
+      } catch (hookFailure) {
+        this.options.logger?.warn(
+          `Request #${requestOptions.requestNumber}: An error hook failed: ${errorMessage(hookFailure)}`,
+        );
+      }
     }
   }
 
@@ -619,6 +627,20 @@ export default class FetchTransport {
       nodeIndex: requestOptions.nodeIndex,
     };
   }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function hookError(
+  error: unknown,
+  context: { request: TypesenseRequest; response?: TypesenseResponse },
+): FetchTransportError {
+  return new FetchTransportError("hook", errorMessage(error), {
+    ...context,
+    originalError: error,
+  });
 }
 
 type ErrorDetails = { message?: unknown; code?: unknown; errors?: unknown };

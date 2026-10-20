@@ -126,6 +126,7 @@ export default class ApiCall implements HttpClient {
       responseHooks: this.configuration.responseHooks,
       errorHooks: this.configuration.errorHooks,
       connectionTimeoutSeconds: this.connectionTimeoutSeconds,
+      logger: this.logger,
     });
 
     this.initializeMetadataForNodes();
@@ -382,6 +383,10 @@ export default class ApiCall implements HttpClient {
           throw error;
         }
       } catch (error: any) {
+        if (error instanceof FetchTransportError && error.type === "hook") {
+          // A hook failed, not the node, so there is nothing to retry
+          return Promise.reject(error);
+        }
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
         const wasAborted = this.isCallerAbortError(error);
         if (!wasAborted) {

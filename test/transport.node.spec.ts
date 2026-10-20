@@ -2,6 +2,7 @@ import { createRequire } from "node:module";
 import { Readable } from "node:stream";
 import type { ReadStream } from "node:fs";
 import { getGlobalDispatcher, setGlobalDispatcher, MockAgent } from "undici";
+import loglevel from "loglevel";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import Transport from "../src/Typesense/Transport";
 import ApiCall from "../src/Typesense/ApiCall";
@@ -516,6 +517,120 @@ describe.each([
           originalError: failure,
         });
       }
+    });
+
+    describe("hook failures", () => {
+      it("rejects a throwing requestHook without sending, retrying or touching node health", async () => {
+        const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+        const errorHook = vi.fn();
+        const { client, health } = clientWith(customFetch, {
+          requestHooks: [
+            async () => {
+              throw new Error("no token");
+            },
+          ],
+          errorHooks: [errorHook],
+        });
+        const error = await client.apiCall
+          .get("/health")
+          .catch((caught: unknown) => caught);
+        expect(error).toBeInstanceOf(ErrorClass);
+        expect(error).toMatchObject({ type: "hook", message: "no token" });
+        expect(customFetch).not.toHaveBeenCalled();
+        expect(health).not.toHaveBeenCalled();
+        expect(errorHook).not.toHaveBeenCalled();
+      });
+
+      it("rejects a throwing responseHook without repeating the write", async () => {
+        const customFetch = vi.fn<typeof fetch>(async () =>
+          Response.json({ id: "1" }),
+        );
+        const { client, health } = clientWith(customFetch, {
+          responseHooks: [
+            () => {
+              throw new Error("bad hook");
+            },
+          ],
+        });
+        const error = await client
+          .collections("books")
+          .documents()
+          .create({ id: "1" })
+          .catch((caught: unknown) => caught);
+        expect(error).toBeInstanceOf(ErrorClass);
+        expect(error).toMatchObject({ type: "hook", message: "bad hook" });
+        expect(customFetch).toHaveBeenCalledOnce();
+        expect(health).not.toHaveBeenCalled();
+      });
+
+      it("keeps the HTTP error when an errorHook throws", async () => {
+        const customFetch = vi.fn<typeof fetch>(async () =>
+          Response.json({ message: "Not Found" }, { status: 404 }),
+        );
+        const nextHook = vi.fn();
+        const { client, unhealthy } = clientWith(customFetch, {
+          logger: loglevel.getLogger(`hooks-${_name}`),
+          errorHooks: [
+            () => {
+              throw new Error("hook failed");
+            },
+            nextHook,
+          ],
+        });
+        const warn = vi.spyOn(client.apiCall.logger, "warn");
+        const error = await client.apiCall
+          .get("/collections/books")
+          .catch((caught: unknown) => caught);
+        expect(error).toBeInstanceOf(ErrorsModule.ObjectNotFound);
+        expect(customFetch).toHaveBeenCalledOnce();
+        expect(unhealthy()).toEqual([]);
+        expect(nextHook).toHaveBeenCalledOnce();
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining("hook failed"),
+        );
+      });
+
+      it("keeps retrying server errors when an errorHook throws", async () => {
+        const customFetch = vi.fn<typeof fetch>(async () =>
+          Response.json({ message: "Unavailable" }, { status: 503 }),
+        );
+        const errorHook = vi.fn(() => {
+          throw new Error("hook failed");
+        });
+        const { client } = clientWith(customFetch, {
+          errorHooks: [errorHook],
+        });
+        await expect(client.apiCall.get("/health")).rejects.toBeInstanceOf(
+          ErrorsModule.ServerError,
+        );
+        expect(customFetch).toHaveBeenCalledTimes(3);
+        expect(errorHook).toHaveBeenCalledTimes(3);
+      });
+
+      it("keeps node health untouched when an errorHook throws after a caller abort", async () => {
+        const abort = new AbortController();
+        const customFetch = vi.fn<typeof fetch>(
+          (_url, init) =>
+            new Promise<Response>((_resolve, reject) => {
+              init!.signal!.addEventListener("abort", () =>
+                reject(new Error("aborted")),
+              );
+              queueMicrotask(() => abort.abort());
+            }),
+        );
+        const { client, unhealthy } = clientWith(customFetch, {
+          errorHooks: [
+            () => {
+              throw new Error("hook failed");
+            },
+          ],
+        });
+        await expect(
+          client.apiCall.get("/health", {}, { abortSignal: abort.signal }),
+        ).rejects.toThrow("Request aborted by caller.");
+        expect(customFetch).toHaveBeenCalledOnce();
+        expect(unhealthy()).toEqual([]);
+      });
     });
   },
 );
