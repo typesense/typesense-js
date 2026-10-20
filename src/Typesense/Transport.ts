@@ -137,6 +137,54 @@ export default class FetchTransport {
     let abortType: "caller" | "timeout" | undefined;
     let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
     let abortListener: (() => void) | undefined;
+    let streamReturned = false;
+    let responseBody: ReadableStream<Uint8Array> | null = null;
+    let bodyErrorReported = false;
+
+    const cleanup = () => {
+      if (timeoutHandle !== undefined) {
+        clearTimeout(timeoutHandle);
+      }
+      if (callerAbortSignal && abortListener) {
+        callerAbortSignal.removeEventListener("abort", abortListener);
+      }
+    };
+    const resetTimeout = () => {
+      if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
+      if (
+        requestOptions.skipConnectionTimeout !== true &&
+        this.options.connectionTimeoutSeconds > 0
+      ) {
+        timeoutHandle = setTimeout(() => {
+          if (abortType !== undefined) return;
+          abortType = "timeout";
+          abortController.abort();
+        }, this.options.connectionTimeoutSeconds * 1000);
+      }
+    };
+    const classifyError = (error: unknown): FetchTransportError => {
+      // Cancellation takes precedence even if a body reader wraps the abort.
+      if (abortType === undefined && error instanceof FetchTransportError) {
+        return error;
+      }
+      const type =
+        abortType === "caller"
+          ? "abort"
+          : abortType === "timeout"
+            ? "timeout"
+            : "network";
+      return new FetchTransportError(
+        type,
+        type === "abort"
+          ? "Request aborted by caller."
+          : type === "timeout"
+            ? `Request timed out after ${this.options.connectionTimeoutSeconds} seconds.`
+            : error instanceof Error
+              ? error.message
+              : String(error),
+        { request: mutableRequest, originalError: error },
+      );
+    };
 
     const callerAbortSignal = requestOptions.abortSignal;
     if (callerAbortSignal?.aborted) {
@@ -147,18 +195,14 @@ export default class FetchTransport {
 
     if (callerAbortSignal) {
       abortListener = () => {
+        if (abortType !== undefined) return;
         abortType = "caller";
         abortController.abort();
       };
       callerAbortSignal.addEventListener("abort", abortListener);
     }
 
-    if (requestOptions.skipConnectionTimeout !== true) {
-      timeoutHandle = setTimeout(() => {
-        abortType = "timeout";
-        abortController.abort();
-      }, this.options.connectionTimeoutSeconds * 1000);
-    }
+    resetTimeout();
 
     try {
       const fetchFn = this.fetchFn();
@@ -188,48 +232,121 @@ export default class FetchTransport {
       }
 
       const rawResponse = await fetchFn(url, init);
+      if (isNodeJSEnvironment) resetTimeout();
+      responseBody = rawResponse.body
+        ? this.managedBody(rawResponse.body, {
+            signal: abortController.signal,
+            cleanup,
+            onActivity: () => {
+              if (isNodeJSEnvironment) resetTimeout();
+            },
+            classifyError,
+            onError: async (error) => {
+              bodyErrorReported = true;
+              await this.runErrorHooks(error, error.type, requestOptions);
+            },
+          })
+        : null;
       const response = await this.normalizedResponse<T>(
         rawResponse,
         mutableRequest,
+        responseBody,
       );
 
       await this.runResponseHooks(response, requestOptions);
+      if (abortController.signal.aborted) {
+        throw classifyError(abortController.signal.reason);
+      }
 
+      streamReturned =
+        response.responseType === "stream" && responseBody !== null;
       return response;
     } catch (error) {
-      if (error instanceof FetchTransportError) {
-        await this.runErrorHooks(error, error.type, requestOptions);
-        throw error;
+      if (responseBody && !responseBody.locked) {
+        await responseBody.cancel().catch(() => {});
       }
-
-      const type =
-        abortType === "caller"
-          ? "abort"
-          : abortType === "timeout"
-            ? "timeout"
-            : "network";
-      const message =
-        type === "abort"
-          ? "Request aborted by caller."
-          : type === "timeout"
-            ? `Request timed out after ${this.options.connectionTimeoutSeconds} seconds.`
-            : error instanceof Error
-              ? error.message
-              : String(error);
-      const transportError = new FetchTransportError(type, message, {
-        request: mutableRequest,
-        originalError: error,
-      });
-      await this.runErrorHooks(transportError, type, requestOptions);
+      const transportError = classifyError(error);
+      if (!bodyErrorReported) {
+        await this.runErrorHooks(
+          transportError,
+          transportError.type,
+          requestOptions,
+        );
+      }
       throw transportError;
     } finally {
-      if (timeoutHandle !== undefined) {
-        clearTimeout(timeoutHandle);
-      }
-      if (callerAbortSignal && abortListener) {
-        callerAbortSignal.removeEventListener("abort", abortListener);
-      }
+      if (!streamReturned) cleanup();
     }
+  }
+
+  private managedBody(
+    body: ReadableStream<Uint8Array>,
+    lifecycle: {
+      signal: AbortSignal;
+      cleanup: () => void;
+      onActivity: () => void;
+      classifyError: (error: unknown) => FetchTransportError;
+      onError: (error: FetchTransportError) => Promise<void>;
+    },
+  ): ReadableStream<Uint8Array> {
+    const reader = body.getReader();
+    let finished = false;
+    let abortListener: () => void;
+    const cleanup = () => {
+      finished = true;
+      lifecycle.signal.removeEventListener("abort", abortListener);
+      lifecycle.cleanup();
+    };
+    let fail: (error: unknown) => Promise<void>;
+    return new ReadableStream<Uint8Array>({
+      start(controller) {
+        fail = async (error) => {
+          if (finished) return;
+          cleanup();
+          const transportError = lifecycle.classifyError(error);
+          // Cancel also unblocks a pending read when a custom fetch ignores abort.
+          void reader
+            .cancel(error)
+            .catch(() => {})
+            .finally(() => reader.releaseLock());
+          try {
+            await lifecycle.onError(transportError);
+            controller.error(transportError);
+          } catch (hookError) {
+            controller.error(hookError);
+          }
+        };
+        abortListener = () => {
+          void fail(lifecycle.signal.reason);
+        };
+        lifecycle.signal.addEventListener("abort", abortListener);
+        if (lifecycle.signal.aborted) abortListener();
+      },
+      async pull(controller) {
+        try {
+          const { done, value } = await reader.read();
+          if (finished) return;
+          if (done) {
+            cleanup();
+            reader.releaseLock();
+            controller.close();
+          } else {
+            lifecycle.onActivity();
+            controller.enqueue(value);
+          }
+        } catch (error) {
+          await fail(error);
+        }
+      },
+      async cancel(reason) {
+        cleanup();
+        try {
+          await reader.cancel(reason);
+        } finally {
+          reader.releaseLock();
+        }
+      },
+    });
   }
 
   async notifyError(
@@ -259,33 +376,45 @@ export default class FetchTransport {
   private async normalizedResponse<T>(
     response: Response,
     request: TypesenseRequest,
+    body: ReadableStream<Uint8Array> | null,
   ): Promise<TypesenseResponse<T>> {
     const headers = this.headersToObject(response.headers);
-    const responseType = request.isStreamingRequest
+    const requestedType = request.isStreamingRequest
       ? "stream"
       : request.responseType;
+    // Error responses must be consumed before retrying or throwing an HTTP
+    // error. Fetch implementations without body streams, such as React
+    // Native's, give streaming conversations the full text instead.
+    const responseType =
+      requestedType === "stream" &&
+      (!response.ok || (body === null && request.isStreamingRequest))
+        ? "text"
+        : requestedType;
 
-    try {
-      const data = await this.responseData(response, responseType);
-      return {
-        status: response.status,
-        headers,
-        data: data as T,
-        body: response.body,
-        request,
-        responseType,
-      };
-    } catch (error) {
-      throw new FetchTransportError("parse", "Failed to parse response body.", {
-        request,
-        originalError: error,
-      });
-    }
+    const data =
+      responseType === "stream"
+        ? body
+        : await this.responseData(
+            body === null
+              ? response
+              : new Response(body, { headers: response.headers }),
+            responseType,
+            request,
+          );
+    return {
+      status: response.status,
+      headers,
+      data: data as T,
+      body,
+      request,
+      responseType,
+    };
   }
 
   private async responseData(
     response: Response,
     responseType?: ResponseType,
+    request?: TypesenseRequest,
   ): Promise<unknown> {
     if (responseType === "stream") {
       return response.body;
@@ -310,7 +439,18 @@ export default class FetchTransport {
       responseType === "json" ||
       contentType.toLowerCase().startsWith("application/json")
     ) {
-      return JSON.parse(text);
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        throw new FetchTransportError(
+          "parse",
+          "Failed to parse response body.",
+          {
+            request,
+            originalError: error,
+          },
+        );
+      }
     }
 
     return text;

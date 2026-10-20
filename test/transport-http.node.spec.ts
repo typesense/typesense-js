@@ -1,0 +1,84 @@
+import { createRequire } from "node:module";
+import { createServer, Server, ServerResponse } from "node:http";
+import { AddressInfo } from "node:net";
+import { Readable } from "node:stream";
+import { afterEach, describe, expect, it } from "vitest";
+
+const require = createRequire(import.meta.url);
+const { Client } = require("../lib/Typesense");
+const Transport = require("../lib/Typesense/Transport").default;
+const requestOptions = { requestNumber: 1, attemptNumber: 1, nodeIndex: 0 };
+
+describe("Compiled transport over HTTP", () => {
+  let server: Server;
+
+  afterEach(async () => {
+    if (!server) return;
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  });
+
+  async function listen(handler: (response: ServerResponse) => void) {
+    server = createServer((_request, response) => handler(response));
+    await new Promise<void>((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(0, "127.0.0.1", resolve);
+    });
+    return `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  }
+
+  it("rejects a stalled export after headers", async () => {
+    const url = await listen((response) => response.flushHeaders());
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      connectionTimeoutSeconds: 0.1,
+    });
+    const stream = await client.collections("books").documents().exportStream();
+    await expect(stream.getReader().read()).rejects.toMatchObject({
+      type: "timeout",
+    });
+  }, 3000);
+
+  it("streams active exports beyond the timeout and supports Readable.fromWeb", async () => {
+    const url = await listen((response) => {
+      response.flushHeaders();
+      let count = 0;
+      const timer = setInterval(() => {
+        response.write('{"id":"' + count++ + '"}\n');
+        if (count === 8) response.end();
+      }, 30);
+      response.on("close", () => clearInterval(timer));
+    });
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      connectionTimeoutSeconds: 0.15,
+    });
+    const web = await client.collections("books").documents().exportStream();
+    let result = "";
+    for await (const chunk of Readable.fromWeb(web)) result += chunk.toString();
+    expect(result.trim().split("\n")).toHaveLength(8);
+  }, 3000);
+
+  it("classifies cancellation during a real body transfer", async () => {
+    let started!: () => void;
+    const headers = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const url = await listen((response) => {
+      response.write("partial");
+      started();
+    });
+    const transport = new Transport({ connectionTimeoutSeconds: 1 });
+    const abort = new AbortController();
+    const result = transport.perform(
+      { method: "get", url, headers: {}, queryParameters: {} },
+      { ...requestOptions, abortSignal: abort.signal },
+    );
+    const rejected = expect(result).rejects.toMatchObject({ type: "abort" });
+    await headers;
+    abort.abort();
+    await rejected;
+  }, 3000);
+});
