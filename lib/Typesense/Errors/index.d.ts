@@ -8,4 +8,5 @@ import RequestUnauthorized from "./RequestUnauthorized";
 import ServerError from "./ServerError";
 import ImportError from "./ImportError";
 import TypesenseError from "./TypesenseError";
-export { HTTPError, MissingConfigurationError, ObjectAlreadyExists, ObjectNotFound, ObjectUnprocessable, RequestMalformed, RequestUnauthorized, ServerError, TypesenseError, ImportError, };
+import FetchTransportError from "./FetchTransportError";
+export { HTTPError, MissingConfigurationError, ObjectAlreadyExists, ObjectNotFound, ObjectUnprocessable, RequestMalformed, RequestUnauthorized, ServerError, TypesenseError, ImportError, FetchTransportError, };

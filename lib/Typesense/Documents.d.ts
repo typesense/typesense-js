@@ -192,9 +192,10 @@ export default class Documents<T extends DocumentSchema = object> extends Search
      */
     export(options?: DocumentsExportParameters): Promise<string>;
     /**
-     * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+     * Returns a Web ReadableStream of JSONL bytes for all documents in this collection.
+     * In Node.js, use Readable.fromWeb(stream) for .pipe(), .on(), and .destroy().
      */
-    exportStream(options?: DocumentsExportParameters): Promise<ReadStream>;
+    exportStream(options?: DocumentsExportParameters): Promise<ReadableStream<Uint8Array> | null>;
 }
 /**
  * @deprecated Import from './Types' instead
