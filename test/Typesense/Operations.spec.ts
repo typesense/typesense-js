@@ -80,9 +80,8 @@ describe("Operations", function () {
           ),
         )
         .reply((config) => {
-          expect(config.headers).toMatchObject({
+          expect(config.headers).toEqual({
             accept: "application/json, text/plain, */*",
-            "content-type": "application/json",
             "x-typesense-api-key": typesense.configuration.apiKey,
           });
           return [

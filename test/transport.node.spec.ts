@@ -32,7 +32,11 @@ describe.each([
 ] as const)(
   "Transport (%s)",
   (_name, TransportClass, typesense, ApiCallClass) => {
-    const { Client: ClientClass, Errors: ErrorsModule } = typesense;
+    const {
+      Client: ClientClass,
+      SearchClient: SearchClientClass,
+      Errors: ErrorsModule,
+    } = typesense;
     const ErrorClass = ErrorsModule.FetchTransportError;
     afterEach(() => vi.useRealTimers());
 
@@ -376,6 +380,90 @@ describe.each([
         }
       },
     );
+
+    function clientWith(
+      customFetch: typeof fetch,
+      options: Record<string, unknown> = {},
+    ) {
+      const client = new ClientClass({
+        nodes: [{ url: "http://node0" }, { url: "http://node1" }],
+        apiKey: "xyz",
+        fetch: customFetch,
+        numRetries: 2,
+        retryIntervalSeconds: 0.001,
+        randomizeNodes: false,
+        logLevel: "silent",
+        ...options,
+      });
+      const health = vi.spyOn(client.apiCall, "setNodeHealthcheck");
+      const unhealthy = () =>
+        health.mock.calls.filter(([, isHealthy]) => isHealthy === false);
+      return { client, health, unhealthy };
+    }
+
+    it("sends Content-Type only when the request has a body", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+      const { client } = clientWith(customFetch, {
+        additionalHeaders: { "content-type": "application/json" },
+      });
+      await client.apiCall.get("/collections");
+      await client.apiCall.delete("/collections/books");
+      await client.apiCall.post("/collections", { name: "books" });
+      await client.apiCall.post("/collections", []);
+      const sent = customFetch.mock.calls.map(([, init]) => ({
+        contentType: new Headers(init!.headers).get("content-type"),
+        body: init!.body,
+      }));
+      expect(sent).toEqual([
+        { contentType: null, body: undefined },
+        { contentType: null, body: undefined },
+        { contentType: "application/json", body: '{"name":"books"}' },
+        { contentType: null, body: undefined },
+      ]);
+    });
+
+    it("sends a browser search as a CORS simple request", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () =>
+        Response.json({ hits: [] }),
+      );
+      const client = new SearchClientClass({
+        nodes: [{ url: "http://node0" }],
+        apiKey: "xyz",
+        fetch: customFetch,
+        logLevel: "silent",
+      });
+      await client.collections("books").documents().search({ q: "a" }, {});
+      const [url, init] = customFetch.mock.calls[0];
+      expect(new URL(String(url)).searchParams.get("x-typesense-api-key")).toBe(
+        "xyz",
+      );
+      expect(init!.method).toBe("GET");
+      expect([...new Headers(init!.headers).keys()]).toEqual(["accept"]);
+    });
+
+    it.each([
+      ["Buffer", Buffer.from('{"id":"1"}\n{"id":"2"}')],
+      ["Uint8Array", new TextEncoder().encode('{"id":"1"}\n{"id":"2"}')],
+      [
+        "ArrayBuffer",
+        new TextEncoder().encode('{"id":"1"}\n{"id":"2"}').buffer,
+      ],
+    ])("sends a %s body as raw bytes", async (_type, body) => {
+      const customFetch = vi.fn<typeof fetch>(
+        async () => new Response('{"success":true}\n{"success":true}'),
+      );
+      const { client } = clientWith(customFetch);
+      await expect(
+        client
+          .collections("books")
+          .documents()
+          .import(body as never),
+      ).resolves.toBe('{"success":true}\n{"success":true}');
+      const init = customFetch.mock.calls[0][1]!;
+      expect(await new Response(init.body).text()).toBe(
+        '{"id":"1"}\n{"id":"2"}',
+      );
+    });
 
     it("reports the underlying cause of network errors", async () => {
       const cases = [

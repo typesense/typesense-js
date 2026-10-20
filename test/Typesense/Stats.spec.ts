@@ -33,9 +33,8 @@ describe("Stats", function () {
       mockFetch
         .onGet(apiCall.uriFor("/stats.json", typesense.configuration.nodes[0]))
         .reply((config) => {
-          expect(config.headers).toMatchObject({
+          expect(config.headers).toEqual({
             accept: "application/json, text/plain, */*",
-            "content-type": "application/json",
             "x-typesense-api-key": typesense.configuration.apiKey,
           });
           return [200, {}, { "content-type": "application/json" }];

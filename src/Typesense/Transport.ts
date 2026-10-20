@@ -195,6 +195,13 @@ export default class FetchTransport {
       const body = this.serializedBody(mutableRequest);
       mutableRequest.url = url;
       mutableRequest.body = body;
+      if (body === undefined) {
+        // A bodyless GET with Content-Type is not a CORS simple request, so
+        // browsers would send a preflight before every search.
+        Object.keys(mutableRequest.headers)
+          .filter((name) => name.toLowerCase() === "content-type")
+          .forEach((name) => delete mutableRequest.headers[name]);
+      }
 
       const init: RequestInit & { dispatcher?: unknown; duplex?: "half" } = {
         method: mutableRequest.method.toUpperCase(),
@@ -530,35 +537,21 @@ export default class FetchTransport {
       return body.length === 0 ? undefined : body;
     }
 
-    if (typeof body === "object" && this.isPlainEmptyObject(body)) {
+    if (typeof body !== "object") {
+      return body;
+    }
+
+    if (this.isEmptyObjectOrArray(body)) {
       return undefined;
     }
 
-    if (this.shouldSerializeAsJSON(request.headers, body)) {
-      return JSON.stringify(body);
-    }
-
-    return body;
-  }
-
-  private shouldSerializeAsJSON(
-    _headers: Record<string, string>,
-    body: unknown,
-  ): boolean {
-    if (typeof body !== "object" || body === null) {
-      return false;
-    }
-
-    if (this.isBodyInit(body)) {
-      return false;
-    }
-
-    return true;
+    return this.isBodyInit(body) ? body : JSON.stringify(body);
   }
 
   private isBodyInit(body: object): boolean {
     return (
-      (typeof ArrayBuffer !== "undefined" && body instanceof ArrayBuffer) ||
+      (typeof ArrayBuffer !== "undefined" &&
+        (body instanceof ArrayBuffer || ArrayBuffer.isView(body))) ||
       (typeof Blob !== "undefined" && body instanceof Blob) ||
       (typeof FormData !== "undefined" && body instanceof FormData) ||
       (typeof URLSearchParams !== "undefined" &&
@@ -569,11 +562,11 @@ export default class FetchTransport {
     );
   }
 
-  private isPlainEmptyObject(body: object): boolean {
-    return (
-      Object.prototype.toString.call(body) === "[object Object]" &&
-      Object.keys(body).length === 0
-    );
+  private isEmptyObjectOrArray(body: object): boolean {
+    return Array.isArray(body)
+      ? body.length === 0
+      : Object.prototype.toString.call(body) === "[object Object]" &&
+          Object.keys(body).length === 0;
   }
 
   private headersToObject(headers: Headers): Record<string, string> {

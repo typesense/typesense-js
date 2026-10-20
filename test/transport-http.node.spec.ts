@@ -1,5 +1,10 @@
 import { createRequire } from "node:module";
-import { createServer, Server, ServerResponse } from "node:http";
+import {
+  createServer,
+  IncomingMessage,
+  Server,
+  ServerResponse,
+} from "node:http";
 import { AddressInfo } from "node:net";
 import { Readable } from "node:stream";
 import { afterEach, describe, expect, it } from "vitest";
@@ -18,8 +23,10 @@ describe("Compiled transport over HTTP", () => {
     await new Promise<void>((resolve) => server.close(() => resolve()));
   });
 
-  async function listen(handler: (response: ServerResponse) => void) {
-    server = createServer((_request, response) => handler(response));
+  async function listen(
+    handler: (response: ServerResponse, request: IncomingMessage) => void,
+  ) {
+    server = createServer((request, response) => handler(response, request));
     await new Promise<void>((resolve, reject) => {
       server.once("error", reject);
       server.listen(0, "127.0.0.1", resolve);
@@ -98,6 +105,39 @@ describe("Compiled transport over HTTP", () => {
         .documents()
         .import([{ id: "1" }]),
     ).resolves.toEqual([{ success: true }]);
+  }, 3000);
+
+  async function recordingServer(
+    respond: (response: ServerResponse) => void = (response) =>
+      response.end('{"success":true}'),
+  ) {
+    const received: { headers: IncomingMessage["headers"]; body: string }[] =
+      [];
+    const url = await listen((response, request) => {
+      const chunks: Buffer[] = [];
+      request.on("data", (chunk) => chunks.push(chunk));
+      request.on("end", () => {
+        received.push({
+          headers: request.headers,
+          body: Buffer.concat(chunks).toString(),
+        });
+        respond(response);
+      });
+    });
+    return { url, received };
+  }
+
+  it("sends Content-Type only with a body and Buffer bodies as bytes", async () => {
+    const { url, received } = await recordingServer();
+    const client = new Client({ nodes: [{ url }], apiKey: "xyz" });
+    await client.collections("books").retrieve();
+    await client
+      .collections("books")
+      .documents()
+      .import(Buffer.from('{"id":"1"}'));
+    expect(received[0].headers["content-type"]).toBeUndefined();
+    expect(received[1].headers["content-type"]).toBe("text/plain");
+    expect(received[1].body).toBe('{"id":"1"}');
   }, 3000);
 
   it("reports the socket error of a refused connection", async () => {

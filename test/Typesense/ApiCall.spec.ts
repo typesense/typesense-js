@@ -429,9 +429,8 @@ describe("ApiCall", () => {
       const apiCall = new ApiCall(client.configuration);
 
       mockFetch.onGet("https://node0/path/collections").reply((config) => {
-        expect(config.headers).toMatchObject({
+        expect(config.headers).toEqual({
           accept: "application/json, text/plain, */*",
-          "content-type": "application/json",
           "x-typesense-api-key": client.configuration.apiKey,
           "x-header-name": "value",
         });
