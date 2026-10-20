@@ -133,8 +133,12 @@ export default class FetchTransport {
         callerAbortSignal.removeEventListener("abort", abortListener);
       }
     };
-    const resetTimeout = () => {
+    const clearTimer = () => {
       if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
+      timeoutHandle = undefined;
+    };
+    const resetTimeout = () => {
+      clearTimer();
       if (
         requestOptions.skipConnectionTimeout !== true &&
         this.options.connectionTimeoutSeconds > 0
@@ -245,8 +249,13 @@ export default class FetchTransport {
         ? this.managedBody(rawResponse.body, {
             signal: abortController.signal,
             cleanup,
-            onActivity: () => {
+            // In Node the timer measures how long a read waits on the
+            // network, not how long the consumer takes between reads.
+            onReadStart: () => {
               if (isNodeJSEnvironment) resetTimeout();
+            },
+            onReadEnd: () => {
+              if (isNodeJSEnvironment) clearTimer();
             },
             classifyError,
             onError: async (error) => {
@@ -292,7 +301,8 @@ export default class FetchTransport {
     lifecycle: {
       signal: AbortSignal;
       cleanup: () => void;
-      onActivity: () => void;
+      onReadStart: () => void;
+      onReadEnd: () => void;
       classifyError: (error: unknown) => FetchTransportError;
       onError: (error: FetchTransportError) => Promise<void>;
     },
@@ -327,15 +337,18 @@ export default class FetchTransport {
         if (lifecycle.signal.aborted) abortListener();
       },
       async pull(controller) {
+        // A failure can still be reporting to error hooks
+        if (finished) return;
         try {
+          lifecycle.onReadStart();
           const { done, value } = await reader.read();
           if (finished) return;
+          lifecycle.onReadEnd();
           if (done) {
             cleanup();
             reader.releaseLock();
             controller.close();
           } else {
-            lifecycle.onActivity();
             controller.enqueue(value);
           }
         } catch (error) {

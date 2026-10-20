@@ -178,4 +178,26 @@ describe("Compiled transport over HTTP", () => {
     expect(error).toMatchObject({ type: "network", code: "ECONNREFUSED" });
     expect((error as Error).message).toMatch(/ECONNREFUSED/);
   }, 3000);
+
+  it("lets an export reader pause for longer than the timeout", async () => {
+    const url = await listen((response) => {
+      response.write('{"id":"1"}\n');
+      const timers = [
+        setTimeout(() => response.write('{"id":"2"}\n'), 10),
+        setTimeout(() => response.end('{"id":"3"}\n'), 20),
+      ];
+      response.on("close", () => timers.forEach(clearTimeout));
+    });
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      connectionTimeoutSeconds: 0.05,
+    });
+    const stream = await client.collections("books").documents().exportStream();
+    const reader = stream.getReader();
+    await reader.read();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    let done = false;
+    while (!done) ({ done } = await reader.read());
+  }, 3000);
 });
