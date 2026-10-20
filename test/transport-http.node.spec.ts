@@ -140,6 +140,28 @@ describe("Compiled transport over HTTP", () => {
     expect(received[1].body).toBe('{"id":"1"}');
   }, 3000);
 
+  it("sends a stream import once when the server fails", async () => {
+    const { url, received } = await recordingServer((response) => {
+      response.writeHead(503, { "content-type": "application/json" });
+      response.end('{"message":"Unavailable"}');
+    });
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      numRetries: 2,
+      retryIntervalSeconds: 0.001,
+      logLevel: "silent",
+    });
+    await expect(
+      client
+        .collections("books")
+        .documents()
+        .importStream(Readable.from(['{"id":"1"}'])),
+    ).rejects.toBeInstanceOf(Errors.ServerError);
+    expect(received).toHaveLength(1);
+    expect(received[0].body).toBe('{"id":"1"}');
+  }, 3000);
+
   it("reports the socket error of a refused connection", async () => {
     const url = await listen(() => {});
     await new Promise<void>((resolve) => server.close(() => resolve()));

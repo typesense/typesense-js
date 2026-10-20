@@ -546,9 +546,7 @@ export default class FetchTransport {
       (typeof FormData !== "undefined" && body instanceof FormData) ||
       (typeof URLSearchParams !== "undefined" &&
         body instanceof URLSearchParams) ||
-      (typeof ReadableStream !== "undefined" &&
-        body instanceof ReadableStream) ||
-      ("pipe" in body && typeof body["pipe"] === "function")
+      isStreamBody(body)
     );
   }
 
@@ -627,6 +625,17 @@ export default class FetchTransport {
       nodeIndex: requestOptions.nodeIndex,
     };
   }
+}
+
+// Streams can be sent only once, so requests with one are not retried.
+export function isStreamBody(body: unknown): boolean {
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    ((typeof ReadableStream !== "undefined" &&
+      body instanceof ReadableStream) ||
+      ("pipe" in body && typeof body["pipe"] === "function"))
+  );
 }
 
 function errorMessage(error: unknown): string {

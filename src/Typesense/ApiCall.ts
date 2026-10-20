@@ -16,6 +16,7 @@ import type { DocumentSchema, SearchResponse } from "./Documents";
 import { toErrorWithMessage } from "./Utils";
 import { MessageChunk } from "./Types";
 import FetchTransport, {
+  isStreamBody,
   RequestMethod,
   ResponseType,
   TypesenseRequest,
@@ -255,6 +256,7 @@ export default class ApiCall implements HttpClient {
     }
 
     const requestNumber = Date.now();
+    const canRetry = !isStreamBody(bodyParameters);
     let lastException;
     this.logger.debug(
       `Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`,
@@ -411,7 +413,12 @@ export default class ApiCall implements HttpClient {
           this.invokeOnErrorCallback(error, streamConfig);
         }
 
-        if (numTries < this.numRetriesPerRequest + 1) {
+        if (!canRetry) {
+          this.logger.debug(
+            `Request #${requestNumber}: Not retrying, since a stream body can only be sent once`,
+          );
+          return Promise.reject(lastException);
+        } else if (numTries < this.numRetriesPerRequest + 1) {
           this.logger.warn(
             `Request #${requestNumber}: Sleeping for ${this.retryIntervalSeconds}s and then retrying request...`,
           );

@@ -466,6 +466,21 @@ describe.each([
       );
     });
 
+    it("does not retry a stream body that cannot be replayed", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () =>
+        Response.json({ message: "Unavailable" }, { status: 503 }),
+      );
+      const { client } = clientWith(customFetch);
+      const error = await client
+        .collections("books")
+        .documents()
+        .importStream(Readable.from(['{"id":"1"}']) as ReadStream)
+        .catch((caught: unknown) => caught);
+      expect(error).toBeInstanceOf(ErrorsModule.ServerError);
+      expect(error).toMatchObject({ httpStatus: 503 });
+      expect(customFetch).toHaveBeenCalledOnce();
+    });
+
     it("reports the underlying cause of network errors", async () => {
       const cases = [
         [
