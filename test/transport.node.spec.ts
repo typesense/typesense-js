@@ -466,6 +466,25 @@ describe.each([
       );
     });
 
+    it("sets httpBody to the request body as it was passed in", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () =>
+        Response.json({ message: "Bad" }, { status: 400 }),
+      );
+      const { client } = clientWith(customFetch);
+      const stream = Readable.from(['{"id":"1"}']) as ReadStream;
+      const failures = await Promise.all(
+        [
+          client.apiCall.post("/collections", { name: "books" }),
+          client.apiCall.post("/collections", "raw"),
+          client.collections("books").documents().importStream(stream),
+          client.apiCall.get("/collections"),
+        ].map((result) => result.catch((caught: unknown) => caught)),
+      );
+      expect(
+        failures.map((failure) => (failure as { httpBody?: unknown }).httpBody),
+      ).toEqual([{ name: "books" }, "raw", stream, undefined]);
+    });
+
     it("does not retry a stream body that cannot be replayed", async () => {
       const customFetch = vi.fn<typeof fetch>(async () =>
         Response.json({ message: "Unavailable" }, { status: 503 }),

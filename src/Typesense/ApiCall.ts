@@ -347,7 +347,8 @@ export default class ApiCall implements HttpClient {
           const error = this.customErrorForResponse(
             response,
             this.messageFromResponseData(response.data),
-            this.httpBodyForError(response.request.body),
+            // The body as the caller passed it, like v3's Axios config.data
+            response.request.body === undefined ? undefined : bodyParameters,
           );
           await this.transport.notifyError(
             error,
@@ -368,7 +369,8 @@ export default class ApiCall implements HttpClient {
           const error = this.customErrorForResponse(
             response,
             this.messageFromResponseData(response.data),
-            this.httpBodyForError(response.request.body),
+            // The body as the caller passed it, like v3's Axios config.data
+            response.request.body === undefined ? undefined : bodyParameters,
           );
           await this.transport.notifyError(
             error,
@@ -946,22 +948,6 @@ export default class ApiCall implements HttpClient {
       typeof (data as Record<string, unknown>).message === "string"
       ? ((data as Record<string, unknown>).message as string)
       : "";
-  }
-
-  private httpBodyForError(body: unknown): string | undefined {
-    if (typeof body === "string") {
-      return body;
-    }
-
-    if (body === undefined || body === null) {
-      return undefined;
-    }
-
-    try {
-      return JSON.stringify(body);
-    } catch {
-      return String(body);
-    }
   }
 
   async timer(seconds): Promise<void> {
