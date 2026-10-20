@@ -8,6 +8,7 @@ import RequestUnauthorized from "./RequestUnauthorized";
 import ServerError from "./ServerError";
 import ImportError from "./ImportError";
 import TypesenseError from "./TypesenseError";
+import FetchTransportError from "./FetchTransportError";
 
 export {
   HTTPError,
@@ -20,4 +21,5 @@ export {
   ServerError,
   TypesenseError,
   ImportError,
+  FetchTransportError,
 };

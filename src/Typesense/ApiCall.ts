@@ -11,11 +11,11 @@ import {
   ServerError,
 } from "./Errors";
 import TypesenseError from "./Errors/TypesenseError";
+import FetchTransportError from "./Errors/FetchTransportError";
 import type { DocumentSchema, SearchResponse } from "./Documents";
 import { toErrorWithMessage } from "./Utils";
 import { MessageChunk } from "./Types";
 import FetchTransport, {
-  FetchTransportError,
   RequestMethod,
   ResponseType,
   TypesenseRequest,

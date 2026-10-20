@@ -1,10 +1,11 @@
 import { createRequire } from "node:module";
 import { Readable } from "node:stream";
+import type { ReadStream } from "node:fs";
 import { getGlobalDispatcher, setGlobalDispatcher, MockAgent } from "undici";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import Transport, { FetchTransportError } from "../src/Typesense/Transport";
+import Transport from "../src/Typesense/Transport";
 import ApiCall from "../src/Typesense/ApiCall";
-import { Client } from "../src/Typesense";
+import * as sourcePackage from "../src/Typesense";
 
 // Use Node's loader so Vitest cannot transpile away ES5 subclassing bugs.
 const require = createRequire(import.meta.url);
@@ -21,17 +22,18 @@ const request = {
 const requestOptions = { requestNumber: 1, attemptNumber: 1, nodeIndex: 0 };
 
 describe.each([
-  ["source", Transport, FetchTransportError, Client, ApiCall],
+  ["source", Transport, sourcePackage, ApiCall],
   [
     "compiled package",
     compiledTransport.default,
-    compiledTransport.FetchTransportError,
-    compiledClient.Client,
+    compiledClient as typeof sourcePackage,
     compiledApiCall.default,
   ],
 ] as const)(
   "Transport (%s)",
-  (_name, TransportClass, ErrorClass, ClientClass, ApiCallClass) => {
+  (_name, TransportClass, typesense, ApiCallClass) => {
+    const { Client: ClientClass, Errors: ErrorsModule } = typesense;
+    const ErrorClass = ErrorsModule.FetchTransportError;
     afterEach(() => vi.useRealTimers());
 
     it("preserves the error prototype", () => {
@@ -173,15 +175,12 @@ describe.each([
       });
       const onComplete = vi.fn();
       await expect(
-        client
-          .collections("books")
-          .documents()
-          .search({
-            q: "hi",
-            conversation: true,
-            conversation_stream: true,
-            streamConfig: { onComplete },
-          }),
+        client.collections("books").documents().search({
+          q: "hi",
+          conversation: true,
+          conversation_stream: true,
+          streamConfig: { onComplete },
+        }),
       ).resolves.toMatchObject({ found: 1 });
       expect(onComplete).toHaveBeenCalledOnce();
       await expect(
@@ -356,7 +355,7 @@ describe.each([
             client
               .collections("books")
               .documents()
-              .importStream(Readable.from(['{"id":"2"}'])),
+              .importStream(Readable.from(['{"id":"2"}']) as ReadStream),
           ).resolves.toEqual([{ success: true }]);
           expect(dispatch).toHaveBeenCalledTimes(2);
           for (const [options] of dispatch.mock.calls) {
