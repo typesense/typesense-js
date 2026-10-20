@@ -1,4 +1,4 @@
-import { fetch as undiciFetch, getGlobalDispatcher, Dispatcher } from "undici";
+import type { Dispatcher } from "undici";
 import type { Logger } from "loglevel";
 import FetchTransportError from "./Errors/FetchTransportError";
 
@@ -95,12 +95,25 @@ const isNodeJSEnvironment =
   process.versions.node != null &&
   typeof window === "undefined";
 
-// Browser and edge bundles replace Undici with an empty module, including
-// runtimes that report a Node version, such as Cloudflare's nodejs_compat
-const isUndiciAvailable =
-  isNodeJSEnvironment &&
-  typeof undiciFetch === "function" &&
-  typeof getGlobalDispatcher === "function";
+type Undici = typeof import("undici");
+let undiciModule: Promise<Undici | undefined> | undefined;
+
+// Loaded on first use, so that importing the SDK doesn't install Undici's
+// global dispatcher or fail where Undici can't load, such as Jest's jsdom
+// environment. Browser and edge bundles replace Undici with an empty module,
+// including runtimes that report a Node version, such as Cloudflare's
+// nodejs_compat.
+function loadUndici(): Promise<Undici | undefined> {
+  undiciModule ??= import(/* webpackMode: "eager" */ "undici").then(
+    (undici) =>
+      typeof undici.fetch === "function" &&
+      typeof undici.getGlobalDispatcher === "function"
+        ? undici
+        : undefined,
+    () => undefined,
+  );
+  return undiciModule;
+}
 
 export default class FetchTransport {
   constructor(private readonly options: FetchTransportOptions) {}
@@ -194,7 +207,13 @@ export default class FetchTransport {
     resetTimeout();
 
     try {
-      const fetchFn = this.fetchFn(requestOptions);
+      const undici =
+        isNodeJSEnvironment &&
+        (requestOptions.skipConnectionTimeout === true ||
+          this.options.dispatcher !== undefined)
+          ? await loadUndici()
+          : undefined;
+      const fetchFn = this.fetchFn(undici);
       const url = this.urlWithQueryParameters(
         mutableRequest.url,
         mutableRequest.queryParameters,
@@ -226,9 +245,9 @@ export default class FetchTransport {
       if (this.options.dispatcher !== undefined) {
         init.dispatcher = this.options.dispatcher;
       }
-      if (isUndiciAvailable && requestOptions.skipConnectionTimeout === true) {
+      if (undici && requestOptions.skipConnectionTimeout === true) {
         const dispatcher = (this.options.dispatcher ??
-          getGlobalDispatcher()) as Dispatcher;
+          undici.getGlobalDispatcher()) as Dispatcher;
         // Override at dispatch time: some native fetch versions explicitly pass
         // their own timeouts, which would override an Agent's defaults.
         init.dispatcher = {
@@ -366,20 +385,16 @@ export default class FetchTransport {
     });
   }
 
-  private fetchFn(requestOptions: FetchTransportRequestOptions): FetchFunction {
+  private fetchFn(undici: Undici | undefined): FetchFunction {
     if (this.options.fetch) {
       return this.options.fetch;
     }
 
-    if (
-      isUndiciAvailable &&
-      (requestOptions.skipConnectionTimeout === true ||
-        this.options.dispatcher !== undefined)
-    ) {
+    if (undici) {
       // Keep fetch and its dispatcher on the same Undici major. Node's native
       // fetch bundles a different one per release (6 on Node 20 and 22, 7 on
       // Node 24, 8 on Node 26), and the handler API changes between majors.
-      return undiciFetch as unknown as FetchFunction;
+      return undici.fetch as unknown as FetchFunction;
     }
 
     if (typeof globalThis.fetch !== "function") {

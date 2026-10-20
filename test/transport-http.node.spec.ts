@@ -1,3 +1,4 @@
+import { execFile } from "node:child_process";
 import { createRequire } from "node:module";
 import {
   createServer,
@@ -7,6 +8,7 @@ import {
 } from "node:http";
 import { AddressInfo } from "node:net";
 import { Readable } from "node:stream";
+import { promisify } from "node:util";
 import { afterEach, describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
@@ -200,4 +202,27 @@ describe("Compiled transport over HTTP", () => {
     let done = false;
     while (!done) ({ done } = await reader.read());
   }, 3000);
+
+  it("loads Undici only once a request needs a dispatcher", async () => {
+    const { url } = await recordingServer();
+    // A fresh process, so no earlier test has loaded Undici
+    const script = `
+      const loaded = () => Object.keys(require.cache).some((file) => file.split(/[\\\\/]/).includes("undici"));
+      const { Client } = require(${JSON.stringify(require.resolve("../lib/Typesense"))});
+      const client = new Client({ nodes: [{ url: ${JSON.stringify(url)} }], apiKey: "xyz" });
+      (async () => {
+        const states = [loaded()];
+        await client.collections("books").retrieve();
+        states.push(loaded());
+        await client.collections("books").documents().import([{ id: "1" }]);
+        states.push(loaded());
+        console.log(JSON.stringify(states));
+      })();
+    `;
+    const { stdout } = await promisify(execFile)(process.execPath, [
+      "-e",
+      script,
+    ]);
+    expect(JSON.parse(stdout)).toEqual([false, false, true]);
+  }, 5000);
 });
