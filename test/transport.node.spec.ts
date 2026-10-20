@@ -1,4 +1,6 @@
 import { createRequire } from "node:module";
+import { Readable } from "node:stream";
+import { getGlobalDispatcher, setGlobalDispatcher, MockAgent } from "undici";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import Transport, { FetchTransportError } from "../src/Typesense/Transport";
 import ApiCall from "../src/Typesense/ApiCall";
@@ -320,5 +322,60 @@ describe.each([
       expect(cancelled.cancel).toHaveBeenCalledOnce();
       expect(vi.getTimerCount()).toBe(0);
     });
+
+    it.each(["custom", "global"])(
+      "disables Undici header/body timeouts for both import APIs with a %s dispatcher",
+      async (mode) => {
+        const original = getGlobalDispatcher();
+        const agent = new MockAgent();
+        agent.disableNetConnect();
+        const dispatch = vi.spyOn(agent, "dispatch");
+        if (mode === "global") setGlobalDispatcher(agent);
+        const client = new ClientClass({
+          nodes: [{ url: "http://localhost" }],
+          apiKey: "xyz",
+          numRetries: 0,
+          ...(mode === "custom" ? { dispatcher: agent } : {}),
+        });
+        try {
+          const pool = agent.get("http://localhost");
+          pool
+            .intercept({
+              path: /\/collections\/books\/documents\/import/,
+              method: "POST",
+            })
+            .reply(200, '{"success":true}')
+            .times(2);
+          await expect(
+            client
+              .collections("books")
+              .documents()
+              .import([{ id: "1" }]),
+          ).resolves.toEqual([{ success: true }]);
+          await expect(
+            client
+              .collections("books")
+              .documents()
+              .importStream(Readable.from(['{"id":"2"}'])),
+          ).resolves.toEqual([{ success: true }]);
+          expect(dispatch).toHaveBeenCalledTimes(2);
+          for (const [options] of dispatch.mock.calls) {
+            expect(options).toMatchObject({
+              headersTimeout: 0,
+              bodyTimeout: 0,
+            });
+          }
+          pool.intercept({ path: "/health" }).reply(200, "ok");
+          await new TransportClass({
+            dispatcher: agent,
+            connectionTimeoutSeconds: 1,
+          }).perform(request, requestOptions);
+          expect(dispatch.mock.calls[2][0].headersTimeout).not.toBe(0);
+        } finally {
+          setGlobalDispatcher(original);
+          await agent.close();
+        }
+      },
+    );
   },
 );

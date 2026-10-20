@@ -79,6 +79,8 @@ export interface ConfigurationOptions {
    * Set a custom Node fetch dispatcher using Undici semantics.
    * For example, migrate from `new http.Agent({ keepAlive: true })` to
    * `new undici.Agent({ keepAliveTimeout: ... })` and pass it as dispatcher.
+   * Imports override headersTimeout and bodyTimeout to zero on this dispatcher.
+   * The application owns the dispatcher's lifecycle (including close()).
    */
   dispatcher?: unknown;
 

@@ -81,4 +81,22 @@ describe("Compiled transport over HTTP", () => {
     abort.abort();
     await rejected;
   }, 3000);
+
+  it("allows an import to wait for headers beyond the configured timeout", async () => {
+    const url = await listen((response) => {
+      const timer = setTimeout(() => response.end('{"success":true}'), 150);
+      response.on("close", () => clearTimeout(timer));
+    });
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      connectionTimeoutSeconds: 0.05,
+    });
+    await expect(
+      client
+        .collections("books")
+        .documents()
+        .import([{ id: "1" }]),
+    ).resolves.toEqual([{ success: true }]);
+  }, 3000);
 });

@@ -1,3 +1,5 @@
+import { fetch as undiciFetch, getGlobalDispatcher, Dispatcher } from "undici";
+
 export type RequestMethod = "get" | "delete" | "post" | "put" | "patch";
 
 export type ResponseType = "json" | "text" | "stream" | "arraybuffer" | "blob";
@@ -118,6 +120,13 @@ const isNodeJSEnvironment =
   process.versions.node != null &&
   typeof window === "undefined";
 
+// Browser and edge bundles replace Undici with an empty module, including
+// runtimes that report a Node version, such as Cloudflare's nodejs_compat
+const isUndiciAvailable =
+  isNodeJSEnvironment &&
+  typeof undiciFetch === "function" &&
+  typeof getGlobalDispatcher === "function";
+
 export default class FetchTransport {
   constructor(private readonly options: FetchTransportOptions) {}
 
@@ -205,7 +214,7 @@ export default class FetchTransport {
     resetTimeout();
 
     try {
-      const fetchFn = this.fetchFn();
+      const fetchFn = this.fetchFn(requestOptions);
       const url = this.urlWithQueryParameters(
         mutableRequest.url,
         mutableRequest.queryParameters,
@@ -229,6 +238,22 @@ export default class FetchTransport {
 
       if (this.options.dispatcher !== undefined) {
         init.dispatcher = this.options.dispatcher;
+      }
+      if (isUndiciAvailable && requestOptions.skipConnectionTimeout === true) {
+        const dispatcher = (this.options.dispatcher ??
+          getGlobalDispatcher()) as Dispatcher;
+        // Override at dispatch time: some native fetch versions explicitly pass
+        // their own timeouts, which would override an Agent's defaults.
+        init.dispatcher = {
+          dispatch: (
+            options: Dispatcher.DispatchOptions,
+            handler: Parameters<Dispatcher["dispatch"]>[1],
+          ) =>
+            dispatcher.dispatch(
+              { ...options, headersTimeout: 0, bodyTimeout: 0 },
+              handler,
+            ),
+        };
       }
 
       const rawResponse = await fetchFn(url, init);
@@ -358,9 +383,20 @@ export default class FetchTransport {
     await this.runErrorHooks(error, type, requestOptions, response);
   }
 
-  private fetchFn(): FetchFunction {
+  private fetchFn(requestOptions: FetchTransportRequestOptions): FetchFunction {
     if (this.options.fetch) {
       return this.options.fetch;
+    }
+
+    if (
+      isUndiciAvailable &&
+      (requestOptions.skipConnectionTimeout === true ||
+        this.options.dispatcher !== undefined)
+    ) {
+      // Keep fetch and its dispatcher on the same Undici major. Node's native
+      // fetch bundles a different one per release (6 on Node 20 and 22, 7 on
+      // Node 24, 8 on Node 26), and the handler API changes between majors.
+      return undiciFetch as unknown as FetchFunction;
     }
 
     if (typeof globalThis.fetch !== "function") {

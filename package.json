@@ -25,7 +25,8 @@
   "browser": {
     "crypto": false,
     "http": false,
-    "https": false
+    "https": false,
+    "undici": false
   },
   "files": [
     "lib/",
@@ -102,9 +103,13 @@
   "license": "Apache-2.0",
   "dependencies": {
     "loglevel": "^1.9.2",
-    "tslib": "^2.8.1"
+    "tslib": "^2.8.1",
+    "undici": "^7.30.0"
   },
   "peerDependencies": {
     "@babel/runtime": "^7.23.2"
+  },
+  "engines": {
+    "node": ">=20.18.1"
   }
 }
