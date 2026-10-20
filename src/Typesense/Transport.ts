@@ -450,10 +450,6 @@ export default class FetchTransport {
     responseType?: ResponseType,
     request?: TypesenseRequest,
   ): Promise<unknown> {
-    if (responseType === "stream") {
-      return response.body;
-    }
-
     if (responseType === "arraybuffer") {
       return response.arrayBuffer();
     }

@@ -201,11 +201,6 @@ export interface ImportOptions {
   abortSignal?: AbortSignal | null;
 }
 
-const isNodeJSEnvironment =
-  typeof process !== "undefined" &&
-  process.versions != null &&
-  process.versions.node != null;
-
 export default class Documents<T extends DocumentSchema = object>
   extends SearchOnlyDocuments<T>
   implements WriteableDocuments<T>
@@ -368,7 +363,6 @@ export default class Documents<T extends DocumentSchema = object>
         additionalHeaders: { "Content-Type": "text/plain" },
         abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false,
       },
     );
 
@@ -420,7 +414,6 @@ export default class Documents<T extends DocumentSchema = object>
         additionalHeaders: { "Content-Type": "text/plain" },
         abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false,
       },
     );
 

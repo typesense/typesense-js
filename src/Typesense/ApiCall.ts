@@ -231,7 +231,6 @@ export default class ApiCall implements HttpClient {
       abortSignal = null,
       responseType = undefined,
       skipConnectionTimeout = false,
-      enableKeepAlive = undefined,
       streamConfig = undefined,
       isStreamingRequest,
     }: {
@@ -241,7 +240,6 @@ export default class ApiCall implements HttpClient {
       abortSignal?: any;
       responseType?: ResponseType | undefined;
       skipConnectionTimeout?: boolean;
-      enableKeepAlive?: boolean | undefined;
       streamConfig?:
         | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
         | undefined;
@@ -282,10 +280,6 @@ export default class ApiCall implements HttpClient {
           this.logger.debug(
             `Request #${requestNumber}: Using custom fetch dispatcher`,
           );
-        } else if (enableKeepAlive === true) {
-          this.logger.debug(
-            `Request #${requestNumber}: Native fetch manages connection pooling; pass a dispatcher for custom keep-alive behavior`,
-          );
         }
 
         const requestHeaders = this.mergeHeaders(
@@ -319,13 +313,17 @@ export default class ApiCall implements HttpClient {
           isStreamingRequest,
         };
 
-        const response = await this.transport.perform<T>(request, {
+        const transportOptions = {
           abortSignal,
           skipConnectionTimeout,
           requestNumber,
           attemptNumber: numTries,
           nodeIndex: node.index,
-        });
+        };
+        const response = await this.transport.perform<T>(
+          request,
+          transportOptions,
+        );
 
         if (response.status >= 1 && response.status <= 499) {
           // Treat any status code > 0 and < 500 to be an indication that node is healthy
@@ -342,50 +340,27 @@ export default class ApiCall implements HttpClient {
             return this.handleStreamingResponse<T>(response, streamConfig);
           }
           return Promise.resolve(response.data);
-        } else if (response.status < 500) {
-          // Next, if response is anything but 5xx, don't retry, return a custom error
-          const error = this.customErrorForResponse(
-            response,
-            this.messageFromResponseData(response.data),
-            // The body as the caller passed it, like v3's Axios config.data
-            response.request.body === undefined ? undefined : bodyParameters,
-          );
-          await this.transport.notifyError(
-            error,
-            "http",
-            {
-              abortSignal,
-              skipConnectionTimeout,
-              requestNumber,
-              attemptNumber: numTries,
-              nodeIndex: node.index,
-            },
-            response,
-          );
-          return Promise.reject(error);
-        } else {
-          // Retry all other HTTP errors (HTTPStatus > 500)
-          // This will get caught by the catch block below
-          const error = this.customErrorForResponse(
-            response,
-            this.messageFromResponseData(response.data),
-            // The body as the caller passed it, like v3's Axios config.data
-            response.request.body === undefined ? undefined : bodyParameters,
-          );
-          await this.transport.notifyError(
-            error,
-            "http",
-            {
-              abortSignal,
-              skipConnectionTimeout,
-              requestNumber,
-              attemptNumber: numTries,
-              nodeIndex: node.index,
-            },
-            response,
-          );
-          throw error;
         }
+
+        const error = this.customErrorForResponse(
+          response,
+          this.messageFromResponseData(response.data),
+          // The body as the caller passed it, like v3's Axios config.data
+          response.request.body === undefined ? undefined : bodyParameters,
+        );
+        await this.transport.notifyError(
+          error,
+          "http",
+          transportOptions,
+          response,
+        );
+        if (response.status < 500) {
+          // Next, if response is anything but 5xx, don't retry, return a custom error
+          return Promise.reject(error);
+        }
+        // Retry all other HTTP errors (HTTPStatus > 500)
+        // This will get caught by the catch block below
+        throw error;
       } catch (error: any) {
         if (error instanceof FetchTransportError && error.type === "hook") {
           // A hook failed, not the node, so there is nothing to retry
@@ -934,11 +909,7 @@ export default class ApiCall implements HttpClient {
   }
 
   private isCallerAbortError(error: unknown): boolean {
-    return (
-      error instanceof FetchTransportError &&
-      error.type === "abort" &&
-      error.message === "Request aborted by caller."
-    );
+    return error instanceof FetchTransportError && error.type === "abort";
   }
 
   private messageFromResponseData(data: unknown): string {
