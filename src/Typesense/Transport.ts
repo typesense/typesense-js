@@ -148,23 +148,24 @@ export default class FetchTransport {
       if (abortType === undefined && error instanceof FetchTransportError) {
         return error;
       }
-      const type =
-        abortType === "caller"
-          ? "abort"
-          : abortType === "timeout"
-            ? "timeout"
-            : "network";
-      return new FetchTransportError(
-        type,
-        type === "abort"
-          ? "Request aborted by caller."
-          : type === "timeout"
-            ? `Request timed out after ${this.options.connectionTimeoutSeconds} seconds.`
-            : error instanceof Error
-              ? error.message
-              : String(error),
-        { request: mutableRequest, originalError: error },
-      );
+      if (abortType === "caller") {
+        return new FetchTransportError("abort", "Request aborted by caller.", {
+          request: mutableRequest,
+          originalError: error,
+        });
+      }
+      if (abortType === "timeout") {
+        return new FetchTransportError(
+          "timeout",
+          `Request timed out after ${this.options.connectionTimeoutSeconds} seconds.`,
+          { request: mutableRequest, originalError: error },
+        );
+      }
+      return new FetchTransportError("network", networkErrorMessage(error), {
+        code: networkErrorCode(error),
+        request: mutableRequest,
+        originalError: error,
+      });
     };
 
     const callerAbortSignal = requestOptions.abortSignal;
@@ -625,4 +626,35 @@ export default class FetchTransport {
       nodeIndex: requestOptions.nodeIndex,
     };
   }
+}
+
+type ErrorDetails = { message?: unknown; code?: unknown; errors?: unknown };
+
+// Undici reports "fetch failed" and keeps the socket error in `cause`, which
+// is an AggregateError when every address of a host refuses the connection.
+function networkErrorSources(error: unknown): ErrorDetails[] {
+  const outer = (error ?? {}) as ErrorDetails & { cause?: unknown };
+  const cause = outer.cause as ErrorDetails | undefined;
+  const firstOfCause = Array.isArray(cause?.errors)
+    ? (cause.errors[0] as ErrorDetails | undefined)
+    : undefined;
+  return [cause, firstOfCause, outer].filter(
+    (source): source is ErrorDetails =>
+      typeof source === "object" && source !== null,
+  );
+}
+
+function networkErrorMessage(error: unknown): string {
+  const message = networkErrorSources(error)
+    .map((source) => source.message)
+    .find(
+      (value): value is string => typeof value === "string" && value !== "",
+    );
+  return message ?? String(error);
+}
+
+function networkErrorCode(error: unknown): string | undefined {
+  return networkErrorSources(error)
+    .map((source) => source.code)
+    .find((value): value is string => typeof value === "string");
 }

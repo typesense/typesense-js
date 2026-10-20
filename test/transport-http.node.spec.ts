@@ -5,7 +5,7 @@ import { Readable } from "node:stream";
 import { afterEach, describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
-const { Client } = require("../lib/Typesense");
+const { Client, Errors } = require("../lib/Typesense");
 const Transport = require("../lib/Typesense/Transport").default;
 const requestOptions = { requestNumber: 1, attemptNumber: 1, nodeIndex: 0 };
 
@@ -98,5 +98,22 @@ describe("Compiled transport over HTTP", () => {
         .documents()
         .import([{ id: "1" }]),
     ).resolves.toEqual([{ success: true }]);
+  }, 3000);
+
+  it("reports the socket error of a refused connection", async () => {
+    const url = await listen(() => {});
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      numRetries: 0,
+      logLevel: "silent",
+    });
+    const error = await client.health
+      .retrieve()
+      .catch((caught: unknown) => caught);
+    expect(error).toBeInstanceOf(Errors.FetchTransportError);
+    expect(error).toMatchObject({ type: "network", code: "ECONNREFUSED" });
+    expect((error as Error).message).toMatch(/ECONNREFUSED/);
   }, 3000);
 });

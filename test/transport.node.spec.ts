@@ -376,5 +376,58 @@ describe.each([
         }
       },
     );
+
+    it("reports the underlying cause of network errors", async () => {
+      const cases = [
+        [
+          Object.assign(new Error("connect ECONNREFUSED 127.0.0.1:1"), {
+            code: "ECONNREFUSED",
+          }),
+          "connect ECONNREFUSED 127.0.0.1:1",
+          "ECONNREFUSED",
+        ],
+        [
+          Object.assign(
+            new AggregateError(
+              [
+                Object.assign(new Error("connect ECONNREFUSED ::1:1"), {
+                  code: "ECONNREFUSED",
+                }),
+              ],
+              "",
+            ),
+            { code: "ECONNREFUSED" },
+          ),
+          "connect ECONNREFUSED ::1:1",
+          "ECONNREFUSED",
+        ],
+        [
+          Object.assign(new Error("Headers Timeout Error"), {
+            code: "UND_ERR_HEADERS_TIMEOUT",
+          }),
+          "Headers Timeout Error",
+          "UND_ERR_HEADERS_TIMEOUT",
+        ],
+      ] as const;
+      for (const [cause, message, code] of cases) {
+        const failure = Object.assign(new TypeError("fetch failed"), { cause });
+        const transport = new TransportClass({
+          fetch: async () => {
+            throw failure;
+          },
+          connectionTimeoutSeconds: 1,
+        });
+        const error = await transport
+          .perform(request, requestOptions)
+          .catch((caught: unknown) => caught);
+        expect(error).toBeInstanceOf(ErrorClass);
+        expect(error).toMatchObject({
+          type: "network",
+          message,
+          code,
+          originalError: failure,
+        });
+      }
+    });
   },
 );
