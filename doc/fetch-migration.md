@@ -2,11 +2,19 @@
 
 The client uses the Fetch API. Node.js 20.18.1 or later is required. Modern browsers must provide `fetch`, `AbortController`, `Response`, and Web Streams. Ordinary requests use native `fetch`. In Node.js, imports and requests with a configured dispatcher use the bundled Undici 7 fetch, because Node's native fetch uses a different Undici major on each release line and the dispatcher protocol changes between majors. Undici is excluded from browser bundles. A configured custom `fetch` always takes precedence.
 
+The SDK loads Undici the first time a request needs it, not when the SDK is imported. When Undici loads, it installs an Undici 7 `Agent` as the process-wide global dispatcher if nothing has set one yet, and Node's native fetch then uses that agent too. Call `setGlobalDispatcher()` before the first import if the process needs a different global dispatcher.
+
+Requests without a body, such as searches, no longer send `Content-Type`. In browsers, this keeps a GET search with the API key in the query string a CORS simple request, so the browser doesn't send a preflight `OPTIONS` before each search. A body that is a `Buffer`, a typed array, or an `ArrayBuffer` is sent as raw bytes. An empty object or array body is not sent, as in v3.
+
 ## Timeouts and cancellation
 
 Caller cancellation remains separate from network failures: it does not retry or mark a node unhealthy, including cancellation while reading the body. Invalid JSON is a parsing error; failed body transfers are network errors.
 
-`connectionTimeoutSeconds` remains active until the response body finishes or is cancelled. In Node.js it resets when headers or body chunks arrive, so an actively consumed stream can run longer than the configured timeout. In browsers it is a total request timeout. A value of zero disables the SDK timer. Consume or cancel returned streams to release resources. Errors after a stream is returned reject its reader and notify `errorHooks`; the SDK cannot replay an already delivered stream.
+`connectionTimeoutSeconds` remains active until the response body finishes or is cancelled. In Node.js it limits how long the request waits for headers and how long each body read waits for data, so a stream can run longer than the configured timeout, and a reader can pause between reads for as long as it likes. In browsers it is a total request timeout. A value of zero disables the SDK timer. Consume or cancel returned streams to release resources. Errors after a stream is returned reject its reader and notify `errorHooks`; the SDK cannot replay an already delivered stream.
+
+A request whose body is a stream, such as `importStream()`, is sent once. If it fails, the SDK rejects with that error instead of retrying on the next node, because the stream has already been consumed. A failed `import()` with a string or array body is retried as before.
+
+`import()` with a large string holds the encoded body in memory alongside the string while the request is sent, so its peak memory is higher than with v3. Use `importStream()` to import a large file without loading it into memory.
 
 `import()` and `importStream()` disable the SDK timer and override Undici's `headersTimeout` and `bodyTimeout` to zero at dispatch time. This works with the configured `dispatcher`, or Undici's global dispatcher when none is configured, without changing settings for other requests. Connection establishment failures and server/proxy timeouts can still fail an import. A custom fetch must honor the dispatcher options to provide the same behavior. See [Undici's timeout options](https://github.com/nodejs/undici/blob/v7.30.0/docs/docs/api/Client.md).
 
@@ -112,6 +120,8 @@ const client = new Typesense.Client({
 
 Replace request/response interceptors with async `requestHooks`, `responseHooks`, and `errorHooks`. Hooks run in array order for each attempt and receive `requestNumber`, `attemptNumber`, and `nodeIndex`. Request hooks run before URL/body serialization; mutate the request directly. Response hooks can mutate decoded `response.data`; their return values are ignored. They also see HTTP error responses. Error hooks receive `errorType` and HTTP response context when available; they observe errors and cannot recover a request by returning a value.
 
+A request hook or response hook that throws ends the request: it rejects with a `FetchTransportError` of type `"hook"`, whose `originalError` is the thrown value and whose message is the thrown error's message. The SDK doesn't retry it, mark the node unhealthy, or call `errorHooks` for it. A response hook can throw after the server has applied a write, so a hook failure is not a sign that the request had no effect. An error hook that throws is logged as a warning and skipped; the request keeps its original error, retries and node health, and the remaining error hooks still run.
+
 ```javascript
 const client = new Typesense.Client({
   nodes,
@@ -152,6 +162,41 @@ const client = new Typesense.Client({
 });
 ```
 
+## Error shapes
+
+Errors from HTTP responses keep their v3 classes and fields: `ObjectNotFound`, `RequestMalformed`, `ServerError` and the other subclasses of `TypesenseError` under `Errors`, with `httpStatus` and `httpBody`, which holds the request body as it was passed in.
+
+Network failures and timeouts are now `Errors.FetchTransportError` instead of `AxiosError`, and an invalid JSON response is one too, instead of a `SyntaxError`. Its `type` is one of:
+
+| `type`    | Cause                                           | Retried | Node marked unhealthy |
+| --------- | ----------------------------------------------- | ------- | --------------------- |
+| `network` | The request or response body failed to transfer | Yes     | Yes                   |
+| `timeout` | `connectionTimeoutSeconds` elapsed              | Yes     | Yes                   |
+| `parse`   | A JSON response body was invalid                | Yes     | Yes                   |
+| `abort`   | The caller's `abortSignal` fired                | No      | No                    |
+| `hook`    | A request or response hook threw                | No      | No                    |
+
+For network errors, `message` and `code` come from the underlying socket or Undici error, for example `connect ECONNREFUSED 127.0.0.1:8108` with `code: "ECONNREFUSED"`, or `UND_ERR_HEADERS_TIMEOUT`. The original error is in `originalError`, and the failed request in `request`. Browsers don't expose the cause of a network error, so there `message` is the browser's, such as `Failed to fetch`, and `code` is undefined.
+
+Checks written for Axios no longer match, and fail silently rather than throwing:
+
+```javascript
+import { Errors } from "typesense";
+
+try {
+  await client.collections("books").retrieve();
+} catch (error) {
+  // Before: axios.isAxiosError(error), error.code === "ECONNABORTED"
+  if (error instanceof Errors.FetchTransportError && error.type === "timeout") {
+    // retry later
+  } else if (error instanceof Errors.ObjectNotFound) {
+    // unchanged from v3
+  }
+}
+```
+
+When the caller aborts, client methods still reject with a plain `Error("Request aborted by caller.")`, as in v3. Error hooks, and the reader of a stream that was already returned, receive the `FetchTransportError` with type `abort`.
+
 ## Runtime notes
 
 `dispatcher` applies in Node.js and Deno. Bun replaces the `undici` package with its own partial implementation: Bun's fetch ignores `dispatcher`, and Bun's `Agent` has no `close()` method, so guard shutdown code that calls it. Browsers and edge runtimes have no dispatcher; use a custom `fetch` there instead.
@@ -165,5 +210,7 @@ const client = new Typesense.Client({
   fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
 });
 ```
+
+Jest's `jsdom` environment has no global `fetch`, unlike the XHR that Axios used there, so requests reject with "No fetch implementation is available". Run tests that make real requests in Jest's `node` environment, or load a fetch polyfill such as `whatwg-fetch` in the test setup. Tests that only import the SDK, or that pass their own `fetch`, work in either environment.
 
 React Native's built-in fetch does not expose response bodies as streams. There, `exportStream()` resolves to `null`, and streamed conversations call `onChunk` and `onComplete` only after the whole response arrives. Use `export()` instead, or a fetch that supports streaming, such as `expo/fetch` (the global fetch from Expo SDK 56).
