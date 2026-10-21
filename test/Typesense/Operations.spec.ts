@@ -19,6 +19,20 @@ describe("Operations", function () {
 
   const apiCall = new ApiCall(typesense.configuration);
   const operations = new Operations(apiCall);
+  const operationUri = (operation: string) =>
+    apiCall.uriFor(
+      `/operations/${operation}`,
+      typesense.configuration.nodes[0],
+    );
+  let mockFetch: FetchMock;
+
+  beforeEach(function () {
+    mockFetch = createFetchMock();
+  });
+
+  afterEach(function () {
+    mockFetch.restore();
+  });
 
   it("should be an instance of Operations", function () {
     expect(operations).toBeInstanceOf(Operations);
@@ -28,49 +42,56 @@ describe("Operations", function () {
     expect(typeof operations.perform).toBe("function");
   });
 
-  it("should support known operation types", function () {
+  it("should support known operation types", async function () {
     const knownOperations = [
       "vote",
       "snapshot",
       "cache/clear",
       "schema_changes",
     ] as const;
-
     knownOperations.forEach((operation) => {
-      expect(() => {
-        operations.perform(operation, {});
-      }).not.toThrow();
+      mockFetch.onPost(operationUri(operation)).reply(200, { success: true });
     });
+
+    for (const operation of knownOperations) {
+      await expect(operations.perform(operation, {})).resolves.toEqual({
+        success: true,
+      });
+    }
+    expect(mockFetch.history.post.map((request) => request.url)).toEqual(
+      knownOperations.map(operationUri),
+    );
   });
 
-  it("should support custom operation names", function () {
-    expect(() => {
-      operations.perform("custom_operation", { custom_param: "value" });
-    }).not.toThrow();
+  it("should support custom operation names", async function () {
+    mockFetch
+      .onPost(operationUri("custom_operation"))
+      .reply(200, { success: true });
+
+    await expect(
+      operations.perform("custom_operation", { custom_param: "value" }),
+    ).resolves.toEqual({ success: true });
+    expect(mockFetch.history.post[0].params).toEqual({ custom_param: "value" });
   });
 
   it("should have operations available on the client", function () {
     expect(typesense.operations).toBeInstanceOf(Operations);
   });
 
-  it("should have the correct method signature for perform", function () {
+  it("should have the correct method signature for perform", async function () {
+    mockFetch.onPost(operationUri("snapshot")).reply(200, { success: true });
+
     const result = operations.perform("snapshot", {
       snapshot_path: "/tmp/dbsnap",
     });
     expect(result).toBeInstanceOf(Promise);
+    await expect(result).resolves.toEqual({ success: true });
+    expect(mockFetch.history.post[0].params).toEqual({
+      snapshot_path: "/tmp/dbsnap",
+    });
   });
 
   describe(".getSchemaChanges", function () {
-    let mockFetch: FetchMock;
-
-    beforeEach(function () {
-      mockFetch = createFetchMock();
-    });
-
-    afterEach(function () {
-      mockFetch.restore();
-    });
-
     it("returns schema change statuses when changes are in progress", async function () {
       mockFetch
         .onGet(
