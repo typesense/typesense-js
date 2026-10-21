@@ -1,6 +1,6 @@
 # Migrating from Axios to fetch
 
-The client uses the Fetch API. Node.js 20.18.1 or later is required. Modern browsers must provide `fetch`, `AbortController`, `Response`, and Web Streams. Ordinary requests use native `fetch`. In Node.js, imports and requests with a configured dispatcher use the bundled Undici 7 fetch, because Node's native fetch uses a different Undici major on each release line and the dispatcher protocol changes between majors. Undici is excluded from browser bundles. A configured custom `fetch` always takes precedence.
+The client uses the Fetch API. Node.js 22 or later is required. Modern browsers must provide `fetch`, `AbortController`, `Response`, and Web Streams. Ordinary requests use native `fetch`. In Node.js, imports and requests with a configured dispatcher use the bundled Undici 7 fetch, because Node's native fetch uses a different Undici major on each release line and the dispatcher protocol changes between majors. Undici is excluded from browser bundles. A configured custom `fetch` always takes precedence.
 
 The SDK loads Undici the first time a request needs it, not when the SDK is imported. When Undici loads, it installs an Undici 7 `Agent` as the process-wide global dispatcher if nothing has set one yet, and Node's native fetch then uses that agent too. Call `setGlobalDispatcher()` before the first import if the process needs a different global dispatcher.
 

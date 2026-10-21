@@ -392,7 +392,7 @@ export default class FetchTransport {
 
     if (undici) {
       // Keep fetch and its dispatcher on the same Undici major. Node's native
-      // fetch bundles a different one per release (6 on Node 20 and 22, 7 on
+      // fetch bundles a different one per release (6 on Node 22, 7 on
       // Node 24, 8 on Node 26), and the handler API changes between majors.
       return undici.fetch as unknown as FetchFunction;
     }
