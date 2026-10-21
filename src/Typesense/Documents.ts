@@ -201,11 +201,6 @@ export interface ImportOptions {
   abortSignal?: AbortSignal | null;
 }
 
-const isNodeJSEnvironment =
-  typeof process !== "undefined" &&
-  process.versions != null &&
-  process.versions.node != null;
-
 export default class Documents<T extends DocumentSchema = object>
   extends SearchOnlyDocuments<T>
   implements WriteableDocuments<T>
@@ -368,7 +363,6 @@ export default class Documents<T extends DocumentSchema = object>
         additionalHeaders: { "Content-Type": "text/plain" },
         abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },
     );
 
@@ -420,7 +414,6 @@ export default class Documents<T extends DocumentSchema = object>
         additionalHeaders: { "Content-Type": "text/plain" },
         abortSignal,
         skipConnectionTimeout: true, // We never want to client-side-timeout on an import and retry, since imports are syncronous and we want to let them take as long as it takes to complete fully
-        enableKeepAlive: isNodeJSEnvironment ? true : false, // This is to prevent ECONNRESET socket hang up errors. Reference: https://github.com/axios/axios/issues/2936#issuecomment-779439991
       },
     );
 
@@ -456,14 +449,19 @@ export default class Documents<T extends DocumentSchema = object>
   }
 
   /**
-   * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
+   * Returns a Web ReadableStream of JSONL bytes for all documents in this collection.
+   * In Node.js, use Readable.fromWeb(stream) for .pipe(), .on(), and .destroy().
    */
   async exportStream(
     options: DocumentsExportParameters = {},
-  ): Promise<ReadStream> {
-    return this.apiCall.get<ReadStream>(this.endpointPath("export"), options, {
-      responseType: "stream",
-    });
+  ): Promise<ReadableStream<Uint8Array> | null> {
+    return this.apiCall.get<ReadableStream<Uint8Array> | null>(
+      this.endpointPath("export"),
+      options,
+      {
+        responseType: "stream",
+      },
+    );
   }
 }
 

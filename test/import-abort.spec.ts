@@ -1,39 +1,27 @@
 import { createReadStream } from "fs";
 import { fileURLToPath } from "url";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Client as TypesenseClient } from "../src/Typesense";
 import type { WriteableDocuments } from "../src/Typesense/Types";
-
-const { mockAxios, mockCancelFn } = vi.hoisted(() => {
-  const mockCancelFn = vi.fn();
-  const mockCancelSource = {
-    token: "mock-cancel-token",
-    cancel: mockCancelFn,
-  };
-  const mockAxios = vi.fn() as any;
-  mockAxios.CancelToken = {
-    source: vi.fn(() => mockCancelSource),
-  };
-
-  return { mockAxios, mockCancelFn };
-});
-
-vi.mock("axios", () => ({
-  default: mockAxios,
-  __esModule: true,
-}));
+import { FetchMock } from "./fetchMock";
 
 describe("Documents Import Abort Signal Tests", () => {
   let typesense: TypesenseClient;
+  let mockFetch: FetchMock;
 
   const documents = [
     { id: "1", company_name: "Stark Industries" },
     { id: "2", company_name: "Acme Corp" },
   ];
 
+  const fetchSignal = (call = 0): AbortSignal | null | undefined =>
+    (mockFetch.mock.mock.calls[call][1] as RequestInit | undefined)?.signal;
+
   beforeEach(() => {
     vi.clearAllMocks();
 
+    // Imports use Undici's fetch in Node, so pass the mock explicitly
+    mockFetch = new FetchMock();
     typesense = new TypesenseClient({
       nodes: [
         {
@@ -45,16 +33,10 @@ describe("Documents Import Abort Signal Tests", () => {
       apiKey: "abcd",
       randomizeNodes: false,
       retryIntervalSeconds: 0.05,
+      fetch: mockFetch.mock as typeof fetch,
     });
 
-    mockAxios.mockResolvedValue({
-      status: 200,
-      data: '{"success":true}\n{"success":true}',
-    });
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
+    mockFetch.onPost().reply(200, '{"success":true}\n{"success":true}');
   });
 
   it("should reject immediately if AbortSignal is already aborted", async () => {
@@ -68,10 +50,10 @@ describe("Documents Import Abort Signal Tests", () => {
         .import(documents, {}, { abortSignal: abortController.signal }),
     ).rejects.toThrow("Request aborted by caller.");
 
-    expect(mockAxios).not.toHaveBeenCalled();
+    expect(mockFetch.mock).not.toHaveBeenCalled();
   });
 
-  it("should create cancel token and keep the signal out of the query parameters", async () => {
+  it("should pass a signal to fetch and keep it out of the query parameters", async () => {
     const abortController = new AbortController();
 
     const result = await typesense
@@ -83,25 +65,21 @@ describe("Documents Import Abort Signal Tests", () => {
         { abortSignal: abortController.signal },
       );
 
-    expect(mockAxios.CancelToken.source).toHaveBeenCalled();
-
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cancelToken: "mock-cancel-token",
-        params: expect.objectContaining({ action: "upsert" }),
-      }),
+    expect(fetchSignal()).toBeInstanceOf(AbortSignal);
+    expect(mockFetch.history.post[0].params).toEqual(
+      expect.objectContaining({ action: "upsert" }),
     );
-    expect(mockAxios.mock.calls[0][0].params).not.toHaveProperty("abortSignal");
+    expect(mockFetch.history.post[0].params).not.toHaveProperty("abortSignal");
 
     expect(result).toEqual([{ success: true }, { success: true }]);
   });
 
   it("should cancel a request in flight and not retry it", async () => {
-    mockAxios.mockImplementationOnce(
-      () =>
+    mockFetch.mock.mockImplementationOnce(
+      (_input, init) =>
         new Promise((_resolve, reject) => {
-          mockCancelFn.mockImplementationOnce(() =>
-            reject(new Error("canceled")),
+          init?.signal?.addEventListener("abort", () =>
+            reject(init.signal?.reason),
           );
         }),
     );
@@ -112,20 +90,21 @@ describe("Documents Import Abort Signal Tests", () => {
       .documents()
       .import(documents, {}, { abortSignal: abortController.signal });
 
-    await vi.waitFor(() => expect(mockAxios).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(mockFetch.mock).toHaveBeenCalledTimes(1));
     abortController.abort();
 
     await expect(importing).rejects.toThrow("Request aborted by caller.");
-    expect(mockCancelFn).toHaveBeenCalledTimes(1);
-    expect(mockAxios).toHaveBeenCalledTimes(1);
+    expect(fetchSignal()?.aborted).toBe(true);
+    expect(mockFetch.mock).toHaveBeenCalledTimes(1);
   });
 
   it("should not retry a failed request once aborted", async () => {
     const abortController = new AbortController();
-    mockAxios.mockImplementationOnce(async () => {
+    mockFetch.resetHandlers();
+    mockFetch.onPost().reply(() => {
       // Fires during the wait before the retry
       setTimeout(() => abortController.abort(), 0);
-      return { status: 503, data: { message: "Not Ready or Lagging" } };
+      return [503, { message: "Not Ready or Lagging" }];
     });
 
     await expect(
@@ -135,7 +114,7 @@ describe("Documents Import Abort Signal Tests", () => {
         .import(documents, {}, { abortSignal: abortController.signal }),
     ).rejects.toThrow("Request aborted by caller.");
 
-    expect(mockAxios).toHaveBeenCalledTimes(1);
+    expect(mockFetch.mock).toHaveBeenCalledTimes(1);
   });
 
   it("should pass the abort signal for a stream import", async () => {
@@ -151,11 +130,7 @@ describe("Documents Import Abort Signal Tests", () => {
       stream.destroy();
     }
 
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cancelToken: "mock-cancel-token",
-      }),
-    );
+    expect(fetchSignal()).toBeInstanceOf(AbortSignal);
   });
 
   it("should accept the abort signal through WriteableDocuments", async () => {
@@ -170,11 +145,7 @@ describe("Documents Import Abort Signal Tests", () => {
       { abortSignal: abortController.signal },
     );
 
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cancelToken: "mock-cancel-token",
-      }),
-    );
+    expect(fetchSignal()).toBeInstanceOf(AbortSignal);
   });
 
   it("should work correctly without abort signal", async () => {
@@ -183,14 +154,8 @@ describe("Documents Import Abort Signal Tests", () => {
       .documents()
       .import(documents);
 
-    expect(mockAxios.CancelToken.source).not.toHaveBeenCalled();
-
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.not.objectContaining({
-        cancelToken: expect.anything(),
-      }),
-    );
-
+    expect(mockFetch.mock).toHaveBeenCalledTimes(1);
+    expect(fetchSignal()?.aborted).toBe(false);
     expect(result).toEqual([{ success: true }, { success: true }]);
   });
 });

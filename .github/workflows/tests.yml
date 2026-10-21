@@ -5,6 +5,10 @@ on: [push, pull_request]
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24, 26]
 
     steps:
     - name: Start Typesense
@@ -31,7 +35,7 @@ jobs:
     - uses: pnpm/action-setup@v4
     - uses: actions/setup-node@v4
       with:
-        node-version-file: '.nvmrc'
+        node-version: ${{ matrix.node-version }}
     - run: pnpm install --frozen-lockfile
     - run: pnpm build
     - run: pnpm ci-lint
@@ -39,7 +43,7 @@ jobs:
     - run: pnpm test
     - uses: actions/upload-artifact@v4
       with:
-        name: coverage
+        name: coverage-node-${{ matrix.node-version }}
         path: coverage/
         retention-days: 1
 

@@ -1,32 +1,25 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Client as TypesenseClient } from "../src/Typesense";
+import { createFetchMock, FetchMock } from "./fetchMock";
 
-const { mockAxios, mockCancelFn } = vi.hoisted(() => {
-  const mockCancelFn = vi.fn();
-  const mockCancelSource = {
-    token: "mock-cancel-token",
-    cancel: mockCancelFn,
-  };
-  const mockAxios = vi.fn() as any;
-  mockAxios.CancelToken = {
-    source: vi.fn(() => mockCancelSource),
-  };
-
-  return { mockAxios, mockCancelFn };
-});
-
-vi.mock("axios", () => ({
-  default: mockAxios,
-  __esModule: true,
-}));
+function streamFromText(text: string): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(text));
+      controller.close();
+    },
+  });
+}
 
 describe("MultiSearch Abort Signal Tests", () => {
   let typesense: TypesenseClient;
+  let mockFetch: FetchMock;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCancelFn.mockClear();
 
+    mockFetch = createFetchMock();
     typesense = new TypesenseClient({
       nodes: [
         {
@@ -39,19 +32,16 @@ describe("MultiSearch Abort Signal Tests", () => {
       randomizeNodes: false,
     });
 
-    mockAxios.mockResolvedValue({
-      status: 200,
-      data: { results: [{ hits: [] }] },
-    });
+    mockFetch.onAny().reply(200, { results: [{ hits: [] }] });
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    mockFetch.restore();
   });
 
   it("should reject immediately if AbortSignal is already aborted", async () => {
     const abortController = new AbortController();
-    abortController.abort(); // Abort immediately
+    abortController.abort();
 
     const searchRequests = {
       searches: [{ q: "test query", collection: "documents" }],
@@ -67,32 +57,7 @@ describe("MultiSearch Abort Signal Tests", () => {
       ),
     ).rejects.toThrow("Request aborted by caller.");
 
-    // Verify axios was never called since request was aborted immediately
-    expect(mockAxios).not.toHaveBeenCalled();
-  });
-
-  it("should create cancel token when AbortSignal is provided", async () => {
-    const abortController = new AbortController();
-
-    const searchRequests = {
-      searches: [{ q: "test query", collection: "documents" }],
-    };
-
-    await typesense.multiSearch.perform(
-      searchRequests,
-      {},
-      {
-        abortSignal: abortController.signal,
-      },
-    );
-
-    expect(mockAxios.CancelToken.source).toHaveBeenCalled();
-
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cancelToken: "mock-cancel-token",
-      }),
-    );
+    expect(mockFetch.mock).not.toHaveBeenCalled();
   });
 
   it("should add abort event listener", async () => {
@@ -152,37 +117,22 @@ describe("MultiSearch Abort Signal Tests", () => {
 
     const result = await typesense.multiSearch.perform(searchRequests, {});
 
-    expect(mockAxios.CancelToken.source).not.toHaveBeenCalled();
-
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.not.objectContaining({
-        cancelToken: expect.anything(),
-      }),
-    );
-
+    expect(mockFetch.mock).toHaveBeenCalledOnce();
     expect(result).toEqual({ results: [{ hits: [] }] });
   });
 
   it("should handle streaming requests with abort signal", async () => {
     const abortController = new AbortController();
-
-    const mockStream = {
-      on: vi.fn((event, callback) => {
-        if (event === "data") {
-          setTimeout(() => callback('data: {"hits":[]}\n\n'), 1);
-        }
-        if (event === "end") {
-          setTimeout(() => callback(), 2);
-        }
-        return mockStream;
-      }),
-      pipe: vi.fn(() => mockStream),
-    };
-
-    mockAxios.mockResolvedValueOnce({
-      status: 200,
-      data: mockStream,
-    });
+    mockFetch.reset();
+    mockFetch
+      .onAny()
+      .reply(
+        200,
+        streamFromText(
+          'data: {"conversation_id":"123","message":"chunk"}\n\n{"results":[{"hits":[]}]}',
+        ),
+        { "content-type": "text/event-stream" },
+      );
 
     const searchRequests = {
       searches: [{ q: "test query", collection: "documents" }],
@@ -204,25 +154,14 @@ describe("MultiSearch Abort Signal Tests", () => {
       { abortSignal: abortController.signal },
     );
 
-    expect(mockAxios.CancelToken.source).toHaveBeenCalled();
-
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.objectContaining({
-        responseType: "stream",
-        cancelToken: "mock-cancel-token",
-      }),
-    );
-
+    expect(mockFetch.history.post[0].headers.accept).toBe("text/event-stream");
     expect(result).toBeDefined();
   });
 
   it("should handle error responses with abort signal", async () => {
     const abortController = new AbortController();
-
-    mockAxios.mockResolvedValueOnce({
-      status: 400,
-      data: { message: "Bad request" },
-    });
+    mockFetch.reset();
+    mockFetch.onAny().reply(400, { message: "Bad request" });
 
     const searchRequests = {
       searches: [{ q: "test query", collection: "documents" }],
@@ -236,14 +175,8 @@ describe("MultiSearch Abort Signal Tests", () => {
           abortSignal: abortController.signal,
         },
       ),
-    ).rejects.toThrow();
+    ).rejects.toThrow("Request failed with HTTP code 400");
 
-    expect(mockAxios.CancelToken.source).toHaveBeenCalled();
-
-    expect(mockAxios).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cancelToken: "mock-cancel-token",
-      }),
-    );
+    expect(mockFetch.mock).toHaveBeenCalledOnce();
   });
 });

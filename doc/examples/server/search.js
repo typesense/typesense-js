@@ -9,9 +9,8 @@ require("@babel/register");
 
 const Typesense = require("../../../lib/Typesense");
 
-// If you need to use a custom agent:
-// const { Agent: HTTPAgent } = require("http");
-// const { Agent: HTTPSAgent } = require("https");
+// If you need custom Node connection pooling, use an Undici dispatcher:
+// const { Agent } = require("undici");
 
 // Create a client
 const typesense = new Typesense.Client({
@@ -46,9 +45,8 @@ const typesense = new Typesense.Client({
   healthcheckIntervalSeconds: 2,
   logLevel: "debug",
 
-  // If you need to use a custom agent:
-  // httpAgent: new HTTPAgent({ keepAlive: true }),
-  // httpsAgent: new HTTPSAgent({ keepAlive: true }),
+  // If you need custom Node connection pooling:
+  // dispatcher: new Agent({ keepAliveTimeout: 10_000 }),
 });
 
 let schema = {

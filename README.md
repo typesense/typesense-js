@@ -41,6 +41,8 @@ Tests are also a good place to know how the library works internally: [test](tes
 
 See [Configuration.ts](src/Typesense/Configuration.ts) for a list of all client configuration options.
 
+Upgrading from the Axios transport? See the [fetch migration guide](doc/fetch-migration.md) for streams, proxies, TLS, serializers, and hooks. Node.js 22 or later is required.
+
 ### Request Timeouts and Abort Signals
 
 The client supports both global timeout configuration and per-request abort signals:

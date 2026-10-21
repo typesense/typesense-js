@@ -44,13 +44,15 @@ export default class Keys {
       Infix
     >(parameters);
     const paramsJSON = JSON.stringify(normalizedParams);
-    const digest = Buffer.from(
-      createHmac("sha256", searchKey).update(paramsJSON).digest("base64"),
-    );
+    const digest = createHmac("sha256", searchKey)
+      .update(paramsJSON)
+      .digest("base64");
     const keyPrefix = searchKey.substr(0, 4);
     const rawScopedKey = `${digest}${keyPrefix}${paramsJSON}`;
 
-    return Buffer.from(rawScopedKey).toString("base64");
+    // Read Buffer off globalThis: browser bundlers such as Parcel polyfill the
+    // bare `Buffer` global, and this method needs Node's crypto anyway
+    return globalThis.Buffer.from(rawScopedKey).toString("base64");
   }
 
   static get RESOURCEPATH() {

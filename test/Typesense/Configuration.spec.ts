@@ -196,4 +196,24 @@ describe("Configuration", function () {
       ).toBe(2);
     });
   });
+
+  it("keeps explicit zero intervals and timeouts", function () {
+    const configuration = new TypesenseClient({
+      nodes: [{ host: "node0", protocol: "https", port: 8108 }],
+      apiKey: "abcd",
+      connectionTimeoutSeconds: 0,
+      healthcheckIntervalSeconds: 0,
+      retryIntervalSeconds: 0,
+    }).configuration;
+    expect(configuration.connectionTimeoutSeconds).toBe(0);
+    expect(configuration.healthcheckIntervalSeconds).toBe(0);
+    expect(configuration.retryIntervalSeconds).toBe(0);
+
+    const withLegacyTimeout = new TypesenseClient({
+      nodes: [{ host: "node0", protocol: "https", port: 8108 }],
+      apiKey: "abcd",
+      timeoutSeconds: 0,
+    }).configuration;
+    expect(withLegacyTimeout.connectionTimeoutSeconds).toBe(0);
+  });
 });
