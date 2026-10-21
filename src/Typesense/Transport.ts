@@ -136,7 +136,13 @@ export default class FetchTransport {
     let abortListener: (() => void) | undefined;
     let streamReturned = false;
     let responseBody: ReadableStream<Uint8Array> | null = null;
-    let bodyErrorReported = false;
+    let errorReported = false;
+    // Error hooks hear about a failed request once, and not about hook failures
+    const reportError = async (error: FetchTransportError) => {
+      if (errorReported || error.type === "hook") return;
+      errorReported = true;
+      await this.notifyError(error, error.type, requestOptions);
+    };
 
     const cleanup = () => {
       if (timeoutHandle !== undefined) {
@@ -277,10 +283,7 @@ export default class FetchTransport {
               if (isNodeJSEnvironment) clearTimer();
             },
             classifyError,
-            onError: async (error) => {
-              bodyErrorReported = true;
-              await this.notifyError(error, error.type, requestOptions);
-            },
+            onError: reportError,
           })
         : null;
       const response = await this.normalizedResponse<T>(
@@ -298,17 +301,15 @@ export default class FetchTransport {
         response.responseType === "stream" && responseBody !== null;
       return response;
     } catch (error) {
-      if (responseBody && !responseBody.locked) {
+      const transportError = classifyError(error);
+      if (responseBody?.locked) {
+        // A response hook can hold a reader, so only aborting the request
+        // releases the connection.
+        abortController.abort(transportError);
+      } else if (responseBody) {
         await responseBody.cancel().catch(() => {});
       }
-      const transportError = classifyError(error);
-      if (!bodyErrorReported && transportError.type !== "hook") {
-        await this.notifyError(
-          transportError,
-          transportError.type,
-          requestOptions,
-        );
-      }
+      await reportError(transportError);
       throw transportError;
     } finally {
       if (!streamReturned) cleanup();

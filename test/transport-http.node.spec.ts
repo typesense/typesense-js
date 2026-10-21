@@ -10,6 +10,7 @@ import { AddressInfo } from "node:net";
 import { Readable } from "node:stream";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, it } from "vitest";
+import type { TypesenseResponse } from "../src/Typesense/Transport";
 
 const require = createRequire(import.meta.url);
 const { Client, Errors } = require("../lib/Typesense");
@@ -89,6 +90,39 @@ describe("Compiled transport over HTTP", () => {
     await headers;
     abort.abort();
     await rejected;
+  }, 3000);
+
+  it("closes the connection when a responseHook holding the stream's reader throws", async () => {
+    let closed!: () => void;
+    const connectionClosed = new Promise<void>((resolve) => {
+      closed = resolve;
+    });
+    const url = await listen((response) => {
+      response.write("partial");
+      response.on("close", () => closed());
+    });
+    const transport = new Transport({
+      connectionTimeoutSeconds: 1,
+      responseHooks: [
+        (response: TypesenseResponse) => {
+          (response.data as ReadableStream<Uint8Array>).getReader();
+          throw new Error("bad hook");
+        },
+      ],
+    });
+    await expect(
+      transport.perform(
+        {
+          method: "get",
+          url,
+          headers: {},
+          queryParameters: {},
+          responseType: "stream",
+        },
+        requestOptions,
+      ),
+    ).rejects.toMatchObject({ type: "hook" });
+    await connectionClosed;
   }, 3000);
 
   it("allows an import to wait for headers beyond the configured timeout", async () => {

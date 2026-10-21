@@ -1,7 +1,10 @@
 import { createRequire } from "node:module";
 import { Readable } from "node:stream";
 import type { ReadStream } from "node:fs";
-import type { TypesenseRequest } from "../src/Typesense/Transport";
+import type {
+  FetchTransportOptions,
+  TypesenseRequest,
+} from "../src/Typesense/Transport";
 import { getGlobalDispatcher, setGlobalDispatcher, MockAgent } from "undici";
 import loglevel from "loglevel";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -194,7 +197,9 @@ describe.each([
       ).resolves.toBeNull();
     });
 
-    function responseFixture() {
+    function responseFixture(
+      options: Pick<FetchTransportOptions, "responseHooks"> = {},
+    ) {
       let source!: ReadableStreamDefaultController<Uint8Array>;
       let signal!: AbortSignal;
       const cancel = vi.fn();
@@ -219,6 +224,7 @@ describe.each([
         fetch: customFetch,
         connectionTimeoutSeconds: 0.05,
         errorHooks: [errorHook],
+        ...options,
       });
       return {
         transport,
@@ -326,6 +332,27 @@ describe.each([
       await other.data.cancel();
       expect(cancelled.cancel).toHaveBeenCalledOnce();
       expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it("aborts a stream when a responseHook holding its reader throws", async () => {
+      let reader!: ReadableStreamDefaultReader<Uint8Array>;
+      const fixture = responseFixture({
+        responseHooks: [
+          (response) => {
+            reader = (response.data as ReadableStream<Uint8Array>).getReader();
+            throw new Error("bad hook");
+          },
+        ],
+      });
+      await expect(
+        fixture.transport.perform(
+          { ...request, responseType: "stream" },
+          requestOptions,
+        ),
+      ).rejects.toMatchObject({ type: "hook", message: "bad hook" });
+      expect(fixture.signal.aborted).toBe(true);
+      await expect(reader.read()).rejects.toMatchObject({ type: "hook" });
+      expect(fixture.errorHook).not.toHaveBeenCalled();
     });
 
     it.each(["custom", "global"])(
