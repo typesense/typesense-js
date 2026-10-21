@@ -645,6 +645,56 @@ describe.each([
       },
     );
 
+    it.each([
+      ["leaves it unread", () => {}, false],
+      [
+        "holds its reader",
+        (stream: ReadableStream<Uint8Array>) => stream.getReader(),
+        true,
+      ],
+    ])(
+      "closes a stream when a responseHook turns its status into an error and %s",
+      async (_case, touch, aborted) => {
+        const signals: AbortSignal[] = [];
+        const cancel = vi.fn();
+        const customFetch = vi.fn<typeof fetch>(async (_url, init) => {
+          signals.push(init!.signal!);
+          return new Response(
+            new ReadableStream<Uint8Array>({
+              start(controller) {
+                controller.enqueue(new TextEncoder().encode("partial"));
+              },
+              cancel,
+            }),
+          );
+        });
+        const errorHook = vi.fn();
+        const { client } = clientWith(customFetch, {
+          responseHooks: [
+            (response: {
+              data: ReadableStream<Uint8Array>;
+              status: number;
+            }) => {
+              touch(response.data);
+              response.status = 503;
+            },
+          ],
+          errorHooks: [errorHook],
+        });
+        await expect(
+          client.collections("books").documents().exportStream(),
+        ).rejects.toBeInstanceOf(ErrorsModule.ServerError);
+        expect(customFetch).toHaveBeenCalledTimes(3);
+        expect(cancel).toHaveBeenCalledTimes(3);
+        expect(signals.map((signal) => signal.aborted)).toEqual(
+          Array(3).fill(aborted),
+        );
+        expect(
+          errorHook.mock.calls.map(([, context]) => context.errorType),
+        ).toEqual(["http", "http", "http"]);
+      },
+    );
+
     it("reports the underlying cause of network errors", async () => {
       const cases = [
         [

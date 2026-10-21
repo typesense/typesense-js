@@ -169,6 +169,15 @@ export default class FetchTransport {
         }, this.options.connectionTimeoutSeconds * 1000);
       }
     };
+    const releaseBody = async (reason: FetchTransportError) => {
+      if (responseBody?.locked) {
+        // A response hook can hold a reader, so only aborting the request
+        // releases the connection.
+        abortController.abort(reason);
+      } else if (responseBody) {
+        await responseBody.cancel().catch(() => {});
+      }
+    };
     const classifyError = (error: unknown): FetchTransportError => {
       // Cancellation takes precedence even if a body reader wraps the abort.
       if (abortType === undefined && error instanceof FetchTransportError) {
@@ -298,6 +307,22 @@ export default class FetchTransport {
       if (abortController.signal.aborted) {
         throw classifyError(abortController.signal.reason);
       }
+      if (
+        stream !== null &&
+        (response.status < 200 || response.status >= 300)
+      ) {
+        // ApiCall rejects or retries an error response without returning its
+        // data, so nothing else can release a stream a hook turned into one.
+        // A "hook" reason keeps error hooks to ApiCall's single HTTP error.
+        await releaseBody(
+          new FetchTransportError(
+            "hook",
+            `A response hook changed the status of a streamed response to ${response.status}.`,
+            { request: mutableRequest, response },
+          ),
+        );
+        return response;
+      }
 
       // A response hook that replaced the stream owns it, since its
       // replacement may still read from it, so the stream keeps its timeout
@@ -306,13 +331,7 @@ export default class FetchTransport {
       return response;
     } catch (error) {
       const transportError = classifyError(error);
-      if (responseBody?.locked) {
-        // A response hook can hold a reader, so only aborting the request
-        // releases the connection.
-        abortController.abort(transportError);
-      } else if (responseBody) {
-        await responseBody.cancel().catch(() => {});
-      }
+      await releaseBody(transportError);
       await reportError(transportError);
       throw transportError;
     } finally {

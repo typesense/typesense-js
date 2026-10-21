@@ -125,6 +125,34 @@ describe("Compiled transport over HTTP", () => {
     await connectionClosed;
   }, 3000);
 
+  it("closes the connection when a responseHook holding the stream's reader turns its status into an error", async () => {
+    let closed!: () => void;
+    const connectionClosed = new Promise<void>((resolve) => {
+      closed = resolve;
+    });
+    const url = await listen((response) => {
+      response.write("partial");
+      response.on("close", () => closed());
+    });
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      connectionTimeoutSeconds: 1,
+      numRetries: 0,
+      logLevel: "silent",
+      responseHooks: [
+        (response: TypesenseResponse) => {
+          (response.data as ReadableStream<Uint8Array>).getReader();
+          response.status = 503;
+        },
+      ],
+    });
+    await expect(
+      client.collections("books").documents().exportStream(),
+    ).rejects.toBeInstanceOf(Errors.ServerError);
+    await connectionClosed;
+  }, 3000);
+
   it("allows an import to wait for headers beyond the configured timeout", async () => {
     const url = await listen((response) => {
       const timer = setTimeout(() => response.end('{"success":true}'), 150);
