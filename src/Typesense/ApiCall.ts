@@ -254,7 +254,6 @@ export default class ApiCall implements HttpClient {
     }
 
     const requestNumber = Date.now();
-    const canRetry = !isStreamBody(bodyParameters);
     let lastException;
     this.logger.debug(
       `Request #${requestNumber}: Performing ${requestType.toUpperCase()} request: ${endpoint}`,
@@ -275,6 +274,8 @@ export default class ApiCall implements HttpClient {
         return Promise.reject(new Error("Request aborted by caller."));
       }
 
+      // A request hook can replace the body the caller passed
+      let sentBody: unknown;
       try {
         if (this.configuration.dispatcher) {
           this.logger.debug(
@@ -324,6 +325,7 @@ export default class ApiCall implements HttpClient {
           request,
           transportOptions,
         );
+        sentBody = response.request.body;
 
         if (response.status >= 1 && response.status <= 499) {
           // Treat any status code > 0 and < 500 to be an indication that node is healthy
@@ -366,6 +368,9 @@ export default class ApiCall implements HttpClient {
           // A hook failed, not the node, so there is nothing to retry
           return Promise.reject(error);
         }
+        if (error instanceof FetchTransportError) {
+          sentBody = error.request?.body;
+        }
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
         const wasAborted = this.isCallerAbortError(error);
         if (!wasAborted) {
@@ -390,7 +395,7 @@ export default class ApiCall implements HttpClient {
           this.invokeOnErrorCallback(error, streamConfig);
         }
 
-        if (!canRetry) {
+        if (isStreamBody(bodyParameters) || isStreamBody(sentBody)) {
           this.logger.debug(
             `Request #${requestNumber}: Not retrying, since a stream body can only be sent once`,
           );

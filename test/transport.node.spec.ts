@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import { Readable } from "node:stream";
 import type { ReadStream } from "node:fs";
+import type { TypesenseRequest } from "../src/Typesense/Transport";
 import { getGlobalDispatcher, setGlobalDispatcher, MockAgent } from "undici";
 import loglevel from "loglevel";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -499,6 +500,36 @@ describe.each([
       expect(error).toMatchObject({ httpStatus: 503 });
       expect(customFetch).toHaveBeenCalledOnce();
     });
+
+    it.each([
+      [
+        "server",
+        async () => Response.json({ message: "Unavailable" }, { status: 503 }),
+      ],
+      [
+        "network",
+        async () => {
+          throw new TypeError("fetch failed");
+        },
+      ],
+    ])(
+      "does not retry a stream body set by a requestHook after a %s error",
+      async (_failure, failingFetch) => {
+        const customFetch = vi.fn<typeof fetch>(failingFetch);
+        const stream = Readable.from(['{"id":"1"}']);
+        const { client } = clientWith(customFetch, {
+          requestHooks: [
+            (sent: TypesenseRequest) => {
+              sent.body = stream;
+            },
+          ],
+        });
+        await expect(
+          client.apiCall.post("/collections/books/documents/import", "x"),
+        ).rejects.toThrow();
+        expect(customFetch).toHaveBeenCalledOnce();
+      },
+    );
 
     it("reports the underlying cause of network errors", async () => {
       const cases = [
