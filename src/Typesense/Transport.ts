@@ -291,14 +291,18 @@ export default class FetchTransport {
         mutableRequest,
         responseBody,
       );
+      // Hooks can change responseType and data, but not which stream needs releasing
+      const stream = response.responseType === "stream" ? responseBody : null;
 
       await this.runResponseHooks(response, requestOptions);
       if (abortController.signal.aborted) {
         throw classifyError(abortController.signal.reason);
       }
 
-      streamReturned =
-        response.responseType === "stream" && responseBody !== null;
+      // A response hook that replaced the stream owns it, since its
+      // replacement may still read from it, so the stream keeps its timeout
+      // and caller abort until it ends.
+      streamReturned = stream !== null;
       return response;
     } catch (error) {
       const transportError = classifyError(error);

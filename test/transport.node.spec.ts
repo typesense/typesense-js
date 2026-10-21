@@ -334,6 +334,93 @@ describe.each([
       expect(vi.getTimerCount()).toBe(0);
     });
 
+    it.each([
+      ["responseType", { responseType: "text" }],
+      ["data", { data: "replacement" }],
+      ["data and responseType", { data: "replacement", responseType: "text" }],
+    ] as const)(
+      "keeps caller cancellation on a stream after a responseHook changes its %s",
+      async (_changed, changes) => {
+        const fixture = responseFixture({
+          responseHooks: [
+            (response) => {
+              Object.assign(response, changes);
+            },
+          ],
+        });
+        const abort = new AbortController();
+        await fixture.transport.perform(
+          { ...request, responseType: "stream" },
+          { ...requestOptions, abortSignal: abort.signal },
+        );
+        expect(fixture.cancel).not.toHaveBeenCalled();
+        abort.abort();
+        expect(fixture.signal.aborted).toBe(true);
+      },
+    );
+
+    it("keeps a stream that a responseHook reads from lazily after releasing it", async () => {
+      const encoder = new TextEncoder();
+      const transport = new TransportClass({
+        fetch: async () =>
+          new Response(
+            new ReadableStream({
+              start(controller) {
+                controller.enqueue(encoder.encode("A"));
+                controller.enqueue(encoder.encode("B"));
+                controller.close();
+              },
+            }),
+          ),
+        connectionTimeoutSeconds: 1,
+        responseHooks: [
+          async (response) => {
+            const original = response.data as ReadableStream<Uint8Array>;
+            const head = original.getReader();
+            const first = await head.read();
+            head.releaseLock();
+            let rest: ReadableStreamDefaultReader<Uint8Array> | undefined;
+            response.data = new ReadableStream<Uint8Array>({
+              start(controller) {
+                controller.enqueue(first.value!);
+              },
+              async pull(controller) {
+                rest ??= original.getReader();
+                const { done, value } = await rest.read();
+                if (done) controller.close();
+                else controller.enqueue(value);
+              },
+            });
+          },
+        ],
+      });
+      const response = await transport.perform(
+        { ...request, responseType: "stream" },
+        requestOptions,
+      );
+      await expect(new Response(response.data).text()).resolves.toBe("AB");
+    });
+
+    it("keeps a stream that a responseHook pipes into its replacement", async () => {
+      const fixture = responseFixture({
+        responseHooks: [
+          (response) => {
+            response.data = (
+              response.data as ReadableStream<Uint8Array>
+            ).pipeThrough(new TransformStream());
+          },
+        ],
+      });
+      const response = await fixture.transport.perform(
+        { ...request, responseType: "stream" },
+        requestOptions,
+      );
+      fixture.source.enqueue(new TextEncoder().encode("piped"));
+      fixture.source.close();
+      await expect(new Response(response.data).text()).resolves.toBe("piped");
+      expect(fixture.cancel).not.toHaveBeenCalled();
+    });
+
     it("aborts a stream when a responseHook holding its reader throws", async () => {
       let reader!: ReadableStreamDefaultReader<Uint8Array>;
       const fixture = responseFixture({
