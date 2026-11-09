@@ -108,8 +108,5 @@
   },
   "peerDependencies": {
     "@babel/runtime": "^7.23.2"
-  },
-  "engines": {
-    "node": ">=22"
   }
 }
