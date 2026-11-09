@@ -373,7 +373,8 @@ export default class ApiCall implements HttpClient {
         }
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
         const wasAborted =
-          error instanceof FetchTransportError && error.type === "abort";
+          abortSignal?.aborted === true ||
+          (error instanceof FetchTransportError && error.type === "abort");
         if (!wasAborted) {
           this.setNodeHealthcheck(node, UNHEALTHY);
         }
