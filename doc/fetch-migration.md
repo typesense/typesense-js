@@ -1,10 +1,8 @@
 # Migrating from Axios to fetch
 
-The client uses the Fetch API. Node.js 20.18.1 or later is required. Modern browsers must provide `fetch`, `AbortController`, `Response`, and Web Streams. Ordinary requests use native `fetch`. In Node.js, imports and requests with a configured dispatcher use the bundled Undici 7 fetch, because Node's native fetch uses a different Undici major on each release line and the dispatcher protocol changes between majors. Undici is excluded from browser bundles. A configured custom `fetch` always takes precedence.
+The client uses the Fetch API. Node.js 20.18.1 or later is required. Modern browsers must provide `fetch`, `AbortController`, `Response`, and Web Streams. Unless you configure a custom `fetch`, every request uses the global `fetch`, including imports and requests with a configured `dispatcher`, so tools that intercept the global `fetch`, such as msw and nock 14, see all of them (nock 13 and axios-mock-adapter don't intercept fetch). A wrapper that replaces the global `fetch` must forward `init.dispatcher`, or imports lose the timeout override described below.
 
-The SDK loads Undici the first time a request needs it, not when the SDK is imported. When Undici loads, it installs an Undici 7 `Agent` as the process-wide global dispatcher if nothing has set one yet, and Node's native fetch then uses that agent too. Call `setGlobalDispatcher()` before the first import if the process needs a different global dispatcher.
-
-Requests without a body, such as searches, no longer send `Content-Type`. In browsers, this keeps a GET search with the API key in the query string a CORS simple request, so the browser doesn't send a preflight `OPTIONS` before each search. A body that is a `Buffer`, a typed array, or an `ArrayBuffer` is sent as raw bytes. An empty object or array body is not sent, as in v3.
+Requests without a body, such as searches, no longer send `Content-Type`.
 
 ## Timeouts and cancellation
 
@@ -44,11 +42,11 @@ const client = new Typesense.Client({
 
 See [EnvHttpProxyAgent](https://github.com/nodejs/undici/blob/v7.30.0/docs/docs/api/EnvHttpProxyAgent.md). For an explicit proxy, use `new ProxyAgent("http://proxy.example.com:8080")` instead; `ProxyAgent` does not automatically apply `NO_PROXY`. See [ProxyAgent](https://github.com/nodejs/undici/blob/v7.30.0/docs/docs/api/ProxyAgent.md).
 
-Recent Node versions also support `NODE_USE_ENV_PROXY=1` for built-in fetch (22.21.0+, or 24.0.0+); see [Node's version-specific proxy configuration](https://nodejs.org/learn/http/enterprise-network-configuration). Use an explicit `EnvHttpProxyAgent` here to ensure imports use the same proxy policy, since imports supply a dispatcher to override timeouts.
+Recent Node versions also support `NODE_USE_ENV_PROXY=1` for built-in fetch (22.21.0+, or 24.0.0+); see [Node's version-specific proxy configuration](https://nodejs.org/learn/http/enterprise-network-configuration). When no `dispatcher` is configured, imports go through the same proxy, since they forward to the global dispatcher that this option sets.
 
 ## Custom CAs, client certificates, and connection pooling
 
-The SDK ignores `httpAgent`, `httpsAgent` and `axiosAdapter`, and logs a warning when they are set. Replace `httpAgent`/`httpsAgent` with an Undici 7 dispatcher. For a custom certificate authority and mutual TLS:
+The SDK ignores `httpAgent`, `httpsAgent` and `axiosAdapter`, and logs a warning when they are set. Replace `httpAgent`/`httpsAgent` with an Undici dispatcher. The SDK passes it to Node's fetch, which bundles a different Undici major on each Node release line. An Undici 7 `Agent` works with Node 20, 22, 24 and 26. An Undici 8 `Agent` works with Node 26; with Node's fetch on Node 22 and 24, requests through it fail with `invalid onRequestStart method` unless you wrap it in Undici 8's `Dispatcher1Wrapper`. For a custom certificate authority and mutual TLS:
 
 ```javascript
 import { Agent } from "undici";
@@ -129,21 +127,7 @@ const client = new Typesense.Client({
 
 Replace an Axios adapter with a fetch-compatible function that accepts `(input, init)` and returns a `Response`. Forward the complete `init` object, including `signal`, `dispatcher`, and upload `duplex`, to retain transport behavior. In Node.js, wrap Undici 7's fetch so it uses the same dispatcher protocol as the SDK's imports:
 
-```javascript
-import { fetch as compatibleFetch } from "undici";
-const client = new Typesense.Client({
-  nodes,
-  apiKey,
-  fetch: async (input, init) => {
-    const started = performance.now();
-    try {
-      return await compatibleFetch(input, init);
-    } finally {
-      recordTimeToHeaders(performance.now() - started);
-    }
-  },
-});
-```
+`client.apiCall` is internal: its types accept only lowercase methods and fetch's response types, and a `stream` response is a Web `ReadableStream`.
 
 ## Error shapes
 
@@ -182,7 +166,7 @@ When the caller aborts, client methods still reject with a plain `Error("Request
 
 ## Runtime notes
 
-`dispatcher` applies in Node.js and Deno. Bun replaces the `undici` package with its own partial implementation: Bun's fetch ignores `dispatcher`, and Bun's `Agent` has no `close()` method, so guard shutdown code that calls it. Browsers and edge runtimes have no dispatcher; use a custom `fetch` there instead.
+`dispatcher` applies in Node.js. Deno's fetch ignores it, and rejects a Node stream body whose chunks are strings, so pass `importStream()` a file stream or a stream of bytes there. Browsers and edge runtimes have no dispatcher; use a custom `fetch` there instead.
 
 Unsetting a default header with `null` or `false` in `additionalHeaders` no longer removes it entirely: fetch adds its own `Content-Type` for string bodies and `Accept: */*`.
 
