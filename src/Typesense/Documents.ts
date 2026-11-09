@@ -449,19 +449,26 @@ export default class Documents<T extends DocumentSchema = object>
   }
 
   /**
-   * Returns a Web ReadableStream of JSONL bytes for all documents in this collection.
-   * In Node.js, use Readable.fromWeb(stream) for .pipe(), .on(), and .destroy().
+   * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
    */
   async exportStream(
     options: DocumentsExportParameters = {},
-  ): Promise<ReadableStream<Uint8Array> | null> {
-    return this.apiCall.get<ReadableStream<Uint8Array> | null>(
+  ): Promise<ReadStream> {
+    const stream = await this.apiCall.get<ReadableStream<Uint8Array> | null>(
       this.endpointPath("export"),
       options,
       {
         responseType: "stream",
       },
     );
+    // Node callers pipe the result, as with v3's Axios stream
+    const nodeStream =
+      typeof process === "undefined" || !process.versions?.node
+        ? undefined
+        : process.getBuiltinModule?.("node:stream");
+    return (stream && nodeStream
+      ? nodeStream.Readable.fromWeb(stream as any)
+      : stream) as unknown as ReadStream;
   }
 }
 

@@ -18,23 +18,6 @@ A request whose body is a stream, such as `importStream()` or a stream set by a 
 
 `import()` and `importStream()` disable the SDK timer and override Undici's `headersTimeout` and `bodyTimeout` to zero at dispatch time. This works with the configured `dispatcher`, or Undici's global dispatcher when none is configured, without changing settings for other requests. Connection establishment failures and server/proxy timeouts can still fail an import. A custom fetch must honor the dispatcher options to provide the same behavior. See [Undici's timeout options](https://github.com/nodejs/undici/blob/v7.30.0/docs/docs/api/Client.md).
 
-## Export streams
-
-`exportStream()` now returns `Promise<ReadableStream<Uint8Array> | null>` in both Node.js and browsers. For existing Node `.pipe()`, `.on()`, or `.destroy()` code, convert the Web stream:
-
-```javascript
-import { Readable } from "node:stream";
-import { pipeline } from "node:stream/promises";
-import { createWriteStream } from "node:fs";
-
-const stream = await client.collections("books").documents().exportStream();
-if (stream) {
-  await pipeline(Readable.fromWeb(stream), createWriteStream("books.jsonl"));
-}
-```
-
-TypeScript projects whose DOM and Node stream types differ can use `Readable.fromWeb(stream as import("node:stream/web").ReadableStream<Uint8Array>)`. Cancelling the Web stream, or destroying its Node wrapper, releases the response and its timeout.
-
 ## Environment proxies
 
 Axios proxy environment handling is no longer implicit. Install a compatible Undici version as a direct dependency when importing its agents in your application:
@@ -215,4 +198,4 @@ const client = new Typesense.Client({
 
 Jest's `jsdom` environment has no global `fetch`, unlike the XHR that Axios used there, so requests reject with "No fetch implementation is available". Run tests that make real requests in Jest's `node` environment, or load a fetch polyfill such as `whatwg-fetch` in the test setup. Tests that only import the SDK, or that pass their own `fetch`, work in either environment.
 
-React Native's built-in fetch does not expose response bodies as streams. There, `exportStream()` resolves to `null`, and streamed conversations call `onChunk` and `onComplete` only after the whole response arrives. Use `export()` instead, or a fetch that supports streaming, such as `expo/fetch` (the global fetch from Expo SDK 56).
+In Node.js, Bun and Deno, `exportStream()` resolves to a Node `Readable`, as in v3. Cloudflare Workers with `nodejs_compat` now get a Node `Readable` too, where v3 returned a Web `ReadableStream`. In browsers and other edge runtimes, it resolves to a Web `ReadableStream`; v3 resolved to the whole export as a string there, which `export()` still returns. React Native's built-in fetch does not expose response bodies as streams. There, `exportStream()` resolves to `null`, and streamed conversations call `onChunk` and `onComplete` only after the whole response arrives. Use `export()` instead, or a fetch that supports streaming, such as `expo/fetch`.

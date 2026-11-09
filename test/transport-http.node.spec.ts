@@ -45,12 +45,10 @@ describe("Compiled transport over HTTP", () => {
       connectionTimeoutSeconds: 0.1,
     });
     const stream = await client.collections("books").documents().exportStream();
-    await expect(stream.getReader().read()).rejects.toMatchObject({
-      type: "timeout",
-    });
+    await expect(stream.toArray()).rejects.toMatchObject({ type: "timeout" });
   }, 3000);
 
-  it("streams active exports beyond the timeout and supports Readable.fromWeb", async () => {
+  it("streams active exports beyond the timeout as a Node Readable", async () => {
     const url = await listen((response) => {
       response.flushHeaders();
       let count = 0;
@@ -65,9 +63,10 @@ describe("Compiled transport over HTTP", () => {
       apiKey: "xyz",
       connectionTimeoutSeconds: 0.15,
     });
-    const web = await client.collections("books").documents().exportStream();
+    const stream = await client.collections("books").documents().exportStream();
+    expect(stream).toBeInstanceOf(Readable);
     let result = "";
-    for await (const chunk of Readable.fromWeb(web)) result += chunk.toString();
+    for await (const chunk of stream) result += chunk.toString();
     expect(result.trim().split("\n")).toHaveLength(8);
   }, 3000);
 
@@ -258,11 +257,11 @@ describe("Compiled transport over HTTP", () => {
       connectionTimeoutSeconds: 0.05,
     });
     const stream = await client.collections("books").documents().exportStream();
-    const reader = stream.getReader();
-    await reader.read();
+    const chunks = stream[Symbol.asyncIterator]();
+    await chunks.next();
     await new Promise((resolve) => setTimeout(resolve, 200));
     let done = false;
-    while (!done) ({ done } = await reader.read());
+    while (!done) ({ done } = await chunks.next());
   }, 3000);
 
   async function runFresh(script: string) {
