@@ -562,7 +562,6 @@ export default class ApiCall implements HttpClient {
       | undefined,
   ): Promise<void> {
     this.logger.debug("Found ReadableStream in response.data");
-    const reader = stream.getReader();
     // One decoder per stream keeps characters split across chunks intact
     const decoder = new TextDecoder();
     const allChunks:
@@ -574,6 +573,7 @@ export default class ApiCall implements HttpClient {
     let buffer = "";
 
     try {
+      const reader = stream.getReader();
       while (true) {
         const { done, value } = await reader.read();
 
