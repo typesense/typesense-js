@@ -1,4 +1,4 @@
-import { Client } from "../../src/Typesense";
+import { Client } from "../../../src/Typesense";
 
 const client = new Client({
   nodes: [
@@ -15,8 +15,7 @@ const client = new Client({
 async function synonymSetsExample(): Promise<void> {
   try {
     // Create a synonym set
-    const synonymSet = await client.synonymSets().upsert({
-      name: "foobar",
+    const synonymSet = await client.synonymSets("foobar").upsert({
       items: [
         {
           id: "dummy",
@@ -43,15 +42,19 @@ async function synonymSetsExample(): Promise<void> {
           type: "string",
         },
       ],
-      synonym_sets: ["foobar", "index1", "index2"],
+      synonym_sets: ["foobar"],
     });
     console.log("Created collection with synonym sets:", collection);
 
-    // Update a collection to add synonym sets
+    // Remove the synonym sets from a collection
     const updatedCollection = await client.collections("products").update({
-      synonym_sets: ["foobar", "index1", "index2", "index3"],
+      synonym_sets: [],
     });
     console.log("Updated collection:", updatedCollection);
+
+    // Delete the collection
+    const deletedCollection = await client.collections("products").delete();
+    console.log("Deleted collection:", deletedCollection);
 
     // Delete a synonym set
     const deletedSynonymSet = await client.synonymSets("foobar").delete();
