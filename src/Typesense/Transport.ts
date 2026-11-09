@@ -37,7 +37,6 @@ export interface TypesenseResponse<T = unknown> {
   status: number;
   headers: Record<string, string>;
   data: T;
-  body: ReadableStream<Uint8Array> | null;
   request: TypesenseRequest;
   responseType?: ResponseType;
 }
@@ -490,7 +489,6 @@ export default class FetchTransport {
       status: response.status,
       headers,
       data: data as T,
-      body,
       request,
       responseType,
     };
