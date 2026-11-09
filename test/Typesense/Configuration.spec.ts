@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import type { Logger } from "loglevel";
 import { Client as TypesenseClient } from "../../src/Typesense";
 import { MissingConfigurationError } from "../../src/Typesense/Errors";
 import {
@@ -195,5 +196,19 @@ describe("Configuration", function () {
         }),
       ).toBe(2);
     });
+  });
+
+  it("warns when a removed Axios option is set", function () {
+    const warn = vi.fn();
+    new TypesenseClient({
+      nodes: [{ host: "node0", protocol: "https", port: 8108 }],
+      apiKey: "abcd",
+      logger: { setLevel: () => {}, warn } as unknown as Logger,
+      // @ts-expect-error - httpAgent is no longer an option
+      httpAgent: {},
+    });
+    expect(warn).toHaveBeenCalledWith(
+      "httpAgent is no longer supported and is ignored. See the fetch migration guide.",
+    );
   });
 });

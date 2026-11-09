@@ -308,6 +308,13 @@ export default class Configuration {
         "Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12",
       );
     }
+    ["httpAgent", "httpsAgent", "axiosAdapter"].forEach((option) => {
+      if (options[option] != null) {
+        this.logger.warn(
+          `${option} is no longer supported and is ignored. See the fetch migration guide.`,
+        );
+      }
+    });
   }
 
   private shuffleArray(array) {

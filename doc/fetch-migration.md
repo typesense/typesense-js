@@ -65,7 +65,7 @@ Recent Node versions also support `NODE_USE_ENV_PROXY=1` for built-in fetch (22.
 
 ## Custom CAs, client certificates, and connection pooling
 
-Replace `httpAgent`/`httpsAgent` with an Undici 7 dispatcher. For a custom certificate authority and mutual TLS:
+The SDK ignores `httpAgent`, `httpsAgent` and `axiosAdapter`, and logs a warning when they are set. Replace `httpAgent`/`httpsAgent` with an Undici 7 dispatcher. For a custom certificate authority and mutual TLS:
 
 ```javascript
 import { Agent } from "undici";
