@@ -176,17 +176,15 @@ export default class FetchTransport {
       await this.notifyError(error, error.type, requestOptions);
     };
 
-    const cleanup = () => {
-      if (timeoutHandle !== undefined) {
-        clearTimeout(timeoutHandle);
-      }
-      if (callerAbortSignal && abortListener) {
-        callerAbortSignal.removeEventListener("abort", abortListener);
-      }
-    };
     const clearTimer = () => {
       if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
       timeoutHandle = undefined;
+    };
+    const cleanup = () => {
+      clearTimer();
+      if (callerAbortSignal && abortListener) {
+        callerAbortSignal.removeEventListener("abort", abortListener);
+      }
     };
     const resetTimeout = () => {
       clearTimer();
@@ -282,7 +280,6 @@ export default class FetchTransport {
       }
 
       const rawResponse = await fetchFn(url, init);
-      if (isNodeJSEnvironment) resetTimeout();
       responseBody = rawResponse.body
         ? this.managedBody(rawResponse.body, {
             signal: abortController.signal,
