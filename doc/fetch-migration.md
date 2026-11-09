@@ -99,7 +99,7 @@ const client = new Typesense.Client({
 });
 ```
 
-Replace an Axios adapter with a fetch-compatible function that accepts `(input, init)` and returns a `Response`. Forward the complete `init` object, including `signal`, `dispatcher`, and upload `duplex`, to retain transport behavior. In Node.js, wrap Undici 7's fetch so it uses the same dispatcher protocol as the SDK's imports:
+Replace `axiosAdapter` with the `fetch` option, a function that accepts `(input, init)` and returns a `Response`. Forward the complete `init` object, including `signal`, `dispatcher`, and upload `duplex`, to retain transport behavior. Its `Response.body` must be a Web `ReadableStream` or absent; a fetch that returns a Node stream body, such as node-fetch 2 or cross-fetch in Node.js, fails every request.
 
 `client.apiCall` is internal: its types accept only lowercase methods and fetch's response types, and a `stream` response is a Web `ReadableStream`.
 
@@ -109,13 +109,13 @@ Errors from HTTP responses keep their v3 classes and fields: `ObjectNotFound`, `
 
 Network failures and timeouts are now `Errors.FetchTransportError` instead of `AxiosError`, and an invalid JSON response is one too, instead of a `SyntaxError`. Its `type` is one of:
 
-| `type`    | Cause                                           | Retried | Node marked unhealthy |
-| --------- | ----------------------------------------------- | ------- | --------------------- |
-| `network` | The request or response body failed to transfer | Yes     | Yes                   |
-| `timeout` | `connectionTimeoutSeconds` elapsed              | Yes     | Yes                   |
-| `parse`   | A JSON response body was invalid                | Yes     | Yes                   |
-| `abort`   | The caller's `abortSignal` fired                | No      | No                    |
-| `hook`    | A request or response hook threw                | No      | No                    |
+| `type`    | Cause                                    | Retried | Node marked unhealthy |
+| --------- | ---------------------------------------- | ------- | --------------------- |
+| `network` | The connection or a body transfer failed | Yes     | Yes                   |
+| `timeout` | `connectionTimeoutSeconds` elapsed       | Yes     | Yes                   |
+| `parse`   | A JSON response body was invalid         | Yes     | Yes                   |
+| `abort`   | The caller's `abortSignal` fired         | No      | No                    |
+| `hook`    | A request or response hook threw         | No      | No                    |
 
 For network errors, `message` and `code` come from the underlying socket or Undici error, for example `connect ECONNREFUSED 127.0.0.1:8108` with `code: "ECONNREFUSED"`, or `UND_ERR_HEADERS_TIMEOUT`. The original error is in `originalError`, and the failed request in `request`. Browsers don't expose the cause of a network error, so there `message` is the browser's, such as `Failed to fetch`, and `code` is undefined.
 
@@ -142,7 +142,7 @@ When the caller aborts, client methods still reject with a plain `Error("Request
 
 `dispatcher` applies in Node.js. Deno's fetch ignores it, and rejects a Node stream body whose chunks are strings, so pass `importStream()` a file stream or a stream of bytes there. Browsers and edge runtimes have no dispatcher; use a custom `fetch` there instead.
 
-Unsetting a default header with `null` or `false` in `additionalHeaders` no longer removes it entirely: fetch adds its own `Content-Type` for string bodies and `Accept: */*`.
+Fetch ignores a `Host` header in `additionalHeaders`, and in Node.js Undici rejects `Keep-Alive`, `Expect`, `Transfer-Encoding` and `Upgrade` headers, so a request that sets one fails with a `network` `FetchTransportError`. Fetch also refuses ports on the Fetch standard's blocklist, such as 6000, 6665-6669 and 10080; in Node.js and Deno a node on one of them fails with a `network` error. Unsetting a default header with `null` or `false` in `additionalHeaders` no longer removes it entirely: fetch adds its own `Content-Type` for string bodies and `Accept: */*`.
 
 Next.js 14 caches `fetch` requests by default, and later versions can still cache requests made while rendering static routes. To always query Typesense, pass a fetch that opts out of the cache:
 
