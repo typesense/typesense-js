@@ -30,7 +30,6 @@ export interface FetchMockRequest {
   baseUrl: string;
   headers: Record<string, string>;
   body?: unknown;
-  data?: unknown;
   params: Record<string, string>;
 }
 
@@ -87,14 +86,6 @@ export class FetchMock {
 
   onPost(url?: string): FetchMockHandlerBuilder {
     return this.addHandler("post", url);
-  }
-
-  onPut(url?: string): FetchMockHandlerBuilder {
-    return this.addHandler("put", url);
-  }
-
-  onPatch(url?: string): FetchMockHandlerBuilder {
-    return this.addHandler("patch", url);
   }
 
   private addHandler(
@@ -166,11 +157,10 @@ export class FetchMock {
     input: string | URL | Request,
     init?: RequestInit,
   ): Promise<FetchMockRequest> {
-    const request = input instanceof Request ? input : undefined;
-    const url = request ? request.url : String(input);
-    const method = (init?.method || request?.method || "GET").toLowerCase();
-    const headers = this.headersFrom(init?.headers || request?.headers);
-    const body = init?.body ?? (request ? await request.text() : undefined);
+    const url = String(input);
+    const method = (init?.method || "GET").toLowerCase();
+    const headers = this.headersFrom(init?.headers);
+    const body = init?.body;
     const parsedUrl = new URL(url);
 
     return {
@@ -179,7 +169,6 @@ export class FetchMock {
       baseUrl: `${parsedUrl.origin}${parsedUrl.pathname}`,
       headers,
       body,
-      data: body,
       params: Object.fromEntries(parsedUrl.searchParams.entries()),
     };
   }
