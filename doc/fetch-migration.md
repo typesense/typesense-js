@@ -6,9 +6,7 @@ Requests without a body, such as searches, no longer send `Content-Type`.
 
 ## Timeouts and cancellation
 
-Caller cancellation remains separate from network failures: it does not retry or mark a node unhealthy, including cancellation while reading the body. Invalid JSON is a parsing error; failed body transfers are network errors.
-
-`connectionTimeoutSeconds` remains active until the response body finishes or is cancelled. In Node.js it limits how long the request waits for headers and how long each body read waits for data, so a stream can run longer than the configured timeout, and a reader can pause between reads for as long as it likes. In browsers it is a total request timeout. Consume or cancel returned streams to release resources. Errors after a stream is returned reject its reader and notify `errorHooks`; the SDK cannot replay an already delivered stream.
+`connectionTimeoutSeconds` remains active until the response body finishes or is cancelled. In Node.js it limits how long the request waits for headers and how long each body read waits for data, so a stream can run longer than the configured timeout, and a reader can pause between reads for as long as it likes. In browsers it is a total request timeout. Consume or cancel returned streams to release resources.
 
 A request whose body is a stream, such as `importStream()` or a stream set by a request hook, is sent once. If it fails, the SDK rejects with that error instead of retrying on the next node, because the stream has already been consumed. A failed `import()` with a string or array body is retried as before.
 
@@ -24,7 +22,7 @@ Axios proxy environment handling is no longer implicit. Install a compatible Und
 npm install undici@7
 ```
 
-Use `EnvHttpProxyAgent` on the supported Node versions to respect `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` (and their lowercase equivalents):
+Use `EnvHttpProxyAgent` to respect `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` (and their lowercase equivalents):
 
 ```javascript
 import Typesense from "typesense";
@@ -67,35 +65,9 @@ Omit `cert` and `key` when client authentication is not needed. An explicit `ca`
 
 ## Query serialization
 
-Default serialization supports scalars and flat arrays. Null and undefined values are omitted; arrays use bracketed keys, preserving `key[]=a&key[]=b` (brackets are URL encoded). Values are converted with `String()` and encoded with `URLSearchParams`. Typesense search parameters that the SDK already joins with commas retain that behavior.
+Default serialization supports scalars and flat arrays. Null and undefined values are omitted; arrays use bracketed keys, preserving `key[]=a&key[]=b` (brackets are URL encoded). Values are converted with `String()` and encoded with `URLSearchParams`.
 
-The supported custom contract is a function or `{ serialize(params) }`. Axios `indexes`, `encode`, nested-object expansion, and automatic date conversion are not supported. Supply the full serializer when those behaviors matter. For example, to keep indexed arrays:
-
-```javascript
-const client = new Typesense.Client({
-  nodes,
-  apiKey,
-  paramsSerializer: {
-    serialize(params) {
-      const query = new URLSearchParams();
-      for (const [key, value] of Object.entries(params)) {
-        if (value == null) continue;
-        if (Array.isArray(value)) {
-          value.forEach((entry, index) => {
-            if (entry != null) query.append(`${key}[${index}]`, String(entry));
-          });
-        } else {
-          query.append(
-            key,
-            value instanceof Date ? value.toISOString() : String(value),
-          );
-        }
-      }
-      return query.toString();
-    },
-  },
-});
-```
+The supported custom contract is a function or `{ serialize(params) }`. Axios `indexes`, `encode`, nested-object expansion, and automatic date conversion are not supported. Supply the full serializer when those behaviors matter.
 
 ## Axios interceptors and adapters
 
