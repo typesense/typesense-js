@@ -1,6 +1,8 @@
 import ApiCall from "./ApiCall";
 import SynonymSets, { SynonymItemSchema } from "./SynonymSets";
 
+export type SynonymItemUpsertSchema = Omit<SynonymItemSchema, "id">;
+
 export interface SynonymSetItemDeleteSchema {
   id: string;
 }
@@ -14,6 +16,10 @@ export default class SynonymSetItem {
 
   async retrieve(): Promise<SynonymItemSchema> {
     return this.apiCall.get<SynonymItemSchema>(this.endpointPath());
+  }
+
+  async upsert(params: SynonymItemUpsertSchema): Promise<SynonymItemSchema> {
+    return this.apiCall.put<SynonymItemSchema>(this.endpointPath(), params);
   }
 
   async delete(): Promise<SynonymSetItemDeleteSchema> {
