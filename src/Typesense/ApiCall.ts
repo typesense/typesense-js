@@ -508,7 +508,7 @@ export default class ApiCall implements HttpClient {
   }
 
   private async handleStreamingResponse<T>(
-    response: TypesenseResponse,
+    response: TypesenseResponse<any>,
     streamConfig:
       | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
       | undefined,
@@ -517,8 +517,8 @@ export default class ApiCall implements HttpClient {
 
     return new Promise<T>(async (resolve, reject) => {
       try {
-        if (this.isReadableStream(response.data)) {
-          return this.handleReadableStream<T>(
+        if (response.data && typeof response.data.getReader === "function") {
+          return this.handleBrowserReadableStream<T>(
             response.data,
             resolve,
             reject,
@@ -528,7 +528,7 @@ export default class ApiCall implements HttpClient {
         }
 
         if (typeof response.data === "string") {
-          return this.handleStringStreamResponse<T>(
+          return this.handleBrowserStringResponse<T>(
             response.data,
             resolve,
             response,
@@ -538,12 +538,7 @@ export default class ApiCall implements HttpClient {
 
         if (typeof response.data === "object" && response.data !== null) {
           this.logger.debug("No stream found, but data object is available");
-          this.invokeOnCompleteCallback(
-            response.data as SearchResponse<
-              T extends DocumentSchema ? T : DocumentSchema
-            >,
-            streamConfig,
-          );
+          this.invokeOnCompleteCallback(response.data, streamConfig);
           return resolve(response.data as T);
         }
 
@@ -557,11 +552,11 @@ export default class ApiCall implements HttpClient {
     });
   }
 
-  private async handleReadableStream<T>(
+  private async handleBrowserReadableStream<T>(
     stream: any,
     resolve: (value: T) => void,
     reject: (reason?: any) => void,
-    response: TypesenseResponse,
+    response: TypesenseResponse<any>,
     streamConfig:
       | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
       | undefined,
@@ -610,10 +605,10 @@ export default class ApiCall implements HttpClient {
     }
   }
 
-  private handleStringStreamResponse<T>(
+  private handleBrowserStringResponse<T>(
     data: string,
     resolve: (value: T) => void,
-    response: TypesenseResponse,
+    response: TypesenseResponse<any>,
     streamConfig:
       | StreamConfig<T extends DocumentSchema ? T : DocumentSchema>
       | undefined,
@@ -639,23 +634,9 @@ export default class ApiCall implements HttpClient {
     } else {
       // If no chunks were processed, use the original response
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(
-        response.data as SearchResponse<
-          T extends DocumentSchema ? T : DocumentSchema
-        >,
-        streamConfig,
-      );
+      this.invokeOnCompleteCallback(response.data, streamConfig);
       resolve(response.data as T);
     }
-  }
-
-  private isReadableStream(data: unknown): data is ReadableStream<Uint8Array> {
-    return (
-      typeof data === "object" &&
-      data !== null &&
-      "getReader" in data &&
-      typeof (data as { getReader?: unknown }).getReader === "function"
-    );
   }
 
   private processStreamLines<T extends DocumentSchema>(
@@ -682,7 +663,7 @@ export default class ApiCall implements HttpClient {
         ]
       | [],
     resolve: (value: T) => void,
-    response: TypesenseResponse,
+    response: TypesenseResponse<any>,
     streamConfig?: StreamConfig<T extends DocumentSchema ? T : DocumentSchema>,
   ): void {
     if (allChunks.length > 0) {
@@ -692,12 +673,7 @@ export default class ApiCall implements HttpClient {
       resolve(finalResult as unknown as T);
     } else {
       this.logger.debug("No chunks processed, returning original API response");
-      this.invokeOnCompleteCallback(
-        response.data as SearchResponse<
-          T extends DocumentSchema ? T : DocumentSchema
-        >,
-        streamConfig,
-      );
+      this.invokeOnCompleteCallback(response.data, streamConfig);
       resolve(response.data as T);
     }
   }
