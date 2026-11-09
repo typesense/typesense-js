@@ -516,10 +516,7 @@ export default class FetchTransport {
       return "";
     }
 
-    if (
-      responseType === "json" ||
-      contentType.toLowerCase().startsWith("application/json")
-    ) {
+    if (contentType.toLowerCase().startsWith("application/json")) {
       try {
         return JSON.parse(text);
       } catch (error) {
