@@ -147,6 +147,21 @@ export default class FetchTransport {
     }
 
     await this.runRequestHooks(mutableRequest, requestOptions);
+    // A serialization error reaches the caller as thrown, as with Axios
+    const url = this.urlWithQueryParameters(
+      mutableRequest.url,
+      mutableRequest.queryParameters,
+    );
+    const body = this.serializedBody(mutableRequest);
+    mutableRequest.url = url;
+    mutableRequest.body = body;
+    if (body === undefined) {
+      // A bodyless GET with Content-Type is not a CORS simple request, so
+      // browsers would send a preflight before every search.
+      Object.keys(mutableRequest.headers)
+        .filter((name) => name.toLowerCase() === "content-type")
+        .forEach((name) => delete mutableRequest.headers[name]);
+    }
 
     const abortController = new AbortController();
     let abortType: "caller" | "timeout" | undefined;
@@ -245,20 +260,6 @@ export default class FetchTransport {
           ? await this.importDispatcher()
           : (this.options.dispatcher ?? undefined);
       const fetchFn = this.fetchFn();
-      const url = this.urlWithQueryParameters(
-        mutableRequest.url,
-        mutableRequest.queryParameters,
-      );
-      const body = this.serializedBody(mutableRequest);
-      mutableRequest.url = url;
-      mutableRequest.body = body;
-      if (body === undefined) {
-        // A bodyless GET with Content-Type is not a CORS simple request, so
-        // browsers would send a preflight before every search.
-        Object.keys(mutableRequest.headers)
-          .filter((name) => name.toLowerCase() === "content-type")
-          .forEach((name) => delete mutableRequest.headers[name]);
-      }
 
       const init: RequestInit & { dispatcher?: unknown; duplex?: "half" } = {
         method: mutableRequest.method.toUpperCase(),

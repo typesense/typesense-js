@@ -816,16 +816,16 @@ describe.each([
         requestHooks: [() => {}],
         errorHooks: [errorHook],
       });
+      const boom = new Error("boom");
       const error = await client.apiCall
         .post("/collections/books/documents", {
           get title(): string {
-            throw new Error("boom");
+            throw boom;
           },
         })
         .catch((caught: unknown) => caught);
-      expect(error).toBeInstanceOf(ErrorClass);
-      expect(error).toMatchObject({ type: "network", message: "boom" });
-      expect(errorHook).toHaveBeenCalledOnce();
+      expect(error).toBe(boom);
+      expect(errorHook).not.toHaveBeenCalled();
       expect(customFetch).not.toHaveBeenCalled();
     });
 
