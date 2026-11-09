@@ -86,7 +86,7 @@ async function runExample() {
 
     // retrieve stopword set
     result = await typesense.stopwords("common-words").retrieve();
-    (console.dir(result), { depth: null });
+    console.dir(result), { depth: null };
 
     // retrieve all stopword sets
     result = await typesense.stopwords().retrieve();
@@ -99,12 +99,9 @@ async function runExample() {
       .search({
         q: "the acme",
         query_by: "company_name",
-        stopwords: "common-words",
+        stopwords: "common-words"
       });
-    console.dir(
-      searchResults.hits.map((h) => h.highlight),
-      { depth: null },
-    );
+    console.dir(searchResults.hits.map(h => h.highlight), { depth: null });
   } catch (error) {
     console.dir(error, { depth: null });
   } finally {
