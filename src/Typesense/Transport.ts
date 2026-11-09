@@ -127,6 +127,16 @@ export default class FetchTransport {
       headers: { ...request.headers },
       queryParameters: { ...request.queryParameters },
     };
+    if (this.options.requestHooks?.length) {
+      try {
+        mutableRequest.queryParameters = copiedPlainData(
+          mutableRequest.queryParameters,
+        ) as Record<string, unknown>;
+        mutableRequest.bodyParameters = copiedPlainData(request.bodyParameters);
+      } catch {
+        // A getter threw. Serialization below fails as it does without hooks.
+      }
+    }
 
     await this.runRequestHooks(mutableRequest, requestOptions);
 
@@ -673,6 +683,48 @@ export default class FetchTransport {
       nodeIndex: requestOptions.nodeIndex,
     };
   }
+}
+
+// Request hooks edit these copies, not the caller's values or a later retry.
+// Non-plain values pass through: copying a Date or class instance breaks it.
+function copiedPlainData(
+  value: unknown,
+  copies = new WeakMap<object, unknown>(),
+): unknown {
+  if (typeof value !== "object" || value === null) return value;
+
+  const prototype = Object.getPrototypeOf(value);
+  const isArray = Array.isArray(value);
+  const isPlain = isArray
+    ? prototype === Array.prototype
+    : prototype === Object.prototype || prototype === null;
+  if (!isPlain || ("toJSON" in value && typeof value.toJSON === "function")) {
+    return value;
+  }
+
+  if (copies.has(value)) return copies.get(value);
+
+  if (isArray) {
+    const copy: unknown[] = new Array(value.length);
+    copies.set(value, copy);
+    value.forEach((entry, index) => {
+      copy[index] = copiedPlainData(entry, copies);
+    });
+    return copy;
+  }
+
+  const copy = Object.create(prototype);
+  copies.set(value, copy);
+  for (const [key, entry] of Object.entries(value)) {
+    // Assigning would turn an own "__proto__" key into a prototype change
+    Object.defineProperty(copy, key, {
+      value: copiedPlainData(entry, copies),
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+  }
+  return copy;
 }
 
 // Streams can be sent only once, so requests with one are not retried.

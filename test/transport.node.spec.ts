@@ -645,6 +645,154 @@ describe.each([
       },
     );
 
+    it("gives requestHooks a copy of the body on every attempt", async () => {
+      const customFetch = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(
+          Response.json({ message: "Unavailable" }, { status: 503 }),
+        )
+        .mockResolvedValueOnce(Response.json({ id: "1" }));
+      const { client } = clientWith(customFetch, {
+        requestHooks: [
+          (sent: TypesenseRequest) => {
+            (sent.bodyParameters as { tags: string[] }).tags.push("hooked");
+          },
+        ],
+      });
+      const document = Object.freeze({ id: "1", tags: Object.freeze([]) });
+      await client.collections("books").documents().create(document);
+      expect(customFetch.mock.calls.map(([, init]) => init!.body)).toEqual([
+        '{"id":"1","tags":["hooked"]}',
+        '{"id":"1","tags":["hooked"]}',
+      ]);
+    });
+
+    it("gives requestHooks the body's values before serialization", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+      const { client } = clientWith(customFetch, {
+        requestHooks: [
+          (sent: TypesenseRequest) => {
+            const body = sent.bodyParameters as { published_at: unknown };
+            if (body.published_at instanceof Date) {
+              body.published_at = body.published_at.getTime() / 1000;
+            }
+          },
+        ],
+      });
+      const publishedAt = new Date(1_000_000);
+      const document = { id: "1", published_at: publishedAt };
+      await client.collections("books").documents().create(document);
+      expect(document.published_at).toBe(publishedAt);
+      expect(customFetch.mock.calls[0][1]!.body).toBe(
+        '{"id":"1","published_at":1000}',
+      );
+    });
+
+    it("sends the same body when a requestHook changes nothing", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+      const { client } = clientWith(customFetch, { requestHooks: [() => {}] });
+      await client.apiCall.patch("/collections/books/documents/1", {
+        title: undefined,
+      });
+      const init = customFetch.mock.calls[0][1]!;
+      expect(init.body).toBe("{}");
+      expect(new Headers(init.headers).get("content-type")).toBe(
+        "application/json",
+      );
+    });
+
+    it("gives requestHooks a copy of nested query values on every attempt", async () => {
+      const customFetch = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(
+          Response.json({ message: "Unavailable" }, { status: 503 }),
+        )
+        .mockResolvedValueOnce(Response.json({}));
+      const { client } = clientWith(customFetch, {
+        requestHooks: [
+          (sent: TypesenseRequest) => {
+            (sent.queryParameters.tags as string[]).push("hooked");
+          },
+        ],
+      });
+      const query = { tags: ["a"] };
+      await client.apiCall.get("/collections", query);
+      expect(query).toEqual({ tags: ["a"] });
+      expect(
+        customFetch.mock.calls.map(([url]) =>
+          new URL(String(url)).searchParams.getAll("tags[]"),
+        ),
+      ).toEqual([
+        ["a", "hooked"],
+        ["a", "hooked"],
+      ]);
+    });
+
+    it("gives requestHooks a copy of query parameters that aren't a plain object", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+      const transport = new TransportClass({
+        fetch: customFetch,
+        connectionTimeoutSeconds: 1,
+        requestHooks: [
+          (sent: TypesenseRequest) => {
+            sent.queryParameters.q = "hooked";
+          },
+        ],
+      });
+      class Query {
+        q = "a";
+      }
+      const queryParameters = new Query();
+      await transport.perform({ ...request, queryParameters }, requestOptions);
+      expect(queryParameters.q).toBe("a");
+      expect(
+        new URL(String(customFetch.mock.calls[0][0])).searchParams.get("q"),
+      ).toBe("hooked");
+    });
+
+    it("keeps shared references and cycles in the copy a requestHook gets", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+      type Body = { a: { n: number; parent?: unknown }; b: { n: number } };
+      const { client } = clientWith(customFetch, {
+        requestHooks: [
+          (sent: TypesenseRequest) => {
+            const body = sent.bodyParameters as Body;
+            body.a.n++;
+            delete body.a.parent;
+          },
+        ],
+      });
+      const shared: Body["a"] = { n: 0 };
+      const document: Body = { a: shared, b: shared };
+      shared.parent = document;
+      await client.apiCall.post("/collections/books/documents", document);
+      expect(shared).toEqual({ n: 0, parent: document });
+      expect(customFetch.mock.calls[0][1]!.body).toBe(
+        '{"a":{"n":1},"b":{"n":1}}',
+      );
+    });
+
+    it("keeps the serialization error of a body whose getter throws", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+      const errorHook = vi.fn();
+      const { client } = clientWith(customFetch, {
+        numRetries: 0,
+        requestHooks: [() => {}],
+        errorHooks: [errorHook],
+      });
+      const error = await client.apiCall
+        .post("/collections/books/documents", {
+          get title(): string {
+            throw new Error("boom");
+          },
+        })
+        .catch((caught: unknown) => caught);
+      expect(error).toBeInstanceOf(ErrorClass);
+      expect(error).toMatchObject({ type: "network", message: "boom" });
+      expect(errorHook).toHaveBeenCalledOnce();
+      expect(customFetch).not.toHaveBeenCalled();
+    });
+
     it.each([
       ["leaves it unread", () => {}, false],
       [
