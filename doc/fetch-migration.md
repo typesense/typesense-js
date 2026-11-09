@@ -186,7 +186,7 @@ import { Errors } from "typesense";
 try {
   await client.collections("books").retrieve();
 } catch (error) {
-  // Before: axios.isAxiosError(error), error.code === "ECONNABORTED"
+  // Before: axios.isAxiosError(error)
   if (error instanceof Errors.FetchTransportError && error.type === "timeout") {
     // retry later
   } else if (error instanceof Errors.ObjectNotFound) {

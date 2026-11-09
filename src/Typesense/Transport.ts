@@ -225,8 +225,12 @@ export default class FetchTransport {
       if (abortType === "timeout") {
         return new FetchTransportError(
           "timeout",
-          `Request timed out after ${this.options.connectionTimeoutSeconds} seconds.`,
-          { request: mutableRequest, originalError: error },
+          `timeout of ${this.options.connectionTimeoutSeconds * 1000}ms exceeded`,
+          {
+            code: "ECONNABORTED",
+            request: mutableRequest,
+            originalError: error,
+          },
         );
       }
       return new FetchTransportError("network", networkErrorMessage(error), {

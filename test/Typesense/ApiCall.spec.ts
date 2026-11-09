@@ -592,7 +592,7 @@ describe("ApiCall", () => {
       );
     });
 
-    it("classifies SDK timeouts separately from caller aborts", async () => {
+    it("rejects an SDK timeout with Axios's message and code", async () => {
       mockFetch.restore();
       const errorHook = vi.fn();
       const customFetch = vi.fn<typeof fetch>(
@@ -610,9 +610,10 @@ describe("ApiCall", () => {
       });
       const apiCall = new ApiCall(typesense.configuration);
 
-      await expect(apiCall.get("/collections")).rejects.toThrow(
-        "Request timed out after 0.001 seconds.",
-      );
+      await expect(apiCall.get("/collections")).rejects.toMatchObject({
+        message: "timeout of 1ms exceeded",
+        code: "ECONNABORTED",
+      });
       expect(errorHook).toHaveBeenCalledWith(
         expect.any(Error),
         expect.objectContaining({ errorType: "timeout" }),
