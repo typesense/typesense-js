@@ -76,7 +76,7 @@ describe("SearchClient", function () {
 
     mockFetch.onPost("http://node0:8108/multi_search").reply((config) => {
       expect(config.params["x-typesense-api-key"]).toBeUndefined();
-      expect(config.headers).toMatchObject({
+      expect(config.headers).toEqual({
         accept: "application/json, text/plain, */*",
         "content-type": "text/plain",
         "x-typesense-api-key": longApiKey,
