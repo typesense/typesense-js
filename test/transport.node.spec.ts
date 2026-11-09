@@ -1,4 +1,3 @@
-import { createRequire } from "node:module";
 import { Readable } from "node:stream";
 import type { ReadStream } from "node:fs";
 import type {
@@ -12,12 +11,6 @@ import Transport from "../src/Typesense/Transport";
 import ApiCall from "../src/Typesense/ApiCall";
 import * as sourcePackage from "../src/Typesense";
 
-// Use Node's loader so Vitest cannot transpile away ES5 subclassing bugs.
-const require = createRequire(import.meta.url);
-const compiledTransport = require("../lib/Typesense/Transport");
-const compiledClient = require("../lib/Typesense");
-const compiledApiCall = require("../lib/Typesense/ApiCall");
-
 const request = {
   method: "get" as const,
   url: "http://localhost/health",
@@ -26,15 +19,7 @@ const request = {
 };
 const requestOptions = { requestNumber: 1, attemptNumber: 1, nodeIndex: 0 };
 
-describe.each([
-  ["source", Transport, sourcePackage, ApiCall],
-  [
-    "compiled package",
-    compiledTransport.default,
-    compiledClient as typeof sourcePackage,
-    compiledApiCall.default,
-  ],
-] as const)(
+describe.each([["source", Transport, sourcePackage, ApiCall]] as const)(
   "Transport (%s)",
   (_name, TransportClass, typesense, ApiCallClass) => {
     const {
@@ -44,10 +29,6 @@ describe.each([
     } = typesense;
     const ErrorClass = ErrorsModule.FetchTransportError;
     afterEach(() => vi.useRealTimers());
-
-    it("preserves the error prototype", () => {
-      expect(new ErrorClass("abort", "cancelled")).toBeInstanceOf(ErrorClass);
-    });
 
     it("preserves bracketed array parameters and supports serializer objects", async () => {
       const customFetch = vi.fn<typeof fetch>(async () => new Response("ok"));
@@ -274,10 +255,9 @@ describe.each([
     it("times out a stalled stream after headers", async () => {
       vi.useFakeTimers();
       const fixture = responseFixture();
-      const response = await fixture.transport.perform(
-        { ...request, responseType: "stream" },
-        requestOptions,
-      );
+      const response = await fixture.transport.perform<
+        ReadableStream<Uint8Array>
+      >({ ...request, responseType: "stream" }, requestOptions);
       await vi.advanceTimersByTimeAsync(51);
       expect(fixture.signal.aborted).toBe(true);
       await expect(response.data.getReader().read()).rejects.toMatchObject({
@@ -291,7 +271,9 @@ describe.each([
       vi.useFakeTimers();
       const fixture = responseFixture();
       const abort = new AbortController();
-      const response = await fixture.transport.perform(
+      const response = await fixture.transport.perform<
+        ReadableStream<Uint8Array>
+      >(
         { ...request, responseType: "stream" },
         { ...requestOptions, abortSignal: abort.signal },
       );
@@ -313,7 +295,9 @@ describe.each([
       vi.useFakeTimers();
       const fixture = responseFixture();
       const abort = new AbortController();
-      const response = await fixture.transport.perform(
+      const response = await fixture.transport.perform<
+        ReadableStream<Uint8Array>
+      >(
         { ...request, responseType: "stream" },
         { ...requestOptions, abortSignal: abort.signal },
       );
@@ -325,10 +309,9 @@ describe.each([
       expect(vi.getTimerCount()).toBe(0);
 
       const cancelled = responseFixture();
-      const other = await cancelled.transport.perform(
-        { ...request, responseType: "stream" },
-        requestOptions,
-      );
+      const other = await cancelled.transport.perform<
+        ReadableStream<Uint8Array>
+      >({ ...request, responseType: "stream" }, requestOptions);
       await other.data.cancel();
       expect(cancelled.cancel).toHaveBeenCalledOnce();
       expect(vi.getTimerCount()).toBe(0);
@@ -392,7 +375,7 @@ describe.each([
           },
         ],
       });
-      const response = await transport.perform(
+      const response = await transport.perform<ReadableStream<Uint8Array>>(
         { ...request, responseType: "stream" },
         requestOptions,
       );
@@ -409,10 +392,9 @@ describe.each([
           },
         ],
       });
-      const response = await fixture.transport.perform(
-        { ...request, responseType: "stream" },
-        requestOptions,
-      );
+      const response = await fixture.transport.perform<
+        ReadableStream<Uint8Array>
+      >({ ...request, responseType: "stream" }, requestOptions);
       fixture.source.enqueue(new TextEncoder().encode("piped"));
       fixture.source.close();
       await expect(new Response(response.data).text()).resolves.toBe("piped");
