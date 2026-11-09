@@ -119,17 +119,22 @@ describe("Documents Import Abort Signal Tests", () => {
   it("should pass the abort signal for a stream import", async () => {
     const abortController = new AbortController();
     const stream = createReadStream(fileURLToPath(import.meta.url));
+    mockFetch.resetHandlers();
+    mockFetch.onPost().reply(() => {
+      abortController.abort();
+      return [200, '{"success":true}'];
+    });
 
     try {
-      await typesense
-        .collections("companies")
-        .documents()
-        .importStream(stream, {}, { abortSignal: abortController.signal });
+      await expect(
+        typesense
+          .collections("companies")
+          .documents()
+          .importStream(stream, {}, { abortSignal: abortController.signal }),
+      ).rejects.toThrow("Request aborted by caller.");
     } finally {
       stream.destroy();
     }
-
-    expect(fetchSignal()).toBeInstanceOf(AbortSignal);
   });
 
   it("should accept the abort signal through WriteableDocuments", async () => {
