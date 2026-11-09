@@ -346,7 +346,7 @@ export default class ApiCall implements HttpClient {
 
         const error = this.customErrorForResponse(
           response,
-          this.messageFromResponseData(response.data),
+          (response.data as any)?.message,
           // The body as the caller passed it, like v3's Axios config.data
           response.request.body === undefined ? undefined : bodyParameters,
         );
@@ -372,7 +372,8 @@ export default class ApiCall implements HttpClient {
           sentBody = error.request?.body;
         }
         // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
-        const wasAborted = this.isCallerAbortError(error);
+        const wasAborted =
+          error instanceof FetchTransportError && error.type === "abort";
         if (!wasAborted) {
           this.setNodeHealthcheck(node, UNHEALTHY);
         }
@@ -911,19 +912,6 @@ export default class ApiCall implements HttpClient {
     });
 
     return result;
-  }
-
-  private isCallerAbortError(error: unknown): boolean {
-    return error instanceof FetchTransportError && error.type === "abort";
-  }
-
-  private messageFromResponseData(data: unknown): string {
-    return typeof data === "object" &&
-      data !== null &&
-      "message" in data &&
-      typeof (data as Record<string, unknown>).message === "string"
-      ? ((data as Record<string, unknown>).message as string)
-      : "";
   }
 
   async timer(seconds): Promise<void> {
