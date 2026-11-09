@@ -33,6 +33,13 @@ async function synonymSetsExample(): Promise<void> {
     const specificSynonymSet = await client.synonymSets("foobar").retrieve();
     console.log("Specific synonym set:", specificSynonymSet);
 
+    // Upsert a single item in a synonym set
+    const synonymSetItem = await client
+      .synonymSets("foobar")
+      .items("dummy")
+      .upsert({ synonyms: ["foo", "bar", "baz", "qux"] });
+    console.log("Upserted synonym set item:", synonymSetItem);
+
     // Create a collection with synonym sets
     const collection = await client.collections().create({
       name: "products",
