@@ -766,12 +766,23 @@ describe.each([["source", Transport, sourcePackage, ApiCall]] as const)(
       );
     });
 
+    it("serializes a body value with a non-enumerable toJSON when a requestHook is set", async () => {
+      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
+      const { client } = clientWith(customFetch, { requestHooks: [() => {}] });
+      const tags = Object.defineProperty({ a: 1 }, "toJSON", {
+        value: () => ["x"],
+      });
+      await client.apiCall.post("/collections/books/documents", { tags });
+      expect(customFetch.mock.calls[0][1]!.body).toBe('{"tags":["x"]}');
+    });
+
     it("keeps the serialization error of a body whose getter throws", async () => {
       const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
       const errorHook = vi.fn();
+      const requestHook = vi.fn();
       const { client } = clientWith(customFetch, {
         numRetries: 0,
-        requestHooks: [() => {}],
+        requestHooks: [requestHook],
         errorHooks: [errorHook],
       });
       const boom = new Error("boom");
@@ -783,6 +794,7 @@ describe.each([["source", Transport, sourcePackage, ApiCall]] as const)(
         })
         .catch((caught: unknown) => caught);
       expect(error).toBe(boom);
+      expect(requestHook).toHaveBeenCalledOnce();
       expect(errorHook).not.toHaveBeenCalled();
       expect(customFetch).not.toHaveBeenCalled();
     });
