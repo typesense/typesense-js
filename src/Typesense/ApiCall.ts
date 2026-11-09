@@ -907,6 +907,8 @@ export default class ApiCall implements HttpClient {
         if (existingHeaderName !== undefined) {
           delete result[existingHeaderName];
         }
+        // Like Axios, a null, undefined or false value unsets the header
+        if (headerValue == null || (headerValue as unknown) === false) return;
         result[headerName] = headerValue;
         headerNamesByLowercaseName[lowercaseHeaderName] = headerName;
       });

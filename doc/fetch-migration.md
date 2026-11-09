@@ -201,6 +201,8 @@ When the caller aborts, client methods still reject with a plain `Error("Request
 
 `dispatcher` applies in Node.js and Deno. Bun replaces the `undici` package with its own partial implementation: Bun's fetch ignores `dispatcher`, and Bun's `Agent` has no `close()` method, so guard shutdown code that calls it. Browsers and edge runtimes have no dispatcher; use a custom `fetch` there instead.
 
+Unsetting a default header with `null` or `false` in `additionalHeaders` no longer removes it entirely: fetch adds its own `Content-Type` for string bodies and `Accept: */*`.
+
 Next.js 14 caches `fetch` requests by default, and later versions can still cache requests made while rendering static routes. To always query Typesense, pass a fetch that opts out of the cache:
 
 ```javascript
