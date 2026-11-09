@@ -265,26 +265,67 @@ describe("Compiled transport over HTTP", () => {
     while (!done) ({ done } = await reader.read());
   }, 3000);
 
-  it("loads Undici only once a request needs a dispatcher", async () => {
+  async function runFresh(script: string) {
+    const { stdout } = await promisify(execFile)(process.execPath, [
+      "-e",
+      script,
+    ]);
+    return JSON.parse(stdout);
+  }
+
+  it("loads Undici only on the first import", async () => {
     const { url } = await recordingServer();
     // A fresh process, so no earlier test has loaded Undici
-    const script = `
+    const states = await runFresh(`
       const loaded = () => Object.keys(require.cache).some((file) => file.split(/[\\\\/]/).includes("undici"));
       const { Client } = require(${JSON.stringify(require.resolve("../lib/Typesense"))});
-      const client = new Client({ nodes: [{ url: ${JSON.stringify(url)} }], apiKey: "xyz" });
+      const nodes = [{ url: ${JSON.stringify(url)} }];
+      const dispatcher = { dispatch: (...args) => globalThis[Symbol.for("undici.globalDispatcher.1")].dispatch(...args) };
+      const client = new Client({ nodes, apiKey: "xyz" });
+      const withDispatcher = new Client({ nodes, apiKey: "xyz", dispatcher });
       (async () => {
         const states = [loaded()];
         await client.collections("books").retrieve();
+        await withDispatcher.collections("books").retrieve();
         states.push(loaded());
         await client.collections("books").documents().import([{ id: "1" }]);
         states.push(loaded());
         console.log(JSON.stringify(states));
       })();
-    `;
-    const { stdout } = await promisify(execFile)(process.execPath, [
-      "-e",
-      script,
-    ]);
-    expect(JSON.parse(stdout)).toEqual([false, false, true]);
+    `);
+    expect(states).toEqual([false, false, true]);
   }, 5000);
+
+  it("keeps Node's global dispatcher when the first request is an import", async () => {
+    const { url } = await recordingServer();
+    // Loaded first into an empty slot, Undici would install its own Agent
+    const states = await runFresh(`
+      const slot = Symbol.for("undici.globalDispatcher.1");
+      const states = [globalThis[slot] === undefined];
+      const { Client } = require(${JSON.stringify(require.resolve("../lib/Typesense"))});
+      const client = new Client({ nodes: [{ url: ${JSON.stringify(url)} }], apiKey: "xyz" });
+      client.collections("books").documents().import([{ id: "1" }]).then(() => {
+        const { Agent } = require("undici");
+        states.push(globalThis[slot] instanceof Agent);
+        console.log(JSON.stringify(states));
+      });
+    `);
+    expect(states).toEqual([true, false]);
+  }, 5000);
+
+  it("treats a null dispatcher as no dispatcher", async () => {
+    const { url, received } = await recordingServer();
+    const client = new Client({
+      nodes: [{ url }],
+      apiKey: "xyz",
+      numRetries: 0,
+      dispatcher: null,
+    });
+    await client.collections("books").retrieve();
+    await client
+      .collections("books")
+      .documents()
+      .import([{ id: "1" }]);
+    expect(received).toHaveLength(2);
+  });
 });

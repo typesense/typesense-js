@@ -98,18 +98,26 @@ const isNodeJSEnvironment =
 type Undici = typeof import("undici");
 let undiciModule: Promise<Undici | undefined> | undefined;
 
-// Loaded on first use, so that importing the SDK doesn't install Undici's
-// global dispatcher or fail where Undici can't load, such as Jest's jsdom
+// Imports load Undici only to find the global dispatcher, and only on the
+// first import, so that importing the SDK doesn't install Undici's global
+// dispatcher or fail where Undici can't load, such as Jest's jsdom
 // environment. Browser and edge bundles replace Undici with an empty module,
 // including runtimes that report a Node version, such as Cloudflare's
 // nodejs_compat.
 function loadUndici(): Promise<Undici | undefined> {
+  if (undiciModule === undefined) {
+    try {
+      // Loading Node's own fetch first lets it install its global dispatcher.
+      // Otherwise Undici would install its Agent, and every fetch in the
+      // process would then use that Agent instead of Node's.
+      new Headers();
+    } catch {
+      // Headers is missing or replaced, so Undici may install its Agent.
+    }
+  }
   undiciModule ??= import(/* webpackMode: "eager" */ "undici").then(
     (undici) =>
-      typeof undici.fetch === "function" &&
-      typeof undici.getGlobalDispatcher === "function"
-        ? undici
-        : undefined,
+      typeof undici.getGlobalDispatcher === "function" ? undici : undefined,
     () => undefined,
   );
   return undiciModule;
@@ -232,13 +240,11 @@ export default class FetchTransport {
     resetTimeout();
 
     try {
-      const undici =
-        isNodeJSEnvironment &&
-        (requestOptions.skipConnectionTimeout === true ||
-          this.options.dispatcher !== undefined)
-          ? await loadUndici()
-          : undefined;
-      const fetchFn = this.fetchFn(undici);
+      const dispatcher =
+        isNodeJSEnvironment && requestOptions.skipConnectionTimeout === true
+          ? await this.importDispatcher()
+          : (this.options.dispatcher ?? undefined);
+      const fetchFn = this.fetchFn();
       const url = this.urlWithQueryParameters(
         mutableRequest.url,
         mutableRequest.queryParameters,
@@ -267,24 +273,8 @@ export default class FetchTransport {
         }
       }
 
-      if (this.options.dispatcher !== undefined) {
-        init.dispatcher = this.options.dispatcher;
-      }
-      if (undici && requestOptions.skipConnectionTimeout === true) {
-        const dispatcher = (this.options.dispatcher ??
-          undici.getGlobalDispatcher()) as Dispatcher;
-        // Override at dispatch time: some native fetch versions explicitly pass
-        // their own timeouts, which would override an Agent's defaults.
-        init.dispatcher = {
-          dispatch: (
-            options: Dispatcher.DispatchOptions,
-            handler: Parameters<Dispatcher["dispatch"]>[1],
-          ) =>
-            dispatcher.dispatch(
-              { ...options, headersTimeout: 0, bodyTimeout: 0 },
-              handler,
-            ),
-        };
+      if (dispatcher !== undefined) {
+        init.dispatcher = dispatcher;
       }
 
       const rawResponse = await fetchFn(url, init);
@@ -419,16 +409,38 @@ export default class FetchTransport {
     });
   }
 
-  private fetchFn(undici: Undici | undefined): FetchFunction {
+  // Imports can outlast Undici's header and body timeouts, so they reach the
+  // configured or global dispatcher with both disabled. The global one is
+  // read when the request is dispatched, so a dispatcher that the
+  // application sets later still applies.
+  private async importDispatcher(): Promise<unknown> {
+    const configured = (this.options.dispatcher ?? undefined) as
+      | Dispatcher
+      | undefined;
+    const undici = configured === undefined ? await loadUndici() : undefined;
+    if (
+      configured === undefined &&
+      undici?.getGlobalDispatcher() === undefined
+    ) {
+      return undefined;
+    }
+    return {
+      // Override at dispatch time: some native fetch versions explicitly pass
+      // their own timeouts, which would override an Agent's defaults.
+      dispatch: (
+        options: Dispatcher.DispatchOptions,
+        handler: Parameters<Dispatcher["dispatch"]>[1],
+      ) =>
+        (configured ?? (undici as Undici).getGlobalDispatcher()).dispatch(
+          { ...options, headersTimeout: 0, bodyTimeout: 0 },
+          handler,
+        ),
+    };
+  }
+
+  private fetchFn(): FetchFunction {
     if (this.options.fetch) {
       return this.options.fetch;
-    }
-
-    if (undici) {
-      // Keep fetch and its dispatcher on the same Undici major. Node's native
-      // fetch bundles a different one per release (6 on Node 22, 7 on
-      // Node 24, 8 on Node 26), and the handler API changes between majors.
-      return undici.fetch as unknown as FetchFunction;
     }
 
     if (typeof globalThis.fetch !== "function") {

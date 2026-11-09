@@ -497,6 +497,42 @@ describe.each([
       },
     );
 
+    it("sends imports and requests with a dispatcher through the global fetch", async () => {
+      const globalFetch = vi
+        .spyOn(globalThis, "fetch")
+        .mockImplementation(async () => new Response('{"success":true}'));
+      const dispatcher = {
+        dispatch: vi.fn<(options: object, handler: object) => boolean>(
+          () => true,
+        ),
+      };
+      const client = new ClientClass({
+        nodes: [{ url: "http://localhost" }],
+        apiKey: "xyz",
+        numRetries: 0,
+        dispatcher,
+      });
+      try {
+        await client.collections("books").retrieve();
+        await client
+          .collections("books")
+          .documents()
+          .import([{ id: "1" }]);
+        expect(globalFetch).toHaveBeenCalledTimes(2);
+        const [[, retrieveInit], [, importInit]] = globalFetch.mock
+          .calls as unknown as [unknown, { dispatcher: typeof dispatcher }][];
+        expect(retrieveInit.dispatcher).toBe(dispatcher);
+        const handler = {};
+        importInit.dispatcher.dispatch({ path: "/", method: "POST" }, handler);
+        expect(dispatcher.dispatch).toHaveBeenCalledWith(
+          { path: "/", method: "POST", headersTimeout: 0, bodyTimeout: 0 },
+          handler,
+        );
+      } finally {
+        globalFetch.mockRestore();
+      }
+    });
+
     function clientWith(
       customFetch: typeof fetch,
       options: Record<string, unknown> = {},

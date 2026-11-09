@@ -20,7 +20,6 @@ describe("Documents Import Abort Signal Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Imports use Undici's fetch in Node, so pass the mock explicitly
     mockFetch = new FetchMock();
     typesense = new TypesenseClient({
       nodes: [

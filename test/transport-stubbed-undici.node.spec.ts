@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Edge bundles replace Undici with an empty module, while runtimes such as
 // Cloudflare's nodejs_compat still report a Node version
-vi.mock("undici", () => ({ fetch: undefined, getGlobalDispatcher: undefined }));
+vi.mock("undici", () => ({ getGlobalDispatcher: undefined }));
 
 const { default: Transport } = await import("../src/Typesense/Transport");
 
