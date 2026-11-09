@@ -1,5 +1,6 @@
 import ApiCall from "./ApiCall";
 import SynonymSets, { SynonymItemSchema } from "./SynonymSets";
+import type { SynonymItemUpsertSchema } from "./SynonymSetItem";
 
 export default class SynonymSetItems {
   constructor(
@@ -9,7 +10,7 @@ export default class SynonymSetItems {
 
   async upsert(
     itemId: string,
-    params: Omit<SynonymItemSchema, "id">,
+    params: SynonymItemUpsertSchema,
   ): Promise<SynonymItemSchema> {
     return this.apiCall.put<SynonymItemSchema>(
       this.endpointPath(itemId),

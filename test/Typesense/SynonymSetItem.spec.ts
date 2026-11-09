@@ -59,6 +59,23 @@ describe.skipIf(!(await isV30OrAbove(typesense)))("SynonymSetItem", function () 
     expect(retrieved.synonyms).toEqual(["beta", "b"]);
   });
 
+  it("upserts a specific item", async function () {
+    const upserted = await typesense
+      .synonymSets(testSynonymSetName)
+      .items("new-item")
+      .upsert({ synonyms: ["delta", "d"] });
+
+    expect(upserted.id).toBe("new-item");
+    expect(upserted.synonyms).toEqual(["delta", "d"]);
+
+    const retrieved = await typesense
+      .synonymSets(testSynonymSetName)
+      .items("new-item")
+      .retrieve();
+
+    expect(retrieved.synonyms).toEqual(["delta", "d"]);
+  });
+
   it("deletes a specific item", async function () {
     await typesense
       .synonymSets(testSynonymSetName)
