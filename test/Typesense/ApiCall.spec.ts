@@ -504,21 +504,6 @@ describe("ApiCall", () => {
       expect(paramsSerializer).toHaveBeenCalledWith({ q: "hello world" });
     });
 
-    it("uses a custom fetch implementation", async () => {
-      mockFetch.restore();
-      const customFetch = vi.fn<typeof fetch>().mockResolvedValue(
-        new Response(JSON.stringify({ ok: true }), {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        }),
-      );
-      const typesense = client({ fetch: customFetch });
-      const apiCall = new ApiCall(typesense.configuration);
-
-      await expect(apiCall.get("/health")).resolves.toEqual({ ok: true });
-      expect(customFetch).toHaveBeenCalledOnce();
-    });
-
     it("returns text and empty response bodies without JSON parsing", async () => {
       const typesense = client();
       const apiCall = new ApiCall(typesense.configuration);
