@@ -10,7 +10,7 @@ Requests without a body, such as searches, no longer send `Content-Type`. In bro
 
 Caller cancellation remains separate from network failures: it does not retry or mark a node unhealthy, including cancellation while reading the body. Invalid JSON is a parsing error; failed body transfers are network errors.
 
-`connectionTimeoutSeconds` remains active until the response body finishes or is cancelled. In Node.js it limits how long the request waits for headers and how long each body read waits for data, so a stream can run longer than the configured timeout, and a reader can pause between reads for as long as it likes. In browsers it is a total request timeout. A value of zero disables the SDK timer. Consume or cancel returned streams to release resources. Errors after a stream is returned reject its reader and notify `errorHooks`; the SDK cannot replay an already delivered stream.
+`connectionTimeoutSeconds` remains active until the response body finishes or is cancelled. In Node.js it limits how long the request waits for headers and how long each body read waits for data, so a stream can run longer than the configured timeout, and a reader can pause between reads for as long as it likes. In browsers it is a total request timeout. Consume or cancel returned streams to release resources. Errors after a stream is returned reject its reader and notify `errorHooks`; the SDK cannot replay an already delivered stream.
 
 A request whose body is a stream, such as `importStream()` or a stream set by a request hook, is sent once. If it fails, the SDK rejects with that error instead of retrying on the next node, because the stream has already been consumed. A failed `import()` with a string or array body is retried as before.
 
