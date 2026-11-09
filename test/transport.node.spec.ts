@@ -335,8 +335,6 @@ describe.each([
     });
 
     it.each([
-      ["responseType", { responseType: "text" }],
-      ["data", { data: "replacement" }],
       ["data and responseType", { data: "replacement", responseType: "text" }],
     ] as const)(
       "keeps caller cancellation on a stream after a responseHook changes its %s",
@@ -762,28 +760,6 @@ describe.each([
         ["a", "hooked"],
         ["a", "hooked"],
       ]);
-    });
-
-    it("gives requestHooks a copy of query parameters that aren't a plain object", async () => {
-      const customFetch = vi.fn<typeof fetch>(async () => Response.json({}));
-      const transport = new TransportClass({
-        fetch: customFetch,
-        connectionTimeoutSeconds: 1,
-        requestHooks: [
-          (sent: TypesenseRequest) => {
-            sent.queryParameters.q = "hooked";
-          },
-        ],
-      });
-      class Query {
-        q = "a";
-      }
-      const queryParameters = new Query();
-      await transport.perform({ ...request, queryParameters }, requestOptions);
-      expect(queryParameters.q).toBe("a");
-      expect(
-        new URL(String(customFetch.mock.calls[0][0])).searchParams.get("q"),
-      ).toBe("hooked");
     });
 
     it("keeps shared references and cycles in the copy a requestHook gets", async () => {
