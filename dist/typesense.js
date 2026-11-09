@@ -6472,7 +6472,8 @@ var FetchTransport = /*#__PURE__*/function () {
     key: "perform",
     value: function () {
       var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee3(request, requestOptions) {
-        var _this = this;
+        var _this$options$request,
+          _this = this;
         var mutableRequest, abortController, abortType, timeoutHandle, abortListener, streamReturned, responseBody, errorReported, reportError, cleanup, clearTimer, resetTimeout, releaseBody, classifyError, callerAbortSignal, undici, fetchFn, url, body, init, _this$options$dispatc, dispatcher, rawResponse, _response, stream, transportError, _t, _t2;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context3) {
           while (1) switch (_context3.prev = _context3.next) {
@@ -6481,6 +6482,14 @@ var FetchTransport = /*#__PURE__*/function () {
                 headers: _objectSpread({}, request.headers),
                 queryParameters: _objectSpread({}, request.queryParameters)
               });
+              if ((_this$options$request = this.options.requestHooks) !== null && _this$options$request !== void 0 && _this$options$request.length) {
+                try {
+                  mutableRequest.queryParameters = copiedPlainData(mutableRequest.queryParameters);
+                  mutableRequest.bodyParameters = copiedPlainData(request.bodyParameters);
+                } catch (_unused) {
+                  // A getter threw. Serialization below fails as it does without hooks.
+                }
+              }
               _context3.next = 1;
               return this.runRequestHooks(mutableRequest, requestOptions);
             case 1:
@@ -7240,8 +7249,46 @@ var FetchTransport = /*#__PURE__*/function () {
       };
     }
   }]);
-}(); // Streams can be sent only once, so requests with one are not retried.
+}(); // Request hooks edit these copies, not the caller's values or a later retry.
+// Non-plain values pass through: copying a Date or class instance breaks it.
 
+function copiedPlainData(value) {
+  var copies = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new WeakMap();
+  if ((0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(value) !== "object" || value === null) return value;
+  var prototype = Object.getPrototypeOf(value);
+  var isArray = Array.isArray(value);
+  var isPlain = isArray ? prototype === Array.prototype : prototype === Object.prototype || prototype === null;
+  if (!isPlain || "toJSON" in value && typeof value.toJSON === "function") {
+    return value;
+  }
+  if (copies.has(value)) return copies.get(value);
+  if (isArray) {
+    var _copy = new Array(value.length);
+    copies.set(value, _copy);
+    value.forEach(function (entry, index) {
+      _copy[index] = copiedPlainData(entry, copies);
+    });
+    return _copy;
+  }
+  var copy = Object.create(prototype);
+  copies.set(value, copy);
+  for (var _i = 0, _Object$entries = Object.entries(value); _i < _Object$entries.length; _i++) {
+    var _ref6 = _Object$entries[_i];
+    var _ref7 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_ref6, 2);
+    var key = _ref7[0];
+    var entry = _ref7[1];
+    // Assigning would turn an own "__proto__" key into a prototype change
+    Object.defineProperty(copy, key, {
+      value: copiedPlainData(entry, copies),
+      enumerable: true,
+      writable: true,
+      configurable: true
+    });
+  }
+  return copy;
+}
+
+// Streams can be sent only once, so requests with one are not retried.
 function isStreamBody(body) {
   return (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0__["default"])(body) === "object" && body !== null && (typeof ReadableStream !== "undefined" && body instanceof ReadableStream || "pipe" in body && typeof body["pipe"] === "function");
 }
