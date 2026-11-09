@@ -244,12 +244,8 @@ describe("Compiled transport over HTTP", () => {
 
   it("lets an export reader pause for longer than the timeout", async () => {
     const url = await listen((response) => {
-      response.write('{"id":"1"}\n');
-      const timers = [
-        setTimeout(() => response.write('{"id":"2"}\n'), 10),
-        setTimeout(() => response.end('{"id":"3"}\n'), 20),
-      ];
-      response.on("close", () => timers.forEach(clearTimeout));
+      // More than the Readable buffers, so it stops reading during the pause
+      response.end(`{"id":"${"1".repeat(1 << 20)}"}\n`);
     });
     const client = new Client({
       nodes: [{ url }],
