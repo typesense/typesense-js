@@ -68,9 +68,8 @@ export default class ApiCall implements HttpClient {
     private processStreamingLine;
     private processDataLine;
     private handleStreamingResponse;
-    private handleReadableStream;
-    private handleStringStreamResponse;
-    private isReadableStream;
+    private handleBrowserReadableStream;
+    private handleBrowserStringResponse;
     private processStreamLines;
     private finalizeStreamResult;
     /**
@@ -89,8 +88,6 @@ export default class ApiCall implements HttpClient {
     uriFor(endpoint: string, node: any): string;
     defaultHeaders(): any;
     private mergeHeaders;
-    private isCallerAbortError;
-    private messageFromResponseData;
     timer(seconds: any): Promise<void>;
     customErrorForResponse(response: TypesenseResponse, messageFromServer: string, httpBody?: string): TypesenseError;
     private invokeOnChunkCallback;

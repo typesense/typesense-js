@@ -20,7 +20,6 @@ export interface TypesenseResponse<T = unknown> {
     status: number;
     headers: Record<string, string>;
     data: T;
-    body: ReadableStream<Uint8Array> | null;
     request: TypesenseRequest;
     responseType?: ResponseType;
 }
@@ -59,6 +58,7 @@ export default class FetchTransport {
     constructor(options: FetchTransportOptions);
     perform<T>(request: TypesenseRequest, requestOptions: FetchTransportRequestOptions): Promise<TypesenseResponse<T>>;
     private managedBody;
+    private importDispatcher;
     private fetchFn;
     private normalizedResponse;
     private responseData;

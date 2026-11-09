@@ -950,7 +950,7 @@ var ApiCall = /*#__PURE__*/function () {
     key: "performRequest",
     value: function () {
       var _performRequest = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_4__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee6(requestType, endpoint, _ref3) {
-        var _ref3$queryParameters, queryParameters, _ref3$bodyParameters, bodyParameters, _ref3$additionalHeade, additionalHeaders, _ref3$abortSignal, abortSignal, _ref3$responseType, responseType, _ref3$skipConnectionT, skipConnectionTimeout, _ref3$streamConfig, streamConfig, isStreamingRequest, requestNumber, lastException, numTries, node, sentBody, requestHeaders, requestQueryParameters, request, transportOptions, response, error, _error$code, _error$response, _error$request, wasAborted, _t;
+        var _ref3$queryParameters, queryParameters, _ref3$bodyParameters, bodyParameters, _ref3$additionalHeade, additionalHeaders, _ref3$abortSignal, abortSignal, _ref3$responseType, responseType, _ref3$skipConnectionT, skipConnectionTimeout, _ref3$streamConfig, streamConfig, isStreamingRequest, requestNumber, lastException, numTries, node, sentBody, _response$data, requestHeaders, requestQueryParameters, request, transportOptions, response, error, _error$code, _error$response, _error$request, wasAborted, _t;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function (_context6) {
           while (1) switch (_context6.prev = _context6.next) {
             case 0:
@@ -1031,7 +1031,7 @@ var ApiCall = /*#__PURE__*/function () {
             case 5:
               return _context6.abrupt("return", Promise.resolve(response.data));
             case 6:
-              error = this.customErrorForResponse(response, this.messageFromResponseData(response.data),
+              error = this.customErrorForResponse(response, (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.message,
               // The body as the caller passed it, like v3's Axios config.data
               response.request.body === undefined ? undefined : bodyParameters);
               _context6.next = 7;
@@ -1057,7 +1057,7 @@ var ApiCall = /*#__PURE__*/function () {
                 sentBody = (_error$request = _t.request) === null || _error$request === void 0 ? void 0 : _error$request.body;
               }
               // This block handles retries for HTTPStatus > 500 and network layer issues like connection timeouts
-              wasAborted = this.isCallerAbortError(_t);
+              wasAborted = (abortSignal === null || abortSignal === void 0 ? void 0 : abortSignal.aborted) === true || _t instanceof _Errors_FetchTransportError__WEBPACK_IMPORTED_MODULE_10__["default"] && _t.type === "abort";
               if (!wasAborted) {
                 this.setNodeHealthcheck(node, UNHEALTHY);
               }
@@ -1205,17 +1205,17 @@ var ApiCall = /*#__PURE__*/function () {
                     while (1) switch (_context7.prev = _context7.next) {
                       case 0:
                         _context7.prev = 0;
-                        if (!_this.isReadableStream(response.data)) {
+                        if (!(response.data && typeof response.data.getReader === "function")) {
                           _context7.next = 1;
                           break;
                         }
-                        return _context7.abrupt("return", _this.handleReadableStream(response.data, resolve, reject, response, streamConfig));
+                        return _context7.abrupt("return", _this.handleBrowserReadableStream(response.data, resolve, reject, response, streamConfig));
                       case 1:
                         if (!(typeof response.data === "string")) {
                           _context7.next = 2;
                           break;
                         }
-                        return _context7.abrupt("return", _this.handleStringStreamResponse(response.data, resolve, response, streamConfig));
+                        return _context7.abrupt("return", _this.handleBrowserStringResponse(response.data, resolve, response, streamConfig));
                       case 2:
                         if (!((0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2__["default"])(response.data) === "object" && response.data !== null)) {
                           _context7.next = 3;
@@ -1255,19 +1255,20 @@ var ApiCall = /*#__PURE__*/function () {
       return handleStreamingResponse;
     }()
   }, {
-    key: "handleReadableStream",
+    key: "handleBrowserReadableStream",
     value: function () {
-      var _handleReadableStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_4__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee9(stream, resolve, reject, response, streamConfig) {
-        var reader, decoder, allChunks, buffer, _yield$reader$read, done, value, _lines, chunk, lines, _t3;
+      var _handleBrowserReadableStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_4__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee9(stream, resolve, reject, response, streamConfig) {
+        var decoder, allChunks, buffer, reader, _yield$reader$read, done, value, _lines, chunk, lines, _t3;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function (_context9) {
           while (1) switch (_context9.prev = _context9.next) {
             case 0:
               this.logger.debug("Found ReadableStream in response.data");
-              reader = stream.getReader(); // One decoder per stream keeps characters split across chunks intact
+              // One decoder per stream keeps characters split across chunks intact
               decoder = new TextDecoder();
               allChunks = [];
               buffer = "";
               _context9.prev = 1;
+              reader = stream.getReader();
             case 2:
               if (false) // removed by dead control flow
 {}
@@ -1315,14 +1316,14 @@ var ApiCall = /*#__PURE__*/function () {
           }
         }, _callee9, this, [[1, 6]]);
       }));
-      function handleReadableStream(_x11, _x12, _x13, _x14, _x15) {
-        return _handleReadableStream.apply(this, arguments);
+      function handleBrowserReadableStream(_x11, _x12, _x13, _x14, _x15) {
+        return _handleBrowserReadableStream.apply(this, arguments);
       }
-      return handleReadableStream;
+      return handleBrowserReadableStream;
     }()
   }, {
-    key: "handleStringStreamResponse",
-    value: function handleStringStreamResponse(data, resolve, response, streamConfig) {
+    key: "handleBrowserStringResponse",
+    value: function handleBrowserStringResponse(data, resolve, response, streamConfig) {
       this.logger.debug("Processing text response as stream data");
       var allChunks = [];
       var lines = data.split("\n");
@@ -1337,11 +1338,6 @@ var ApiCall = /*#__PURE__*/function () {
         this.invokeOnCompleteCallback(response.data, streamConfig);
         resolve(response.data);
       }
-    }
-  }, {
-    key: "isReadableStream",
-    value: function isReadableStream(data) {
-      return (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2__["default"])(data) === "object" && data !== null && "getReader" in data && typeof data.getReader === "function";
     }
   }, {
     key: "processStreamLines",
@@ -1538,21 +1534,13 @@ var ApiCall = /*#__PURE__*/function () {
           if (existingHeaderName !== undefined) {
             delete result[existingHeaderName];
           }
+          // Like Axios, a null, undefined or false value unsets the header
+          if (headerValue == null || headerValue === false) return;
           result[headerName] = headerValue;
           headerNamesByLowercaseName[lowercaseHeaderName] = headerName;
         });
       });
       return result;
-    }
-  }, {
-    key: "isCallerAbortError",
-    value: function isCallerAbortError(error) {
-      return error instanceof _Errors_FetchTransportError__WEBPACK_IMPORTED_MODULE_10__["default"] && error.type === "abort";
-    }
-  }, {
-    key: "messageFromResponseData",
-    value: function messageFromResponseData(data) {
-      return (0,_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2__["default"])(data) === "object" && data !== null && "message" in data && typeof data.message === "string" ? data.message : "";
     }
   }, {
     key: "timer",
@@ -2179,11 +2167,7 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
  */
 var Configuration = /*#__PURE__*/function () {
   function Configuration(options) {
-    var _this = this,
-      _ref,
-      _options$connectionTi,
-      _options$healthcheckI,
-      _options$retryInterva;
+    var _this = this;
     (0,_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_1__["default"])(this, Configuration);
     this.nodes = options.nodes || [];
     this.nodes = this.nodes.map(function (node) {
@@ -2203,10 +2187,10 @@ var Configuration = /*#__PURE__*/function () {
     this.nearestNode = options.nearestNode == null ? options.nearestNode : _objectSpread({}, options.nearestNode);
     this.nearestNode = this.setDefaultPathInNode(this.nearestNode);
     this.nearestNode = this.setDefaultPortInNode(this.nearestNode);
-    this.connectionTimeoutSeconds = (_ref = (_options$connectionTi = options.connectionTimeoutSeconds) !== null && _options$connectionTi !== void 0 ? _options$connectionTi : options.timeoutSeconds) !== null && _ref !== void 0 ? _ref : 5;
-    this.healthcheckIntervalSeconds = (_options$healthcheckI = options.healthcheckIntervalSeconds) !== null && _options$healthcheckI !== void 0 ? _options$healthcheckI : 60;
+    this.connectionTimeoutSeconds = options.connectionTimeoutSeconds || options.timeoutSeconds || 5;
+    this.healthcheckIntervalSeconds = options.healthcheckIntervalSeconds || 60;
     this.numRetries = options.numRetries !== undefined && options.numRetries >= 0 ? options.numRetries : this.nodes.length + (this.nearestNode == null ? 0 : 1) || 3;
-    this.retryIntervalSeconds = (_options$retryInterva = options.retryIntervalSeconds) !== null && _options$retryInterva !== void 0 ? _options$retryInterva : 0.1;
+    this.retryIntervalSeconds = options.retryIntervalSeconds || 0.1;
     this.apiKey = options.apiKey;
     this.sendApiKeyAsQueryParam = options.sendApiKeyAsQueryParam; // We will set a default for this in Client and SearchClient
 
@@ -2280,6 +2264,7 @@ var Configuration = /*#__PURE__*/function () {
   }, {
     key: "showDeprecationWarnings",
     value: function showDeprecationWarnings(options) {
+      var _this3 = this;
       if (options.timeoutSeconds) {
         this.logger.warn("Deprecation warning: timeoutSeconds is now renamed to connectionTimeoutSeconds");
       }
@@ -2289,15 +2274,20 @@ var Configuration = /*#__PURE__*/function () {
       if (options.readReplicaNodes) {
         this.logger.warn("Deprecation warning: readReplicaNodes is now consolidated to nodes, starting with Typesense Server v0.12");
       }
+      ["httpAgent", "httpsAgent", "axiosAdapter"].forEach(function (option) {
+        if (options[option] != null) {
+          _this3.logger.warn("".concat(option, " is no longer supported and is ignored. See the fetch migration guide."));
+        }
+      });
     }
   }, {
     key: "shuffleArray",
     value: function shuffleArray(array) {
       for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
-        var _ref2 = [array[j], array[i]];
-        array[i] = _ref2[0];
-        array[j] = _ref2[1];
+        var _ref = [array[j], array[i]];
+        array[i] = _ref[0];
+        array[j] = _ref[1];
       }
     }
   }]);
@@ -3567,24 +3557,32 @@ var Documents = /*#__PURE__*/function (_SearchOnlyDocuments) {
       return _export;
     }()
     /**
-     * Returns a Web ReadableStream of JSONL bytes for all documents in this collection.
-     * In Node.js, use Readable.fromWeb(stream) for .pipe(), .on(), and .destroy().
+     * Returns a NodeJS readable stream of JSONL for all the documents in this collection.
      */
     )
   }, {
     key: "exportStream",
     value: (function () {
       var _exportStream = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().mark(function _callee0() {
+        var _process$versions, _process$getBuiltinMo, _process;
         var options,
+          stream,
+          nodeStream,
           _args0 = arguments;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_7___default().wrap(function (_context0) {
           while (1) switch (_context0.prev = _context0.next) {
             case 0:
               options = _args0.length > 0 && _args0[0] !== undefined ? _args0[0] : {};
-              return _context0.abrupt("return", this.apiCall.get(this.endpointPath("export"), options, {
+              _context0.next = 1;
+              return this.apiCall.get(this.endpointPath("export"), options, {
                 responseType: "stream"
-              }));
+              });
             case 1:
+              stream = _context0.sent;
+              // Node callers pipe the result, as with v3's Axios stream
+              nodeStream = typeof process === "undefined" || !((_process$versions = process.versions) !== null && _process$versions !== void 0 && _process$versions.node) ? undefined : (_process$getBuiltinMo = (_process = process).getBuiltinModule) === null || _process$getBuiltinMo === void 0 ? void 0 : _process$getBuiltinMo.call(_process, "node:stream");
+              return _context0.abrupt("return", stream && nodeStream ? nodeStream.Readable.fromWeb(stream) : stream);
+            case 2:
             case "end":
               return _context0.stop();
           }
@@ -4292,13 +4290,10 @@ var Keys = /*#__PURE__*/function () {
       // accepted by the server, when used with the search endpoint.
       var normalizedParams = (0,_Utils__WEBPACK_IMPORTED_MODULE_5__.normalizeArrayableParams)(parameters);
       var paramsJSON = JSON.stringify(normalizedParams);
-      var digest = (0,crypto__WEBPACK_IMPORTED_MODULE_4__.createHmac)("sha256", searchKey).update(paramsJSON).digest("base64");
+      var digest = Buffer.from((0,crypto__WEBPACK_IMPORTED_MODULE_4__.createHmac)("sha256", searchKey).update(paramsJSON).digest("base64"));
       var keyPrefix = searchKey.substr(0, 4);
       var rawScopedKey = "".concat(digest).concat(keyPrefix).concat(paramsJSON);
-
-      // Read Buffer off globalThis: browser bundlers such as Parcel polyfill the
-      // bare `Buffer` global, and this method needs Node's crypto anyway
-      return globalThis.Buffer.from(rawScopedKey).toString("base64");
+      return Buffer.from(rawScopedKey).toString("base64");
     }
   }], [{
     key: "RESOURCEPATH",
@@ -6450,14 +6445,25 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 var isNodeJSEnvironment = typeof process !== "undefined" && process.versions != null && process.versions.node != null && typeof window === "undefined";
 var undiciModule;
 
-// Loaded on first use, so that importing the SDK doesn't install Undici's
-// global dispatcher or fail where Undici can't load, such as Jest's jsdom
+// Imports load Undici only to find the global dispatcher, and only on the
+// first import, so that importing the SDK doesn't install Undici's global
+// dispatcher or fail where Undici can't load, such as Jest's jsdom
 // environment. Browser and edge bundles replace Undici with an empty module,
 // including runtimes that report a Node version, such as Cloudflare's
 // nodejs_compat.
 function loadUndici() {
+  if (undiciModule === undefined) {
+    try {
+      // Loading Node's own fetch first lets it install its global dispatcher.
+      // Otherwise Undici would install its Agent, and every fetch in the
+      // process would then use that Agent instead of Node's.
+      new Headers();
+    } catch (_unused) {
+      // Headers is missing or replaced, so Undici may install its Agent.
+    }
+  }
   undiciModule !== null && undiciModule !== void 0 ? undiciModule : undiciModule = Promise.resolve(/*! import() eager */).then(__webpack_require__.t.bind(__webpack_require__, /*! undici */ "?f29a", 23)).then(function (undici) {
-    return typeof undici.fetch === "function" && typeof undici.getGlobalDispatcher === "function" ? undici : undefined;
+    return typeof undici.getGlobalDispatcher === "function" ? undici : undefined;
   }, function () {
     return undefined;
   });
@@ -6474,7 +6480,7 @@ var FetchTransport = /*#__PURE__*/function () {
       var _perform = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee3(request, requestOptions) {
         var _this$options$request,
           _this = this;
-        var mutableRequest, abortController, abortType, timeoutHandle, abortListener, streamReturned, responseBody, errorReported, reportError, cleanup, clearTimer, resetTimeout, releaseBody, classifyError, callerAbortSignal, undici, fetchFn, url, body, init, _this$options$dispatc, dispatcher, rawResponse, _response, stream, transportError, _t, _t2;
+        var mutableRequest, url, body, abortController, abortType, timeoutHandle, abortListener, streamReturned, responseBody, errorReported, reportError, clearTimer, cleanup, resetTimeout, releaseBody, classifyError, callerAbortSignal, _this$options$dispatc, dispatcher, fetchFn, init, rawResponse, _response, stream, transportError, _t, _t2;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
@@ -6486,13 +6492,27 @@ var FetchTransport = /*#__PURE__*/function () {
                 try {
                   mutableRequest.queryParameters = copiedPlainData(mutableRequest.queryParameters);
                   mutableRequest.bodyParameters = copiedPlainData(request.bodyParameters);
-                } catch (_unused) {
+                } catch (_unused2) {
                   // A getter threw. Serialization below fails as it does without hooks.
                 }
               }
               _context3.next = 1;
               return this.runRequestHooks(mutableRequest, requestOptions);
             case 1:
+              // A serialization error reaches the caller as thrown, as with Axios
+              url = this.urlWithQueryParameters(mutableRequest.url, mutableRequest.queryParameters);
+              body = this.serializedBody(mutableRequest);
+              mutableRequest.url = url;
+              mutableRequest.body = body;
+              if (body === undefined) {
+                // A bodyless GET with Content-Type is not a CORS simple request, so
+                // browsers would send a preflight before every search.
+                Object.keys(mutableRequest.headers).filter(function (name) {
+                  return name.toLowerCase() === "content-type";
+                }).forEach(function (name) {
+                  return delete mutableRequest.headers[name];
+                });
+              }
               abortController = new AbortController();
               streamReturned = false;
               responseBody = null;
@@ -6521,17 +6541,15 @@ var FetchTransport = /*#__PURE__*/function () {
                   return _ref.apply(this, arguments);
                 };
               }();
-              cleanup = function cleanup() {
-                if (timeoutHandle !== undefined) {
-                  clearTimeout(timeoutHandle);
-                }
-                if (callerAbortSignal && abortListener) {
-                  callerAbortSignal.removeEventListener("abort", abortListener);
-                }
-              };
               clearTimer = function clearTimer() {
                 if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
                 timeoutHandle = undefined;
+              };
+              cleanup = function cleanup() {
+                clearTimer();
+                if (callerAbortSignal && abortListener) {
+                  callerAbortSignal.removeEventListener("abort", abortListener);
+                }
               };
               resetTimeout = function resetTimeout() {
                 clearTimer();
@@ -6587,7 +6605,8 @@ var FetchTransport = /*#__PURE__*/function () {
                   });
                 }
                 if (abortType === "timeout") {
-                  return new _Errors_FetchTransportError__WEBPACK_IMPORTED_MODULE_7__["default"]("timeout", "Request timed out after ".concat(_this.options.connectionTimeoutSeconds, " seconds."), {
+                  return new _Errors_FetchTransportError__WEBPACK_IMPORTED_MODULE_7__["default"]("timeout", "timeout of ".concat(_this.options.connectionTimeoutSeconds * 1000, "ms exceeded"), {
+                    code: "ECONNABORTED",
                     request: mutableRequest,
                     originalError: error
                   });
@@ -6617,34 +6636,21 @@ var FetchTransport = /*#__PURE__*/function () {
               }
               resetTimeout();
               _context3.prev = 3;
-              if (!(isNodeJSEnvironment && (requestOptions.skipConnectionTimeout === true || this.options.dispatcher !== undefined))) {
+              if (!(isNodeJSEnvironment && requestOptions.skipConnectionTimeout === true)) {
                 _context3.next = 5;
                 break;
               }
               _context3.next = 4;
-              return loadUndici();
+              return this.importDispatcher();
             case 4:
               _t = _context3.sent;
               _context3.next = 6;
               break;
             case 5:
-              _t = undefined;
+              _t = (_this$options$dispatc = this.options.dispatcher) !== null && _this$options$dispatc !== void 0 ? _this$options$dispatc : undefined;
             case 6:
-              undici = _t;
-              fetchFn = this.fetchFn(undici);
-              url = this.urlWithQueryParameters(mutableRequest.url, mutableRequest.queryParameters);
-              body = this.serializedBody(mutableRequest);
-              mutableRequest.url = url;
-              mutableRequest.body = body;
-              if (body === undefined) {
-                // A bodyless GET with Content-Type is not a CORS simple request, so
-                // browsers would send a preflight before every search.
-                Object.keys(mutableRequest.headers).filter(function (name) {
-                  return name.toLowerCase() === "content-type";
-                }).forEach(function (name) {
-                  return delete mutableRequest.headers[name];
-                });
-              }
+              dispatcher = _t;
+              fetchFn = this.fetchFn();
               init = {
                 method: mutableRequest.method.toUpperCase(),
                 headers: mutableRequest.headers,
@@ -6656,26 +6662,13 @@ var FetchTransport = /*#__PURE__*/function () {
                   init.duplex = "half";
                 }
               }
-              if (this.options.dispatcher !== undefined) {
-                init.dispatcher = this.options.dispatcher;
-              }
-              if (undici && requestOptions.skipConnectionTimeout === true) {
-                dispatcher = (_this$options$dispatc = this.options.dispatcher) !== null && _this$options$dispatc !== void 0 ? _this$options$dispatc : undici.getGlobalDispatcher(); // Override at dispatch time: some native fetch versions explicitly pass
-                // their own timeouts, which would override an Agent's defaults.
-                init.dispatcher = {
-                  dispatch: function dispatch(options, handler) {
-                    return dispatcher.dispatch(_objectSpread(_objectSpread({}, options), {}, {
-                      headersTimeout: 0,
-                      bodyTimeout: 0
-                    }), handler);
-                  }
-                };
+              if (dispatcher !== undefined) {
+                init.dispatcher = dispatcher;
               }
               _context3.next = 7;
               return fetchFn(url, init);
             case 7:
               rawResponse = _context3.sent;
-              if (isNodeJSEnvironment) resetTimeout();
               responseBody = rawResponse.body ? this.managedBody(rawResponse.body, {
                 signal: abortController.signal,
                 cleanup: cleanup,
@@ -6869,17 +6862,67 @@ var FetchTransport = /*#__PURE__*/function () {
         }
       });
     }
+
+    // Imports can outlast Undici's header and body timeouts, so they reach the
+    // configured or global dispatcher with both disabled. The global one is
+    // read when the request is dispatched, so a dispatcher that the
+    // application sets later still applies.
+  }, {
+    key: "importDispatcher",
+    value: function () {
+      var _importDispatcher = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee7() {
+        var _this$options$dispatc2;
+        var configured, undici, _t4;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
+            case 0:
+              configured = (_this$options$dispatc2 = this.options.dispatcher) !== null && _this$options$dispatc2 !== void 0 ? _this$options$dispatc2 : undefined;
+              if (!(configured === undefined)) {
+                _context7.next = 2;
+                break;
+              }
+              _context7.next = 1;
+              return loadUndici();
+            case 1:
+              _t4 = _context7.sent;
+              _context7.next = 3;
+              break;
+            case 2:
+              _t4 = undefined;
+            case 3:
+              undici = _t4;
+              if (!(configured === undefined && (undici === null || undici === void 0 ? void 0 : undici.getGlobalDispatcher()) === undefined)) {
+                _context7.next = 4;
+                break;
+              }
+              return _context7.abrupt("return", undefined);
+            case 4:
+              return _context7.abrupt("return", {
+                // Override at dispatch time: some native fetch versions explicitly pass
+                // their own timeouts, which would override an Agent's defaults.
+                dispatch: function dispatch(options, handler) {
+                  return (configured !== null && configured !== void 0 ? configured : undici.getGlobalDispatcher()).dispatch(_objectSpread(_objectSpread({}, options), {}, {
+                    headersTimeout: 0,
+                    bodyTimeout: 0
+                  }), handler);
+                }
+              });
+            case 5:
+            case "end":
+              return _context7.stop();
+          }
+        }, _callee7, this);
+      }));
+      function importDispatcher() {
+        return _importDispatcher.apply(this, arguments);
+      }
+      return importDispatcher;
+    }()
   }, {
     key: "fetchFn",
-    value: function fetchFn(undici) {
+    value: function fetchFn() {
       if (this.options.fetch) {
         return this.options.fetch;
-      }
-      if (undici) {
-        // Keep fetch and its dispatcher on the same Undici major. Node's native
-        // fetch bundles a different one per release (6 on Node 22, 7 on
-        // Node 24, 8 on Node 26), and the handler API changes between majors.
-        return undici.fetch;
       }
       if (typeof globalThis.fetch !== "function") {
         throw new _Errors_FetchTransportError__WEBPACK_IMPORTED_MODULE_7__["default"]("network", "No fetch implementation is available. Pass a custom fetch implementation in ConfigurationOptions.fetch.");
@@ -6889,10 +6932,10 @@ var FetchTransport = /*#__PURE__*/function () {
   }, {
     key: "normalizedResponse",
     value: function () {
-      var _normalizedResponse = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee7(response, request, body) {
-        var headers, requestedType, responseType, data, _t4;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context7) {
-          while (1) switch (_context7.prev = _context7.next) {
+      var _normalizedResponse = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee8(response, request, body) {
+        var headers, requestedType, responseType, data, _t5;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context8) {
+          while (1) switch (_context8.prev = _context8.next) {
             case 0:
               headers = this.headersToObject(response.headers);
               requestedType = request.isStreamingRequest ? "stream" : request.responseType; // Error responses must be consumed before retrying or throwing an HTTP
@@ -6900,34 +6943,33 @@ var FetchTransport = /*#__PURE__*/function () {
               // Native's, give streaming conversations the full text instead.
               responseType = requestedType === "stream" && (!response.ok || body === null && request.isStreamingRequest) ? "text" : requestedType;
               if (!(responseType === "stream")) {
-                _context7.next = 1;
+                _context8.next = 1;
                 break;
               }
-              _t4 = body;
-              _context7.next = 3;
+              _t5 = body;
+              _context8.next = 3;
               break;
             case 1:
-              _context7.next = 2;
+              _context8.next = 2;
               return this.responseData(body === null ? response : new Response(body, {
                 headers: response.headers
               }), responseType, request);
             case 2:
-              _t4 = _context7.sent;
+              _t5 = _context8.sent;
             case 3:
-              data = _t4;
-              return _context7.abrupt("return", {
+              data = _t5;
+              return _context8.abrupt("return", {
                 status: response.status,
                 headers: headers,
                 data: data,
-                body: body,
                 request: request,
                 responseType: responseType
               });
             case 4:
             case "end":
-              return _context7.stop();
+              return _context8.stop();
           }
-        }, _callee7, this);
+        }, _callee8, this);
       }));
       function normalizedResponse(_x6, _x7, _x8) {
         return _normalizedResponse.apply(this, arguments);
@@ -6937,54 +6979,54 @@ var FetchTransport = /*#__PURE__*/function () {
   }, {
     key: "responseData",
     value: function () {
-      var _responseData = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee8(response, responseType, request) {
-        var contentType, text, _t5;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context8) {
-          while (1) switch (_context8.prev = _context8.next) {
+      var _responseData = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee9(response, responseType, request) {
+        var contentType, text, _t6;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context9) {
+          while (1) switch (_context9.prev = _context9.next) {
             case 0:
               if (!(responseType === "arraybuffer")) {
-                _context8.next = 1;
+                _context9.next = 1;
                 break;
               }
-              return _context8.abrupt("return", response.arrayBuffer());
+              return _context9.abrupt("return", response.arrayBuffer());
             case 1:
               if (!(responseType === "blob")) {
-                _context8.next = 2;
+                _context9.next = 2;
                 break;
               }
-              return _context8.abrupt("return", response.blob());
+              return _context9.abrupt("return", response.blob());
             case 2:
               contentType = response.headers.get("content-type") || "";
-              _context8.next = 3;
+              _context9.next = 3;
               return response.text();
             case 3:
-              text = _context8.sent;
+              text = _context9.sent;
               if (!(text === "")) {
-                _context8.next = 4;
+                _context9.next = 4;
                 break;
               }
-              return _context8.abrupt("return", "");
+              return _context9.abrupt("return", "");
             case 4:
-              if (!(responseType === "json" || contentType.toLowerCase().startsWith("application/json"))) {
-                _context8.next = 7;
+              if (!contentType.toLowerCase().startsWith("application/json")) {
+                _context9.next = 7;
                 break;
               }
-              _context8.prev = 5;
-              return _context8.abrupt("return", JSON.parse(text));
+              _context9.prev = 5;
+              return _context9.abrupt("return", JSON.parse(text));
             case 6:
-              _context8.prev = 6;
-              _t5 = _context8["catch"](5);
+              _context9.prev = 6;
+              _t6 = _context9["catch"](5);
               throw new _Errors_FetchTransportError__WEBPACK_IMPORTED_MODULE_7__["default"]("parse", "Failed to parse response body.", {
                 request: request,
-                originalError: _t5
+                originalError: _t6
               });
             case 7:
-              return _context8.abrupt("return", text);
+              return _context9.abrupt("return", text);
             case 8:
             case "end":
-              return _context8.stop();
+              return _context9.stop();
           }
-        }, _callee8, null, [[5, 6]]);
+        }, _callee9, null, [[5, 6]]);
       }));
       function responseData(_x9, _x0, _x1) {
         return _responseData.apply(this, arguments);
@@ -7077,86 +7119,31 @@ var FetchTransport = /*#__PURE__*/function () {
   }, {
     key: "runRequestHooks",
     value: function () {
-      var _runRequestHooks = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee9(request, requestOptions) {
-        var _iterator, _step, hook, _t6, _t7;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context9) {
-          while (1) switch (_context9.prev = _context9.next) {
-            case 0:
-              _iterator = _createForOfIteratorHelper(this.options.requestHooks || []);
-              _context9.prev = 1;
-              _iterator.s();
-            case 2:
-              if ((_step = _iterator.n()).done) {
-                _context9.next = 7;
-                break;
-              }
-              hook = _step.value;
-              _context9.prev = 3;
-              _context9.next = 4;
-              return hook(request, this.hookContext(requestOptions));
-            case 4:
-              _context9.next = 6;
-              break;
-            case 5:
-              _context9.prev = 5;
-              _t6 = _context9["catch"](3);
-              throw hookError(_t6, {
-                request: request
-              });
-            case 6:
-              _context9.next = 2;
-              break;
-            case 7:
-              _context9.next = 9;
-              break;
-            case 8:
-              _context9.prev = 8;
-              _t7 = _context9["catch"](1);
-              _iterator.e(_t7);
-            case 9:
-              _context9.prev = 9;
-              _iterator.f();
-              return _context9.finish(9);
-            case 10:
-            case "end":
-              return _context9.stop();
-          }
-        }, _callee9, this, [[1, 8, 9, 10], [3, 5]]);
-      }));
-      function runRequestHooks(_x10, _x11) {
-        return _runRequestHooks.apply(this, arguments);
-      }
-      return runRequestHooks;
-    }()
-  }, {
-    key: "runResponseHooks",
-    value: function () {
-      var _runResponseHooks = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee0(response, requestOptions) {
-        var _iterator2, _step2, hook, _t8, _t9;
+      var _runRequestHooks = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee0(request, requestOptions) {
+        var _iterator, _step, hook, _t7, _t8;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context0) {
           while (1) switch (_context0.prev = _context0.next) {
             case 0:
-              _iterator2 = _createForOfIteratorHelper(this.options.responseHooks || []);
+              _iterator = _createForOfIteratorHelper(this.options.requestHooks || []);
               _context0.prev = 1;
-              _iterator2.s();
+              _iterator.s();
             case 2:
-              if ((_step2 = _iterator2.n()).done) {
+              if ((_step = _iterator.n()).done) {
                 _context0.next = 7;
                 break;
               }
-              hook = _step2.value;
+              hook = _step.value;
               _context0.prev = 3;
               _context0.next = 4;
-              return hook(response, this.hookContext(requestOptions));
+              return hook(request, this.hookContext(requestOptions));
             case 4:
               _context0.next = 6;
               break;
             case 5:
               _context0.prev = 5;
-              _t8 = _context0["catch"](3);
-              throw hookError(_t8, {
-                request: response.request,
-                response: response
+              _t7 = _context0["catch"](3);
+              throw hookError(_t7, {
+                request: request
               });
             case 6:
               _context0.next = 2;
@@ -7166,17 +7153,72 @@ var FetchTransport = /*#__PURE__*/function () {
               break;
             case 8:
               _context0.prev = 8;
-              _t9 = _context0["catch"](1);
-              _iterator2.e(_t9);
+              _t8 = _context0["catch"](1);
+              _iterator.e(_t8);
             case 9:
               _context0.prev = 9;
-              _iterator2.f();
+              _iterator.f();
               return _context0.finish(9);
             case 10:
             case "end":
               return _context0.stop();
           }
         }, _callee0, this, [[1, 8, 9, 10], [3, 5]]);
+      }));
+      function runRequestHooks(_x10, _x11) {
+        return _runRequestHooks.apply(this, arguments);
+      }
+      return runRequestHooks;
+    }()
+  }, {
+    key: "runResponseHooks",
+    value: function () {
+      var _runResponseHooks = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee1(response, requestOptions) {
+        var _iterator2, _step2, hook, _t9, _t0;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context1) {
+          while (1) switch (_context1.prev = _context1.next) {
+            case 0:
+              _iterator2 = _createForOfIteratorHelper(this.options.responseHooks || []);
+              _context1.prev = 1;
+              _iterator2.s();
+            case 2:
+              if ((_step2 = _iterator2.n()).done) {
+                _context1.next = 7;
+                break;
+              }
+              hook = _step2.value;
+              _context1.prev = 3;
+              _context1.next = 4;
+              return hook(response, this.hookContext(requestOptions));
+            case 4:
+              _context1.next = 6;
+              break;
+            case 5:
+              _context1.prev = 5;
+              _t9 = _context1["catch"](3);
+              throw hookError(_t9, {
+                request: response.request,
+                response: response
+              });
+            case 6:
+              _context1.next = 2;
+              break;
+            case 7:
+              _context1.next = 9;
+              break;
+            case 8:
+              _context1.prev = 8;
+              _t0 = _context1["catch"](1);
+              _iterator2.e(_t0);
+            case 9:
+              _context1.prev = 9;
+              _iterator2.f();
+              return _context1.finish(9);
+            case 10:
+            case "end":
+              return _context1.stop();
+          }
+        }, _callee1, this, [[1, 8, 9, 10], [3, 5]]);
       }));
       function runResponseHooks(_x12, _x13) {
         return _runResponseHooks.apply(this, arguments);
@@ -7187,52 +7229,52 @@ var FetchTransport = /*#__PURE__*/function () {
   }, {
     key: "notifyError",
     value: function () {
-      var _notifyError = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee1(error, errorType, requestOptions, response) {
-        var _iterator3, _step3, hook, _this$options$logger, _t0, _t1;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context1) {
-          while (1) switch (_context1.prev = _context1.next) {
+      var _notifyError = (0,_babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_3__["default"])(/*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().mark(function _callee10(error, errorType, requestOptions, response) {
+        var _iterator3, _step3, hook, _this$options$logger, _t1, _t10;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_6___default().wrap(function (_context10) {
+          while (1) switch (_context10.prev = _context10.next) {
             case 0:
               _iterator3 = _createForOfIteratorHelper(this.options.errorHooks || []);
-              _context1.prev = 1;
+              _context10.prev = 1;
               _iterator3.s();
             case 2:
               if ((_step3 = _iterator3.n()).done) {
-                _context1.next = 7;
+                _context10.next = 7;
                 break;
               }
               hook = _step3.value;
-              _context1.prev = 3;
-              _context1.next = 4;
+              _context10.prev = 3;
+              _context10.next = 4;
               return hook(error, _objectSpread(_objectSpread({}, this.hookContext(requestOptions)), {}, {
                 errorType: errorType,
                 response: response
               }));
             case 4:
-              _context1.next = 6;
+              _context10.next = 6;
               break;
             case 5:
-              _context1.prev = 5;
-              _t0 = _context1["catch"](3);
-              (_this$options$logger = this.options.logger) === null || _this$options$logger === void 0 || _this$options$logger.warn("Request #".concat(requestOptions.requestNumber, ": An error hook failed: ").concat(errorMessage(_t0)));
+              _context10.prev = 5;
+              _t1 = _context10["catch"](3);
+              (_this$options$logger = this.options.logger) === null || _this$options$logger === void 0 || _this$options$logger.warn("Request #".concat(requestOptions.requestNumber, ": An error hook failed: ").concat(errorMessage(_t1)));
             case 6:
-              _context1.next = 2;
+              _context10.next = 2;
               break;
             case 7:
-              _context1.next = 9;
+              _context10.next = 9;
               break;
             case 8:
-              _context1.prev = 8;
-              _t1 = _context1["catch"](1);
-              _iterator3.e(_t1);
+              _context10.prev = 8;
+              _t10 = _context10["catch"](1);
+              _iterator3.e(_t10);
             case 9:
-              _context1.prev = 9;
+              _context10.prev = 9;
               _iterator3.f();
-              return _context1.finish(9);
+              return _context10.finish(9);
             case 10:
             case "end":
-              return _context1.stop();
+              return _context10.stop();
           }
-        }, _callee1, this, [[1, 8, 9, 10], [3, 5]]);
+        }, _callee10, this, [[1, 8, 9, 10], [3, 5]]);
       }));
       function notifyError(_x14, _x15, _x16, _x17) {
         return _notifyError.apply(this, arguments);
