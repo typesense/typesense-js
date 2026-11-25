@@ -67,9 +67,7 @@ export interface SearchResponseHit<T extends DocumentSchema> {
         score: `${number}`;
         tokens_matched: number;
     };
-    geo_distance_meters?: {
-        location: number;
-    };
+    geo_distance_meters?: Record<string, number>;
 }
 export interface SearchResponseFacetCountSchema<T extends DocumentSchema> {
     counts: {
