@@ -78,7 +78,7 @@
     "webpack": "^5.106.2",
     "webpack-cli": "^6.0.1"
   },
-  "packageManager": "pnpm@11.1.1",
+  "packageManager": "pnpm@11.28.13",
   "scripts": {
     "format": "prettier --write \"(src|test|doc)/**/*.(ts|json|js)\"",
     "prepublishOnly": "pnpm build",
